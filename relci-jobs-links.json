@@ -1,0 +1,802 @@
+[
+  {
+    "text": "Product",
+    "href": "https://relative-ci.com/?utm_source=app&utm_medium=header#product"
+  },
+  {
+    "text": "Why",
+    "href": "https://relative-ci.com/why-web-application-bundle-size-matters?utm_source=app&utm_medium=header"
+  },
+  {
+    "text": "Documentation",
+    "href": "https://relative-ci.com/documentation?utm_source=app&utm_medium=header"
+  },
+  {
+    "text": "Log in",
+    "href": "https://app.relative-ci.com/login"
+  },
+  {
+    "text": "Sign up",
+    "href": "https://app.relative-ci.com/signup"
+  },
+  {
+    "text": "Documentation",
+    "href": "https://relative-ci.com/documentation/?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "Setup",
+    "href": "https://relative-ci.com/documentation?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "Configuration",
+    "href": "https://relative-ci.com/documentation/setup/configure?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "Guides",
+    "href": "https://relative-ci.com/documentation/guides?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "Data and metrics",
+    "href": "https://relative-ci.com/documentation/metrics-and-data?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "Examples",
+    "href": "https://relative-ci.com/documentation/examples?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "FAQ",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "General",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help#general"
+  },
+  {
+    "text": "Security",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help#security"
+  },
+  {
+    "text": "Agent",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help#agent"
+  },
+  {
+    "text": "Usage",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help#usage"
+  },
+  {
+    "text": "Pricing",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help#pricing"
+  },
+  {
+    "text": "Get in touch",
+    "href": "https://relative-ci.com/contact/?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "GitHub",
+    "href": "https://github.com/relative-ci/roadmap/issues"
+  },
+  {
+    "text": "Twitter",
+    "href": "https://twitter.com/messages/compose?recipient_id=1048327318169640967"
+  },
+  {
+    "text": "Email",
+    "href": "mailto:support@relative-ci.com"
+  },
+  {
+    "text": "Status",
+    "href": "https://relativeci.statuspage.io/"
+  },
+  {
+    "text": "Mar 6, 2026Vite, Rollup, and Rolldown agent plugin",
+    "href": "https://relative-ci.com/releases/2025-september--dynamic-baseline-branch?utm_source=app"
+  },
+  {
+    "text": "Oct 13, 2025Dynamic baseline branch",
+    "href": "https://relative-ci.com/releases/2025-september--dynamic-baseline-branch?utm_source=app"
+  },
+  {
+    "text": "May 21, 2025Agent V5",
+    "href": "https://relative-ci.com/releases/2025-05-agent-v5?utm_source=app"
+  },
+  {
+    "text": "Jan 31, 2025Asset originating chunk filter",
+    "href": "https://relative-ci.com/releases/2025-01-asset-originating-chunk-filter?utm_source=app"
+  },
+  {
+    "text": "Nov 4, 2024Asset type changes between builds",
+    "href": "https://relative-ci.com/releases/2024-10-metrics-table-exports/?utm_source=app#asset-type-changes-between-builds"
+  },
+  {
+    "text": "View all release notes",
+    "href": "https://relative-ci.com/releases?utm_source=app"
+  },
+  {
+    "text": "bundle-stats",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G"
+  },
+  {
+    "text": "Overview",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G"
+  },
+  {
+    "text": "Jobs",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs"
+  },
+  {
+    "text": "Insights",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/insights"
+  },
+  {
+    "text": "13272\nbuild(deps): bump lodash from 4.17.23 to 4.18.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/lodash-4.18.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Flodash-4.18.1"
+  },
+  {
+    "text": "1b797a1",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/1b797a1218471cd117d5b0ecffa233fa0b0b61ed"
+  },
+  {
+    "text": "5646",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5646"
+  },
+  {
+    "text": "23930813563",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23930813563"
+  },
+  {
+    "text": "BUNDLE SIZE\n407.64KiB+6.76%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk"
+  },
+  {
+    "text": "INITIAL JS\n359.9KiB+7.73%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n40+2.56%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n2+100%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13271\nbuild(deps-dev): bump react-router-dom from 5.3.4 to 7.14.0",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13271-DOJN3NAZt65GeC29OAGR"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/react-router-dom-7.14.0",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Freact-router-dom-7.14.0"
+  },
+  {
+    "text": "fa5fa5d",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/fa5fa5db0a27dbf429e0e2de22f1ce337ddfa6d9"
+  },
+  {
+    "text": "5656",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5656"
+  },
+  {
+    "text": "23930733411",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23930733411"
+  },
+  {
+    "text": "BUNDLE SIZE\n391.68KiB+2.58%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13271-DOJN3NAZt65GeC29OAGR"
+  },
+  {
+    "text": "INITIAL JS\n343.95KiB+2.95%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13271-DOJN3NAZt65GeC29OAGR/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13271-DOJN3NAZt65GeC29OAGR/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n30-23.08%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13271-DOJN3NAZt65GeC29OAGR/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n0-100%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13271-DOJN3NAZt65GeC29OAGR/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13270\nbuild(deps-dev): bump eslint-import-resolver-webpack",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13270-qaXz7bJNrwZIMbNGcWgk"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/eslint-import-resolver-webpack-0.13.11",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Feslint-import-resolver-webpack-0.13.11"
+  },
+  {
+    "text": "784c8b7",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/784c8b7a1bfe50ca44442c4040d60d241528e100"
+  },
+  {
+    "text": "5657",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5657"
+  },
+  {
+    "text": "23930686270",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23930686270"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13270-qaXz7bJNrwZIMbNGcWgk"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13270-qaXz7bJNrwZIMbNGcWgk/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13270-qaXz7bJNrwZIMbNGcWgk/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n390%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13270-qaXz7bJNrwZIMbNGcWgk/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n10%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13270-qaXz7bJNrwZIMbNGcWgk/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13269\nbuild(deps-dev): bump the storybook group across 1 directory with 4 updates",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13269-Vpj7fWvDkDiMob1wclzT"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/storybook-ef1e9abb6a",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Fstorybook-ef1e9abb6a"
+  },
+  {
+    "text": "3db4945",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/3db494577d549bb8f6cb70935d8d3995f6e2a64b"
+  },
+  {
+    "text": "5435",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5435"
+  },
+  {
+    "text": "23930652035",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23930652035"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13269-Vpj7fWvDkDiMob1wclzT"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13269-Vpj7fWvDkDiMob1wclzT/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13269-Vpj7fWvDkDiMob1wclzT/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n390%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13269-Vpj7fWvDkDiMob1wclzT/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n10%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13269-Vpj7fWvDkDiMob1wclzT/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13268\nbuild(deps-dev): bump the jest group across 1 directory with 4 updates",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13268-Pzl1GtxL7yE6tkOKRxQo"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/jest-91b651880e",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Fjest-91b651880e"
+  },
+  {
+    "text": "6ad2fda",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/6ad2fdad4c8f1e5a9123e848d3359c4ce09777b9"
+  },
+  {
+    "text": "5340",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5340"
+  },
+  {
+    "text": "23930649184",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23930649184"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13268-Pzl1GtxL7yE6tkOKRxQo"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13268-Pzl1GtxL7yE6tkOKRxQo/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13268-Pzl1GtxL7yE6tkOKRxQo/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n390%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13268-Pzl1GtxL7yE6tkOKRxQo/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n10%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13268-Pzl1GtxL7yE6tkOKRxQo/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13267\nbuild(deps): bump lodash from 4.17.23 to 4.18.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13267-dhblZx2ZLGvN0W4csTVq"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/lodash-4.18.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Flodash-4.18.1"
+  },
+  {
+    "text": "5e1357e",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/5e1357ed1fae040aaf45a119bb1b1c2d543e8c46"
+  },
+  {
+    "text": "5654",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5654"
+  },
+  {
+    "text": "23902046821",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23902046821"
+  },
+  {
+    "text": "BUNDLE SIZE\n407.64KiB+6.76%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13267-dhblZx2ZLGvN0W4csTVq"
+  },
+  {
+    "text": "INITIAL JS\n359.9KiB+7.73%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13267-dhblZx2ZLGvN0W4csTVq/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13267-dhblZx2ZLGvN0W4csTVq/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n40+2.56%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13267-dhblZx2ZLGvN0W4csTVq/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n2+100%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13267-dhblZx2ZLGvN0W4csTVq/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13266\nbuild(deps): bump lodash from 4.17.23 to 4.18.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13266-wfAI6d1Vz4uArb8bEUCG"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/lodash-4.18.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Flodash-4.18.1"
+  },
+  {
+    "text": "1b8f7f9",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/1b8f7f95fdb559ce790579681011306f75171be3"
+  },
+  {
+    "text": "5646",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5646"
+  },
+  {
+    "text": "23885613131",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885613131"
+  },
+  {
+    "text": "BUNDLE SIZE\n407.64KiB+6.76%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13266-wfAI6d1Vz4uArb8bEUCG"
+  },
+  {
+    "text": "INITIAL JS\n359.9KiB+7.73%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13266-wfAI6d1Vz4uArb8bEUCG/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13266-wfAI6d1Vz4uArb8bEUCG/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n40+2.56%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13266-wfAI6d1Vz4uArb8bEUCG/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n2+100%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13266-wfAI6d1Vz4uArb8bEUCG/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13265\nbuild(deps-dev): bump react-router-dom from 5.3.4 to 7.13.2",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13265-NnIZSyL4PXUg1sLiycqX"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/react-router-dom-7.13.2",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Freact-router-dom-7.13.2"
+  },
+  {
+    "text": "b410a4a",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/b410a4a03d260181fe26642b914be240df0d5420"
+  },
+  {
+    "text": "5635",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5635"
+  },
+  {
+    "text": "23885534603",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885534603"
+  },
+  {
+    "text": "BUNDLE SIZE\n391.04KiB+2.41%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13265-NnIZSyL4PXUg1sLiycqX"
+  },
+  {
+    "text": "INITIAL JS\n343.3KiB+2.76%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13265-NnIZSyL4PXUg1sLiycqX/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13265-NnIZSyL4PXUg1sLiycqX/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n30-23.08%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13265-NnIZSyL4PXUg1sLiycqX/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n0-100%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13265-NnIZSyL4PXUg1sLiycqX/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13264\nbuild(deps): bump stream-chain from 3.4.1 to 3.6.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13264-a1ypL6IXrmQcnTaYhSl0"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/stream-chain-3.6.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Fstream-chain-3.6.1"
+  },
+  {
+    "text": "763a540",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/763a54063d18c130bb59d10101f4b305fe5583d8"
+  },
+  {
+    "text": "5644",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5644"
+  },
+  {
+    "text": "23885465963",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885465963"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13264-a1ypL6IXrmQcnTaYhSl0"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13264-a1ypL6IXrmQcnTaYhSl0/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13264-a1ypL6IXrmQcnTaYhSl0/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n390%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13264-a1ypL6IXrmQcnTaYhSl0/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n10%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13264-a1ypL6IXrmQcnTaYhSl0/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13263\nbuild(deps-dev): bump dotenv from 17.3.1 to 17.4.0",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13263-raypD1KHCvJsuFi4uGwZ"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/dotenv-17.4.0",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Fdotenv-17.4.0"
+  },
+  {
+    "text": "1f25207",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/1f25207bc43f5997566be537d76d51712fc8b811"
+  },
+  {
+    "text": "5647",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5647"
+  },
+  {
+    "text": "23885459643",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885459643"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13263-raypD1KHCvJsuFi4uGwZ"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13263-raypD1KHCvJsuFi4uGwZ/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13263-raypD1KHCvJsuFi4uGwZ/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n390%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13263-raypD1KHCvJsuFi4uGwZ/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n10%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13263-raypD1KHCvJsuFi4uGwZ/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13262\nbuild(deps): bump stream-json from 1.9.1 to 2.1.0",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13262-ixr4jM8BBPceCNfDM9AR"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/stream-json-2.1.0",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Fstream-json-2.1.0"
+  },
+  {
+    "text": "9bacbb2",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/9bacbb26dd42477b8d8e57c2e863e21d112bb65f"
+  },
+  {
+    "text": "5643",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5643"
+  },
+  {
+    "text": "23885453971",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885453971"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13262-ixr4jM8BBPceCNfDM9AR"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13262-ixr4jM8BBPceCNfDM9AR/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13262-ixr4jM8BBPceCNfDM9AR/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n390%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13262-ixr4jM8BBPceCNfDM9AR/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n10%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13262-ixr4jM8BBPceCNfDM9AR/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13261\nbuild(deps-dev): bump eslint-import-resolver-node from 0.3.9 to 0.3.10",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13261-3SD9LXvxlEtLuZbwIrX8"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/eslint-import-resolver-node-0.3.10",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Feslint-import-resolver-node-0.3.10"
+  },
+  {
+    "text": "4da4ab1",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/4da4ab1e0b451877df70ddf58b68e5f562adf5a3"
+  },
+  {
+    "text": "5650",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5650"
+  },
+  {
+    "text": "23885451167",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885451167"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13261-3SD9LXvxlEtLuZbwIrX8"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13261-3SD9LXvxlEtLuZbwIrX8/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13261-3SD9LXvxlEtLuZbwIrX8/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n390%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13261-3SD9LXvxlEtLuZbwIrX8/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n10%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13261-3SD9LXvxlEtLuZbwIrX8/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13260\nbuild(deps-dev): bump @playwright/test from 1.58.2 to 1.59.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13260-r7ETYs6ctcv1vT2lG1Nv"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/playwright/test-1.59.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Fplaywright%2Ftest-1.59.1"
+  },
+  {
+    "text": "02ad1ab",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/02ad1ab42216fc8f44e7a908ed9a1cdc8e1aaab4"
+  },
+  {
+    "text": "5649",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5649"
+  },
+  {
+    "text": "23885421179",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885421179"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13260-r7ETYs6ctcv1vT2lG1Nv"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13260-r7ETYs6ctcv1vT2lG1Nv/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13260-r7ETYs6ctcv1vT2lG1Nv/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n390%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13260-r7ETYs6ctcv1vT2lG1Nv/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n10%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13260-r7ETYs6ctcv1vT2lG1Nv/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13259\nbuild(deps): bump lodash from 4.17.23 to 4.18.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13259-CKa0mALuKMu99LB6ONVJ"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/lodash-4.18.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Flodash-4.18.1"
+  },
+  {
+    "text": "aaab143",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/aaab1437062cb6574773decccebee7be19475e15"
+  },
+  {
+    "text": "5646",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5646"
+  },
+  {
+    "text": "23885420454",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885420454"
+  },
+  {
+    "text": "BUNDLE SIZE\n407.64KiB+6.76%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13259-CKa0mALuKMu99LB6ONVJ"
+  },
+  {
+    "text": "INITIAL JS\n359.9KiB+7.73%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13259-CKa0mALuKMu99LB6ONVJ/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13259-CKa0mALuKMu99LB6ONVJ/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n40+2.56%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13259-CKa0mALuKMu99LB6ONVJ/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n2+100%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13259-CKa0mALuKMu99LB6ONVJ/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13258\nbuild(deps-dev): bump eslint-import-resolver-node from 0.3.9 to 0.3.10",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13258-nKMMWr7SXKmCezSYx7ix"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/eslint-import-resolver-node-0.3.10",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Feslint-import-resolver-node-0.3.10"
+  },
+  {
+    "text": "e18d0e5",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/e18d0e571878beb58c339192f0966d6a9267639d"
+  },
+  {
+    "text": "5650",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5650"
+  },
+  {
+    "text": "23885312728",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885312728"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13258-nKMMWr7SXKmCezSYx7ix"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13258-nKMMWr7SXKmCezSYx7ix/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13258-nKMMWr7SXKmCezSYx7ix/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n390%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13258-nKMMWr7SXKmCezSYx7ix/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n10%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13258-nKMMWr7SXKmCezSYx7ix/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13257\nbuild(deps-dev): bump @playwright/test from 1.58.2 to 1.59.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13257-54S26dmqa18hj4EDOYkp"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/playwright/test-1.59.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Fplaywright%2Ftest-1.59.1"
+  },
+  {
+    "text": "dbd0e1f",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/dbd0e1fce9fa95c7976ab7fb32595847b8cdf42f"
+  },
+  {
+    "text": "5649",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5649"
+  },
+  {
+    "text": "23885277254",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885277254"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13257-54S26dmqa18hj4EDOYkp"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13257-54S26dmqa18hj4EDOYkp/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13257-54S26dmqa18hj4EDOYkp/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "PACKAGES\n390%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13257-54S26dmqa18hj4EDOYkp/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n10%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13257-54S26dmqa18hj4EDOYkp/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "13256\nbuild(deps-dev): bump ts-jest from 29.4.6 to 29.4.9",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13256-0idUkTP9IgPxnmWOcheK"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/ts-jest-29.4.9",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Fts-jest-29.4.9"
+  },
+  {
+    "text": "0d01c93",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/0d01c93e75933db4dcaddd016411bba076c6cd4a"
+  },
+  {
+    "text": "5648",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5648"
+  },
+  {
+    "text": "23885274154",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23885274154"
+  },
+  {
+    "text": "BUNDLE SIZE\n381.83KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13256-0idUkTP9IgPxnmWOcheK"
+  },
+  {
+    "text": "INITIAL JS\n334.09KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13256-0idUkTP9IgPxnmWOcheK/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13256-0idUkTP9IgPxnmWOcheK/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  }
+]

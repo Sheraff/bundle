@@ -1,0 +1,306 @@
+[
+  {
+    "text": "Product",
+    "href": "https://relative-ci.com/?utm_source=app&utm_medium=header#product"
+  },
+  {
+    "text": "Why",
+    "href": "https://relative-ci.com/why-web-application-bundle-size-matters?utm_source=app&utm_medium=header"
+  },
+  {
+    "text": "Documentation",
+    "href": "https://relative-ci.com/documentation?utm_source=app&utm_medium=header"
+  },
+  {
+    "text": "Log in",
+    "href": "https://app.relative-ci.com/login"
+  },
+  {
+    "text": "Sign up",
+    "href": "https://app.relative-ci.com/signup"
+  },
+  {
+    "text": "Documentation",
+    "href": "https://relative-ci.com/documentation/?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "Setup",
+    "href": "https://relative-ci.com/documentation?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "Configuration",
+    "href": "https://relative-ci.com/documentation/setup/configure?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "Guides",
+    "href": "https://relative-ci.com/documentation/guides?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "Data and metrics",
+    "href": "https://relative-ci.com/documentation/metrics-and-data?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "Examples",
+    "href": "https://relative-ci.com/documentation/examples?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "FAQ",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "General",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help#general"
+  },
+  {
+    "text": "Security",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help#security"
+  },
+  {
+    "text": "Agent",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help#agent"
+  },
+  {
+    "text": "Usage",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help#usage"
+  },
+  {
+    "text": "Pricing",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=help#pricing"
+  },
+  {
+    "text": "Get in touch",
+    "href": "https://relative-ci.com/contact/?utm_source=app&utm_medium=help"
+  },
+  {
+    "text": "GitHub",
+    "href": "https://github.com/relative-ci/roadmap/issues"
+  },
+  {
+    "text": "Twitter",
+    "href": "https://twitter.com/messages/compose?recipient_id=1048327318169640967"
+  },
+  {
+    "text": "Email",
+    "href": "mailto:support@relative-ci.com"
+  },
+  {
+    "text": "Status",
+    "href": "https://relativeci.statuspage.io/"
+  },
+  {
+    "text": "Mar 6, 2026Vite, Rollup, and Rolldown agent plugin",
+    "href": "https://relative-ci.com/releases/2025-september--dynamic-baseline-branch?utm_source=app"
+  },
+  {
+    "text": "Oct 13, 2025Dynamic baseline branch",
+    "href": "https://relative-ci.com/releases/2025-september--dynamic-baseline-branch?utm_source=app"
+  },
+  {
+    "text": "May 21, 2025Agent V5",
+    "href": "https://relative-ci.com/releases/2025-05-agent-v5?utm_source=app"
+  },
+  {
+    "text": "Jan 31, 2025Asset originating chunk filter",
+    "href": "https://relative-ci.com/releases/2025-01-asset-originating-chunk-filter?utm_source=app"
+  },
+  {
+    "text": "Nov 4, 2024Asset type changes between builds",
+    "href": "https://relative-ci.com/releases/2024-10-metrics-table-exports/?utm_source=app#asset-type-changes-between-builds"
+  },
+  {
+    "text": "View all release notes",
+    "href": "https://relative-ci.com/releases?utm_source=app"
+  },
+  {
+    "text": "bundle-stats",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G"
+  },
+  {
+    "text": "Overview",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G"
+  },
+  {
+    "text": "Jobs",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs"
+  },
+  {
+    "text": "Insights",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/insights"
+  },
+  {
+    "text": "dependabot/npm_and_yarn/master/lodash-4.18.1",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/tree/dependabot%2Fnpm_and_yarn%2Fmaster%2Flodash-4.18.1"
+  },
+  {
+    "text": "master13244",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13244-KwBw0AmHIJksDFNrAP7x"
+  },
+  {
+    "text": "1b797a1",
+    "href": "https://github.com/relative-ci/bundle-stats/commit/1b797a1218471cd117d5b0ecffa233fa0b0b61ed"
+  },
+  {
+    "text": "5646",
+    "href": "https://github.com/relative-ci/bundle-stats/pull/5646"
+  },
+  {
+    "text": "23930813563",
+    "href": "https://github.com/relative-ci/bundle-stats/actions/runs/23930813563"
+  },
+  {
+    "text": "BUNDLE SIZE\n407.64KiB+6.76%\n381.83KiB",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk"
+  },
+  {
+    "text": "INITIAL JS\n359.9KiB+7.73%\n334.09KiB",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-0_ft.JS-1_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "INITIAL CSS\n47.74KiB0%\n47.74KiB",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-1_et.chunk-0_et.asset-0_ft.CSS-1_ft.JS-0_ft.IMG-0_ft.MEDIA-0_ft.FONT-0_ft.HTML-0_ft.OTHER-0%22%7D"
+  },
+  {
+    "text": "CACHE INVALIDATION\n87.5%\n0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/assets?ba=%7B%22filters%22%3A%22changed-1%22%7D"
+  },
+  {
+    "text": "ASSETS\n40%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/assets?ba=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "CHUNKS\n30%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/assets?ba=%7B%22filters%22%3A%22et.entrypoint-0_et.initial-0_et.chunk-1_et.asset-0%22%7D"
+  },
+  {
+    "text": "MODULES\n869+23.97%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/modules?bm=%7B%22metric%22%3A%22totalSize%22%2C%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE MODULES\n00%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/modules?bm=%7B%22metric%22%3A%22duplicateSize%22%2C%22filters%22%3A%22changed-0_md-1%22%7D"
+  },
+  {
+    "text": "DUPLICATE CODE\n0%0%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/modules?bm=%7B%22metric%22%3A%22duplicateSize%22%2C%22filters%22%3A%22changed-0_md-1%22%7D"
+  },
+  {
+    "text": "PACKAGES\n40+2.56%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/packages?bp=%7B%22filters%22%3A%22changed-0%22%7D"
+  },
+  {
+    "text": "DUPLICATE PACKAGES\n2+100%",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/packages?bp=%7B%22filters%22%3A%22duplicate-1%22%7D"
+  },
+  {
+    "text": "Overview",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk"
+  },
+  {
+    "text": "Assets",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/assets"
+  },
+  {
+    "text": "Modules",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/modules"
+  },
+  {
+    "text": "Packages",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/packages"
+  },
+  {
+    "text": "Bundle introduced 1 duplicate package",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13272-d8hD0orLsU30XuzDJXyk/packages?bp=%7B%22filters%22%3A%22changed-1_duplicate-1%22%7D"
+  },
+  {
+    "text": "JOB #13244",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13244-KwBw0AmHIJksDFNrAP7x"
+  },
+  {
+    "text": "Privacy Policy",
+    "href": "https://relative-ci.com/privacy-policy?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Terms of Service",
+    "href": "https://relative-ci.com/terms?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Security",
+    "href": "https://relative-ci.com/security?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Bundle analyzer",
+    "href": "https://relative-ci.com/?utm_source=app&utm_medium=footer#bundle-analyzer"
+  },
+  {
+    "text": "Bundle monitoring",
+    "href": "https://relative-ci.com/?utm_source=app&utm_medium=footer#bundle-monitoring"
+  },
+  {
+    "text": "Bundle comparison",
+    "href": "https://relative-ci.com/?utm_source=app&utm_medium=footer#bundle-comparison"
+  },
+  {
+    "text": "Why bundle size matters",
+    "href": "https://relative-ci.com/why-web-application-bundle-size-matters?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Pricing",
+    "href": "https://relative-ci.com/pricing?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Setup",
+    "href": "https://relative-ci.com/documentation/setup?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Guides",
+    "href": "https://relative-ci.com/documentation/guides?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Metrics and data",
+    "href": "https://relative-ci.com/documentation/metrics-and-data?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Examples",
+    "href": "https://relative-ci.com/documentation/examples?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Customers",
+    "href": "https://relative-ci.com/customers?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Open source",
+    "href": "https://relative-ci.com/open-source?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Release Notes",
+    "href": "https://relative-ci.com/releases?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Public Roadmap",
+    "href": "https://relative-ci.com/roadmap?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "FrontEnd-Ops Resources",
+    "href": "https://relative-ci.com/front-end-ops-resources?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "FAQ",
+    "href": "https://relative-ci.com/faq?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Contact",
+    "href": "https://relative-ci.com/contact?utm_source=app&utm_medium=footer"
+  },
+  {
+    "text": "Status",
+    "href": "https://relativeci.statuspage.io/"
+  },
+  {
+    "text": "Compare changes on GitHub",
+    "href": "https://github.com/relative-ci/bundle-stats/compare/9dd1678f8c81a7d08f861380231fee17fbcce942...1b797a1218471cd117d5b0ecffa233fa0b0b61ed"
+  },
+  {
+    "text": "13244Merge pull request #5638 from relative-ci/dependabot/github_actions/master/dependabot/fetch-metadata-3.0.0",
+    "href": "https://app.relative-ci.com/projects/V1bXuieJbYttHCS75L8G/jobs/13244-KwBw0AmHIJksDFNrAP7x"
+  }
+]

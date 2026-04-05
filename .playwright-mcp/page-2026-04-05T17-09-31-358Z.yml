@@ -1,0 +1,252 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - heading [level=1] [ref=e5]:
+        - link "RelativeCI" [ref=e6] [cursor=pointer]:
+          - /url: https://relative-ci.com/?utm_source=app
+          - img [ref=e7]
+          - img [ref=e11]
+      - navigation [ref=e14]:
+        - link "Product" [ref=e15] [cursor=pointer]:
+          - /url: https://relative-ci.com/?utm_source=app&utm_medium=header#product
+        - link "Why" [ref=e16] [cursor=pointer]:
+          - /url: https://relative-ci.com/why-web-application-bundle-size-matters?utm_source=app&utm_medium=header
+        - link "Documentation" [ref=e17] [cursor=pointer]:
+          - /url: https://relative-ci.com/documentation?utm_source=app&utm_medium=header
+      - generic [ref=e18]:
+        - navigation [ref=e19]:
+          - link "Log in" [ref=e20] [cursor=pointer]:
+            - /url: /login
+          - link "Sign up" [ref=e21] [cursor=pointer]:
+            - /url: /signup
+        - navigation [ref=e22]:
+          - button "Help" [ref=e23] [cursor=pointer]:
+            - generic [ref=e24]:
+              - img [ref=e26]
+              - generic [ref=e28]: Help
+          - button "Release Notes" [ref=e29] [cursor=pointer]:
+            - generic [ref=e30]:
+              - img [ref=e32]
+              - generic [ref=e34]: Release Notes
+    - generic [ref=e38]:
+      - banner [ref=e39]:
+        - heading [level=1] [ref=e41]
+      - tablist [ref=e42]:
+        - tab "Overview":
+          - generic:
+            - generic:
+              - img
+            - generic: Overview
+        - tab "Jobs":
+          - generic:
+            - generic:
+              - img
+            - generic: Jobs
+        - tab "Insights":
+          - generic:
+            - generic:
+              - img
+            - generic: Insights
+    - generic [ref=e46]:
+      - generic [ref=e48]:
+        - button "Select branch" [ref=e49]:
+          - img [ref=e51]
+          - generic [ref=e53]: Select branch
+        - button "Select period" [ref=e54]:
+          - img [ref=e56]
+          - generic [ref=e58]: Select period
+      - generic [ref=e59]:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=3]
+              - generic:
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=3]
+              - generic:
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=3]
+              - generic:
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=3]
+              - generic:
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=3]
+              - generic:
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+                - generic:
+                  - paragraph
+                  - paragraph
+    - contentinfo [ref=e63]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - link "RelativeCI" [ref=e69] [cursor=pointer]:
+              - /url: https://relative-ci.com/?utm_source=app&utm_medium=footer
+              - img "RelativeCI" [ref=e70]
+            - paragraph [ref=e77]: Automated bundle analysis, reviews and monitoring
+          - generic [ref=e78]:
+            - link "GitHub" [ref=e79] [cursor=pointer]:
+              - /url: https://github.com/relative-ci
+              - img [ref=e80]
+            - link "X.com" [ref=e82] [cursor=pointer]:
+              - /url: https://x.com/Relative_CI
+              - img [ref=e83]
+            - link "dev.to" [ref=e85] [cursor=pointer]:
+              - /url: https://dev.to/relative-ci
+              - img [ref=e86]
+          - generic [ref=e88]:
+            - paragraph [ref=e89]:
+              - link "Privacy Policy" [ref=e90] [cursor=pointer]:
+                - /url: https://relative-ci.com/privacy-policy?utm_source=app&utm_medium=footer
+              - link "Terms of Service" [ref=e91] [cursor=pointer]:
+                - /url: https://relative-ci.com/terms?utm_source=app&utm_medium=footer
+              - link "Security" [ref=e92] [cursor=pointer]:
+                - /url: https://relative-ci.com/security?utm_source=app&utm_medium=footer
+            - paragraph [ref=e93]: © Copyright 2026 RelativeCI
+        - generic [ref=e94]:
+          - heading "Product" [level=2] [ref=e95]
+          - list [ref=e96]:
+            - listitem [ref=e97]:
+              - link "Bundle analyzer" [ref=e98] [cursor=pointer]:
+                - /url: https://relative-ci.com/?utm_source=app&utm_medium=footer#bundle-analyzer
+            - listitem [ref=e99]:
+              - link "Bundle monitoring" [ref=e100] [cursor=pointer]:
+                - /url: https://relative-ci.com/?utm_source=app&utm_medium=footer#bundle-monitoring
+            - listitem [ref=e101]:
+              - link "Bundle comparison" [ref=e102] [cursor=pointer]:
+                - /url: https://relative-ci.com/?utm_source=app&utm_medium=footer#bundle-comparison
+            - listitem [ref=e103]:
+              - link "Why bundle size matters" [ref=e104] [cursor=pointer]:
+                - /url: https://relative-ci.com/why-web-application-bundle-size-matters?utm_source=app&utm_medium=footer
+            - listitem [ref=e105]:
+              - link "Pricing" [ref=e106] [cursor=pointer]:
+                - /url: https://relative-ci.com/pricing?utm_source=app&utm_medium=footer
+        - generic [ref=e107]:
+          - heading "Documentation" [level=2] [ref=e108]
+          - list [ref=e109]:
+            - listitem [ref=e110]:
+              - link "Setup" [ref=e111] [cursor=pointer]:
+                - /url: https://relative-ci.com/documentation/setup?utm_source=app&utm_medium=footer
+            - listitem [ref=e112]:
+              - link "Guides" [ref=e113] [cursor=pointer]:
+                - /url: https://relative-ci.com/documentation/guides?utm_source=app&utm_medium=footer
+            - listitem [ref=e114]:
+              - link "Metrics and data" [ref=e115] [cursor=pointer]:
+                - /url: https://relative-ci.com/documentation/metrics-and-data?utm_source=app&utm_medium=footer
+            - listitem [ref=e116]:
+              - link "Examples" [ref=e117] [cursor=pointer]:
+                - /url: https://relative-ci.com/documentation/examples?utm_source=app&utm_medium=footer
+        - generic [ref=e118]:
+          - heading "Resources" [level=2] [ref=e119]
+          - list [ref=e120]:
+            - listitem [ref=e121]:
+              - link "Customers" [ref=e122] [cursor=pointer]:
+                - /url: https://relative-ci.com/customers?utm_source=app&utm_medium=footer
+            - listitem [ref=e123]:
+              - link "Open source" [ref=e124] [cursor=pointer]:
+                - /url: https://relative-ci.com/open-source?utm_source=app&utm_medium=footer
+            - listitem [ref=e125]:
+              - link "Release Notes" [ref=e126] [cursor=pointer]:
+                - /url: https://relative-ci.com/releases?utm_source=app&utm_medium=footer
+            - listitem [ref=e127]:
+              - link "Public Roadmap" [ref=e128] [cursor=pointer]:
+                - /url: https://relative-ci.com/roadmap?utm_source=app&utm_medium=footer
+            - listitem [ref=e129]:
+              - link "FrontEnd-Ops Resources" [ref=e130] [cursor=pointer]:
+                - /url: https://relative-ci.com/front-end-ops-resources?utm_source=app&utm_medium=footer
+        - generic [ref=e131]:
+          - heading "Support" [level=2] [ref=e132]
+          - list [ref=e133]:
+            - listitem [ref=e134]:
+              - link "FAQ" [ref=e135] [cursor=pointer]:
+                - /url: https://relative-ci.com/faq?utm_source=app&utm_medium=footer
+            - listitem [ref=e136]:
+              - link "Contact" [ref=e137] [cursor=pointer]:
+                - /url: https://relative-ci.com/contact?utm_source=app&utm_medium=footer
+            - listitem [ref=e138]:
+              - link "Status" [ref=e139] [cursor=pointer]:
+                - /url: https://relativeci.statuspage.io
+  - generic:
+    - img
+    - img
