@@ -1,0 +1,13 @@
+[     605ms] [LOG] This browser supports module workers! @ https://bundlejs.com/js/chunk-EH5MQ5DR.js:5
+[     605ms] [LOG] This browser supports Shared Web Workers! @ https://bundlejs.com/js/chunk-EH5MQ5DR.js:5
+[     979ms] [LOG] Initialized 🚀✨ @ https://bundlejs.com/js/index.min.js:3
+[    1126ms] [LOG] {analysis: false, data: export default {}, sourcemap: null, config: var std_global = (() => {
+  var __defProp = Object… {};
+  return __toCommonJS(stdin_exports);
+})();
+} @ https://bundlejs.com/js/sandbox.worker.js:681
+[    1127ms] [LOG] {result: Object} @ https://bundlejs.com/js/sandbox.worker.js:681
+[    1596ms] [LOG] {dprintWasmUrl: https://bundlejs.com/js/plugin.wasm} @ https://bundlejs.com/js/ts-worker-factory.worker.js:1
+[    1797ms] [LOG] {dprintWasmUrl: https://bundlejs.com/js/plugin.wasm} @ https://bundlejs.com/js/ts-worker-factory.worker.js:1
+[    2755ms] [LOG] Ready @ https://bundlejs.com/js/index.min.js:3
+[    3854ms] [LOG] Service worker activated for the first time! @ https://bundlejs.com/js/chunk-WPY4P6BA.js:1

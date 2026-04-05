@@ -181,29 +181,39 @@ External references:
 
 ## 4. Synthetic-Import Product Shape
 
-### Why this is still unknown
+Status: resolved for V1.
 
-We have only chosen a minimal V1 entry point for synthetic-import scenarios.
+Resolution:
 
-What remains unclear:
+- `synthetic-import-product-shape-v1.md`
 
-- how far synthetic-import scenarios should grow as a product area
-- whether they need richer configuration than raw inline ESM
-- how multiple synthetic scenarios should be authored and managed over time
-- whether future repo-versioned config should exist outside workflow YAML
-- what the hosted UI should expose beyond a single `scenario` plus `source`
+This defines the V1 synthetic-import product shape across positioning, authoring surfaces, hosted catalog behavior, saved-definition format, and future extension boundaries.
 
-### What seems decided already
+What is now answered for V1:
 
-- Synthetic-import scenarios are first-class in V1.
-- They can live in workflow YAML or hosted UI.
-- Repo-defined synthetic-import scenarios take precedence over hosted definitions.
-- Raw inline ESM is acceptable for V1.
+- synthetic-import scenarios are a saved CI checks product area, not a hosted bundle lab
+- raw ESM plus metadata remains the canonical saved definition
+- workflow YAML remains the repo-owned definition path
+- the hosted UI should manage synthetic-import scenarios as a catalog rather than as only a single editor
+- the core hosted shape is `scenario id + display name + source + budgets`
+- the hosted UI should validate definitions, while real measurement stays in CI
+- repo-defined and hosted synthetic scenarios with the same id should appear as one effective catalog row with an override notice
+- hosted synthetic-import scenarios follow the same manual archive-only lifecycle as other scenarios
+- richer synthetic settings belong behind a hidden advanced panel rather than in the normal flow
+- `aliases` may become worth supporting later, but should likely stay post-V1 unless a strong recurring need appears
+
+Follow-on work remains, but it belongs to later tasks rather than to core synthetic-import product-shape uncertainty:
+
+- mapping the chosen synthetic-import shape onto the concrete action and hosted configuration contract
+- deciding the exact syntax for any future advanced settings beyond `source`
+- designing the exact hosted catalog, edit, archive, and override-notice UX
+- deciding whether `aliases` ever become worth adding after V1
 
 ### References an agent should read
 
 Local docs:
 
+- `synthetic-import-product-shape-v1.md`
 - `product-functionality.md`
   - `## Scenario Kinds And Source Of Truth`
   - `## Measurement Strategies`
@@ -225,27 +235,32 @@ External references:
 
 ## 5. Plugin Artifact Contract
 
-### Why this is still unknown
+Status: resolved for V1.
 
-We decided on the flow, but not on the actual artifact.
+Resolution:
 
-We still need to define:
+- `plugin-artifact-contract-v1.md`
 
-- artifact file format and schema
-- artifact discovery rules
-- schema versioning
-- validation and degraded-state rules
-- required vs optional raw data
-- how much bundle graph/module/package data belongs in the artifact
+This defines the V1 boundary between the Vite plugin and the rest of the platform.
 
-This is the boundary between the plugin and the rest of the platform.
+What is now answered for V1:
 
-### What seems decided already
+- the artifact file format as one JSON file per build invocation and scenario run
+- the fixed discovery path under the Action `working-directory`
+- the split between plugin artifact data and Action upload metadata
+- the required top-level, environment, chunk, asset, and module raw evidence
+- the rule that manifest data is required and auto-enabled by the plugin
+- the rule that package attribution stays derived later instead of living in the artifact
+- the rule that sourcemaps stay out of the V1 artifact contract
+- the validation model where missing required evidence fails in the plugin build step
+- the separate `schemaVersion` and `pluginVersion` fields for versioning
 
-- The plugin should stay focused on bundle inspection.
-- The plugin writes a local artifact.
-- The GitHub Action is responsible for upload.
-- The plugin contract should stay minimal in V1.
+Follow-on work remains, but it belongs to later tasks rather than to core artifact-boundary uncertainty:
+
+- mapping the chosen artifact contract onto concrete plugin implementation details and TypeScript types
+- mapping the artifact plus Action envelope onto ingest validation and persistence
+- defining the final upload envelope for scenario source-of-truth and GitHub metadata
+- deciding whether sourcemap-enhanced attribution is ever worth adding after V1
 
 ### References an agent should read
 
@@ -361,7 +376,5 @@ External references:
 
 If we want to reduce uncertainty efficiently, the next sequence should be:
 
-1. Plugin artifact contract
-2. GitHub UX details
-3. Synthetic-import product shape
-4. Infrastructure
+1. GitHub UX details
+2. Infrastructure
