@@ -1,0 +1,316 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "client-ssr",
+  "versionId": "v2",
+  "scenarioId": "client-ssr",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:13.040Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist/client"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_browser-format-DiMMf8jb.js",
+      "src": null,
+      "name": "browser-format",
+      "file": "chunks/browser-format-DiMMf8jb.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "_browser-shell-Dr01GPC6.js",
+      "src": null,
+      "name": "browser-shell",
+      "file": "chunks/browser-shell-Dr01GPC6.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [
+        "_browser-format-DiMMf8jb.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/client-badge.svg",
+      "src": "src/assets/client-badge.svg",
+      "name": null,
+      "file": "static/client-badge-B5lFep22.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/entry-client.js",
+      "src": "src/entry-client.js",
+      "name": "client",
+      "file": "entries/client-6hT1IKn6.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_browser-shell-Dr01GPC6.js"
+      ],
+      "dynamicImports": [
+        "src/shared/clientDiagnostics.js"
+      ],
+      "css": [
+        "static/client-Cu-TP_O1.css"
+      ],
+      "assets": [
+        "static/client-badge-B5lFep22.svg"
+      ]
+    },
+    {
+      "key": "src/shared/clientDiagnostics.js",
+      "src": "src/shared/clientDiagnostics.js",
+      "name": "clientDiagnostics",
+      "file": "chunks/clientDiagnostics-C5MufBA0.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_browser-format-DiMMf8jb.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "chunks/browser-format-DiMMf8jb.js",
+      "kind": "chunk",
+      "name": "browser-format",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/shared/formatBytes.js",
+          "stableId": "src/shared/formatBytes.js",
+          "scope": "app",
+          "renderedLength": 122,
+          "renderedExports": [
+            "formatBytes"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/formatBytes.js"
+      ],
+      "sizes": {
+        "raw": 61,
+        "gzip": 81,
+        "brotli": 65
+      }
+    },
+    {
+      "fileName": "chunks/browser-shell-Dr01GPC6.js",
+      "kind": "chunk",
+      "name": "browser-shell",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [
+        "chunks/browser-format-DiMMf8jb.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/shared/clientFrame.js",
+          "stableId": "src/shared/clientFrame.js",
+          "scope": "app",
+          "renderedLength": 574,
+          "renderedExports": [
+            "renderClientFrame"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/renderMetrics.js",
+          "stableId": "src/shared/renderMetrics.js",
+          "scope": "app",
+          "renderedLength": 324,
+          "renderedExports": [
+            "renderMetrics"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/clientFrame.js",
+        "src/shared/renderMetrics.js"
+      ],
+      "sizes": {
+        "raw": 657,
+        "gzip": 416,
+        "brotli": 331
+      }
+    },
+    {
+      "fileName": "chunks/clientDiagnostics-C5MufBA0.js",
+      "kind": "chunk",
+      "name": "clientDiagnostics",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/shared/clientDiagnostics.js",
+        "stableId": "src/shared/clientDiagnostics.js",
+        "scope": "app"
+      },
+      "imports": [
+        "chunks/browser-format-DiMMf8jb.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/shared/clientDiagnostics.js",
+          "stableId": "src/shared/clientDiagnostics.js",
+          "scope": "app",
+          "renderedLength": 303,
+          "renderedExports": [
+            "renderClientDiagnostics"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/clientDiagnostics.js"
+      ],
+      "sizes": {
+        "raw": 252,
+        "gzip": 212,
+        "brotli": 174
+      }
+    },
+    {
+      "fileName": "entries/client-6hT1IKn6.js",
+      "kind": "chunk",
+      "name": "client",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/entry-client.js",
+        "stableId": "src/entry-client.js",
+        "scope": "app"
+      },
+      "imports": [
+        "chunks/browser-shell-Dr01GPC6.js"
+      ],
+      "dynamicImports": [
+        "chunks/clientDiagnostics-C5MufBA0.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "static/client-Cu-TP_O1.css"
+      ],
+      "importedAssets": [
+        "static/client-badge-B5lFep22.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/assets/client-badge.svg",
+          "stableId": "src/assets/client-badge.svg",
+          "scope": "app",
+          "renderedLength": 120,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/entry-client.js",
+          "stableId": "src/entry-client.js",
+          "scope": "app",
+          "renderedLength": 503,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/client.css",
+          "stableId": "src/styles/client.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "virtual:vite/preload-helper.js",
+          "stableId": "virtual:vite/preload-helper.js",
+          "scope": "virtual",
+          "renderedLength": 2104,
+          "renderedExports": [
+            "__vitePreload"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/assets/client-badge.svg",
+        "src/entry-client.js",
+        "src/styles/client.css",
+        "virtual:vite/preload-helper.js"
+      ],
+      "sizes": {
+        "raw": 1764,
+        "gzip": 961,
+        "brotli": 821
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "static/client-badge-B5lFep22.svg",
+      "kind": "svg",
+      "names": [
+        "client-badge.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/client-badge.svg"
+      ],
+      "sourceLength": 256,
+      "sizes": {
+        "raw": 256,
+        "gzip": 198,
+        "brotli": 171
+      }
+    },
+    {
+      "fileName": "static/client-Cu-TP_O1.css",
+      "kind": "css",
+      "names": [
+        "client.css"
+      ],
+      "originalFileNames": [
+        "src/entry-client.js"
+      ],
+      "sourceLength": 712,
+      "sizes": {
+        "raw": 700,
+        "gzip": 410,
+        "brotli": 332
+      }
+    }
+  ]
+}

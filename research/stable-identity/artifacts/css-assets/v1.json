@@ -1,0 +1,421 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "css-assets",
+  "versionId": "v1",
+  "scenarioId": "css-assets",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:13.420Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_skin-one-B8_WAgOM.js",
+      "src": null,
+      "name": "skin-one",
+      "file": "assets/skin-one-B8_WAgOM.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [
+        "assets/skin-one-DDDSeQh6.css"
+      ],
+      "assets": [
+        "assets/shared-wave-jJ2Aq7t_.svg",
+        "assets/token-ring-CbgHUjSr.svg"
+      ]
+    },
+    {
+      "key": "_skin-one-DDDSeQh6.css",
+      "src": "_skin-one-DDDSeQh6.css",
+      "name": null,
+      "file": "assets/skin-one-DDDSeQh6.css",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/landing-banner.svg",
+      "src": "src/assets/landing-banner.svg",
+      "name": null,
+      "file": "assets/landing-banner-wWYxgyWF.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/shared-wave.svg",
+      "src": "src/assets/shared-wave.svg",
+      "name": null,
+      "file": "assets/shared-wave-jJ2Aq7t_.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/token-ring.svg",
+      "src": "src/assets/token-ring.svg",
+      "name": null,
+      "file": "assets/token-ring-CbgHUjSr.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/workbench-grid.svg",
+      "src": "src/assets/workbench-grid.svg",
+      "name": null,
+      "file": "assets/workbench-grid-C8u6RWfR.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/landing.js",
+      "src": "src/landing.js",
+      "name": "landing",
+      "file": "assets/landing-CwEJoU5u.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_skin-one-B8_WAgOM.js"
+      ],
+      "dynamicImports": [],
+      "css": [
+        "assets/landing-CSwTySlR.css"
+      ],
+      "assets": [
+        "assets/landing-banner-wWYxgyWF.svg"
+      ]
+    },
+    {
+      "key": "src/workbench.js",
+      "src": "src/workbench.js",
+      "name": "workbench",
+      "file": "assets/workbench-r_dHJZD5.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_skin-one-B8_WAgOM.js"
+      ],
+      "dynamicImports": [],
+      "css": [
+        "assets/workbench-DHXwSSlP.css"
+      ],
+      "assets": [
+        "assets/workbench-grid-C8u6RWfR.svg"
+      ]
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "assets/landing-CwEJoU5u.js",
+      "kind": "chunk",
+      "name": "landing",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/landing.js",
+        "stableId": "src/landing.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/skin-one-B8_WAgOM.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/landing-CSwTySlR.css"
+      ],
+      "importedAssets": [
+        "assets/landing-banner-wWYxgyWF.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/landing.js",
+          "stableId": "src/landing.js",
+          "scope": "app",
+          "renderedLength": 514,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/landing.css",
+          "stableId": "src/styles/landing.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/landing.js",
+        "src/styles/landing.css"
+      ],
+      "sizes": {
+        "raw": 442,
+        "gzip": 322,
+        "brotli": 254
+      }
+    },
+    {
+      "fileName": "assets/skin-one-B8_WAgOM.js",
+      "kind": "chunk",
+      "name": "skin-one",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/skin-one-DDDSeQh6.css"
+      ],
+      "importedAssets": [
+        "assets/shared-wave-jJ2Aq7t_.svg",
+        "assets/token-ring-CbgHUjSr.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/shared/applyChrome.js",
+          "stableId": "src/shared/applyChrome.js",
+          "scope": "app",
+          "renderedLength": 323,
+          "renderedExports": [
+            "applyChrome"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/mountTokens.js",
+          "stableId": "src/shared/mountTokens.js",
+          "scope": "app",
+          "renderedLength": 256,
+          "renderedExports": [
+            "mountTokens"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/renderShowcase.js",
+          "stableId": "src/shared/renderShowcase.js",
+          "scope": "app",
+          "renderedLength": 319,
+          "renderedExports": [
+            "renderShowcase"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/chrome.css",
+          "stableId": "src/styles/chrome.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/token-strip.css",
+          "stableId": "src/styles/token-strip.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/applyChrome.js",
+        "src/shared/mountTokens.js",
+        "src/shared/renderShowcase.js",
+        "src/styles/chrome.css",
+        "src/styles/token-strip.css"
+      ],
+      "sizes": {
+        "raw": 562,
+        "gzip": 314,
+        "brotli": 242
+      }
+    },
+    {
+      "fileName": "assets/workbench-r_dHJZD5.js",
+      "kind": "chunk",
+      "name": "workbench",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/workbench.js",
+        "stableId": "src/workbench.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/skin-one-B8_WAgOM.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/workbench-DHXwSSlP.css"
+      ],
+      "importedAssets": [
+        "assets/workbench-grid-C8u6RWfR.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/styles/workbench.css",
+          "stableId": "src/styles/workbench.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/workbench.js",
+          "stableId": "src/workbench.js",
+          "scope": "app",
+          "renderedLength": 514,
+          "renderedExports": [],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/styles/workbench.css",
+        "src/workbench.js"
+      ],
+      "sizes": {
+        "raw": 440,
+        "gzip": 315,
+        "brotli": 246
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "assets/landing-banner-wWYxgyWF.svg",
+      "kind": "svg",
+      "names": [
+        "landing-banner.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/landing-banner.svg"
+      ],
+      "sourceLength": 259,
+      "sizes": {
+        "raw": 259,
+        "gzip": 207,
+        "brotli": 181
+      }
+    },
+    {
+      "fileName": "assets/landing-CSwTySlR.css",
+      "kind": "css",
+      "names": [
+        "landing.css"
+      ],
+      "originalFileNames": [
+        "src/landing.js"
+      ],
+      "sourceLength": 289,
+      "sizes": {
+        "raw": 277,
+        "gzip": 228,
+        "brotli": 176
+      }
+    },
+    {
+      "fileName": "assets/shared-wave-jJ2Aq7t_.svg",
+      "kind": "svg",
+      "names": [
+        "shared-wave.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/shared-wave.svg"
+      ],
+      "sourceLength": 260,
+      "sizes": {
+        "raw": 260,
+        "gzip": 209,
+        "brotli": 182
+      }
+    },
+    {
+      "fileName": "assets/skin-one-DDDSeQh6.css",
+      "kind": "css",
+      "names": [
+        "skin-one.css"
+      ],
+      "originalFileNames": [],
+      "sourceLength": 971,
+      "sizes": {
+        "raw": 959,
+        "gzip": 515,
+        "brotli": 413
+      }
+    },
+    {
+      "fileName": "assets/token-ring-CbgHUjSr.svg",
+      "kind": "svg",
+      "names": [
+        "token-ring.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/token-ring.svg"
+      ],
+      "sourceLength": 233,
+      "sizes": {
+        "raw": 233,
+        "gzip": 185,
+        "brotli": 162
+      }
+    },
+    {
+      "fileName": "assets/workbench-DHXwSSlP.css",
+      "kind": "css",
+      "names": [
+        "workbench.css"
+      ],
+      "originalFileNames": [
+        "src/workbench.js"
+      ],
+      "sourceLength": 140,
+      "sizes": {
+        "raw": 128,
+        "gzip": 128,
+        "brotli": 97
+      }
+    },
+    {
+      "fileName": "assets/workbench-grid-C8u6RWfR.svg",
+      "kind": "svg",
+      "names": [
+        "workbench-grid.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/workbench-grid.svg"
+      ],
+      "sourceLength": 262,
+      "sizes": {
+        "raw": 262,
+        "gzip": 193,
+        "brotli": 174
+      }
+    }
+  ]
+}

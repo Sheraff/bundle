@@ -1,0 +1,87 @@
+{
+  "id": "multi-entry-manifest-v2-to-v3",
+  "from": "../artifacts/multi-entry-manifest/v2.json",
+  "to": "../artifacts/multi-entry-manifest/v3.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "assets/admin-WcB3B5qR.js",
+        "to": "entries/admin-v3npcJWZ.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/storefront-DEr5ehB2.js",
+        "to": "entries/storefront-DfOHW3iu.js"
+      }
+    ],
+    "dynamicEntries": [
+      {
+        "kind": "same",
+        "from": "assets/audit-CYm-hpMc.js",
+        "to": "chunks/audit-c7uN7JEp.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/catalog-DWFVJCfT.js",
+        "to": "chunks/catalog-DN82vO_q.js"
+      }
+    ],
+    "sharedChunks": [
+      {
+        "kind": "same",
+        "from": "assets/portal-core-o9hEbMXK.js",
+        "to": "chunks/portal-base-BUCjDzvK.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/preload-helper-D4M6sveU.js",
+        "to": "chunks/preload-helper-D8ozU6d2.js"
+      }
+    ],
+    "css": [
+      {
+        "kind": "same",
+        "from": "assets/admin-BBkxV-6W.css",
+        "to": "static/admin-DcASH8zO.css"
+      },
+      {
+        "kind": "same",
+        "from": "assets/storefront-DoWqtyvU.css",
+        "to": "static/storefront-DpGReHAm.css"
+      },
+      {
+        "kind": "same",
+        "from": "assets/portal-core-CPgXb5I1.css",
+        "to": "static/portal-base-CSk-ehP3.css"
+      }
+    ],
+    "assets": [
+      {
+        "kind": "same",
+        "from": "assets/admin-badge-ZWqO9acf.svg",
+        "to": "static/admin-badge-dt0ZOYw3.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/console-ring-B0KBaUQm.svg",
+        "to": "static/console-ring-Bh7yAVs1.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/grid-pattern-CZpoVGYh.svg",
+        "to": "static/grid-pattern-CbCf_3oe.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/storefront-badge-VaAtlgtd.svg",
+        "to": "static/storefront-badge-B_mvDFj2.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/surface-wave-Bv5BZa8M.svg",
+        "to": "static/surface-wave-QbjXLvu_.svg"
+      }
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "id": "client-ssr-client-v1-to-v2",
+  "from": "../artifacts/client-ssr/v1-client.json",
+  "to": "../artifacts/client-ssr/v2-client.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "assets/client-Bna4RxeJ.js",
+        "to": "entries/client-6hT1IKn6.js"
+      }
+    ],
+    "dynamicEntries": [
+      {
+        "kind": "same",
+        "from": "assets/clientDiagnostics-DdU_IiUS.js",
+        "to": "chunks/clientDiagnostics-C5MufBA0.js"
+      }
+    ],
+    "sharedChunks": [
+      {
+        "kind": "split",
+        "from": "assets/browser-core-DuAyHwF7.js",
+        "to": [
+          "chunks/browser-format-DiMMf8jb.js",
+          "chunks/browser-shell-Dr01GPC6.js"
+        ]
+      }
+    ],
+    "css": [
+      {
+        "kind": "same",
+        "from": "assets/client-Dy2InDUL.css",
+        "to": "static/client-Cu-TP_O1.css"
+      }
+    ],
+    "assets": [
+      {
+        "kind": "same",
+        "from": "assets/client-badge-DaIo6-rs.svg",
+        "to": "static/client-badge-B5lFep22.svg"
+      }
+    ]
+  }
+}

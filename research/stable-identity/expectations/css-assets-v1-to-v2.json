@@ -1,0 +1,94 @@
+{
+  "id": "css-assets-v1-to-v2",
+  "from": "../artifacts/css-assets/v1.json",
+  "to": "../artifacts/css-assets/v2.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "assets/landing-CwEJoU5u.js",
+        "to": "assets/landing-ocOD1LKg.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/workbench-r_dHJZD5.js",
+        "to": "assets/workbench-Brrhnb8U.js"
+      }
+    ],
+    "sharedChunks": [
+      {
+        "kind": "split",
+        "from": "assets/skin-one-B8_WAgOM.js",
+        "to": [
+          "assets/palette-thread-C9j7480P.js",
+          "assets/shell-spine-voifiD_v.js"
+        ]
+      }
+    ],
+    "css": [
+      {
+        "kind": "same",
+        "from": "assets/landing-CSwTySlR.css",
+        "to": "assets/landing-BpXjN4nX.css"
+      },
+      {
+        "kind": "same",
+        "from": "assets/workbench-DHXwSSlP.css",
+        "to": "assets/workbench-Btka3oE3.css"
+      },
+      {
+        "kind": "split",
+        "from": "assets/skin-one-DDDSeQh6.css",
+        "to": [
+          "assets/palette-thread-zzV0Z8at.css",
+          "assets/shell-spine-BdxKV6TZ.css"
+        ]
+      }
+    ],
+    "assets": [
+      {
+        "kind": "same",
+        "from": "assets/landing-banner-wWYxgyWF.svg",
+        "to": "assets/landing-banner-CajZ_G8P.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/shared-wave-jJ2Aq7t_.svg",
+        "to": "assets/shared-wave-jJ2Aq7t_.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/token-ring-CbgHUjSr.svg",
+        "to": "assets/token-ring-MHHz0bBR.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/workbench-grid-C8u6RWfR.svg",
+        "to": "assets/workbench-grid-ltRY96Ld.svg"
+      }
+    ]
+  },
+  "treemap": {
+    "css": [
+      {
+        "relation": "split",
+        "from": [
+          "assets/skin-one-DDDSeQh6.css"
+        ],
+        "to": [
+          "assets/palette-thread-zzV0Z8at.css",
+          "assets/shell-spine-BdxKV6TZ.css"
+        ],
+        "stableKeyPrefix": "css-lineage:"
+      }
+    ],
+    "assets": [
+      {
+        "stableKey": "asset:src/assets/shared-wave.svg"
+      },
+      {
+        "stableKey": "asset:src/assets/token-ring.svg"
+      }
+    ]
+  }
+}

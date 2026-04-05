@@ -1,0 +1,31 @@
+.route-panel {
+  margin-top: 18px;
+  padding: 20px;
+  border-radius: 20px;
+  background:
+    linear-gradient(135deg, rgba(8, 15, 30, 0.95), rgba(15, 23, 42, 0.95)),
+    url('../assets/panel-stripe.svg');
+  background-size: cover;
+}
+
+.kpi-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0;
+  list-style: none;
+}
+
+.kpi-grid li {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(15, 118, 110, 0.32);
+}
+
+.kpi-grid em {
+  color: #99f6e4;
+  font-style: normal;
+  font-size: 12px;
+}

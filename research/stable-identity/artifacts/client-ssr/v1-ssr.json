@@ -1,0 +1,139 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "client-ssr",
+  "versionId": "v1",
+  "scenarioId": "client-ssr",
+  "environmentName": "ssr",
+  "generatedAt": "2026-04-05T14:40:12.659Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist/ssr"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_server-core-D8Vm5LgN.mjs",
+      "src": null,
+      "name": "server-core",
+      "file": "assets/server-core-D8Vm5LgN.mjs",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/entry-ssr.js",
+      "src": "src/entry-ssr.js",
+      "name": "entry-ssr",
+      "file": "entry-ssr.mjs",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_server-core-D8Vm5LgN.mjs"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "assets/server-core-D8Vm5LgN.mjs",
+      "kind": "chunk",
+      "name": "server-core",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/shared/formatBytes.js",
+          "stableId": "src/shared/formatBytes.js",
+          "scope": "app",
+          "renderedLength": 122,
+          "renderedExports": [
+            "formatBytes"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/serverFrame.js",
+          "stableId": "src/shared/serverFrame.js",
+          "scope": "app",
+          "renderedLength": 258,
+          "renderedExports": [
+            "renderServerDocument"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/serverMetrics.js",
+          "stableId": "src/shared/serverMetrics.js",
+          "scope": "app",
+          "renderedLength": 193,
+          "renderedExports": [
+            "renderMetricsMarkup"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/formatBytes.js",
+        "src/shared/serverFrame.js",
+        "src/shared/serverMetrics.js"
+      ],
+      "sizes": {
+        "raw": 611,
+        "gzip": 321,
+        "brotli": 277
+      }
+    },
+    {
+      "fileName": "entry-ssr.mjs",
+      "kind": "chunk",
+      "name": "entry-ssr",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/entry-ssr.js",
+        "stableId": "src/entry-ssr.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/server-core-D8Vm5LgN.mjs"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/entry-ssr.js",
+          "stableId": "src/entry-ssr.js",
+          "scope": "app",
+          "renderedLength": 101,
+          "renderedExports": [
+            "html"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/entry-ssr.js"
+      ],
+      "sizes": {
+        "raw": 197,
+        "gzip": 164,
+        "brotli": 148
+      }
+    }
+  ],
+  "assets": []
+}

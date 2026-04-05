@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  color: #e2e8f0;
+  background:
+    radial-gradient(circle at top, rgba(129, 140, 248, 0.24), transparent 36%),
+    #060b16;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.shell-root {
+  min-height: 100vh;
+  padding: 28px;
+  background-image: url('../assets/surface-wave.svg');
+  background-size: cover;
+}

@@ -1,0 +1,55 @@
+{
+  "id": "rename-moves-v1-to-v2",
+  "from": "../artifacts/rename-moves/v1.json",
+  "to": "../artifacts/rename-moves/v2.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "assets/main-YypW6s1q.js",
+        "to": "assets/main-BvfTL2-Q.js"
+      }
+    ],
+    "dynamicEntries": [
+      {
+        "kind": "same",
+        "from": "assets/settings-eY2GmyMQ.js",
+        "to": "assets/settings-C5VcZ79O.js"
+      },
+      {
+        "kind": "removed",
+        "from": "assets/reports-15hq-EuG.js"
+      },
+      {
+        "kind": "added",
+        "to": "assets/insights-D5Kx50d7.js"
+      }
+    ],
+    "sharedChunks": [
+      {
+        "kind": "same",
+        "from": "assets/renderPanel-BQ-_GR60.js",
+        "to": "assets/renderPanel-CA7h9wpH.js"
+      }
+    ],
+    "css": [
+      {
+        "kind": "same",
+        "from": "assets/main-D1MEb7hZ.css",
+        "to": "assets/main-DAnOSseC.css"
+      },
+      {
+        "kind": "same",
+        "from": "assets/renderPanel-BS-6-KwC.css",
+        "to": "assets/renderPanel-cTbAGsbM.css"
+      }
+    ],
+    "assets": [
+      {
+        "kind": "same",
+        "from": "assets/surface-wave-DKeiaxq_.svg",
+        "to": "assets/surface-wave-BoMSz6Ws.svg"
+      }
+    ]
+  }
+}

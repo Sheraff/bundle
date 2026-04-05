@@ -1,0 +1,278 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "client-ssr",
+  "versionId": "v1",
+  "scenarioId": "client-ssr",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:12.647Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist/client"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_browser-core-DuAyHwF7.js",
+      "src": null,
+      "name": "browser-core",
+      "file": "assets/browser-core-DuAyHwF7.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/client-badge.svg",
+      "src": "src/assets/client-badge.svg",
+      "name": null,
+      "file": "assets/client-badge-DaIo6-rs.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/entry-client.js",
+      "src": "src/entry-client.js",
+      "name": "client",
+      "file": "assets/client-Bna4RxeJ.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_browser-core-DuAyHwF7.js"
+      ],
+      "dynamicImports": [
+        "src/shared/clientDiagnostics.js"
+      ],
+      "css": [
+        "assets/client-Dy2InDUL.css"
+      ],
+      "assets": [
+        "assets/client-badge-DaIo6-rs.svg"
+      ]
+    },
+    {
+      "key": "src/shared/clientDiagnostics.js",
+      "src": "src/shared/clientDiagnostics.js",
+      "name": "clientDiagnostics",
+      "file": "assets/clientDiagnostics-DdU_IiUS.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_browser-core-DuAyHwF7.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "assets/browser-core-DuAyHwF7.js",
+      "kind": "chunk",
+      "name": "browser-core",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/shared/clientFrame.js",
+          "stableId": "src/shared/clientFrame.js",
+          "scope": "app",
+          "renderedLength": 574,
+          "renderedExports": [
+            "renderClientFrame"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/formatBytes.js",
+          "stableId": "src/shared/formatBytes.js",
+          "scope": "app",
+          "renderedLength": 122,
+          "renderedExports": [
+            "formatBytes"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/renderMetrics.js",
+          "stableId": "src/shared/renderMetrics.js",
+          "scope": "app",
+          "renderedLength": 324,
+          "renderedExports": [
+            "renderMetrics"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/clientFrame.js",
+        "src/shared/formatBytes.js",
+        "src/shared/renderMetrics.js"
+      ],
+      "sizes": {
+        "raw": 661,
+        "gzip": 414,
+        "brotli": 326
+      }
+    },
+    {
+      "fileName": "assets/client-Bna4RxeJ.js",
+      "kind": "chunk",
+      "name": "client",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/entry-client.js",
+        "stableId": "src/entry-client.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/browser-core-DuAyHwF7.js"
+      ],
+      "dynamicImports": [
+        "assets/clientDiagnostics-DdU_IiUS.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/client-Dy2InDUL.css"
+      ],
+      "importedAssets": [
+        "assets/client-badge-DaIo6-rs.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/assets/client-badge.svg",
+          "stableId": "src/assets/client-badge.svg",
+          "scope": "app",
+          "renderedLength": 120,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/entry-client.js",
+          "stableId": "src/entry-client.js",
+          "scope": "app",
+          "renderedLength": 495,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/client.css",
+          "stableId": "src/styles/client.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "virtual:vite/preload-helper.js",
+          "stableId": "virtual:vite/preload-helper.js",
+          "scope": "virtual",
+          "renderedLength": 2104,
+          "renderedExports": [
+            "__vitePreload"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/assets/client-badge.svg",
+        "src/entry-client.js",
+        "src/styles/client.css",
+        "virtual:vite/preload-helper.js"
+      ],
+      "sizes": {
+        "raw": 1745,
+        "gzip": 937,
+        "brotli": 796
+      }
+    },
+    {
+      "fileName": "assets/clientDiagnostics-DdU_IiUS.js",
+      "kind": "chunk",
+      "name": "clientDiagnostics",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/shared/clientDiagnostics.js",
+        "stableId": "src/shared/clientDiagnostics.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/browser-core-DuAyHwF7.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/shared/clientDiagnostics.js",
+          "stableId": "src/shared/clientDiagnostics.js",
+          "scope": "app",
+          "renderedLength": 303,
+          "renderedExports": [
+            "renderClientDiagnostics"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/clientDiagnostics.js"
+      ],
+      "sizes": {
+        "raw": 250,
+        "gzip": 215,
+        "brotli": 192
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "assets/client-badge-DaIo6-rs.svg",
+      "kind": "svg",
+      "names": [
+        "client-badge.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/client-badge.svg"
+      ],
+      "sourceLength": 256,
+      "sizes": {
+        "raw": 256,
+        "gzip": 199,
+        "brotli": 179
+      }
+    },
+    {
+      "fileName": "assets/client-Dy2InDUL.css",
+      "kind": "css",
+      "names": [
+        "client.css"
+      ],
+      "originalFileNames": [
+        "src/entry-client.js"
+      ],
+      "sourceLength": 712,
+      "sizes": {
+        "raw": 700,
+        "gzip": 411,
+        "brotli": 330
+      }
+    }
+  ]
+}

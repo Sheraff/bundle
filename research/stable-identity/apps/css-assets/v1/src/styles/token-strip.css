@@ -1,0 +1,18 @@
+.token-strip {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  list-style: none;
+  border-radius: 999px;
+  background:
+    rgba(17, 24, 39, 0.84)
+    url('../assets/token-ring.svg')
+    right center / 160px no-repeat;
+}
+
+.token-strip li {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(103, 232, 249, 0.14);
+}

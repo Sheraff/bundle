@@ -1,0 +1,69 @@
+:root {
+  color: #f8fafc;
+  background: #071019;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top, rgba(59, 130, 246, 0.18), transparent 40%),
+    #071019;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 32px;
+  background-image: url('./assets/hero-grid.svg');
+  background-size: 150px 150px;
+}
+
+.hero-card {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr auto;
+  padding: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 24px;
+  background: rgba(9, 16, 34, 0.88);
+  box-shadow: 0 24px 60px rgba(9, 16, 34, 0.42);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #60a5fa;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+}
+
+.hero-copy {
+  max-width: 48ch;
+  margin: 8px 0 0;
+  color: #dbeafe;
+}
+
+.hero-mark {
+  width: 96px;
+  height: 96px;
+}
+
+.route-tabs {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0 0;
+}
+
+.route-tabs button {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: rgba(15, 23, 42, 0.92);
+  color: inherit;
+  cursor: pointer;
+}
+
+.loading-state {
+  margin-top: 18px;
+  color: #93c5fd;
+}

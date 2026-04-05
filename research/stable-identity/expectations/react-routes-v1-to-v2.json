@@ -1,0 +1,108 @@
+{
+  "id": "react-routes-v1-to-v2",
+  "from": "../artifacts/react-routes/v1.json",
+  "to": "../artifacts/react-routes/v2.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "assets/main-Dhr_xQ8c.js",
+        "to": "assets/main-DXWUXybi.js"
+      }
+    ],
+    "dynamicEntries": [
+      {
+        "kind": "same",
+        "from": "assets/Reports-CqfGXk70.js",
+        "to": "assets/Reports-FmtNB42U.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/Settings-CY7q_QSJ.js",
+        "to": "assets/Settings-CaR36ogO.js"
+      }
+    ],
+    "sharedChunks": [
+      {
+        "kind": "same",
+        "from": "assets/rolldown-runtime-Cr0BHlHC.js",
+        "to": "assets/rolldown-runtime-Cr0BHlHC.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/vendor-D8k1_H0m.js",
+        "to": "assets/vendor-D8k1_H0m.js"
+      },
+      {
+        "kind": "split",
+        "from": "assets/routing-common-Be-lyhSa.js",
+        "to": [
+          "assets/route-format-AlVtcXM2.js",
+          "assets/route-ui-CHe5M3Mx.js"
+        ]
+      }
+    ],
+    "css": [
+      {
+        "kind": "same",
+        "from": "assets/main-B7o3cf34.css",
+        "to": "assets/main-DnpdpFcy.css"
+      },
+      {
+        "kind": "same",
+        "from": "assets/Reports-DBnpl65c.css",
+        "to": "assets/Reports-BIkUdiU3.css"
+      },
+      {
+        "kind": "same",
+        "from": "assets/Settings-BG9-LNWD.css",
+        "to": "assets/Settings-Bn1Y3LRh.css"
+      }
+    ],
+    "assets": [
+      {
+        "kind": "same",
+        "from": "assets/hero-grid-BModoB4I.svg",
+        "to": "assets/hero-grid-oPj641Wj.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/logo-mark-BRuJKycY.svg",
+        "to": "assets/logo-mark-B4CJMXex.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/panel-stripe-CADtGbXm.svg",
+        "to": "assets/panel-stripe-De3AjwKb.svg"
+      }
+    ]
+  },
+  "treemap": {
+    "sharedChunks": [
+      {
+        "relation": "split",
+        "from": [
+          "assets/routing-common-Be-lyhSa.js"
+        ],
+        "to": [
+          "assets/route-format-AlVtcXM2.js",
+          "assets/route-ui-CHe5M3Mx.js"
+        ],
+        "stableKeyPrefix": "shared-lineage:"
+      }
+    ],
+    "modules": [
+      {
+        "stableKey": "module:src/shared/routeShell.jsx"
+      },
+      {
+        "stableKey": "module:src/shared/formatCurrency.js"
+      }
+    ],
+    "packages": [
+      {
+        "stableKey": "package:react"
+      }
+    ]
+  }
+}

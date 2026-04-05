@@ -1,0 +1,340 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "auto-chunk-routes",
+  "versionId": "v3",
+  "scenarioId": "auto-chunk-routes",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:12.265Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_renderPanel-A4yNxyLP.js",
+      "src": null,
+      "name": "renderPanel",
+      "file": "chunks/renderPanel-A4yNxyLP.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/mark.svg",
+      "src": "src/assets/mark.svg",
+      "name": null,
+      "file": "static/mark-DFjepQ3u.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/main.js",
+      "src": "src/main.js",
+      "name": "main",
+      "file": "entries/main-gfJaLKwh.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [
+        "src/routes/alerts.js",
+        "src/routes/overview.js"
+      ],
+      "css": [
+        "static/main-31pB9nBS.css"
+      ],
+      "assets": [
+        "static/mark-DFjepQ3u.svg"
+      ]
+    },
+    {
+      "key": "src/routes/alerts.js",
+      "src": "src/routes/alerts.js",
+      "name": "alerts",
+      "file": "chunks/alerts-BPw5YRXz.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_renderPanel-A4yNxyLP.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/routes/overview.js",
+      "src": "src/routes/overview.js",
+      "name": "overview",
+      "file": "chunks/overview-Bz6a63oq.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_renderPanel-A4yNxyLP.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "chunks/alerts-BPw5YRXz.js",
+      "kind": "chunk",
+      "name": "alerts",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/alerts.js",
+        "stableId": "src/routes/alerts.js",
+        "scope": "app"
+      },
+      "imports": [
+        "chunks/renderPanel-A4yNxyLP.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/alerts.js",
+          "stableId": "src/routes/alerts.js",
+          "scope": "app",
+          "renderedLength": 203,
+          "renderedExports": [
+            "renderAlerts"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/alerts.js"
+      ],
+      "sizes": {
+        "raw": 169,
+        "gzip": 156,
+        "brotli": 152
+      }
+    },
+    {
+      "fileName": "chunks/overview-Bz6a63oq.js",
+      "kind": "chunk",
+      "name": "overview",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/overview.js",
+        "stableId": "src/routes/overview.js",
+        "scope": "app"
+      },
+      "imports": [
+        "chunks/renderPanel-A4yNxyLP.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/overview.js",
+          "stableId": "src/routes/overview.js",
+          "scope": "app",
+          "renderedLength": 209,
+          "renderedExports": [
+            "renderOverview"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/overview.js"
+      ],
+      "sizes": {
+        "raw": 173,
+        "gzip": 158,
+        "brotli": 128
+      }
+    },
+    {
+      "fileName": "chunks/renderPanel-A4yNxyLP.js",
+      "kind": "chunk",
+      "name": "renderPanel",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/shared/buildRows.js",
+          "stableId": "src/shared/buildRows.js",
+          "scope": "app",
+          "renderedLength": 181,
+          "renderedExports": [
+            "buildRows"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/describeTrend.js",
+          "stableId": "src/shared/describeTrend.js",
+          "scope": "app",
+          "renderedLength": 128,
+          "renderedExports": [
+            "describeTrend"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/formatDelta.js",
+          "stableId": "src/shared/formatDelta.js",
+          "scope": "app",
+          "renderedLength": 126,
+          "renderedExports": [
+            "formatDelta"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/renderPanel.js",
+          "stableId": "src/shared/renderPanel.js",
+          "scope": "app",
+          "renderedLength": 329,
+          "renderedExports": [
+            "renderPanel"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/buildRows.js",
+        "src/shared/describeTrend.js",
+        "src/shared/formatDelta.js",
+        "src/shared/renderPanel.js"
+      ],
+      "sizes": {
+        "raw": 381,
+        "gzip": 267,
+        "brotli": 209
+      }
+    },
+    {
+      "fileName": "entries/main-gfJaLKwh.js",
+      "kind": "chunk",
+      "name": "main",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/main.js",
+        "stableId": "src/main.js",
+        "scope": "app"
+      },
+      "imports": [],
+      "dynamicImports": [
+        "chunks/alerts-BPw5YRXz.js",
+        "chunks/overview-Bz6a63oq.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "static/main-31pB9nBS.css"
+      ],
+      "importedAssets": [
+        "static/mark-DFjepQ3u.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/app.css",
+          "stableId": "src/app.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/assets/mark.svg",
+          "stableId": "src/assets/mark.svg",
+          "scope": "app",
+          "renderedLength": 104,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/main.js",
+          "stableId": "src/main.js",
+          "scope": "app",
+          "renderedLength": 709,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "virtual:vite/preload-helper.js",
+          "stableId": "virtual:vite/preload-helper.js",
+          "scope": "virtual",
+          "renderedLength": 2104,
+          "renderedExports": [
+            "__vitePreload"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/app.css",
+        "src/assets/mark.svg",
+        "src/main.js",
+        "virtual:vite/preload-helper.js"
+      ],
+      "sizes": {
+        "raw": 1903,
+        "gzip": 1031,
+        "brotli": 868
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "static/main-31pB9nBS.css",
+      "kind": "css",
+      "names": [
+        "main.css"
+      ],
+      "originalFileNames": [
+        "src/main.js"
+      ],
+      "sourceLength": 614,
+      "sizes": {
+        "raw": 602,
+        "gzip": 398,
+        "brotli": 311
+      }
+    },
+    {
+      "fileName": "static/mark-DFjepQ3u.svg",
+      "kind": "svg",
+      "names": [
+        "mark.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/mark.svg"
+      ],
+      "sourceLength": 256,
+      "sizes": {
+        "raw": 256,
+        "gzip": 198,
+        "brotli": 172
+      }
+    }
+  ]
+}

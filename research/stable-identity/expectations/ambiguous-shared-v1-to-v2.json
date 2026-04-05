@@ -1,0 +1,59 @@
+{
+  "id": "ambiguous-shared-v1-to-v2",
+  "from": "../artifacts/ambiguous-shared/v1.json",
+  "to": "../artifacts/ambiguous-shared/v2.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "assets/main-Dk3Q6s0t.js",
+        "to": "assets/main-CQBCTs6G.js"
+      }
+    ],
+    "dynamicEntries": [
+      {
+        "kind": "same",
+        "from": "assets/alpha-DnO6W1xq.js",
+        "to": "assets/alpha-y_KqONDY.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/beta-54zPhMBX.js",
+        "to": "assets/beta-BLaHuIAF.js"
+      }
+    ],
+    "sharedChunks": [
+      {
+        "kind": "ambiguous",
+        "from": "assets/bridge-core-BoLJdJNn.js",
+        "to": [
+          "assets/bridge-left-BcA5Z4Bz.js",
+          "assets/bridge-right-DZeBEV0g.js"
+        ]
+      }
+    ]
+  },
+  "treemap": {
+    "sharedChunks": [
+      {
+        "relation": "ambiguous",
+        "from": [
+          "assets/bridge-core-BoLJdJNn.js"
+        ],
+        "to": [
+          "assets/bridge-left-BcA5Z4Bz.js",
+          "assets/bridge-right-DZeBEV0g.js"
+        ],
+        "stableKeyPrefix": "shared-lineage:"
+      }
+    ],
+    "modules": [
+      {
+        "stableKey": "module:src/shared/fetchBudget.js"
+      },
+      {
+        "stableKey": "module:src/shared/renderBadge.js"
+      }
+    ]
+  }
+}

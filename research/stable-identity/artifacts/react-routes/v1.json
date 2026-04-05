@@ -1,0 +1,801 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "react-routes",
+  "versionId": "v1",
+  "scenarioId": "react-routes",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:15.938Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_rolldown-runtime-Cr0BHlHC.js",
+      "src": null,
+      "name": "rolldown-runtime",
+      "file": "assets/rolldown-runtime-Cr0BHlHC.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "_routing-common-Be-lyhSa.js",
+      "src": null,
+      "name": "routing-common",
+      "file": "assets/routing-common-Be-lyhSa.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [
+        "_rolldown-runtime-Cr0BHlHC.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "_vendor-D8k1_H0m.js",
+      "src": null,
+      "name": "vendor",
+      "file": "assets/vendor-D8k1_H0m.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [
+        "_rolldown-runtime-Cr0BHlHC.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/hero-grid.svg",
+      "src": "src/assets/hero-grid.svg",
+      "name": null,
+      "file": "assets/hero-grid-BModoB4I.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/logo-mark.svg",
+      "src": "src/assets/logo-mark.svg",
+      "name": null,
+      "file": "assets/logo-mark-BRuJKycY.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/panel-stripe.svg",
+      "src": "src/assets/panel-stripe.svg",
+      "name": null,
+      "file": "assets/panel-stripe-CADtGbXm.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/main.jsx",
+      "src": "src/main.jsx",
+      "name": "main",
+      "file": "assets/main-Dhr_xQ8c.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_routing-common-Be-lyhSa.js",
+        "_vendor-D8k1_H0m.js"
+      ],
+      "dynamicImports": [
+        "src/routes/Reports.jsx",
+        "src/routes/Settings.jsx"
+      ],
+      "css": [
+        "assets/main-B7o3cf34.css"
+      ],
+      "assets": [
+        "assets/hero-grid-BModoB4I.svg",
+        "assets/logo-mark-BRuJKycY.svg"
+      ]
+    },
+    {
+      "key": "src/routes/Reports.jsx",
+      "src": "src/routes/Reports.jsx",
+      "name": "Reports",
+      "file": "assets/Reports-CqfGXk70.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_routing-common-Be-lyhSa.js"
+      ],
+      "dynamicImports": [],
+      "css": [
+        "assets/Reports-DBnpl65c.css"
+      ],
+      "assets": [
+        "assets/panel-stripe-CADtGbXm.svg"
+      ]
+    },
+    {
+      "key": "src/routes/Settings.jsx",
+      "src": "src/routes/Settings.jsx",
+      "name": "Settings",
+      "file": "assets/Settings-CY7q_QSJ.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_routing-common-Be-lyhSa.js"
+      ],
+      "dynamicImports": [],
+      "css": [
+        "assets/Settings-BG9-LNWD.css"
+      ],
+      "assets": []
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "assets/main-Dhr_xQ8c.js",
+      "kind": "chunk",
+      "name": "main",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/main.jsx",
+        "stableId": "src/main.jsx",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/routing-common-Be-lyhSa.js",
+        "assets/vendor-D8k1_H0m.js"
+      ],
+      "dynamicImports": [
+        "assets/Reports-CqfGXk70.js",
+        "assets/Settings-CY7q_QSJ.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/main-B7o3cf34.css"
+      ],
+      "importedAssets": [
+        "assets/hero-grid-BModoB4I.svg",
+        "assets/logo-mark-BRuJKycY.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/app.css",
+          "stableId": "src/app.css",
+          "scope": "app",
+          "renderedLength": 109,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/App.jsx",
+          "stableId": "src/App.jsx",
+          "scope": "app",
+          "renderedLength": 2036,
+          "renderedExports": [
+            "App"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/assets/logo-mark.svg",
+          "stableId": "src/assets/logo-mark.svg",
+          "scope": "app",
+          "renderedLength": 114,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/main.jsx",
+          "stableId": "src/main.jsx",
+          "scope": "app",
+          "renderedLength": 347,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "virtual:vite/preload-helper.js",
+          "stableId": "virtual:vite/preload-helper.js",
+          "scope": "virtual",
+          "renderedLength": 2152,
+          "renderedExports": [
+            "__vitePreload"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/app.css",
+        "src/App.jsx",
+        "src/assets/logo-mark.svg",
+        "src/main.jsx",
+        "virtual:vite/preload-helper.js"
+      ],
+      "sizes": {
+        "raw": 2871,
+        "gzip": 1401,
+        "brotli": 1235
+      }
+    },
+    {
+      "fileName": "assets/Reports-CqfGXk70.js",
+      "kind": "chunk",
+      "name": "Reports",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/Reports.jsx",
+        "stableId": "src/routes/Reports.jsx",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/routing-common-Be-lyhSa.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/Reports-DBnpl65c.css"
+      ],
+      "importedAssets": [
+        "assets/panel-stripe-CADtGbXm.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/routes/reports.css",
+          "stableId": "src/routes/reports.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/routes/Reports.jsx",
+          "stableId": "src/routes/Reports.jsx",
+          "scope": "app",
+          "renderedLength": 781,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/reports.css",
+        "src/routes/Reports.jsx"
+      ],
+      "sizes": {
+        "raw": 482,
+        "gzip": 319,
+        "brotli": 260
+      }
+    },
+    {
+      "fileName": "assets/rolldown-runtime-Cr0BHlHC.js",
+      "kind": "chunk",
+      "name": "rolldown-runtime",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "virtual:rolldown/runtime.js",
+          "stableId": "virtual:rolldown/runtime.js",
+          "scope": "virtual",
+          "renderedLength": 148,
+          "renderedExports": [
+            "__commonJSMin"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "virtual:rolldown/runtime.js"
+      ],
+      "sizes": {
+        "raw": 77,
+        "gzip": 78,
+        "brotli": 81
+      }
+    },
+    {
+      "fileName": "assets/routing-common-Be-lyhSa.js",
+      "kind": "chunk",
+      "name": "routing-common",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [
+        "assets/rolldown-runtime-Cr0BHlHC.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "node_modules/react/cjs/react-jsx-runtime.production.js",
+          "stableId": "pkg:react/cjs/react-jsx-runtime.production.js",
+          "scope": "package",
+          "renderedLength": 872,
+          "renderedExports": [
+            "jsx",
+            "jsxs"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react/jsx-runtime.js",
+          "stableId": "pkg:react/jsx-runtime.js",
+          "scope": "package",
+          "renderedLength": 247,
+          "renderedExports": [
+            "jsx",
+            "jsxs"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/formatCurrency.js",
+          "stableId": "src/shared/formatCurrency.js",
+          "scope": "app",
+          "renderedLength": 214,
+          "renderedExports": [
+            "formatCurrency"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/kpiCards.js",
+          "stableId": "src/shared/kpiCards.js",
+          "scope": "app",
+          "renderedLength": 301,
+          "renderedExports": [
+            "buildCards"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/routeShell.jsx",
+          "stableId": "src/shared/routeShell.jsx",
+          "scope": "app",
+          "renderedLength": 549,
+          "renderedExports": [
+            "RouteShell"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "pkg:react/cjs/react-jsx-runtime.production.js",
+        "pkg:react/jsx-runtime.js",
+        "src/shared/formatCurrency.js",
+        "src/shared/kpiCards.js",
+        "src/shared/routeShell.jsx"
+      ],
+      "sizes": {
+        "raw": 888,
+        "gzip": 533,
+        "brotli": 455
+      }
+    },
+    {
+      "fileName": "assets/Settings-CY7q_QSJ.js",
+      "kind": "chunk",
+      "name": "Settings",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/Settings.jsx",
+        "stableId": "src/routes/Settings.jsx",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/routing-common-Be-lyhSa.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/Settings-BG9-LNWD.css"
+      ],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/settings.css",
+          "stableId": "src/routes/settings.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/routes/Settings.jsx",
+          "stableId": "src/routes/Settings.jsx",
+          "scope": "app",
+          "renderedLength": 809,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/settings.css",
+        "src/routes/Settings.jsx"
+      ],
+      "sizes": {
+        "raw": 508,
+        "gzip": 337,
+        "brotli": 262
+      }
+    },
+    {
+      "fileName": "assets/vendor-D8k1_H0m.js",
+      "kind": "chunk",
+      "name": "vendor",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [
+        "assets/rolldown-runtime-Cr0BHlHC.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "node_modules/react-dom/cjs/react-dom-client.production.js",
+          "stableId": "pkg:react-dom/cjs/react-dom-client.production.js",
+          "scope": "package",
+          "renderedLength": 452122,
+          "renderedExports": [
+            "createRoot"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react-dom/cjs/react-dom.production.js",
+          "stableId": "pkg:react-dom/cjs/react-dom.production.js",
+          "scope": "package",
+          "renderedLength": 5772,
+          "renderedExports": [
+            "__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
+            "createPortal",
+            "flushSync",
+            "preconnect",
+            "prefetchDNS",
+            "preinit",
+            "preinitModule",
+            "preload",
+            "preloadModule",
+            "requestFormReset",
+            "unstable_batchedUpdates",
+            "useFormState",
+            "useFormStatus",
+            "version"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react-dom/client.js",
+          "stableId": "pkg:react-dom/client.js",
+          "scope": "package",
+          "renderedLength": 537,
+          "renderedExports": [
+            "createRoot"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react-dom/index.js",
+          "stableId": "pkg:react-dom/index.js",
+          "scope": "package",
+          "renderedLength": 532,
+          "renderedExports": [
+            "__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
+            "createPortal",
+            "flushSync",
+            "preconnect",
+            "prefetchDNS",
+            "preinit",
+            "preinitModule",
+            "preload",
+            "preloadModule",
+            "requestFormReset",
+            "unstable_batchedUpdates",
+            "useFormState",
+            "useFormStatus",
+            "version"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react/cjs/react.production.js",
+          "stableId": "pkg:react/cjs/react.production.js",
+          "scope": "package",
+          "renderedLength": 15145,
+          "renderedExports": [
+            "__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
+            "__COMPILER_RUNTIME",
+            "Activity",
+            "cache",
+            "cacheSignal",
+            "Children",
+            "cloneElement",
+            "Component",
+            "createContext",
+            "createElement",
+            "createRef",
+            "forwardRef",
+            "Fragment",
+            "isValidElement",
+            "lazy",
+            "memo",
+            "Profiler",
+            "PureComponent",
+            "startTransition",
+            "StrictMode",
+            "Suspense",
+            "unstable_useCacheRefresh",
+            "use",
+            "useActionState",
+            "useCallback",
+            "useContext",
+            "useDebugValue",
+            "useDeferredValue",
+            "useEffect",
+            "useEffectEvent",
+            "useId",
+            "useImperativeHandle",
+            "useInsertionEffect",
+            "useLayoutEffect",
+            "useMemo",
+            "useOptimistic",
+            "useReducer",
+            "useRef",
+            "useState",
+            "useSyncExternalStore",
+            "useTransition",
+            "version"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react/index.js",
+          "stableId": "pkg:react/index.js",
+          "scope": "package",
+          "renderedLength": 223,
+          "renderedExports": [
+            "__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
+            "__COMPILER_RUNTIME",
+            "Activity",
+            "cache",
+            "cacheSignal",
+            "Children",
+            "cloneElement",
+            "Component",
+            "createContext",
+            "createElement",
+            "createRef",
+            "forwardRef",
+            "Fragment",
+            "isValidElement",
+            "lazy",
+            "memo",
+            "Profiler",
+            "PureComponent",
+            "startTransition",
+            "StrictMode",
+            "Suspense",
+            "unstable_useCacheRefresh",
+            "use",
+            "useActionState",
+            "useCallback",
+            "useContext",
+            "useDebugValue",
+            "useDeferredValue",
+            "useEffect",
+            "useEffectEvent",
+            "useId",
+            "useImperativeHandle",
+            "useInsertionEffect",
+            "useLayoutEffect",
+            "useMemo",
+            "useOptimistic",
+            "useReducer",
+            "useRef",
+            "useState",
+            "useSyncExternalStore",
+            "useTransition",
+            "version"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/scheduler/cjs/scheduler.production.js",
+          "stableId": "pkg:scheduler/cjs/scheduler.production.js",
+          "scope": "package",
+          "renderedLength": 9045,
+          "renderedExports": [
+            "unstable_cancelCallback",
+            "unstable_forceFrameRate",
+            "unstable_getCurrentPriorityLevel",
+            "unstable_IdlePriority",
+            "unstable_ImmediatePriority",
+            "unstable_LowPriority",
+            "unstable_next",
+            "unstable_NormalPriority",
+            "unstable_Profiling",
+            "unstable_requestPaint",
+            "unstable_runWithPriority",
+            "unstable_scheduleCallback",
+            "unstable_shouldYield",
+            "unstable_UserBlockingPriority",
+            "unstable_wrapCallback"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/scheduler/index.js",
+          "stableId": "pkg:scheduler/index.js",
+          "scope": "package",
+          "renderedLength": 239,
+          "renderedExports": [
+            "unstable_cancelCallback",
+            "unstable_forceFrameRate",
+            "unstable_getCurrentPriorityLevel",
+            "unstable_IdlePriority",
+            "unstable_ImmediatePriority",
+            "unstable_LowPriority",
+            "unstable_next",
+            "unstable_NormalPriority",
+            "unstable_Profiling",
+            "unstable_requestPaint",
+            "unstable_runWithPriority",
+            "unstable_scheduleCallback",
+            "unstable_shouldYield",
+            "unstable_UserBlockingPriority",
+            "unstable_wrapCallback"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "pkg:react-dom/cjs/react-dom-client.production.js",
+        "pkg:react-dom/cjs/react-dom.production.js",
+        "pkg:react-dom/client.js",
+        "pkg:react-dom/index.js",
+        "pkg:react/cjs/react.production.js",
+        "pkg:react/index.js",
+        "pkg:scheduler/cjs/scheduler.production.js",
+        "pkg:scheduler/index.js"
+      ],
+      "sizes": {
+        "raw": 189260,
+        "gzip": 58816,
+        "brotli": 50656
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "assets/hero-grid-BModoB4I.svg",
+      "kind": "svg",
+      "names": [
+        "hero-grid.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/hero-grid.svg"
+      ],
+      "sourceLength": 251,
+      "sizes": {
+        "raw": 251,
+        "gzip": 183,
+        "brotli": 161
+      }
+    },
+    {
+      "fileName": "assets/logo-mark-BRuJKycY.svg",
+      "kind": "svg",
+      "names": [
+        "logo-mark.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/logo-mark.svg"
+      ],
+      "sourceLength": 305,
+      "sizes": {
+        "raw": 305,
+        "gzip": 225,
+        "brotli": 198
+      }
+    },
+    {
+      "fileName": "assets/main-B7o3cf34.css",
+      "kind": "css",
+      "names": [
+        "main.css"
+      ],
+      "originalFileNames": [
+        "src/main.jsx"
+      ],
+      "sourceLength": 887,
+      "sizes": {
+        "raw": 875,
+        "gzip": 517,
+        "brotli": 416
+      }
+    },
+    {
+      "fileName": "assets/panel-stripe-CADtGbXm.svg",
+      "kind": "svg",
+      "names": [
+        "panel-stripe.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/panel-stripe.svg"
+      ],
+      "sourceLength": 240,
+      "sizes": {
+        "raw": 240,
+        "gzip": 193,
+        "brotli": 181
+      }
+    },
+    {
+      "fileName": "assets/Reports-DBnpl65c.css",
+      "kind": "css",
+      "names": [
+        "Reports.css"
+      ],
+      "originalFileNames": [
+        "src/routes/Reports.jsx"
+      ],
+      "sourceLength": 586,
+      "sizes": {
+        "raw": 574,
+        "gzip": 335,
+        "brotli": 269
+      }
+    },
+    {
+      "fileName": "assets/Settings-BG9-LNWD.css",
+      "kind": "css",
+      "names": [
+        "Settings.css"
+      ],
+      "originalFileNames": [
+        "src/routes/Settings.jsx"
+      ],
+      "sourceLength": 214,
+      "sizes": {
+        "raw": 202,
+        "gzip": 166,
+        "brotli": 129
+      }
+    }
+  ]
+}

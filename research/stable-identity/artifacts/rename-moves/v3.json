@@ -1,0 +1,335 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "rename-moves",
+  "versionId": "v3",
+  "scenarioId": "rename-moves",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:18.280Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_renderCard-CVaYYwpy.js",
+      "src": null,
+      "name": "renderCard",
+      "file": "chunks/renderCard-CVaYYwpy.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [
+        "static/renderCard-DCVaos3G.css"
+      ],
+      "assets": [
+        "static/glow-sheet-C1qW_FfC.svg"
+      ]
+    },
+    {
+      "key": "_renderCard-DCVaos3G.css",
+      "src": "_renderCard-DCVaos3G.css",
+      "name": null,
+      "file": "static/renderCard-DCVaos3G.css",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/main.js",
+      "src": "src/main.js",
+      "name": "main",
+      "file": "entries/main-Z-xc5Gqo.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [
+        "src/routes/insights.js",
+        "src/routes/preferences.js"
+      ],
+      "css": [
+        "static/main-EU6jixvg.css"
+      ],
+      "assets": []
+    },
+    {
+      "key": "src/media/glow-sheet.svg",
+      "src": "src/media/glow-sheet.svg",
+      "name": null,
+      "file": "static/glow-sheet-C1qW_FfC.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/routes/insights.js",
+      "src": "src/routes/insights.js",
+      "name": "insights",
+      "file": "chunks/insights-C7nAt1nA.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_renderCard-CVaYYwpy.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/routes/preferences.js",
+      "src": "src/routes/preferences.js",
+      "name": "preferences",
+      "file": "chunks/preferences-BRNWaoAD.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_renderCard-CVaYYwpy.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "chunks/insights-C7nAt1nA.js",
+      "kind": "chunk",
+      "name": "insights",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/insights.js",
+        "stableId": "src/routes/insights.js",
+        "scope": "app"
+      },
+      "imports": [
+        "chunks/renderCard-CVaYYwpy.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/insights.js",
+          "stableId": "src/routes/insights.js",
+          "scope": "app",
+          "renderedLength": 163,
+          "renderedExports": [
+            "renderInsights"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/insights.js"
+      ],
+      "sizes": {
+        "raw": 158,
+        "gzip": 145,
+        "brotli": 112
+      }
+    },
+    {
+      "fileName": "chunks/preferences-BRNWaoAD.js",
+      "kind": "chunk",
+      "name": "preferences",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/preferences.js",
+        "stableId": "src/routes/preferences.js",
+        "scope": "app"
+      },
+      "imports": [
+        "chunks/renderCard-CVaYYwpy.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/preferences.js",
+          "stableId": "src/routes/preferences.js",
+          "scope": "app",
+          "renderedLength": 175,
+          "renderedExports": [
+            "renderPreferences"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/preferences.js"
+      ],
+      "sizes": {
+        "raw": 167,
+        "gzip": 145,
+        "brotli": 113
+      }
+    },
+    {
+      "fileName": "chunks/renderCard-CVaYYwpy.js",
+      "kind": "chunk",
+      "name": "renderCard",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "static/renderCard-DCVaos3G.css"
+      ],
+      "importedAssets": [
+        "static/glow-sheet-C1qW_FfC.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/ui/card.css",
+          "stableId": "src/ui/card.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/ui/renderCard.js",
+          "stableId": "src/ui/renderCard.js",
+          "scope": "app",
+          "renderedLength": 323,
+          "renderedExports": [
+            "renderCard"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/ui/card.css",
+        "src/ui/renderCard.js"
+      ],
+      "sizes": {
+        "raw": 207,
+        "gzip": 177,
+        "brotli": 122
+      }
+    },
+    {
+      "fileName": "entries/main-Z-xc5Gqo.js",
+      "kind": "chunk",
+      "name": "main",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/main.js",
+        "stableId": "src/main.js",
+        "scope": "app"
+      },
+      "imports": [],
+      "dynamicImports": [
+        "chunks/insights-C7nAt1nA.js",
+        "chunks/preferences-BRNWaoAD.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "static/main-EU6jixvg.css"
+      ],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/main.js",
+          "stableId": "src/main.js",
+          "scope": "app",
+          "renderedLength": 565,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/ui/app.css",
+          "stableId": "src/ui/app.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "virtual:vite/preload-helper.js",
+          "stableId": "virtual:vite/preload-helper.js",
+          "scope": "virtual",
+          "renderedLength": 2104,
+          "renderedExports": [
+            "__vitePreload"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/main.js",
+        "src/ui/app.css",
+        "virtual:vite/preload-helper.js"
+      ],
+      "sizes": {
+        "raw": 1771,
+        "gzip": 944,
+        "brotli": 795
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "static/glow-sheet-C1qW_FfC.svg",
+      "kind": "svg",
+      "names": [
+        "glow-sheet.svg"
+      ],
+      "originalFileNames": [
+        "src/media/glow-sheet.svg"
+      ],
+      "sourceLength": 259,
+      "sizes": {
+        "raw": 259,
+        "gzip": 208,
+        "brotli": 183
+      }
+    },
+    {
+      "fileName": "static/main-EU6jixvg.css",
+      "kind": "css",
+      "names": [
+        "main.css"
+      ],
+      "originalFileNames": [
+        "src/main.js"
+      ],
+      "sourceLength": 208,
+      "sizes": {
+        "raw": 196,
+        "gzip": 179,
+        "brotli": 139
+      }
+    },
+    {
+      "fileName": "static/renderCard-DCVaos3G.css",
+      "kind": "css",
+      "names": [
+        "renderCard.css"
+      ],
+      "originalFileNames": [],
+      "sourceLength": 243,
+      "sizes": {
+        "raw": 231,
+        "gzip": 205,
+        "brotli": 137
+      }
+    }
+  ]
+}

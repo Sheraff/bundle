@@ -1,0 +1,630 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "multi-entry-manifest",
+  "versionId": "v2",
+  "scenarioId": "multi-entry-manifest",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:14.955Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_portal-core-CPgXb5I1.css",
+      "src": "_portal-core-CPgXb5I1.css",
+      "name": null,
+      "file": "assets/portal-core-CPgXb5I1.css",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "_portal-core-o9hEbMXK.js",
+      "src": null,
+      "name": "portal-core",
+      "file": "assets/portal-core-o9hEbMXK.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [
+        "assets/portal-core-CPgXb5I1.css"
+      ],
+      "assets": [
+        "assets/grid-pattern-CZpoVGYh.svg"
+      ]
+    },
+    {
+      "key": "_preload-helper-D4M6sveU.js",
+      "src": null,
+      "name": "preload-helper",
+      "file": "assets/preload-helper-D4M6sveU.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/admin.js",
+      "src": "src/admin.js",
+      "name": "admin",
+      "file": "assets/admin-WcB3B5qR.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_portal-core-o9hEbMXK.js",
+        "_preload-helper-D4M6sveU.js"
+      ],
+      "dynamicImports": [
+        "src/routes/audit.js"
+      ],
+      "css": [
+        "assets/admin-BBkxV-6W.css"
+      ],
+      "assets": [
+        "assets/admin-badge-ZWqO9acf.svg",
+        "assets/console-ring-B0KBaUQm.svg"
+      ]
+    },
+    {
+      "key": "src/assets/admin-badge.svg",
+      "src": "src/assets/admin-badge.svg",
+      "name": null,
+      "file": "assets/admin-badge-ZWqO9acf.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/console-ring.svg",
+      "src": "src/assets/console-ring.svg",
+      "name": null,
+      "file": "assets/console-ring-B0KBaUQm.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/grid-pattern.svg",
+      "src": "src/assets/grid-pattern.svg",
+      "name": null,
+      "file": "assets/grid-pattern-CZpoVGYh.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/storefront-badge.svg",
+      "src": "src/assets/storefront-badge.svg",
+      "name": null,
+      "file": "assets/storefront-badge-VaAtlgtd.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/surface-wave.svg",
+      "src": "src/assets/surface-wave.svg",
+      "name": null,
+      "file": "assets/surface-wave-Bv5BZa8M.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/routes/audit.js",
+      "src": "src/routes/audit.js",
+      "name": "audit",
+      "file": "assets/audit-CYm-hpMc.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/routes/catalog.js",
+      "src": "src/routes/catalog.js",
+      "name": "catalog",
+      "file": "assets/catalog-DWFVJCfT.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/storefront.js",
+      "src": "src/storefront.js",
+      "name": "storefront",
+      "file": "assets/storefront-DEr5ehB2.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_portal-core-o9hEbMXK.js",
+        "_preload-helper-D4M6sveU.js"
+      ],
+      "dynamicImports": [
+        "src/routes/catalog.js"
+      ],
+      "css": [
+        "assets/storefront-DoWqtyvU.css"
+      ],
+      "assets": [
+        "assets/storefront-badge-VaAtlgtd.svg",
+        "assets/surface-wave-Bv5BZa8M.svg"
+      ]
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "assets/admin-WcB3B5qR.js",
+      "kind": "chunk",
+      "name": "admin",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/admin.js",
+        "stableId": "src/admin.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/portal-core-o9hEbMXK.js",
+        "assets/preload-helper-D4M6sveU.js"
+      ],
+      "dynamicImports": [
+        "assets/audit-CYm-hpMc.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/admin-BBkxV-6W.css"
+      ],
+      "importedAssets": [
+        "assets/admin-badge-ZWqO9acf.svg",
+        "assets/console-ring-B0KBaUQm.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/admin.js",
+          "stableId": "src/admin.js",
+          "scope": "app",
+          "renderedLength": 349,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/assets/admin-badge.svg",
+          "stableId": "src/assets/admin-badge.svg",
+          "scope": "app",
+          "renderedLength": 118,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/admin.css",
+          "stableId": "src/styles/admin.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/admin.js",
+        "src/assets/admin-badge.svg",
+        "src/styles/admin.css"
+      ],
+      "sizes": {
+        "raw": 343,
+        "gzip": 275,
+        "brotli": 228
+      }
+    },
+    {
+      "fileName": "assets/audit-CYm-hpMc.js",
+      "kind": "chunk",
+      "name": "audit",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/audit.js",
+        "stableId": "src/routes/audit.js",
+        "scope": "app"
+      },
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/audit.js",
+          "stableId": "src/routes/audit.js",
+          "scope": "app",
+          "renderedLength": 432,
+          "renderedExports": [
+            "renderAudit"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/audit.js"
+      ],
+      "sizes": {
+        "raw": 311,
+        "gzip": 241,
+        "brotli": 202
+      }
+    },
+    {
+      "fileName": "assets/catalog-DWFVJCfT.js",
+      "kind": "chunk",
+      "name": "catalog",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/catalog.js",
+        "stableId": "src/routes/catalog.js",
+        "scope": "app"
+      },
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/catalog.js",
+          "stableId": "src/routes/catalog.js",
+          "scope": "app",
+          "renderedLength": 435,
+          "renderedExports": [
+            "renderCatalog"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/catalog.js"
+      ],
+      "sizes": {
+        "raw": 312,
+        "gzip": 240,
+        "brotli": 188
+      }
+    },
+    {
+      "fileName": "assets/portal-core-o9hEbMXK.js",
+      "kind": "chunk",
+      "name": "portal-core",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/portal-core-CPgXb5I1.css"
+      ],
+      "importedAssets": [
+        "assets/grid-pattern-CZpoVGYh.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/shared/featureFlags.js",
+          "stableId": "src/shared/featureFlags.js",
+          "scope": "app",
+          "renderedLength": 112,
+          "renderedExports": [
+            "featureFlags"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/platform.js",
+          "stableId": "src/shared/platform.js",
+          "scope": "app",
+          "renderedLength": 665,
+          "renderedExports": [
+            "renderScaffold"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/renderPanel.js",
+          "stableId": "src/shared/renderPanel.js",
+          "scope": "app",
+          "renderedLength": 450,
+          "renderedExports": [
+            "renderPanel"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/themeTokens.js",
+          "stableId": "src/shared/themeTokens.js",
+          "scope": "app",
+          "renderedLength": 112,
+          "renderedExports": [
+            "themeTokens"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/shared.css",
+          "stableId": "src/styles/shared.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/featureFlags.js",
+        "src/shared/platform.js",
+        "src/shared/renderPanel.js",
+        "src/shared/themeTokens.js",
+        "src/styles/shared.css"
+      ],
+      "sizes": {
+        "raw": 912,
+        "gzip": 529,
+        "brotli": 425
+      }
+    },
+    {
+      "fileName": "assets/preload-helper-D4M6sveU.js",
+      "kind": "chunk",
+      "name": "preload-helper",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "virtual:vite/preload-helper.js",
+          "stableId": "virtual:vite/preload-helper.js",
+          "scope": "virtual",
+          "renderedLength": 2104,
+          "renderedExports": [
+            "__vitePreload"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "virtual:vite/preload-helper.js"
+      ],
+      "sizes": {
+        "raw": 1193,
+        "gzip": 681,
+        "brotli": 563
+      }
+    },
+    {
+      "fileName": "assets/storefront-DEr5ehB2.js",
+      "kind": "chunk",
+      "name": "storefront",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/storefront.js",
+        "stableId": "src/storefront.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/portal-core-o9hEbMXK.js",
+        "assets/preload-helper-D4M6sveU.js"
+      ],
+      "dynamicImports": [
+        "assets/catalog-DWFVJCfT.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/storefront-DoWqtyvU.css"
+      ],
+      "importedAssets": [
+        "assets/storefront-badge-VaAtlgtd.svg",
+        "assets/surface-wave-Bv5BZa8M.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/assets/storefront-badge.svg",
+          "stableId": "src/assets/storefront-badge.svg",
+          "scope": "app",
+          "renderedLength": 128,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/storefront.js",
+          "stableId": "src/storefront.js",
+          "scope": "app",
+          "renderedLength": 364,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/storefront.css",
+          "stableId": "src/styles/storefront.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/assets/storefront-badge.svg",
+        "src/storefront.js",
+        "src/styles/storefront.css"
+      ],
+      "sizes": {
+        "raw": 353,
+        "gzip": 276,
+        "brotli": 227
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "assets/admin-badge-ZWqO9acf.svg",
+      "kind": "svg",
+      "names": [
+        "admin-badge.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/admin-badge.svg"
+      ],
+      "sourceLength": 246,
+      "sizes": {
+        "raw": 246,
+        "gzip": 200,
+        "brotli": 193
+      }
+    },
+    {
+      "fileName": "assets/admin-BBkxV-6W.css",
+      "kind": "css",
+      "names": [
+        "admin.css"
+      ],
+      "originalFileNames": [
+        "src/admin.js"
+      ],
+      "sourceLength": 284,
+      "sizes": {
+        "raw": 272,
+        "gzip": 228,
+        "brotli": 195
+      }
+    },
+    {
+      "fileName": "assets/console-ring-B0KBaUQm.svg",
+      "kind": "svg",
+      "names": [
+        "console-ring.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/console-ring.svg"
+      ],
+      "sourceLength": 233,
+      "sizes": {
+        "raw": 233,
+        "gzip": 184,
+        "brotli": 161
+      }
+    },
+    {
+      "fileName": "assets/grid-pattern-CZpoVGYh.svg",
+      "kind": "svg",
+      "names": [
+        "grid-pattern.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/grid-pattern.svg"
+      ],
+      "sourceLength": 251,
+      "sizes": {
+        "raw": 251,
+        "gzip": 185,
+        "brotli": 163
+      }
+    },
+    {
+      "fileName": "assets/portal-core-CPgXb5I1.css",
+      "kind": "css",
+      "names": [
+        "portal-core.css"
+      ],
+      "originalFileNames": [],
+      "sourceLength": 879,
+      "sizes": {
+        "raw": 867,
+        "gzip": 477,
+        "brotli": 370
+      }
+    },
+    {
+      "fileName": "assets/storefront-badge-VaAtlgtd.svg",
+      "kind": "svg",
+      "names": [
+        "storefront-badge.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/storefront-badge.svg"
+      ],
+      "sourceLength": 234,
+      "sizes": {
+        "raw": 234,
+        "gzip": 193,
+        "brotli": 165
+      }
+    },
+    {
+      "fileName": "assets/storefront-DoWqtyvU.css",
+      "kind": "css",
+      "names": [
+        "storefront.css"
+      ],
+      "originalFileNames": [
+        "src/storefront.js"
+      ],
+      "sourceLength": 284,
+      "sizes": {
+        "raw": 272,
+        "gzip": 228,
+        "brotli": 188
+      }
+    },
+    {
+      "fileName": "assets/surface-wave-Bv5BZa8M.svg",
+      "kind": "svg",
+      "names": [
+        "surface-wave.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/surface-wave.svg"
+      ],
+      "sourceLength": 259,
+      "sizes": {
+        "raw": 259,
+        "gzip": 204,
+        "brotli": 179
+      }
+    }
+  ]
+}

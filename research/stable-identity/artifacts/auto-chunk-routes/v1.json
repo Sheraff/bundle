@@ -1,0 +1,329 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "auto-chunk-routes",
+  "versionId": "v1",
+  "scenarioId": "auto-chunk-routes",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:11.545Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_renderPanel-DdfzP8lc.js",
+      "src": null,
+      "name": "renderPanel",
+      "file": "assets/renderPanel-DdfzP8lc.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/mark.svg",
+      "src": "src/assets/mark.svg",
+      "name": null,
+      "file": "assets/mark-D3KEyKbJ.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/main.js",
+      "src": "src/main.js",
+      "name": "main",
+      "file": "assets/main-BoBr4YA8.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [
+        "src/routes/alerts.js",
+        "src/routes/overview.js"
+      ],
+      "css": [
+        "assets/main-CRhk4H3r.css"
+      ],
+      "assets": [
+        "assets/mark-D3KEyKbJ.svg"
+      ]
+    },
+    {
+      "key": "src/routes/alerts.js",
+      "src": "src/routes/alerts.js",
+      "name": "alerts",
+      "file": "assets/alerts-DMMw340c.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_renderPanel-DdfzP8lc.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/routes/overview.js",
+      "src": "src/routes/overview.js",
+      "name": "overview",
+      "file": "assets/overview-Co6zy03X.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_renderPanel-DdfzP8lc.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "assets/alerts-DMMw340c.js",
+      "kind": "chunk",
+      "name": "alerts",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/alerts.js",
+        "stableId": "src/routes/alerts.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/renderPanel-DdfzP8lc.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/alerts.js",
+          "stableId": "src/routes/alerts.js",
+          "scope": "app",
+          "renderedLength": 174,
+          "renderedExports": [
+            "renderAlerts"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/alerts.js"
+      ],
+      "sizes": {
+        "raw": 149,
+        "gzip": 144,
+        "brotli": 117
+      }
+    },
+    {
+      "fileName": "assets/main-BoBr4YA8.js",
+      "kind": "chunk",
+      "name": "main",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/main.js",
+        "stableId": "src/main.js",
+        "scope": "app"
+      },
+      "imports": [],
+      "dynamicImports": [
+        "assets/alerts-DMMw340c.js",
+        "assets/overview-Co6zy03X.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/main-CRhk4H3r.css"
+      ],
+      "importedAssets": [
+        "assets/mark-D3KEyKbJ.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/app.css",
+          "stableId": "src/app.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/assets/mark.svg",
+          "stableId": "src/assets/mark.svg",
+          "scope": "app",
+          "renderedLength": 104,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/main.js",
+          "stableId": "src/main.js",
+          "scope": "app",
+          "renderedLength": 693,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "virtual:vite/preload-helper.js",
+          "stableId": "virtual:vite/preload-helper.js",
+          "scope": "virtual",
+          "renderedLength": 2104,
+          "renderedExports": [
+            "__vitePreload"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/app.css",
+        "src/assets/mark.svg",
+        "src/main.js",
+        "virtual:vite/preload-helper.js"
+      ],
+      "sizes": {
+        "raw": 1887,
+        "gzip": 1024,
+        "brotli": 865
+      }
+    },
+    {
+      "fileName": "assets/overview-Co6zy03X.js",
+      "kind": "chunk",
+      "name": "overview",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/overview.js",
+        "stableId": "src/routes/overview.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/renderPanel-DdfzP8lc.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/overview.js",
+          "stableId": "src/routes/overview.js",
+          "scope": "app",
+          "renderedLength": 180,
+          "renderedExports": [
+            "renderOverview"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/overview.js"
+      ],
+      "sizes": {
+        "raw": 153,
+        "gzip": 146,
+        "brotli": 118
+      }
+    },
+    {
+      "fileName": "assets/renderPanel-DdfzP8lc.js",
+      "kind": "chunk",
+      "name": "renderPanel",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/shared/buildRows.js",
+          "stableId": "src/shared/buildRows.js",
+          "scope": "app",
+          "renderedLength": 181,
+          "renderedExports": [
+            "buildRows"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/formatDelta.js",
+          "stableId": "src/shared/formatDelta.js",
+          "scope": "app",
+          "renderedLength": 126,
+          "renderedExports": [
+            "formatDelta"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/renderPanel.js",
+          "stableId": "src/shared/renderPanel.js",
+          "scope": "app",
+          "renderedLength": 329,
+          "renderedExports": [
+            "renderPanel"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/buildRows.js",
+        "src/shared/formatDelta.js",
+        "src/shared/renderPanel.js"
+      ],
+      "sizes": {
+        "raw": 334,
+        "gzip": 245,
+        "brotli": 186
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "assets/main-CRhk4H3r.css",
+      "kind": "css",
+      "names": [
+        "main.css"
+      ],
+      "originalFileNames": [
+        "src/main.js"
+      ],
+      "sourceLength": 614,
+      "sizes": {
+        "raw": 602,
+        "gzip": 397,
+        "brotli": 309
+      }
+    },
+    {
+      "fileName": "assets/mark-D3KEyKbJ.svg",
+      "kind": "svg",
+      "names": [
+        "mark.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/mark.svg"
+      ],
+      "sourceLength": 256,
+      "sizes": {
+        "raw": 256,
+        "gzip": 198,
+        "brotli": 173
+      }
+    }
+  ]
+}

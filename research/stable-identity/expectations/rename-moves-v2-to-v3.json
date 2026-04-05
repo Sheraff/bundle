@@ -1,0 +1,36 @@
+{
+  "id": "rename-moves-v2-to-v3",
+  "from": "../artifacts/rename-moves/v2.json",
+  "to": "../artifacts/rename-moves/v3.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "assets/main-BvfTL2-Q.js",
+        "to": "entries/main-Z-xc5Gqo.js"
+      }
+    ],
+    "dynamicEntries": [
+      {
+        "kind": "same",
+        "from": "assets/insights-D5Kx50d7.js",
+        "to": "chunks/insights-C7nAt1nA.js"
+      },
+      {
+        "kind": "removed",
+        "from": "assets/settings-C5VcZ79O.js"
+      },
+      {
+        "kind": "added",
+        "to": "chunks/preferences-BRNWaoAD.js"
+      }
+    ],
+    "css": [
+      {
+        "kind": "same",
+        "from": "assets/main-DAnOSseC.css",
+        "to": "static/main-EU6jixvg.css"
+      }
+    ]
+  }
+}

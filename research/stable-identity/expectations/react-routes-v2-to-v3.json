@@ -1,0 +1,80 @@
+{
+  "id": "react-routes-v2-to-v3",
+  "from": "../artifacts/react-routes/v2.json",
+  "to": "../artifacts/react-routes/v3.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "assets/main-DXWUXybi.js",
+        "to": "entries/main-cIYjOrIa.js"
+      }
+    ],
+    "dynamicEntries": [
+      {
+        "kind": "same",
+        "from": "assets/Reports-FmtNB42U.js",
+        "to": "chunks/Reports-CZtKaUhg.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/Settings-CaR36ogO.js",
+        "to": "chunks/Settings-mhqlgOyL.js"
+      }
+    ],
+    "sharedChunks": [
+      {
+        "kind": "same",
+        "from": "assets/rolldown-runtime-Cr0BHlHC.js",
+        "to": "chunks/rolldown-runtime-9zYgfBdx.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/vendor-D8k1_H0m.js",
+        "to": "chunks/vendor-BNQ4Mb4v.js"
+      },
+      {
+        "kind": "merge",
+        "from": [
+          "assets/route-format-AlVtcXM2.js",
+          "assets/route-ui-CHe5M3Mx.js"
+        ],
+        "to": "chunks/shell-bundle-1WDCm2yq.js"
+      }
+    ],
+    "css": [
+      {
+        "kind": "same",
+        "from": "assets/main-DnpdpFcy.css",
+        "to": "assets/main-CUNOAPfo.css"
+      },
+      {
+        "kind": "same",
+        "from": "assets/Reports-BIkUdiU3.css",
+        "to": "assets/Reports-B2C9CtQI.css"
+      },
+      {
+        "kind": "same",
+        "from": "assets/Settings-Bn1Y3LRh.css",
+        "to": "assets/Settings-HvSlcMW7.css"
+      }
+    ],
+    "assets": [
+      {
+        "kind": "same",
+        "from": "assets/hero-grid-oPj641Wj.svg",
+        "to": "assets/hero-grid-CA9wTTOb.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/logo-mark-B4CJMXex.svg",
+        "to": "assets/logo-mark-DziUUHct.svg"
+      },
+      {
+        "kind": "same",
+        "from": "assets/panel-stripe-De3AjwKb.svg",
+        "to": "assets/panel-stripe-oJZsKaux.svg"
+      }
+    ]
+  }
+}

@@ -1,0 +1,491 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "css-assets",
+  "versionId": "v2",
+  "scenarioId": "css-assets",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:13.800Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_palette-thread-C9j7480P.js",
+      "src": null,
+      "name": "palette-thread",
+      "file": "assets/palette-thread-C9j7480P.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [
+        "assets/palette-thread-zzV0Z8at.css"
+      ],
+      "assets": [
+        "assets/token-ring-MHHz0bBR.svg"
+      ]
+    },
+    {
+      "key": "_palette-thread-zzV0Z8at.css",
+      "src": "_palette-thread-zzV0Z8at.css",
+      "name": null,
+      "file": "assets/palette-thread-zzV0Z8at.css",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "_shell-spine-BdxKV6TZ.css",
+      "src": "_shell-spine-BdxKV6TZ.css",
+      "name": null,
+      "file": "assets/shell-spine-BdxKV6TZ.css",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "_shell-spine-voifiD_v.js",
+      "src": null,
+      "name": "shell-spine",
+      "file": "assets/shell-spine-voifiD_v.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [
+        "assets/shell-spine-BdxKV6TZ.css"
+      ],
+      "assets": [
+        "assets/shared-wave-jJ2Aq7t_.svg"
+      ]
+    },
+    {
+      "key": "src/assets/landing-banner.svg",
+      "src": "src/assets/landing-banner.svg",
+      "name": null,
+      "file": "assets/landing-banner-CajZ_G8P.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/shared-wave.svg",
+      "src": "src/assets/shared-wave.svg",
+      "name": null,
+      "file": "assets/shared-wave-jJ2Aq7t_.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/token-ring.svg",
+      "src": "src/assets/token-ring.svg",
+      "name": null,
+      "file": "assets/token-ring-MHHz0bBR.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/workbench-grid.svg",
+      "src": "src/assets/workbench-grid.svg",
+      "name": null,
+      "file": "assets/workbench-grid-ltRY96Ld.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/landing.js",
+      "src": "src/landing.js",
+      "name": "landing",
+      "file": "assets/landing-ocOD1LKg.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_palette-thread-C9j7480P.js",
+        "_shell-spine-voifiD_v.js"
+      ],
+      "dynamicImports": [],
+      "css": [
+        "assets/landing-BpXjN4nX.css"
+      ],
+      "assets": [
+        "assets/landing-banner-CajZ_G8P.svg"
+      ]
+    },
+    {
+      "key": "src/workbench.js",
+      "src": "src/workbench.js",
+      "name": "workbench",
+      "file": "assets/workbench-Brrhnb8U.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_palette-thread-C9j7480P.js",
+        "_shell-spine-voifiD_v.js"
+      ],
+      "dynamicImports": [],
+      "css": [
+        "assets/workbench-Btka3oE3.css"
+      ],
+      "assets": [
+        "assets/workbench-grid-ltRY96Ld.svg"
+      ]
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "assets/landing-ocOD1LKg.js",
+      "kind": "chunk",
+      "name": "landing",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/landing.js",
+        "stableId": "src/landing.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/palette-thread-C9j7480P.js",
+        "assets/shell-spine-voifiD_v.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/landing-BpXjN4nX.css"
+      ],
+      "importedAssets": [
+        "assets/landing-banner-CajZ_G8P.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/landing.js",
+          "stableId": "src/landing.js",
+          "scope": "app",
+          "renderedLength": 520,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/landing.css",
+          "stableId": "src/styles/landing.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/landing.js",
+        "src/styles/landing.css"
+      ],
+      "sizes": {
+        "raw": 488,
+        "gzip": 344,
+        "brotli": 270
+      }
+    },
+    {
+      "fileName": "assets/palette-thread-C9j7480P.js",
+      "kind": "chunk",
+      "name": "palette-thread",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/palette-thread-zzV0Z8at.css"
+      ],
+      "importedAssets": [
+        "assets/token-ring-MHHz0bBR.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/shared/mountTokens.js",
+          "stableId": "src/shared/mountTokens.js",
+          "scope": "app",
+          "renderedLength": 256,
+          "renderedExports": [
+            "mountTokens"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/token-strip.css",
+          "stableId": "src/styles/token-strip.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/mountTokens.js",
+        "src/styles/token-strip.css"
+      ],
+      "sizes": {
+        "raw": 151,
+        "gzip": 149,
+        "brotli": 103
+      }
+    },
+    {
+      "fileName": "assets/shell-spine-voifiD_v.js",
+      "kind": "chunk",
+      "name": "shell-spine",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/shell-spine-BdxKV6TZ.css"
+      ],
+      "importedAssets": [
+        "assets/shared-wave-jJ2Aq7t_.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/shared/applyChrome.js",
+          "stableId": "src/shared/applyChrome.js",
+          "scope": "app",
+          "renderedLength": 323,
+          "renderedExports": [
+            "applyChrome"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/renderShowcase.js",
+          "stableId": "src/shared/renderShowcase.js",
+          "scope": "app",
+          "renderedLength": 319,
+          "renderedExports": [
+            "renderShowcase"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/styles/chrome.css",
+          "stableId": "src/styles/chrome.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/applyChrome.js",
+        "src/shared/renderShowcase.js",
+        "src/styles/chrome.css"
+      ],
+      "sizes": {
+        "raw": 414,
+        "gzip": 275,
+        "brotli": 200
+      }
+    },
+    {
+      "fileName": "assets/workbench-Brrhnb8U.js",
+      "kind": "chunk",
+      "name": "workbench",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/workbench.js",
+        "stableId": "src/workbench.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/palette-thread-C9j7480P.js",
+        "assets/shell-spine-voifiD_v.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/workbench-Btka3oE3.css"
+      ],
+      "importedAssets": [
+        "assets/workbench-grid-ltRY96Ld.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/styles/workbench.css",
+          "stableId": "src/styles/workbench.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/workbench.js",
+          "stableId": "src/workbench.js",
+          "scope": "app",
+          "renderedLength": 524,
+          "renderedExports": [],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/styles/workbench.css",
+        "src/workbench.js"
+      ],
+      "sizes": {
+        "raw": 490,
+        "gzip": 345,
+        "brotli": 278
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "assets/landing-banner-CajZ_G8P.svg",
+      "kind": "svg",
+      "names": [
+        "landing-banner.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/landing-banner.svg"
+      ],
+      "sourceLength": 259,
+      "sizes": {
+        "raw": 259,
+        "gzip": 204,
+        "brotli": 177
+      }
+    },
+    {
+      "fileName": "assets/landing-BpXjN4nX.css",
+      "kind": "css",
+      "names": [
+        "landing.css"
+      ],
+      "originalFileNames": [
+        "src/landing.js"
+      ],
+      "sourceLength": 289,
+      "sizes": {
+        "raw": 277,
+        "gzip": 231,
+        "brotli": 174
+      }
+    },
+    {
+      "fileName": "assets/palette-thread-zzV0Z8at.css",
+      "kind": "css",
+      "names": [
+        "palette-thread.css"
+      ],
+      "originalFileNames": [],
+      "sourceLength": 271,
+      "sizes": {
+        "raw": 259,
+        "gzip": 205,
+        "brotli": 158
+      }
+    },
+    {
+      "fileName": "assets/shared-wave-jJ2Aq7t_.svg",
+      "kind": "svg",
+      "names": [
+        "shared-wave.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/shared-wave.svg"
+      ],
+      "sourceLength": 260,
+      "sizes": {
+        "raw": 260,
+        "gzip": 209,
+        "brotli": 182
+      }
+    },
+    {
+      "fileName": "assets/shell-spine-BdxKV6TZ.css",
+      "kind": "css",
+      "names": [
+        "shell-spine.css"
+      ],
+      "originalFileNames": [],
+      "sourceLength": 713,
+      "sizes": {
+        "raw": 701,
+        "gzip": 411,
+        "brotli": 324
+      }
+    },
+    {
+      "fileName": "assets/token-ring-MHHz0bBR.svg",
+      "kind": "svg",
+      "names": [
+        "token-ring.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/token-ring.svg"
+      ],
+      "sourceLength": 233,
+      "sizes": {
+        "raw": 233,
+        "gzip": 186,
+        "brotli": 162
+      }
+    },
+    {
+      "fileName": "assets/workbench-Btka3oE3.css",
+      "kind": "css",
+      "names": [
+        "workbench.css"
+      ],
+      "originalFileNames": [
+        "src/workbench.js"
+      ],
+      "sourceLength": 140,
+      "sizes": {
+        "raw": 128,
+        "gzip": 127,
+        "brotli": 89
+      }
+    },
+    {
+      "fileName": "assets/workbench-grid-ltRY96Ld.svg",
+      "kind": "svg",
+      "names": [
+        "workbench-grid.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/workbench-grid.svg"
+      ],
+      "sourceLength": 262,
+      "sizes": {
+        "raw": 262,
+        "gzip": 193,
+        "brotli": 176
+      }
+    }
+  ]
+}

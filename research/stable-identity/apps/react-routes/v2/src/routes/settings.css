@@ -1,0 +1,26 @@
+.settings-list {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.settings-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.82);
+}
+
+.settings-list span {
+  display: grid;
+  gap: 4px;
+}
+
+.settings-list em {
+  color: #5eead4;
+  font-style: normal;
+  font-size: 12px;
+}

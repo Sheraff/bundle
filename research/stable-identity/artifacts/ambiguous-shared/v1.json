@@ -1,0 +1,278 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "ambiguous-shared",
+  "versionId": "v1",
+  "scenarioId": "ambiguous-shared",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:10.810Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_bridge-core-BoLJdJNn.js",
+      "src": null,
+      "name": "bridge-core",
+      "file": "assets/bridge-core-BoLJdJNn.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/main.js",
+      "src": "src/main.js",
+      "name": "main",
+      "file": "assets/main-Dk3Q6s0t.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [
+        "src/routes/alpha.js",
+        "src/routes/beta.js"
+      ],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/routes/alpha.js",
+      "src": "src/routes/alpha.js",
+      "name": "alpha",
+      "file": "assets/alpha-DnO6W1xq.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_bridge-core-BoLJdJNn.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/routes/beta.js",
+      "src": "src/routes/beta.js",
+      "name": "beta",
+      "file": "assets/beta-54zPhMBX.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_bridge-core-BoLJdJNn.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "assets/alpha-DnO6W1xq.js",
+      "kind": "chunk",
+      "name": "alpha",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/alpha.js",
+        "stableId": "src/routes/alpha.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/bridge-core-BoLJdJNn.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/alpha.js",
+          "stableId": "src/routes/alpha.js",
+          "scope": "app",
+          "renderedLength": 416,
+          "renderedExports": [
+            "renderAlpha"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/alpha.js"
+      ],
+      "sizes": {
+        "raw": 336,
+        "gzip": 242,
+        "brotli": 189
+      }
+    },
+    {
+      "fileName": "assets/beta-54zPhMBX.js",
+      "kind": "chunk",
+      "name": "beta",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/beta.js",
+        "stableId": "src/routes/beta.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/bridge-core-BoLJdJNn.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/beta.js",
+          "stableId": "src/routes/beta.js",
+          "scope": "app",
+          "renderedLength": 410,
+          "renderedExports": [
+            "renderBeta"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/beta.js"
+      ],
+      "sizes": {
+        "raw": 331,
+        "gzip": 240,
+        "brotli": 190
+      }
+    },
+    {
+      "fileName": "assets/bridge-core-BoLJdJNn.js",
+      "kind": "chunk",
+      "name": "bridge-core",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/shared/fetchBudget.js",
+          "stableId": "src/shared/fetchBudget.js",
+          "scope": "app",
+          "renderedLength": 156,
+          "renderedExports": [
+            "fetchBudget"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/formatWave.js",
+          "stableId": "src/shared/formatWave.js",
+          "scope": "app",
+          "renderedLength": 108,
+          "renderedExports": [
+            "formatWave"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/linkRows.js",
+          "stableId": "src/shared/linkRows.js",
+          "scope": "app",
+          "renderedLength": 104,
+          "renderedExports": [
+            "linkRows"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/renderBadge.js",
+          "stableId": "src/shared/renderBadge.js",
+          "scope": "app",
+          "renderedLength": 152,
+          "renderedExports": [
+            "renderBadge"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/renderCells.js",
+          "stableId": "src/shared/renderCells.js",
+          "scope": "app",
+          "renderedLength": 137,
+          "renderedExports": [
+            "renderCells"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/shared/fetchBudget.js",
+        "src/shared/formatWave.js",
+        "src/shared/linkRows.js",
+        "src/shared/renderBadge.js",
+        "src/shared/renderCells.js"
+      ],
+      "sizes": {
+        "raw": 291,
+        "gzip": 187,
+        "brotli": 163
+      }
+    },
+    {
+      "fileName": "assets/main-Dk3Q6s0t.js",
+      "kind": "chunk",
+      "name": "main",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/main.js",
+        "stableId": "src/main.js",
+        "scope": "app"
+      },
+      "imports": [],
+      "dynamicImports": [
+        "assets/alpha-DnO6W1xq.js",
+        "assets/beta-54zPhMBX.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/main.js",
+          "stableId": "src/main.js",
+          "scope": "app",
+          "renderedLength": 464,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "virtual:vite/preload-helper.js",
+          "stableId": "virtual:vite/preload-helper.js",
+          "scope": "virtual",
+          "renderedLength": 2104,
+          "renderedExports": [
+            "__vitePreload"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/main.js",
+        "virtual:vite/preload-helper.js"
+      ],
+      "sizes": {
+        "raw": 1650,
+        "gzip": 887,
+        "brotli": 757
+      }
+    }
+  ],
+  "assets": []
+}

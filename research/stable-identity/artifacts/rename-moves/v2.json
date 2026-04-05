@@ -1,0 +1,335 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "rename-moves",
+  "versionId": "v2",
+  "scenarioId": "rename-moves",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:17.914Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_renderPanel-CA7h9wpH.js",
+      "src": null,
+      "name": "renderPanel",
+      "file": "assets/renderPanel-CA7h9wpH.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [
+        "assets/renderPanel-cTbAGsbM.css"
+      ],
+      "assets": [
+        "assets/surface-wave-BoMSz6Ws.svg"
+      ]
+    },
+    {
+      "key": "_renderPanel-cTbAGsbM.css",
+      "src": "_renderPanel-cTbAGsbM.css",
+      "name": null,
+      "file": "assets/renderPanel-cTbAGsbM.css",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/main.js",
+      "src": "src/main.js",
+      "name": "main",
+      "file": "assets/main-BvfTL2-Q.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [
+        "src/routes/insights.js",
+        "src/routes/settings.js"
+      ],
+      "css": [
+        "assets/main-DAnOSseC.css"
+      ],
+      "assets": []
+    },
+    {
+      "key": "src/media/surface-wave.svg",
+      "src": "src/media/surface-wave.svg",
+      "name": null,
+      "file": "assets/surface-wave-BoMSz6Ws.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/routes/insights.js",
+      "src": "src/routes/insights.js",
+      "name": "insights",
+      "file": "assets/insights-D5Kx50d7.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_renderPanel-CA7h9wpH.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/routes/settings.js",
+      "src": "src/routes/settings.js",
+      "name": "settings",
+      "file": "assets/settings-C5VcZ79O.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_renderPanel-CA7h9wpH.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "assets/insights-D5Kx50d7.js",
+      "kind": "chunk",
+      "name": "insights",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/insights.js",
+        "stableId": "src/routes/insights.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/renderPanel-CA7h9wpH.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/insights.js",
+          "stableId": "src/routes/insights.js",
+          "scope": "app",
+          "renderedLength": 161,
+          "renderedExports": [
+            "renderInsights"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/insights.js"
+      ],
+      "sizes": {
+        "raw": 156,
+        "gzip": 145,
+        "brotli": 116
+      }
+    },
+    {
+      "fileName": "assets/main-BvfTL2-Q.js",
+      "kind": "chunk",
+      "name": "main",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/main.js",
+        "stableId": "src/main.js",
+        "scope": "app"
+      },
+      "imports": [],
+      "dynamicImports": [
+        "assets/insights-D5Kx50d7.js",
+        "assets/settings-C5VcZ79O.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/main-DAnOSseC.css"
+      ],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/main.js",
+          "stableId": "src/main.js",
+          "scope": "app",
+          "renderedLength": 537,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/ui/app.css",
+          "stableId": "src/ui/app.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "virtual:vite/preload-helper.js",
+          "stableId": "virtual:vite/preload-helper.js",
+          "scope": "virtual",
+          "renderedLength": 2104,
+          "renderedExports": [
+            "__vitePreload"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/main.js",
+        "src/ui/app.css",
+        "virtual:vite/preload-helper.js"
+      ],
+      "sizes": {
+        "raw": 1748,
+        "gzip": 937,
+        "brotli": 784
+      }
+    },
+    {
+      "fileName": "assets/renderPanel-CA7h9wpH.js",
+      "kind": "chunk",
+      "name": "renderPanel",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/renderPanel-cTbAGsbM.css"
+      ],
+      "importedAssets": [
+        "assets/surface-wave-BoMSz6Ws.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/ui/panel.css",
+          "stableId": "src/ui/panel.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/ui/renderPanel.js",
+          "stableId": "src/ui/renderPanel.js",
+          "scope": "app",
+          "renderedLength": 325,
+          "renderedExports": [
+            "renderPanel"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/ui/panel.css",
+        "src/ui/renderPanel.js"
+      ],
+      "sizes": {
+        "raw": 207,
+        "gzip": 177,
+        "brotli": 122
+      }
+    },
+    {
+      "fileName": "assets/settings-C5VcZ79O.js",
+      "kind": "chunk",
+      "name": "settings",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/settings.js",
+        "stableId": "src/routes/settings.js",
+        "scope": "app"
+      },
+      "imports": [
+        "assets/renderPanel-CA7h9wpH.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/settings.js",
+          "stableId": "src/routes/settings.js",
+          "scope": "app",
+          "renderedLength": 161,
+          "renderedExports": [
+            "renderSettings"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/settings.js"
+      ],
+      "sizes": {
+        "raw": 156,
+        "gzip": 145,
+        "brotli": 123
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "assets/main-DAnOSseC.css",
+      "kind": "css",
+      "names": [
+        "main.css"
+      ],
+      "originalFileNames": [
+        "src/main.js"
+      ],
+      "sourceLength": 208,
+      "sizes": {
+        "raw": 196,
+        "gzip": 179,
+        "brotli": 138
+      }
+    },
+    {
+      "fileName": "assets/renderPanel-cTbAGsbM.css",
+      "kind": "css",
+      "names": [
+        "renderPanel.css"
+      ],
+      "originalFileNames": [],
+      "sourceLength": 245,
+      "sizes": {
+        "raw": 233,
+        "gzip": 205,
+        "brotli": 138
+      }
+    },
+    {
+      "fileName": "assets/surface-wave-BoMSz6Ws.svg",
+      "kind": "svg",
+      "names": [
+        "surface-wave.svg"
+      ],
+      "originalFileNames": [
+        "src/media/surface-wave.svg"
+      ],
+      "sourceLength": 259,
+      "sizes": {
+        "raw": 259,
+        "gzip": 206,
+        "brotli": 183
+      }
+    }
+  ]
+}

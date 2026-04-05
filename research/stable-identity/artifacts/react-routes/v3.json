@@ -1,0 +1,812 @@
+{
+  "artifactVersion": 1,
+  "fixtureId": "react-routes",
+  "versionId": "v3",
+  "scenarioId": "react-routes",
+  "environmentName": "client",
+  "generatedAt": "2026-04-05T14:40:17.154Z",
+  "build": {
+    "bundler": "vite",
+    "bundlerVersion": "8.0.3",
+    "outDir": "dist"
+  },
+  "warnings": [],
+  "manifestEntries": [
+    {
+      "key": "_rolldown-runtime-9zYgfBdx.js",
+      "src": null,
+      "name": "rolldown-runtime",
+      "file": "chunks/rolldown-runtime-9zYgfBdx.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "_shell-bundle-1WDCm2yq.js",
+      "src": null,
+      "name": "shell-bundle",
+      "file": "chunks/shell-bundle-1WDCm2yq.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [
+        "_rolldown-runtime-9zYgfBdx.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "_vendor-BNQ4Mb4v.js",
+      "src": null,
+      "name": "vendor",
+      "file": "chunks/vendor-BNQ4Mb4v.js",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [
+        "_rolldown-runtime-9zYgfBdx.js"
+      ],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/hero-grid.svg",
+      "src": "src/assets/hero-grid.svg",
+      "name": null,
+      "file": "assets/hero-grid-CA9wTTOb.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/logo-mark.svg",
+      "src": "src/assets/logo-mark.svg",
+      "name": null,
+      "file": "assets/logo-mark-DziUUHct.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/assets/panel-stripe.svg",
+      "src": "src/assets/panel-stripe.svg",
+      "name": null,
+      "file": "assets/panel-stripe-oJZsKaux.svg",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "css": [],
+      "assets": []
+    },
+    {
+      "key": "src/main.jsx",
+      "src": "src/main.jsx",
+      "name": "main",
+      "file": "entries/main-cIYjOrIa.js",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "imports": [
+        "_shell-bundle-1WDCm2yq.js",
+        "_vendor-BNQ4Mb4v.js"
+      ],
+      "dynamicImports": [
+        "src/routes/Reports.jsx",
+        "src/routes/Settings.jsx"
+      ],
+      "css": [
+        "assets/main-CUNOAPfo.css"
+      ],
+      "assets": [
+        "assets/hero-grid-CA9wTTOb.svg",
+        "assets/logo-mark-DziUUHct.svg"
+      ]
+    },
+    {
+      "key": "src/routes/Reports.jsx",
+      "src": "src/routes/Reports.jsx",
+      "name": "Reports",
+      "file": "chunks/Reports-CZtKaUhg.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_shell-bundle-1WDCm2yq.js"
+      ],
+      "dynamicImports": [],
+      "css": [
+        "assets/Reports-B2C9CtQI.css"
+      ],
+      "assets": [
+        "assets/panel-stripe-oJZsKaux.svg"
+      ]
+    },
+    {
+      "key": "src/routes/Settings.jsx",
+      "src": "src/routes/Settings.jsx",
+      "name": "Settings",
+      "file": "chunks/Settings-mhqlgOyL.js",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "imports": [
+        "_shell-bundle-1WDCm2yq.js"
+      ],
+      "dynamicImports": [],
+      "css": [
+        "assets/Settings-HvSlcMW7.css"
+      ],
+      "assets": []
+    }
+  ],
+  "chunks": [
+    {
+      "fileName": "chunks/Reports-CZtKaUhg.js",
+      "kind": "chunk",
+      "name": "Reports",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/Reports.jsx",
+        "stableId": "src/routes/Reports.jsx",
+        "scope": "app"
+      },
+      "imports": [
+        "chunks/shell-bundle-1WDCm2yq.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/Reports-B2C9CtQI.css"
+      ],
+      "importedAssets": [
+        "assets/panel-stripe-oJZsKaux.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/routes/reports.css",
+          "stableId": "src/routes/reports.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/routes/Reports.jsx",
+          "stableId": "src/routes/Reports.jsx",
+          "scope": "app",
+          "renderedLength": 935,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/reports.css",
+        "src/routes/Reports.jsx"
+      ],
+      "sizes": {
+        "raw": 554,
+        "gzip": 349,
+        "brotli": 288
+      }
+    },
+    {
+      "fileName": "chunks/rolldown-runtime-9zYgfBdx.js",
+      "kind": "chunk",
+      "name": "rolldown-runtime",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "virtual:rolldown/runtime.js",
+          "stableId": "virtual:rolldown/runtime.js",
+          "scope": "virtual",
+          "renderedLength": 148,
+          "renderedExports": [
+            "__commonJSMin"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "virtual:rolldown/runtime.js"
+      ],
+      "sizes": {
+        "raw": 77,
+        "gzip": 78,
+        "brotli": 81
+      }
+    },
+    {
+      "fileName": "chunks/Settings-mhqlgOyL.js",
+      "kind": "chunk",
+      "name": "Settings",
+      "isEntry": false,
+      "isDynamicEntry": true,
+      "facadeModule": {
+        "rawId": "src/routes/Settings.jsx",
+        "stableId": "src/routes/Settings.jsx",
+        "scope": "app"
+      },
+      "imports": [
+        "chunks/shell-bundle-1WDCm2yq.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/Settings-HvSlcMW7.css"
+      ],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "src/routes/settings.css",
+          "stableId": "src/routes/settings.css",
+          "scope": "app",
+          "renderedLength": 0,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/routes/Settings.jsx",
+          "stableId": "src/routes/Settings.jsx",
+          "scope": "app",
+          "renderedLength": 934,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/routes/settings.css",
+        "src/routes/Settings.jsx"
+      ],
+      "sizes": {
+        "raw": 568,
+        "gzip": 362,
+        "brotli": 295
+      }
+    },
+    {
+      "fileName": "chunks/shell-bundle-1WDCm2yq.js",
+      "kind": "chunk",
+      "name": "shell-bundle",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [
+        "chunks/rolldown-runtime-9zYgfBdx.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "node_modules/react/cjs/react-jsx-runtime.production.js",
+          "stableId": "pkg:react/cjs/react-jsx-runtime.production.js",
+          "scope": "package",
+          "renderedLength": 872,
+          "renderedExports": [
+            "jsx",
+            "jsxs"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react/jsx-runtime.js",
+          "stableId": "pkg:react/jsx-runtime.js",
+          "scope": "package",
+          "renderedLength": 247,
+          "renderedExports": [
+            "jsx",
+            "jsxs"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/formatCurrency.js",
+          "stableId": "src/shared/formatCurrency.js",
+          "scope": "app",
+          "renderedLength": 214,
+          "renderedExports": [
+            "formatCurrency"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/kpiCards.js",
+          "stableId": "src/shared/kpiCards.js",
+          "scope": "app",
+          "renderedLength": 301,
+          "renderedExports": [
+            "buildCards"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/routeShell.jsx",
+          "stableId": "src/shared/routeShell.jsx",
+          "scope": "app",
+          "renderedLength": 549,
+          "renderedExports": [
+            "RouteShell"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/shared/trendBadge.js",
+          "stableId": "src/shared/trendBadge.js",
+          "scope": "app",
+          "renderedLength": 193,
+          "renderedExports": [
+            "trendBadge"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "pkg:react/cjs/react-jsx-runtime.production.js",
+        "pkg:react/jsx-runtime.js",
+        "src/shared/formatCurrency.js",
+        "src/shared/kpiCards.js",
+        "src/shared/routeShell.jsx",
+        "src/shared/trendBadge.js"
+      ],
+      "sizes": {
+        "raw": 986,
+        "gzip": 583,
+        "brotli": 498
+      }
+    },
+    {
+      "fileName": "chunks/vendor-BNQ4Mb4v.js",
+      "kind": "chunk",
+      "name": "vendor",
+      "isEntry": false,
+      "isDynamicEntry": false,
+      "facadeModule": null,
+      "imports": [
+        "chunks/rolldown-runtime-9zYgfBdx.js"
+      ],
+      "dynamicImports": [],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [],
+      "importedAssets": [],
+      "modules": [
+        {
+          "rawId": "node_modules/react-dom/cjs/react-dom-client.production.js",
+          "stableId": "pkg:react-dom/cjs/react-dom-client.production.js",
+          "scope": "package",
+          "renderedLength": 452122,
+          "renderedExports": [
+            "createRoot"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react-dom/cjs/react-dom.production.js",
+          "stableId": "pkg:react-dom/cjs/react-dom.production.js",
+          "scope": "package",
+          "renderedLength": 5772,
+          "renderedExports": [
+            "__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
+            "createPortal",
+            "flushSync",
+            "preconnect",
+            "prefetchDNS",
+            "preinit",
+            "preinitModule",
+            "preload",
+            "preloadModule",
+            "requestFormReset",
+            "unstable_batchedUpdates",
+            "useFormState",
+            "useFormStatus",
+            "version"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react-dom/client.js",
+          "stableId": "pkg:react-dom/client.js",
+          "scope": "package",
+          "renderedLength": 537,
+          "renderedExports": [
+            "createRoot"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react-dom/index.js",
+          "stableId": "pkg:react-dom/index.js",
+          "scope": "package",
+          "renderedLength": 532,
+          "renderedExports": [
+            "__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
+            "createPortal",
+            "flushSync",
+            "preconnect",
+            "prefetchDNS",
+            "preinit",
+            "preinitModule",
+            "preload",
+            "preloadModule",
+            "requestFormReset",
+            "unstable_batchedUpdates",
+            "useFormState",
+            "useFormStatus",
+            "version"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react/cjs/react.production.js",
+          "stableId": "pkg:react/cjs/react.production.js",
+          "scope": "package",
+          "renderedLength": 15145,
+          "renderedExports": [
+            "__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
+            "__COMPILER_RUNTIME",
+            "Activity",
+            "cache",
+            "cacheSignal",
+            "Children",
+            "cloneElement",
+            "Component",
+            "createContext",
+            "createElement",
+            "createRef",
+            "forwardRef",
+            "Fragment",
+            "isValidElement",
+            "lazy",
+            "memo",
+            "Profiler",
+            "PureComponent",
+            "startTransition",
+            "StrictMode",
+            "Suspense",
+            "unstable_useCacheRefresh",
+            "use",
+            "useActionState",
+            "useCallback",
+            "useContext",
+            "useDebugValue",
+            "useDeferredValue",
+            "useEffect",
+            "useEffectEvent",
+            "useId",
+            "useImperativeHandle",
+            "useInsertionEffect",
+            "useLayoutEffect",
+            "useMemo",
+            "useOptimistic",
+            "useReducer",
+            "useRef",
+            "useState",
+            "useSyncExternalStore",
+            "useTransition",
+            "version"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/react/index.js",
+          "stableId": "pkg:react/index.js",
+          "scope": "package",
+          "renderedLength": 223,
+          "renderedExports": [
+            "__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
+            "__COMPILER_RUNTIME",
+            "Activity",
+            "cache",
+            "cacheSignal",
+            "Children",
+            "cloneElement",
+            "Component",
+            "createContext",
+            "createElement",
+            "createRef",
+            "forwardRef",
+            "Fragment",
+            "isValidElement",
+            "lazy",
+            "memo",
+            "Profiler",
+            "PureComponent",
+            "startTransition",
+            "StrictMode",
+            "Suspense",
+            "unstable_useCacheRefresh",
+            "use",
+            "useActionState",
+            "useCallback",
+            "useContext",
+            "useDebugValue",
+            "useDeferredValue",
+            "useEffect",
+            "useEffectEvent",
+            "useId",
+            "useImperativeHandle",
+            "useInsertionEffect",
+            "useLayoutEffect",
+            "useMemo",
+            "useOptimistic",
+            "useReducer",
+            "useRef",
+            "useState",
+            "useSyncExternalStore",
+            "useTransition",
+            "version"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/scheduler/cjs/scheduler.production.js",
+          "stableId": "pkg:scheduler/cjs/scheduler.production.js",
+          "scope": "package",
+          "renderedLength": 9045,
+          "renderedExports": [
+            "unstable_cancelCallback",
+            "unstable_forceFrameRate",
+            "unstable_getCurrentPriorityLevel",
+            "unstable_IdlePriority",
+            "unstable_ImmediatePriority",
+            "unstable_LowPriority",
+            "unstable_next",
+            "unstable_NormalPriority",
+            "unstable_Profiling",
+            "unstable_requestPaint",
+            "unstable_runWithPriority",
+            "unstable_scheduleCallback",
+            "unstable_shouldYield",
+            "unstable_UserBlockingPriority",
+            "unstable_wrapCallback"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "node_modules/scheduler/index.js",
+          "stableId": "pkg:scheduler/index.js",
+          "scope": "package",
+          "renderedLength": 239,
+          "renderedExports": [
+            "unstable_cancelCallback",
+            "unstable_forceFrameRate",
+            "unstable_getCurrentPriorityLevel",
+            "unstable_IdlePriority",
+            "unstable_ImmediatePriority",
+            "unstable_LowPriority",
+            "unstable_next",
+            "unstable_NormalPriority",
+            "unstable_Profiling",
+            "unstable_requestPaint",
+            "unstable_runWithPriority",
+            "unstable_scheduleCallback",
+            "unstable_shouldYield",
+            "unstable_UserBlockingPriority",
+            "unstable_wrapCallback"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "pkg:react-dom/cjs/react-dom-client.production.js",
+        "pkg:react-dom/cjs/react-dom.production.js",
+        "pkg:react-dom/client.js",
+        "pkg:react-dom/index.js",
+        "pkg:react/cjs/react.production.js",
+        "pkg:react/index.js",
+        "pkg:scheduler/cjs/scheduler.production.js",
+        "pkg:scheduler/index.js"
+      ],
+      "sizes": {
+        "raw": 189260,
+        "gzip": 58816,
+        "brotli": 50700
+      }
+    },
+    {
+      "fileName": "entries/main-cIYjOrIa.js",
+      "kind": "chunk",
+      "name": "main",
+      "isEntry": true,
+      "isDynamicEntry": false,
+      "facadeModule": {
+        "rawId": "src/main.jsx",
+        "stableId": "src/main.jsx",
+        "scope": "app"
+      },
+      "imports": [
+        "chunks/shell-bundle-1WDCm2yq.js",
+        "chunks/vendor-BNQ4Mb4v.js"
+      ],
+      "dynamicImports": [
+        "chunks/Reports-CZtKaUhg.js",
+        "chunks/Settings-mhqlgOyL.js"
+      ],
+      "implicitlyLoadedBefore": [],
+      "importedCss": [
+        "assets/main-CUNOAPfo.css"
+      ],
+      "importedAssets": [
+        "assets/hero-grid-CA9wTTOb.svg",
+        "assets/logo-mark-DziUUHct.svg"
+      ],
+      "modules": [
+        {
+          "rawId": "src/app.css",
+          "stableId": "src/app.css",
+          "scope": "app",
+          "renderedLength": 109,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/App.jsx",
+          "stableId": "src/App.jsx",
+          "scope": "app",
+          "renderedLength": 2055,
+          "renderedExports": [
+            "App"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/assets/logo-mark.svg",
+          "stableId": "src/assets/logo-mark.svg",
+          "scope": "app",
+          "renderedLength": 114,
+          "renderedExports": [
+            "default"
+          ],
+          "removedExports": []
+        },
+        {
+          "rawId": "src/main.jsx",
+          "stableId": "src/main.jsx",
+          "scope": "app",
+          "renderedLength": 347,
+          "renderedExports": [],
+          "removedExports": []
+        },
+        {
+          "rawId": "virtual:vite/preload-helper.js",
+          "stableId": "virtual:vite/preload-helper.js",
+          "scope": "virtual",
+          "renderedLength": 2152,
+          "renderedExports": [
+            "__vitePreload"
+          ],
+          "removedExports": []
+        }
+      ],
+      "moduleIds": [
+        "src/app.css",
+        "src/App.jsx",
+        "src/assets/logo-mark.svg",
+        "src/main.jsx",
+        "virtual:vite/preload-helper.js"
+      ],
+      "sizes": {
+        "raw": 2902,
+        "gzip": 1410,
+        "brotli": 1238
+      }
+    }
+  ],
+  "assets": [
+    {
+      "fileName": "assets/hero-grid-CA9wTTOb.svg",
+      "kind": "svg",
+      "names": [
+        "hero-grid.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/hero-grid.svg"
+      ],
+      "sourceLength": 251,
+      "sizes": {
+        "raw": 251,
+        "gzip": 184,
+        "brotli": 169
+      }
+    },
+    {
+      "fileName": "assets/logo-mark-DziUUHct.svg",
+      "kind": "svg",
+      "names": [
+        "logo-mark.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/logo-mark.svg"
+      ],
+      "sourceLength": 305,
+      "sizes": {
+        "raw": 305,
+        "gzip": 226,
+        "brotli": 202
+      }
+    },
+    {
+      "fileName": "assets/main-CUNOAPfo.css",
+      "kind": "css",
+      "names": [
+        "main.css"
+      ],
+      "originalFileNames": [
+        "src/main.jsx"
+      ],
+      "sourceLength": 887,
+      "sizes": {
+        "raw": 875,
+        "gzip": 524,
+        "brotli": 418
+      }
+    },
+    {
+      "fileName": "assets/panel-stripe-oJZsKaux.svg",
+      "kind": "svg",
+      "names": [
+        "panel-stripe.svg"
+      ],
+      "originalFileNames": [
+        "src/assets/panel-stripe.svg"
+      ],
+      "sourceLength": 240,
+      "sizes": {
+        "raw": 240,
+        "gzip": 195,
+        "brotli": 187
+      }
+    },
+    {
+      "fileName": "assets/Reports-B2C9CtQI.css",
+      "kind": "css",
+      "names": [
+        "Reports.css"
+      ],
+      "originalFileNames": [
+        "src/routes/Reports.jsx"
+      ],
+      "sourceLength": 646,
+      "sizes": {
+        "raw": 634,
+        "gzip": 356,
+        "brotli": 283
+      }
+    },
+    {
+      "fileName": "assets/Settings-HvSlcMW7.css",
+      "kind": "css",
+      "names": [
+        "Settings.css"
+      ],
+      "originalFileNames": [
+        "src/routes/Settings.jsx"
+      ],
+      "sourceLength": 320,
+      "sizes": {
+        "raw": 308,
+        "gzip": 210,
+        "brotli": 152
+      }
+    }
+  ]
+}

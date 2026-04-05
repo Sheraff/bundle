@@ -1,0 +1,71 @@
+{
+  "id": "auto-chunk-routes-v1-to-v2",
+  "from": "../artifacts/auto-chunk-routes/v1.json",
+  "to": "../artifacts/auto-chunk-routes/v2.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "assets/main-BoBr4YA8.js",
+        "to": "assets/main-CmraTfLU.js"
+      }
+    ],
+    "dynamicEntries": [
+      {
+        "kind": "same",
+        "from": "assets/alerts-DMMw340c.js",
+        "to": "assets/alerts-DaQ3ZBaL.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/overview-Co6zy03X.js",
+        "to": "assets/overview-CEUuJRlo.js"
+      }
+    ],
+    "sharedChunks": [
+      {
+        "kind": "same",
+        "from": "assets/renderPanel-DdfzP8lc.js",
+        "to": "assets/renderPanel-CL1JF_LE.js"
+      }
+    ],
+    "css": [
+      {
+        "kind": "same",
+        "from": "assets/main-CRhk4H3r.css",
+        "to": "assets/main-MaXhJlG4.css"
+      }
+    ],
+    "assets": [
+      {
+        "kind": "same",
+        "from": "assets/mark-D3KEyKbJ.svg",
+        "to": "assets/mark-7DR4f0Uc.svg"
+      }
+    ]
+  },
+  "treemap": {
+    "sharedChunks": [
+      {
+        "relation": "same",
+        "from": [
+          "assets/renderPanel-DdfzP8lc.js"
+        ],
+        "to": [
+          "assets/renderPanel-CL1JF_LE.js"
+        ],
+        "stableKeyPrefix": "shared-lineage:"
+      }
+    ],
+    "modules": [
+      {
+        "stableKey": "module:src/shared/renderPanel.js"
+      }
+    ],
+    "assets": [
+      {
+        "stableKey": "asset:src/assets/mark.svg"
+      }
+    ]
+  }
+}

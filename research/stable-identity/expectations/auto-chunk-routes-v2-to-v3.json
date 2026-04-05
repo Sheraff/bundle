@@ -1,0 +1,47 @@
+{
+  "id": "auto-chunk-routes-v2-to-v3",
+  "from": "../artifacts/auto-chunk-routes/v2.json",
+  "to": "../artifacts/auto-chunk-routes/v3.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "assets/main-CmraTfLU.js",
+        "to": "entries/main-gfJaLKwh.js"
+      }
+    ],
+    "dynamicEntries": [
+      {
+        "kind": "same",
+        "from": "assets/alerts-DaQ3ZBaL.js",
+        "to": "chunks/alerts-BPw5YRXz.js"
+      },
+      {
+        "kind": "same",
+        "from": "assets/overview-CEUuJRlo.js",
+        "to": "chunks/overview-Bz6a63oq.js"
+      }
+    ],
+    "sharedChunks": [
+      {
+        "kind": "same",
+        "from": "assets/renderPanel-CL1JF_LE.js",
+        "to": "chunks/renderPanel-A4yNxyLP.js"
+      }
+    ],
+    "css": [
+      {
+        "kind": "same",
+        "from": "assets/main-MaXhJlG4.css",
+        "to": "static/main-31pB9nBS.css"
+      }
+    ],
+    "assets": [
+      {
+        "kind": "same",
+        "from": "assets/mark-7DR4f0Uc.svg",
+        "to": "static/mark-DFjepQ3u.svg"
+      }
+    ]
+  }
+}

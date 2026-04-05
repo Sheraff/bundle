@@ -1,0 +1,10 @@
+{
+  "name": "@stable-identity/client-ssr-v1",
+  "private": true,
+  "scripts": {
+    "build": "vite build --app"
+  },
+  "devDependencies": {
+    "vite": "8.0.3"
+  }
+}

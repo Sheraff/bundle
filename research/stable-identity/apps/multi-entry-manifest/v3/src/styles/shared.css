@@ -1,0 +1,51 @@
+.shell-hero,
+.panel-card {
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background:
+    linear-gradient(135deg, rgba(7, 24, 39, 0.94), rgba(15, 23, 42, 0.9)),
+    url('../assets/grid-pattern.svg');
+  background-size: cover;
+}
+
+.shell-hero {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 24px;
+}
+
+.shell-badge {
+  width: 88px;
+  height: 88px;
+}
+
+.panel-card {
+  margin-top: 18px;
+  padding: 20px;
+}
+
+.panel-card ul {
+  padding: 0;
+  margin: 16px 0 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.panel-card li {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.66);
+}
+
+.shell-eyebrow {
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #93c5fd;
+  font-size: 12px;
+}

@@ -1,0 +1,6 @@
+.workbench-shell {
+  min-height: 100vh;
+  padding: 28px;
+  background-image: url('../assets/workbench-grid.svg');
+  background-size: cover;
+}

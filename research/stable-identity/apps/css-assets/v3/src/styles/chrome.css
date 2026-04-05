@@ -1,0 +1,32 @@
+.chrome-card {
+  padding: 24px;
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background:
+    linear-gradient(135deg, rgba(7, 24, 39, 0.94), rgba(15, 23, 42, 0.88)),
+    url('../assets/shared-wave.svg');
+  background-size: cover;
+  box-shadow: 0 28px 60px rgba(4, 17, 29, 0.45);
+}
+
+.page-eyebrow {
+  margin: 0 0 10px;
+  color: #93c5fd;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+}
+
+.showcase-panel {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(7, 24, 39, 0.8);
+}
+
+.showcase-panel div {
+  display: flex;
+  justify-content: space-between;
+}

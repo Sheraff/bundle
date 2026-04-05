@@ -1,0 +1,21 @@
+{
+  "id": "client-ssr-ssr-v1-to-v2",
+  "from": "../artifacts/client-ssr/v1-ssr.json",
+  "to": "../artifacts/client-ssr/v2-ssr.json",
+  "expect": {
+    "entries": [
+      {
+        "kind": "same",
+        "from": "entry-ssr.mjs",
+        "to": "entries/entry-ssr-MfdCzoQh.js"
+      }
+    ],
+    "sharedChunks": [
+      {
+        "kind": "same",
+        "from": "assets/server-core-D8Vm5LgN.mjs",
+        "to": "chunks/server-shell-B3a7BW1g.js"
+      }
+    ]
+  }
+}

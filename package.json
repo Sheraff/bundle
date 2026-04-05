@@ -1,0 +1,19 @@
+{
+  "name": "bundle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Research repo for bundle evolution work",
+  "main": "index.js",
+  "scripts": {
+    "stable-identity:build-fixtures": "node ./research/stable-identity/harness/build-fixtures.mjs",
+    "stable-identity:inspect": "node ./research/stable-identity/harness/inspect-artifact.mjs",
+    "stable-identity:inspect-treemap": "node ./research/stable-identity/harness/inspect-treemap.mjs",
+    "stable-identity:test": "node ./research/stable-identity/harness/run-expectations.mjs",
+    "stable-identity:refresh": "node ./research/stable-identity/harness/refresh.mjs",
+    "test": "pnpm stable-identity:test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.27.0"
+}
