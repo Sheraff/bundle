@@ -77,32 +77,36 @@ External references:
 
 ## 2. Architecture
 
-### Why this is still unknown
+Status: resolved for V1.
 
-We still need the core system design.
+Resolution:
 
-The product shape is clearer now, but we have not yet designed:
+- `architecture-v1.md`
 
-- the ingestion flow from plugin artifact to persisted run
-- normalization and derivation steps
-- baseline and comparison computation
-- where acknowledgements live
-- how PR comments and dashboards consume the same underlying data
-- how raw snapshot data, derived series, and diff views relate
+This defines the core system design from uploaded plugin artifact through normalized snapshots, derived series and comparisons, GitHub surfaces, and sparse-scenario commit-group behavior.
 
-This is the biggest broad unknown.
+What is now answered for V1:
 
-### What seems decided already
+- the ingestion flow from uploaded artifact to persisted raw data
+- the separation between raw artifacts, normalized snapshots, and derived views
+- the internal commit-group model above per-scenario runs
+- sparse scenario semantics for skipped or inherited runs, reruns, and partial commit groups
+- baseline and comparison materialization rules
+- where acknowledgements live and what they attach to
+- how PR comments, checks, and dashboards consume shared derived comparison data
 
-- The plugin writes a local artifact.
-- The GitHub Action uploads it.
-- One build invocation equals one scenario run in V1.
-- Scenario, environment, entrypoint, and lens are core domain concepts.
+Follow-on work remains, but it belongs to later tasks rather than to core architecture uncertainty:
+
+- mapping the architecture onto the final plugin artifact schema
+- mapping the architecture onto concrete storage, jobs, and caching
+- designing the web app information architecture on top of the shared read models
+- designing the final GitHub comment and check presentation details
 
 ### References an agent should read
 
 Local docs:
 
+- `architecture-v1.md`
 - `product-functionality.md`
   - `## Core Domain Model`
   - `## Snapshot Data Model`
@@ -351,9 +355,8 @@ External references:
 
 If we want to reduce uncertainty efficiently, the next sequence should be:
 
-1. Architecture
-2. Plugin artifact contract
-3. Web app shape and dashboards
-4. GitHub UX details
-5. Synthetic-import product shape
-6. Infrastructure
+1. Plugin artifact contract
+2. Web app shape and dashboards
+3. GitHub UX details
+4. Synthetic-import product shape
+5. Infrastructure
