@@ -128,29 +128,35 @@ External references:
 
 ## 3. Web App Shape And Dashboards
 
-### Why this is still unknown
+Status: resolved for V1.
 
-We know the views we want, but not the actual information architecture.
+Resolution:
 
-We still need to define:
+- `web-app-shape-v1.md`
 
-- the default landing page
-- how repository, scenario, environment, entrypoint, and lens navigation works
-- how history, diff, treemap, graph, and budget views connect
+This defines the V1 public dashboard information architecture across repository overview, repository history, scenario, and compare pages.
+
+What is now answered for V1:
+
+- the default public landing page
+- the main `repository -> scenario` hierarchy
+- how branch, scenario, environment, entrypoint, and lens navigation work
+- how history, compare, treemap, graph, and budget surfaces connect
 - what the public dashboard hierarchy looks like
-- how to keep the UI understandable when one repo has many scenarios
+- how to keep one repository understandable when it has many scenarios
+- which public pages the GitHub PR comment should link to for current PR state inspection
 
-### What seems decided already
+Follow-on work remains, but it belongs to later tasks rather than to core web-app information architecture uncertainty:
 
-- Public dashboards are acceptable in V1.
-- Scenarios are the main differentiator.
-- Treemap and graph views are required.
-- Metrics should always carry explicit lens semantics.
+- mapping the IA onto concrete routes, components, and implementation details
+- defining final chart interactions, filtering behavior, and visual design details
+- defining the final GitHub comment and check content density plus acknowledgement UX
 
 ### References an agent should read
 
 Local docs:
 
+- `web-app-shape-v1.md`
 - `product-functionality.md`
   - `## Dashboards`
   - `## Metrics And Views`
@@ -356,7 +362,6 @@ External references:
 If we want to reduce uncertainty efficiently, the next sequence should be:
 
 1. Plugin artifact contract
-2. Web app shape and dashboards
-3. GitHub UX details
-4. Synthetic-import product shape
-5. Infrastructure
+2. GitHub UX details
+3. Synthetic-import product shape
+4. Infrastructure
