@@ -287,30 +287,41 @@ External references:
 
 ## 6. GitHub UX Details
 
-### Why this is still unknown
+Status: resolved for V1.
 
-The overall GitHub-native strategy is clear, but the actual UX contract is not.
+Resolution:
 
-We still need to define:
+- `github-ux-details-v1.md`
 
-- PR comment structure and density
-- check granularity
-- acknowledgement UX
-- how comments link to public dashboards and deep diffs
-- how multiple scenarios appear in one PR without becoming noisy
+This defines the V1 GitHub-native review contract across PR comments, aggregate checks, acknowledgements, deep links, and multi-scenario PR summarization.
 
-### What seems decided already
+What is now answered for V1:
 
-- PR comments are required.
-- Checks are required.
-- Comments should be updated in place.
-- Per-metric acknowledgements are in V1.
-- Notes on acknowledgements are optional.
+- one maintained PR comment plus one aggregate required GitHub check
+- a fixed-format, impacted-only, scenario-grouped PR comment
+- one visible worst-series summary row plus one diff link per impacted scenario
+- compare page as the primary deep-link target from both comments and checks
+- partial PR comment updates with header-only pending counts
+- web-app-based per-metric acknowledgements with inline GitHub visibility
+- a lean blocker-focused GitHub check surface instead of a second full GitHub report
+
+Follow-on work remains, but it belongs to later tasks rather than to core GitHub UX uncertainty:
+
+- repo-level PR comment density settings
+- exact copy and visual formatting during implementation
+- whether richer GitHub-native acknowledgement actions are ever worth adding
+- whether the GitHub check surface should grow denser after real user feedback
 
 ### References an agent should read
 
 Local docs:
 
+- `github-ux-details-v1.md`
+- `architecture-v1.md`
+  - `## Acknowledgements`
+  - `## GitHub And Dashboard Consumption`
+- `web-app-shape-v1.md`
+  - `## GitHub PR Comment Deep Links`
 - `product-functionality.md`
   - `## GitHub Pull Request Workflow`
   - `## GitHub Checks And Budget Gating`
@@ -324,8 +335,13 @@ External references:
   - `https://codspeed.io/docs/features/performance-checks/`
 - Codecov Bundle Analysis
   - `https://docs.codecov.com/docs/javascript-bundle-analysis`
+- Codecov PR comment and status docs
+  - `https://docs.codecov.com/docs/pull-request-comments`
+  - `https://docs.codecov.com/docs/commit-status`
 - RelativeCI GitHub PR comment docs
   - `https://relative-ci.com/documentation/setup/configure/integrations/github-pull-request-comment`
+- RelativeCI GitHub check docs
+  - `https://relative-ci.com/documentation/setup/configure/integrations/github-check-report`
 - Bundlewatch
   - `https://github.com/bundlewatch/bundlewatch`
 
