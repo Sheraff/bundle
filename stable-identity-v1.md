@@ -453,6 +453,120 @@ Known V1 limits:
 
 These are acceptable V1 boundaries because they protect the product from false continuity.
 
+## Improvement Paths
+
+If we want the stable-identity system to match more often without increasing false positives, the right next step is not to lower thresholds blindly.
+
+The right strategy is to add new independent evidence so the matcher can make more exact or strong continuity claims safely.
+
+Best next steps:
+
+- Add exact content hashes for static assets.
+- Add normalized CSS fingerprints for generated CSS after stripping unstable rewritten details like emitted asset URLs.
+- Capture module graph neighborhood in the artifact, including importer sets, import sets, and export shape when available.
+- Add a strict module-move detector that only promotes continuity when graph neighborhood, size, and export shape remain uniquely aligned.
+- Add shared-chunk role signatures beyond module overlap, such as reachable facade set, importer profile, imported CSS and assets profile, and package composition profile.
+- Let chunk, CSS, and asset fallback logic combine several weak signals together instead of relying too heavily on any one weak signal.
+- Add optional sourcemap-assisted matching as an enhancement path, while keeping sourcemaps out of the required V1 contract.
+- Expand the fixture corpus with harder real-world move and rename cases.
+
+Recommended implementation order:
+
+1. asset content hashes
+2. normalized CSS fingerprints
+3. module graph capture in the artifact
+4. safe module-move detection
+5. richer shared-chunk role signatures
+6. corpus expansion and threshold tuning
+
+Likely highest-value wins:
+
+- moved helpers that keep the same graph role
+- renamed SVG and image assets with unchanged bytes
+- moved shared CSS with stable importer lineage
+- shared chunks whose module paths changed but whose package and owner context stayed stable
+
+## Draft: Squash Merge Bridging
+
+This section is a draft, untested idea.
+
+It is not part of the current validated V1 stable-identity design.
+It is a possible future solution for preserving graceful continuity when a long-lived feature branch is squash-merged into `main`.
+
+### Problem
+
+On a feature branch, the matcher can often track chunk evolution cleanly from one small commit to the next.
+
+After a squash merge, that same work may appear on `main` as one large commit.
+If stable identity is computed only by comparing `main_before` to `main_after`, continuity may degrade because the system no longer sees the small intermediate steps that existed on the feature branch.
+
+### Draft idea
+
+Decouple:
+
+- the baseline used for metric comparison
+- the anchor used for stable identity continuity
+
+In this model:
+
+- the previous successful `main` run is still the metric baseline for answering what changed on `main`
+- the latest matching PR head or PR merge-ref run becomes the identity anchor for answering what this chunk or asset is the same as
+
+### Proposed flow
+
+1. Store normal bundle runs for the PR as the branch evolves.
+2. Ideally also store a run for the GitHub PR merge ref.
+3. When the squash-merged commit lands on `main`, detect the associated PR through GitHub metadata.
+4. Look up the latest successful PR head or merge-ref run.
+5. If the resulting `main` tree matches that PR run closely enough, inherit stable identities from the PR lineage instead of recomputing identity only from `main_before -> main_after`.
+6. Still use `main_before -> main_after` as the metric baseline diff.
+
+### Core idea
+
+The key separation is:
+
+- metric baseline answers: what changed on `main`
+- identity anchor answers: what is this logically the same as
+
+That lets a squash-merged `main` commit inherit the lineage already discovered gradually on the PR branch.
+
+### Why this could work
+
+- squash merge destroys commit topology, but usually not the resulting tree content
+- the hard continuity work has already been observed incrementally on the PR branch
+- a later `main` run can reuse that lineage instead of starting from scratch
+
+### Draft matching order
+
+For a new `main` run after squash merge, a future system could try identity anchoring in this order:
+
+1. exact tree match to the PR merge-ref run
+2. exact tree match to the PR head run
+3. near-exact artifact fingerprint match
+4. composed lineage through prior PR runs
+5. only then fallback to direct `main_before -> main_after` identity matching
+
+### Data this would likely need
+
+- commit SHA
+- tree SHA if available
+- PR number
+- branch
+- base SHA or merge base
+- enough artifact fingerprinting to detect near-exact equivalence
+- persistent canonical lineage IDs, not only pairwise matches
+
+### Important caveats
+
+- this is not validated by the current research lab
+- this would need architecture work as well as stable-identity work
+- this may interact with the current V1 boundary that repeated separate-build grouping is out of scope for the public contract
+- this should not be used as a reason to weaken normal conservative matching thresholds
+
+### Current status
+
+Treat this as a promising future direction, not an adopted part of the V1 design.
+
 ## Follow-On Work
 
 Stable identity is no longer a major technical unknown, but follow-on work remains:

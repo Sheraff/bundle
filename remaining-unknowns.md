@@ -23,27 +23,27 @@ These establish the current product direction:
 
 ## 1. Stable Identity
 
-### Why this is still unknown
+Status: resolved for V1.
 
-This is the hardest technical unknown in the product.
+Resolution:
 
-We have a V1 direction, but not a complete design for:
+- `stable-identity-v1.md`
+
+This was the hardest technical unknown in the product, but the current V1 design is now defined and validated by the local research lab under `research/stable-identity/`.
+
+What is now answered for V1:
 
 - chunk continuity across commits
 - split and merge detection
-- degraded or low-confidence matches
-- stable treemap diffing over time
-- which identity rules apply to entries, shared chunks, CSS, assets, packages, and modules
+- degraded or low-confidence matches via explicit `ambiguous` states
+- stable treemap diffing over time via logical node keys
+- identity rules for entries, shared chunks, CSS, assets, packages, and modules
 
-Without a good stable-identity system, the product risks becoming a snapshot viewer instead of a bundle evolution tracker.
+Follow-on work remains, but it belongs to later tasks rather than to stable-identity algorithm uncertainty:
 
-### What seems decided already
-
-- Sourcemaps are not required for V1.
-- Matching should be conservative.
-- Entry continuity should rely on manifest key, `src`, and `facadeModuleId` first.
-- Module continuity should rely on stable module IDs.
-- Shared chunk continuity should rely on module composition plus owner-entrypoint context.
+- mapping the design onto the final plugin artifact contract
+- mapping the design onto normalization and derived-data stages in the broader architecture
+- surfacing degraded warnings and evidence clearly in the product UX
 
 ### References an agent should read
 
@@ -54,6 +54,7 @@ Local docs:
   - `## Treemap And Composition Analysis`
   - `## Build-time Graph And Waterfall Analysis`
 - `scenario-environment-runid-v1.md`
+- `stable-identity-v1.md`
 
 External references:
 
@@ -351,9 +352,8 @@ External references:
 If we want to reduce uncertainty efficiently, the next sequence should be:
 
 1. Architecture
-2. Stable identity
-3. Plugin artifact contract
-4. Web app shape and dashboards
-5. GitHub UX details
-6. Synthetic-import product shape
-7. Infrastructure
+2. Plugin artifact contract
+3. Web app shape and dashboards
+4. GitHub UX details
+5. Synthetic-import product shape
+6. Infrastructure
