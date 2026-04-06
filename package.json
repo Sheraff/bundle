@@ -3,14 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "description": "Research repo for bundle evolution work",
-  "main": "index.js",
   "scripts": {
     "stable-identity:build-fixtures": "node ./research/stable-identity/harness/build-fixtures.mjs",
     "stable-identity:inspect": "node ./research/stable-identity/harness/inspect-artifact.mjs",
     "stable-identity:inspect-treemap": "node ./research/stable-identity/harness/inspect-treemap.mjs",
     "stable-identity:test": "node ./research/stable-identity/harness/run-expectations.mjs",
     "stable-identity:refresh": "node ./research/stable-identity/harness/refresh.mjs",
+    "contracts:typecheck": "pnpm --filter @workspace/contracts typecheck",
+    "contracts:test": "pnpm --filter @workspace/contracts test",
+    "contracts:check": "pnpm contracts:typecheck && pnpm contracts:test",
     "test": "pnpm stable-identity:test"
+  },
+  "devDependencies": {
+    "@types/node": "25.5.2",
+    "typescript": "6.0.2",
+    "valibot": "1.3.1",
+    "vitest": "4.1.2"
   },
   "keywords": [],
   "author": "",
