@@ -398,11 +398,24 @@ Build in this order:
 3. `packages/github-action` - done for fixture-app and public `repo-synthetic` flows
 4. upload endpoint plus raw persistence - done
 5. normalization worker plus snapshot blob write - done
-6. stable identity plus measurement derivation - remaining
+6. stable identity plus measurement derivation - partially done; see clarification below
 7. comparison and budget jobs - remaining
 8. commit-group summary and PR review summary jobs - remaining
 9. GitHub publication - remaining
 10. repository, scenario, and compare pages - remaining
+
+## Step 6 Clarification
+
+- Step 6 is partially implemented in `apps/web`.
+- Done in code: `derive-run` queue wiring, `series` and `series_points` persistence, `scenario_runs.status = 'processed'`, and default-lens measurement derivation for `entry-js-direct-css`.
+- Done in code: the derive worker correctly handles manifest-only HTML entrypoints by measuring their imported direct JS chunk plus direct CSS.
+- Done in code: an app-owned stable-identity matcher module exists and is covered by local tests.
+- Not done in code: no production job consumes the stable-identity matcher yet.
+- Not done in code: no cross-run lineage or continuity rows are persisted yet beyond the per-run `series` key reuse on `repository + scenario + environment + entrypoint + lens`.
+- Not done in code: no additional lenses beyond `entry-js-direct-css` are derived yet.
+- Step 7 should be treated as the point where stable identity becomes real product behavior.
+- Step 7 must consume normalized snapshots plus the stable-identity matcher to make cross-run `same`, `split`, `merge`, and `ambiguous` decisions.
+- Step 7 must materialize those decisions into `comparisons`, then compute `budget_results` from the comparison output.
 
 ## Small Remaining Follow-Ons
 
