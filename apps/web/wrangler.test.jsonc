@@ -45,33 +45,6 @@
         "binding": "REFRESH_SUMMARIES_QUEUE",
         "queue": "bundle-refresh-summaries-test"
       }
-    ],
-    "consumers": [
-      {
-        "queue": "bundle-normalize-run-test",
-        "max_batch_size": 10,
-        "max_batch_timeout": 5
-      },
-      {
-        "queue": "bundle-derive-run-test",
-        "max_batch_size": 10,
-        "max_batch_timeout": 5
-      },
-      {
-        "queue": "bundle-schedule-comparisons-test",
-        "max_batch_size": 10,
-        "max_batch_timeout": 5
-      },
-      {
-        "queue": "bundle-materialize-comparison-test",
-        "max_batch_size": 10,
-        "max_batch_timeout": 5
-      },
-      {
-        "queue": "bundle-refresh-summaries-test",
-        "max_batch_size": 10,
-        "max_batch_timeout": 5
-      }
     ]
   }
 }

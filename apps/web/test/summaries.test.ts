@@ -6,11 +6,10 @@ import { env, exports } from 'cloudflare:workers'
 import { describe, expect, it, vi } from 'vitest'
 import { ulid } from 'ulid'
 
-import { handleDeriveRunMessage } from '../src/derive-runs.js'
-import { handleMaterializeComparisonMessage } from '../src/materialize-comparison.js'
-import { handleNormalizeRunMessage } from '../src/normalize-runs.js'
-import { handleRefreshSummariesMessage } from '../src/refresh-summaries.js'
-import { handleScheduleComparisonsMessage } from '../src/schedule-comparisons.js'
+import {
+  dispatchQueueMessage,
+  TEST_QUEUE_NAMES,
+} from './queue-test-helpers.js'
 
 const baseSha = '0123456789abcdef0123456789abcdef01234567'
 const commitSha = '1111111111111111111111111111111111111111'
@@ -129,17 +128,14 @@ describe('commit-group summary and PR review summary jobs', () => {
       .bind('2026-04-06T11:00:00.000Z', '2026-04-06T11:00:00.000Z', currentPayload.commitGroupId)
       .run()
 
-    await handleRefreshSummariesMessage(
-      buildQueueMessage({
-        schemaVersion: 1,
-        kind: 'refresh-summaries',
-        repositoryId: pendingSummary?.repository_id ?? '',
-        commitGroupId: currentPayload.commitGroupId,
-        dedupeKey: `refresh-summaries:${currentPayload.commitGroupId}:manual-expiry:v1`,
-      }),
-      env,
-      harness.logger,
-    )
+    const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.refreshSummaries, {
+      schemaVersion: 1,
+      kind: 'refresh-summaries',
+      repositoryId: pendingSummary?.repository_id ?? '',
+      commitGroupId: currentPayload.commitGroupId,
+      dedupeKey: `refresh-summaries:${currentPayload.commitGroupId}:manual-expiry:v1`,
+    })
+    expect(result).toBeAcknowledged()
 
     const settledSummary = await getCommitGroupSummary(commitSha)
     expect(settledSummary?.status).toBe('settled')
@@ -340,17 +336,14 @@ describe('commit-group summary and PR review summary jobs', () => {
       )
       .run()
 
-    await handleRefreshSummariesMessage(
-      buildQueueMessage({
-        schemaVersion: 1,
-        kind: 'refresh-summaries',
-        repositoryId: initialComparison?.repository_id ?? '',
-        commitGroupId: (await getCommitGroupSummary(prHeadSha))?.commit_group_id ?? '',
-        dedupeKey: 'refresh-summaries:acknowledgement:v1',
-      }),
-      env,
-      harness.logger,
-    )
+    const acknowledgedResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.refreshSummaries, {
+      schemaVersion: 1,
+      kind: 'refresh-summaries',
+      repositoryId: initialComparison?.repository_id ?? '',
+      commitGroupId: (await getCommitGroupSummary(prHeadSha))?.commit_group_id ?? '',
+      dedupeKey: 'refresh-summaries:acknowledgement:v1',
+    })
+    expect(acknowledgedResult).toBeAcknowledged()
 
     const acknowledgedSummary = await getPrReviewSummary(prHeadSha)
     expect(acknowledgedSummary?.acknowledged_regression_count).toBe(1)
@@ -532,28 +525,22 @@ describe('commit-group summary and PR review summary jobs', () => {
     const replayRepositoryId = commitSummaryBeforeReplay?.repository_id ?? ''
     const replayCommitGroupId = commitSummaryBeforeReplay?.commit_group_id ?? ''
 
-    await handleRefreshSummariesMessage(
-      buildQueueMessage({
-        schemaVersion: 1,
-        kind: 'refresh-summaries',
-        repositoryId: replayRepositoryId,
-        commitGroupId: replayCommitGroupId,
-        dedupeKey: `refresh-summaries:${replayCommitGroupId}:replay-1:v1`,
-      }),
-      env,
-      harness.logger,
-    )
-    await handleRefreshSummariesMessage(
-      buildQueueMessage({
-        schemaVersion: 1,
-        kind: 'refresh-summaries',
-        repositoryId: replayRepositoryId,
-        commitGroupId: replayCommitGroupId,
-        dedupeKey: `refresh-summaries:${replayCommitGroupId}:replay-2:v1`,
-      }),
-      env,
-      harness.logger,
-    )
+    const firstReplayResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.refreshSummaries, {
+      schemaVersion: 1,
+      kind: 'refresh-summaries',
+      repositoryId: replayRepositoryId,
+      commitGroupId: replayCommitGroupId,
+      dedupeKey: `refresh-summaries:${replayCommitGroupId}:replay-1:v1`,
+    })
+    const secondReplayResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.refreshSummaries, {
+      schemaVersion: 1,
+      kind: 'refresh-summaries',
+      repositoryId: replayRepositoryId,
+      commitGroupId: replayCommitGroupId,
+      dedupeKey: `refresh-summaries:${replayCommitGroupId}:replay-2:v1`,
+    })
+    expect(firstReplayResult).toBeAcknowledged()
+    expect(secondReplayResult).toBeAcknowledged()
 
     const commitSummaryAfterReplay = await getCommitGroupSummary(replaySha)
     const reviewSummaryAfterReplay = await getPrReviewSummary(replaySha)
@@ -567,7 +554,6 @@ describe('commit-group summary and PR review summary jobs', () => {
 })
 
 function createPipelineHarness() {
-  const logger = buildLogger()
   const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
   const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
   const scheduleSendSpy = vi.spyOn(env.SCHEDULE_COMPARISONS_QUEUE, 'send')
@@ -586,7 +572,6 @@ function createPipelineHarness() {
   let refreshIndex = 0
 
   return {
-    logger,
     acceptUpload,
     drainDerive,
     drainMaterialize,
@@ -606,7 +591,8 @@ function createPipelineHarness() {
     while (refreshIndex < refreshSendSpy.mock.calls.length) {
       const refreshMessageBody = refreshSendSpy.mock.calls[refreshIndex]?.[0]
       refreshIndex += 1
-      await handleRefreshSummariesMessage(buildQueueMessage(refreshMessageBody), env, logger)
+      const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.refreshSummaries, refreshMessageBody)
+      expect(result).toBeAcknowledged()
     }
   }
 
@@ -614,7 +600,8 @@ function createPipelineHarness() {
     while (normalizeIndex < normalizeSendSpy.mock.calls.length) {
       const normalizeMessageBody = normalizeSendSpy.mock.calls[normalizeIndex]?.[0]
       normalizeIndex += 1
-      await handleNormalizeRunMessage(buildQueueMessage(normalizeMessageBody), env, logger)
+      const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.normalizeRun, normalizeMessageBody)
+      expect(result).toBeAcknowledged()
     }
   }
 
@@ -622,7 +609,8 @@ function createPipelineHarness() {
     while (deriveIndex < deriveSendSpy.mock.calls.length) {
       const deriveMessageBody = deriveSendSpy.mock.calls[deriveIndex]?.[0]
       deriveIndex += 1
-      await handleDeriveRunMessage(buildQueueMessage(deriveMessageBody), env, logger)
+      const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.deriveRun, deriveMessageBody)
+      expect(result).toBeAcknowledged()
     }
   }
 
@@ -630,7 +618,11 @@ function createPipelineHarness() {
     while (scheduleIndex < scheduleSendSpy.mock.calls.length) {
       const scheduleMessageBody = scheduleSendSpy.mock.calls[scheduleIndex]?.[0]
       scheduleIndex += 1
-      await handleScheduleComparisonsMessage(buildQueueMessage(scheduleMessageBody), env, logger)
+      const result = await dispatchQueueMessage(
+        TEST_QUEUE_NAMES.scheduleComparisons,
+        scheduleMessageBody,
+      )
+      expect(result).toBeAcknowledged()
     }
   }
 
@@ -638,7 +630,11 @@ function createPipelineHarness() {
     while (materializeIndex < materializeSendSpy.mock.calls.length) {
       const materializeMessageBody = materializeSendSpy.mock.calls[materializeIndex]?.[0]
       materializeIndex += 1
-      await handleMaterializeComparisonMessage(buildQueueMessage(materializeMessageBody), env, logger)
+      const result = await dispatchQueueMessage(
+        TEST_QUEUE_NAMES.materializeComparison,
+        materializeMessageBody,
+      )
+      expect(result).toBeAcknowledged()
     }
   }
 
@@ -718,23 +714,6 @@ async function getPrReviewSummary(commitSha: string) {
         summary: JSON.parse(row.summary_json),
       }
     : null
-}
-
-function buildQueueMessage(body: unknown) {
-  return {
-    id: 'msg-1',
-    attempts: 1,
-    body,
-    ack: vi.fn(),
-    retry: vi.fn(),
-  }
-}
-
-function buildLogger() {
-  return {
-    error: vi.fn(),
-    warn: vi.fn(),
-  }
 }
 
 async function sendUploadRequest(

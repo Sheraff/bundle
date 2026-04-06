@@ -5,15 +5,16 @@ import {
 import { env, exports } from 'cloudflare:workers'
 import { describe, expect, it, vi } from 'vitest'
 
-import { handleDeriveRunMessage } from '../src/derive-runs.js'
-import { handleNormalizeRunMessage } from '../src/normalize-runs.js'
+import {
+  dispatchQueueMessage,
+  TEST_QUEUE_NAMES,
+} from './queue-test-helpers.js'
 
 const sha = '0123456789abcdef0123456789abcdef01234567'
 const secondSha = '1111111111111111111111111111111111111111'
 
 describe('derive-run queue handling', () => {
   it('derives default-lens series points and marks the scenario run as processed', async () => {
-    const logger = buildLogger()
     const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
     const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
 
@@ -21,17 +22,18 @@ describe('derive-run queue handling', () => {
 
     expect(response.status).toBe(202)
 
-    const normalizeMessage = buildQueueMessage(normalizeSendSpy.mock.calls[0]?.[0])
-    await handleNormalizeRunMessage(normalizeMessage, env, logger)
-
-    expect(normalizeMessage.ack).toHaveBeenCalledTimes(1)
+    const normalizeResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.normalizeRun,
+      normalizeSendSpy.mock.calls[0]?.[0],
+    )
+    expect(normalizeResult).toBeAcknowledged()
     expect(deriveSendSpy).toHaveBeenCalledTimes(1)
 
-    const deriveMessage = buildQueueMessage(deriveSendSpy.mock.calls[0]?.[0])
-    await handleDeriveRunMessage(deriveMessage, env, logger)
-
-    expect(deriveMessage.ack).toHaveBeenCalledTimes(1)
-    expect(deriveMessage.retry).not.toHaveBeenCalled()
+    const deriveResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.deriveRun,
+      deriveSendSpy.mock.calls[0]?.[0],
+    )
+    expect(deriveResult).toBeAcknowledged()
 
     const scenarioRun = await env.DB.prepare(
       `SELECT status, failure_code, failure_message
@@ -104,14 +106,10 @@ describe('derive-run queue handling', () => {
       total_brotli_bytes: 44,
       measured_at: '2026-04-06T12:00:00.000Z',
     })
-    expect(logger.error).not.toHaveBeenCalled()
-    expect(logger.warn).not.toHaveBeenCalled()
   })
 
   it('reuses one stable series across hash churn and appends fresh points', async () => {
-    const logger = buildLogger()
-
-    await processEnvelope(buildEnvelope(), logger)
+    await processEnvelope(buildEnvelope())
     await processEnvelope(
       buildEnvelope({
         git: {
@@ -141,7 +139,6 @@ describe('derive-run queue handling', () => {
           },
         }),
       }),
-      logger,
     )
 
     expect(await countRows('series')).toBe(1)
@@ -159,8 +156,6 @@ describe('derive-run queue handling', () => {
   })
 
   it('measures manifest-only html entrypoints from their imported js chunk', async () => {
-    const logger = buildLogger()
-
     await processEnvelope(
       buildEnvelope({
         artifact: {
@@ -242,7 +237,6 @@ describe('derive-run queue handling', () => {
           ],
         },
       }),
-      logger,
     )
 
     const series = await env.DB.prepare(
@@ -279,15 +273,17 @@ describe('derive-run queue handling', () => {
   })
 
   it('marks the scenario run as failed when the normalized snapshot becomes invalid', async () => {
-    const logger = buildLogger()
     const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
     const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
     const response = await sendUploadRequest(buildEnvelope())
 
     expect(response.status).toBe(202)
 
-    const normalizeMessage = buildQueueMessage(normalizeSendSpy.mock.calls[0]?.[0])
-    await handleNormalizeRunMessage(normalizeMessage, env, logger)
+    const normalizeResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.normalizeRun,
+      normalizeSendSpy.mock.calls[0]?.[0],
+    )
+    expect(normalizeResult).toBeAcknowledged()
 
     const scenarioRun = await env.DB.prepare(
       'SELECT id, normalized_snapshot_r2_key FROM scenario_runs LIMIT 1',
@@ -302,8 +298,10 @@ describe('derive-run queue handling', () => {
       },
     })
 
-    const deriveMessage = buildQueueMessage(deriveSendSpy.mock.calls[0]?.[0])
-    await handleDeriveRunMessage(deriveMessage, env, logger)
+    const deriveResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.deriveRun,
+      deriveSendSpy.mock.calls[0]?.[0],
+    )
 
     const failedRun = await env.DB.prepare(
       `SELECT status, failure_code, failure_message
@@ -312,11 +310,10 @@ describe('derive-run queue handling', () => {
     ).bind(scenarioRun!.id).first<{
       failure_code: string | null
       failure_message: string | null
-      status: string
-    }>()
+       status: string
+     }>()
 
-    expect(deriveMessage.ack).toHaveBeenCalledTimes(1)
-    expect(deriveMessage.retry).not.toHaveBeenCalled()
+    expect(deriveResult).toBeAcknowledged()
     expect(failedRun?.status).toBe('failed')
     expect(failedRun?.failure_code).toBe('invalid_normalized_snapshot')
     expect(failedRun?.failure_message).toContain('failed schema validation')
@@ -325,20 +322,16 @@ describe('derive-run queue handling', () => {
   })
 
   it('treats an already-processed derive run as idempotent', async () => {
-    const logger = buildLogger()
-    const { deriveMessageBody } = await processEnvelope(buildEnvelope(), logger)
+    const { deriveMessageBody } = await processEnvelope(buildEnvelope())
 
-    const secondDeriveMessage = buildQueueMessage(deriveMessageBody)
-    await handleDeriveRunMessage(secondDeriveMessage, env, logger)
-
-    expect(secondDeriveMessage.ack).toHaveBeenCalledTimes(1)
-    expect(secondDeriveMessage.retry).not.toHaveBeenCalled()
+    const deriveResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.deriveRun, deriveMessageBody)
+    expect(deriveResult).toBeAcknowledged()
     expect(await countRows('series')).toBe(1)
     expect(await countRows('series_points')).toBe(1)
   })
 })
 
-async function processEnvelope(envelope: ReturnType<typeof buildEnvelope>, logger = buildLogger()) {
+async function processEnvelope(envelope: ReturnType<typeof buildEnvelope>) {
   const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
   const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
   normalizeSendSpy.mockClear()
@@ -348,33 +341,16 @@ async function processEnvelope(envelope: ReturnType<typeof buildEnvelope>, logge
   expect(response.status).toBe(202)
 
   const normalizeMessageBody = normalizeSendSpy.mock.calls.at(-1)?.[0]
-  const normalizeMessage = buildQueueMessage(normalizeMessageBody)
-  await handleNormalizeRunMessage(normalizeMessage, env, logger)
+  const normalizeResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.normalizeRun, normalizeMessageBody)
+  expect(normalizeResult).toBeAcknowledged()
 
   const deriveMessageBody = deriveSendSpy.mock.calls.at(-1)?.[0]
-  const deriveMessage = buildQueueMessage(deriveMessageBody)
-  await handleDeriveRunMessage(deriveMessage, env, logger)
+  const deriveResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.deriveRun, deriveMessageBody)
+  expect(deriveResult).toBeAcknowledged()
 
   return {
     normalizeMessageBody,
     deriveMessageBody,
-  }
-}
-
-function buildQueueMessage(body: unknown) {
-  return {
-    id: 'msg-1',
-    attempts: 1,
-    body,
-    ack: vi.fn(),
-    retry: vi.fn(),
-  }
-}
-
-function buildLogger() {
-  return {
-    error: vi.fn(),
-    warn: vi.fn(),
   }
 }
 

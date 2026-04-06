@@ -1,6 +1,50 @@
 import { applyD1Migrations } from 'cloudflare:test'
 import { env } from 'cloudflare:workers'
-import { afterEach, beforeEach, vi } from 'vitest'
+import { afterEach, beforeEach, expect, vi } from 'vitest'
+
+interface QueueResultLike {
+  ackAll: boolean
+  retryBatch: {
+    retry: boolean
+    delaySeconds?: number
+  }
+  explicitAcks: string[]
+  retryMessages: Array<{
+    msgId: string
+    delaySeconds?: number
+  }>
+}
+
+expect.extend({
+  toBeAcknowledged(this: { isNot: boolean }, received: QueueResultLike, messageId = 'message-1') {
+    const pass =
+      received.ackAll === false &&
+      received.retryBatch.retry === false &&
+      received.explicitAcks.length === 1 &&
+      received.explicitAcks[0] === messageId &&
+      received.retryMessages.length === 0
+
+    return {
+      pass,
+      message: () =>
+        `Expected queue result ${this.isNot ? 'not ' : ''}to acknowledge message ${messageId}.\nReceived: ${JSON.stringify(received)}`,
+    }
+  },
+  toBeRetried(this: { isNot: boolean }, received: QueueResultLike, messageId = 'message-1') {
+    const pass =
+      received.ackAll === false &&
+      received.retryBatch.retry === false &&
+      received.explicitAcks.length === 0 &&
+      received.retryMessages.length === 1 &&
+      received.retryMessages[0]?.msgId === messageId
+
+    return {
+      pass,
+      message: () =>
+        `Expected queue result ${this.isNot ? 'not ' : ''}to retry message ${messageId}.\nReceived: ${JSON.stringify(received)}`,
+    }
+  },
+})
 
 beforeEach(async () => {
   await applyD1Migrations(env.DB, env.TEST_MIGRATIONS)

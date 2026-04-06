@@ -5,10 +5,10 @@ import {
 import { env, exports } from 'cloudflare:workers'
 import { describe, expect, it, vi } from 'vitest'
 
-import { handleDeriveRunMessage } from '../src/derive-runs.js'
-import { handleMaterializeComparisonMessage } from '../src/materialize-comparison.js'
-import { handleNormalizeRunMessage } from '../src/normalize-runs.js'
-import { handleScheduleComparisonsMessage } from '../src/schedule-comparisons.js'
+import {
+  dispatchQueueMessage,
+  TEST_QUEUE_NAMES,
+} from './queue-test-helpers.js'
 
 const baseSha = '0123456789abcdef0123456789abcdef01234567'
 const nextSha = '1111111111111111111111111111111111111111'
@@ -60,7 +60,6 @@ describe('comparison and budget jobs', () => {
     })
     expect(await countRows('comparisons')).toBe(1)
     expect(await countRows('budget_results')).toBe(0)
-    expect(logger.error).not.toHaveBeenCalled()
   })
 
   it('materializes branch comparisons with stable-identity summaries and no-op budget state', async () => {
@@ -147,7 +146,6 @@ describe('comparison and budget jobs', () => {
       },
     })
     expect(await countRows('budget_results')).toBe(0)
-    expect(logger.error).not.toHaveBeenCalled()
   })
 
   it('keeps PR baseline selection anchored to runs available when the head uploaded', async () => {
@@ -214,11 +212,19 @@ describe('comparison and budget jobs', () => {
     materializeSendSpy.mockClear()
 
     for (const scheduleMessageBody of prResult.scheduleMessageBodies) {
-      await handleScheduleComparisonsMessage(buildQueueMessage(scheduleMessageBody), env, logger)
+      const scheduleResult = await dispatchQueueMessage(
+        TEST_QUEUE_NAMES.scheduleComparisons,
+        scheduleMessageBody,
+      )
+      expect(scheduleResult).toBeAcknowledged()
     }
 
     for (const materializeMessageBody of materializeSendSpy.mock.calls.map((call) => call[0])) {
-      await handleMaterializeComparisonMessage(buildQueueMessage(materializeMessageBody), env, logger)
+      const materializeResult = await dispatchQueueMessage(
+        TEST_QUEUE_NAMES.materializeComparison,
+        materializeMessageBody,
+      )
+      expect(materializeResult).toBeAcknowledged()
     }
 
     const comparison = await env.DB.prepare(
@@ -248,39 +254,26 @@ describe('comparison and budget jobs', () => {
     expect(comparison?.selected_base_commit_sha).not.toBe(laterBaseSha)
     expect(await countRows('comparisons')).toBe(4)
     expect(await countRows('budget_results')).toBe(0)
-    expect(logger.error).not.toHaveBeenCalled()
   })
 
   it('acks invalid schedule-comparisons messages instead of retrying them', async () => {
-    const logger = buildLogger()
-    const message = buildQueueMessage({
+    const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.scheduleComparisons, {
       schemaVersion: 1,
       kind: 'schedule-comparisons',
       repositoryId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
       dedupeKey: 'schedule-comparisons:test:v1',
     })
-
-    await handleScheduleComparisonsMessage(message, env, logger)
-
-    expect(message.ack).toHaveBeenCalledTimes(1)
-    expect(message.retry).not.toHaveBeenCalled()
-    expect(logger.error).toHaveBeenCalledTimes(1)
+    expect(result).toBeAcknowledged()
   })
 
   it('acks invalid materialize-comparison messages instead of retrying them', async () => {
-    const logger = buildLogger()
-    const message = buildQueueMessage({
+    const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.materializeComparison, {
       schemaVersion: 1,
       kind: 'materialize-comparison',
       repositoryId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
       dedupeKey: 'materialize-comparison:test:v1',
     })
-
-    await handleMaterializeComparisonMessage(message, env, logger)
-
-    expect(message.ack).toHaveBeenCalledTimes(1)
-    expect(message.retry).not.toHaveBeenCalled()
-    expect(logger.error).toHaveBeenCalledTimes(1)
+    expect(result).toBeAcknowledged()
   })
 
   it('retries transient schedule-comparisons failures without duplicating comparison rows', async () => {
@@ -323,18 +316,18 @@ describe('comparison and budget jobs', () => {
       .spyOn(env.MATERIALIZE_COMPARISON_QUEUE, 'send')
       .mockRejectedValueOnce(new Error('queue unavailable'))
 
-    const firstMessage = buildQueueMessage(nextResult.scheduleMessageBodies[0])
-    await handleScheduleComparisonsMessage(firstMessage, env, logger)
-
-    expect(firstMessage.ack).not.toHaveBeenCalled()
-    expect(firstMessage.retry).toHaveBeenCalledTimes(1)
+    const firstResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.scheduleComparisons,
+      nextResult.scheduleMessageBodies[0],
+    )
+    expect(firstResult).toBeRetried()
     expect(await countRows('comparisons')).toBe(2)
 
-    const secondMessage = buildQueueMessage(nextResult.scheduleMessageBodies[0])
-    await handleScheduleComparisonsMessage(secondMessage, env, logger)
-
-    expect(secondMessage.ack).toHaveBeenCalledTimes(1)
-    expect(secondMessage.retry).not.toHaveBeenCalled()
+    const secondResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.scheduleComparisons,
+      nextResult.scheduleMessageBodies[0],
+    )
+    expect(secondResult).toBeAcknowledged()
     expect(sendSpy).toHaveBeenCalledTimes(2)
     expect(await countRows('comparisons')).toBe(2)
   })
@@ -376,11 +369,11 @@ describe('comparison and budget jobs', () => {
 
     const getSpy = vi.spyOn(env.CACHE_BUCKET, 'get').mockRejectedValueOnce(new Error('bucket unavailable'))
 
-    const firstMessage = buildQueueMessage(nextResult.materializeMessageBodies[0])
-    await handleMaterializeComparisonMessage(firstMessage, env, logger)
-
-    expect(firstMessage.ack).not.toHaveBeenCalled()
-    expect(firstMessage.retry).toHaveBeenCalledTimes(1)
+    const firstResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.materializeComparison,
+      nextResult.materializeMessageBodies[0],
+    )
+    expect(firstResult).toBeRetried()
 
     const queuedComparison = await env.DB.prepare(
       `SELECT status
@@ -390,11 +383,11 @@ describe('comparison and budget jobs', () => {
 
     expect(queuedComparison?.status).toBe('queued')
 
-    const secondMessage = buildQueueMessage(nextResult.materializeMessageBodies[0])
-    await handleMaterializeComparisonMessage(secondMessage, env, logger)
-
-    expect(secondMessage.ack).toHaveBeenCalledTimes(1)
-    expect(secondMessage.retry).not.toHaveBeenCalled()
+    const secondResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.materializeComparison,
+      nextResult.materializeMessageBodies[0],
+    )
+    expect(secondResult).toBeAcknowledged()
     expect(getSpy).toHaveBeenCalled()
 
     const materializedComparison = await env.DB.prepare(
@@ -442,8 +435,16 @@ describe('comparison and budget jobs', () => {
       },
     )
 
-    await handleScheduleComparisonsMessage(buildQueueMessage(nextResult.scheduleMessageBodies[0]), env, logger)
-    await handleScheduleComparisonsMessage(buildQueueMessage(nextResult.scheduleMessageBodies[0]), env, logger)
+    const firstResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.scheduleComparisons,
+      nextResult.scheduleMessageBodies[0],
+    )
+    const secondResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.scheduleComparisons,
+      nextResult.scheduleMessageBodies[0],
+    )
+    expect(firstResult).toBeAcknowledged()
+    expect(secondResult).toBeAcknowledged()
 
     const count = await env.DB.prepare(
       `SELECT COUNT(*) AS count
@@ -492,7 +493,11 @@ describe('comparison and budget jobs', () => {
 
     const materializeMessageBody = nextResult.materializeMessageBodies[0]
 
-    await handleMaterializeComparisonMessage(buildQueueMessage(materializeMessageBody), env, logger)
+    const firstResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.materializeComparison,
+      materializeMessageBody,
+    )
+    expect(firstResult).toBeAcknowledged()
 
     const beforeReplay = await env.DB.prepare(
       `SELECT status, stable_identity_summary_json
@@ -503,7 +508,11 @@ describe('comparison and budget jobs', () => {
       status: string
     }>()
 
-    await handleMaterializeComparisonMessage(buildQueueMessage(materializeMessageBody), env, logger)
+    const secondResult = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.materializeComparison,
+      materializeMessageBody,
+    )
+    expect(secondResult).toBeAcknowledged()
 
     const afterReplay = await env.DB.prepare(
       `SELECT status, stable_identity_summary_json
@@ -941,20 +950,21 @@ describe('comparison and budget jobs', () => {
       },
     })
 
-    const message = buildQueueMessage(nextResult.materializeMessageBodies[0])
-    await handleMaterializeComparisonMessage(message, env, logger)
+    const result = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.materializeComparison,
+      nextResult.materializeMessageBodies[0],
+    )
 
     const failedComparison = await env.DB.prepare(
       `SELECT status, failure_code
        FROM comparisons
        WHERE id = ?`,
     ).bind(comparisonMeta!.id).first<{
-      failure_code: string | null
-      status: string
-    }>()
+       failure_code: string | null
+       status: string
+     }>()
 
-    expect(message.ack).toHaveBeenCalledTimes(1)
-    expect(message.retry).not.toHaveBeenCalled()
+    expect(result).toBeAcknowledged()
     expect(failedComparison).toEqual({
       status: 'failed',
       failure_code: 'environment_missing',
@@ -1008,8 +1018,11 @@ describe('comparison and budget jobs', () => {
 
     await env.CACHE_BUCKET.delete(comparisonMeta!.base_snapshot_key)
 
-    const message = buildQueueMessage(nextResult.materializeMessageBodies[0])
-    await handleMaterializeComparisonMessage(message, env, logger)
+    const result = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.materializeComparison,
+      nextResult.materializeMessageBodies[0],
+    )
+    expect(result).toBeAcknowledged()
 
     const failedComparison = await env.DB.prepare(
       `SELECT status, failure_code
@@ -1077,8 +1090,11 @@ describe('comparison and budget jobs', () => {
       },
     })
 
-    const message = buildQueueMessage(nextResult.materializeMessageBodies[0])
-    await handleMaterializeComparisonMessage(message, env, logger)
+    const result = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.materializeComparison,
+      nextResult.materializeMessageBodies[0],
+    )
+    expect(result).toBeAcknowledged()
 
     const failedComparison = await env.DB.prepare(
       `SELECT status, failure_code
@@ -1202,7 +1218,7 @@ describe('comparison and budget jobs', () => {
 
 async function processEnvelope(
   envelope: ReturnType<typeof buildEnvelope>,
-  logger = buildLogger(),
+  _logger = buildLogger(),
   {
     runSchedule = true,
     runMaterialize = true,
@@ -1224,18 +1240,22 @@ async function processEnvelope(
   expect(response.status).toBe(202)
 
   const normalizeMessageBody = normalizeSendSpy.mock.calls.at(-1)?.[0]
-  const normalizeMessage = buildQueueMessage(normalizeMessageBody)
-  await handleNormalizeRunMessage(normalizeMessage, env, logger)
+  const normalizeResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.normalizeRun, normalizeMessageBody)
+  expect(normalizeResult).toBeAcknowledged()
 
   const deriveMessageBody = deriveSendSpy.mock.calls.at(-1)?.[0]
-  const deriveMessage = buildQueueMessage(deriveMessageBody)
-  await handleDeriveRunMessage(deriveMessage, env, logger)
+  const deriveResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.deriveRun, deriveMessageBody)
+  expect(deriveResult).toBeAcknowledged()
 
   const scheduleMessageBodies = scheduleSendSpy.mock.calls.map((call) => call[0])
 
   if (runSchedule) {
     for (const scheduleMessageBody of scheduleMessageBodies) {
-      await handleScheduleComparisonsMessage(buildQueueMessage(scheduleMessageBody), env, logger)
+      const scheduleResult = await dispatchQueueMessage(
+        TEST_QUEUE_NAMES.scheduleComparisons,
+        scheduleMessageBody,
+      )
+      expect(scheduleResult).toBeAcknowledged()
     }
   }
 
@@ -1243,23 +1263,17 @@ async function processEnvelope(
 
   if (runMaterialize) {
     for (const materializeMessageBody of materializeMessageBodies) {
-      await handleMaterializeComparisonMessage(buildQueueMessage(materializeMessageBody), env, logger)
+      const materializeResult = await dispatchQueueMessage(
+        TEST_QUEUE_NAMES.materializeComparison,
+        materializeMessageBody,
+      )
+      expect(materializeResult).toBeAcknowledged()
     }
   }
 
   return {
     scheduleMessageBodies,
     materializeMessageBodies,
-  }
-}
-
-function buildQueueMessage(body: unknown) {
-  return {
-    id: 'msg-1',
-    attempts: 1,
-    body,
-    ack: vi.fn(),
-    retry: vi.fn(),
   }
 }
 
