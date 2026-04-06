@@ -1,12 +1,15 @@
 import {
   DEFAULT_LENS_SLUG,
+  SCHEMA_VERSION_V1,
   deriveRunQueueMessageSchema,
   normalizedSnapshotV1Schema,
+  scheduleComparisonsQueueMessageSchema,
   type DeriveRunQueueMessage,
   type NormalizedAssetV1,
   type NormalizedChunkV1,
   type NormalizedEntrypointV1,
   type NormalizedSnapshotV1,
+  type ScheduleComparisonsQueueMessage,
 } from '@workspace/contracts'
 import { and, eq } from 'drizzle-orm'
 import * as v from 'valibot'
@@ -110,6 +113,7 @@ async function deriveScenarioRun(env: AppBindings, message: DeriveRunQueueMessag
   }
 
   if (scenarioRun.status === 'processed') {
+    await enqueueScheduleComparisons(env, scenarioRun.repositoryId, scenarioRun.id)
     return
   }
 
@@ -152,6 +156,8 @@ async function deriveScenarioRun(env: AppBindings, message: DeriveRunQueueMessag
       updatedAt: timestamp,
     })
     .where(eq(schema.scenarioRuns.id, scenarioRun.id))
+
+  await enqueueScheduleComparisons(env, scenarioRun.repositoryId, scenarioRun.id)
 }
 
 function buildSeriesMeasurements(snapshot: NormalizedSnapshotV1): DerivedMeasurement[] {
@@ -456,6 +462,32 @@ async function markScenarioRunFailed(
       updatedAt: timestamp,
     })
     .where(eq(schema.scenarioRuns.id, scenarioRunId))
+}
+
+async function enqueueScheduleComparisons(
+  env: AppBindings,
+  repositoryId: string,
+  scenarioRunId: string,
+) {
+  const messageResult = v.safeParse(scheduleComparisonsQueueMessageSchema, {
+    schemaVersion: SCHEMA_VERSION_V1,
+    kind: 'schedule-comparisons',
+    repositoryId,
+    scenarioRunId,
+    dedupeKey: `schedule-comparisons:${scenarioRunId}:v1`,
+  })
+
+  if (!messageResult.success) {
+    throw new Error(
+      `Generated schedule-comparisons message is invalid: ${formatIssues(messageResult.issues)}`,
+    )
+  }
+
+  const scheduleComparisonsMessage = messageResult.output as ScheduleComparisonsQueueMessage
+
+  await env.SCHEDULE_COMPARISONS_QUEUE.send(scheduleComparisonsMessage, {
+    contentType: 'json',
+  })
 }
 
 function formatIssues(issues: readonly { message: string }[]) {

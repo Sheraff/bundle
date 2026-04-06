@@ -1,4 +1,9 @@
-import type { DeriveRunQueueMessage, NormalizeRunQueueMessage } from '@workspace/contracts'
+import type {
+  DeriveRunQueueMessage,
+  MaterializeComparisonQueueMessage,
+  NormalizeRunQueueMessage,
+  ScheduleComparisonsQueueMessage,
+} from '@workspace/contracts'
 
 export interface AppBindings {
   BUNDLE_UPLOAD_TOKEN: string
@@ -7,6 +12,8 @@ export interface AppBindings {
   CACHE_BUCKET: R2Bucket
   NORMALIZE_RUN_QUEUE: Queue<NormalizeRunQueueMessage>
   DERIVE_RUN_QUEUE: Queue<DeriveRunQueueMessage>
+  SCHEDULE_COMPARISONS_QUEUE: Queue<ScheduleComparisonsQueueMessage>
+  MATERIALIZE_COMPARISON_QUEUE: Queue<MaterializeComparisonQueueMessage>
 }
 
 export interface AppEnv {

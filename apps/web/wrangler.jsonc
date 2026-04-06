@@ -32,6 +32,14 @@
       {
         "binding": "DERIVE_RUN_QUEUE",
         "queue": "bundle-derive-run"
+      },
+      {
+        "binding": "SCHEDULE_COMPARISONS_QUEUE",
+        "queue": "bundle-schedule-comparisons"
+      },
+      {
+        "binding": "MATERIALIZE_COMPARISON_QUEUE",
+        "queue": "bundle-materialize-comparison"
       }
     ],
     "consumers": [
@@ -42,6 +50,16 @@
       },
       {
         "queue": "bundle-derive-run",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5
+      },
+      {
+        "queue": "bundle-schedule-comparisons",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5
+      },
+      {
+        "queue": "bundle-materialize-comparison",
         "max_batch_size": 10,
         "max_batch_timeout": 5
       }

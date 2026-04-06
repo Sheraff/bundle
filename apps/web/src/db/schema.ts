@@ -202,3 +202,93 @@ export const seriesPoints = sqliteTable(
     index('series_points_commit_group_id_idx').on(table.commitGroupId),
   ],
 )
+
+export const comparisons = sqliteTable(
+  'comparisons',
+  {
+    id: text('id').primaryKey(),
+    repositoryId: text('repository_id')
+      .notNull()
+      .references(() => repositories.id),
+    seriesId: text('series_id')
+      .notNull()
+      .references(() => series.id),
+    headScenarioRunId: text('head_scenario_run_id')
+      .notNull()
+      .references(() => scenarioRuns.id),
+    baseScenarioRunId: text('base_scenario_run_id').references(() => scenarioRuns.id),
+    headCommitGroupId: text('head_commit_group_id')
+      .notNull()
+      .references(() => commitGroups.id),
+    baseCommitGroupId: text('base_commit_group_id').references(() => commitGroups.id),
+    pullRequestId: text('pull_request_id').references(() => pullRequests.id),
+    kind: text('kind').notNull(),
+    status: text('status').notNull(),
+    requestedBaseSha: text('requested_base_sha'),
+    requestedHeadSha: text('requested_head_sha').notNull(),
+    selectedBaseCommitSha: text('selected_base_commit_sha'),
+    selectedHeadCommitSha: text('selected_head_commit_sha').notNull(),
+    currentTotalRawBytes: integer('current_total_raw_bytes').notNull(),
+    currentTotalGzipBytes: integer('current_total_gzip_bytes').notNull(),
+    currentTotalBrotliBytes: integer('current_total_brotli_bytes').notNull(),
+    baselineTotalRawBytes: integer('baseline_total_raw_bytes'),
+    baselineTotalGzipBytes: integer('baseline_total_gzip_bytes'),
+    baselineTotalBrotliBytes: integer('baseline_total_brotli_bytes'),
+    deltaTotalRawBytes: integer('delta_total_raw_bytes'),
+    deltaTotalGzipBytes: integer('delta_total_gzip_bytes'),
+    deltaTotalBrotliBytes: integer('delta_total_brotli_bytes'),
+    selectedEntrypointRelation: text('selected_entrypoint_relation'),
+    selectedEntrypointConfidence: text('selected_entrypoint_confidence'),
+    selectedEntrypointEvidenceJson: text('selected_entrypoint_evidence_json'),
+    stableIdentitySummaryJson: text('stable_identity_summary_json'),
+    hasDegradedStableIdentity: integer('has_degraded_stable_identity').notNull(),
+    budgetState: text('budget_state').notNull(),
+    failureCode: text('failure_code'),
+    failureMessage: text('failure_message'),
+    createdAt: text('created_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('comparisons_kind_series_id_head_scenario_run_id_unique').on(
+      table.kind,
+      table.seriesId,
+      table.headScenarioRunId,
+    ),
+    index('comparisons_repository_id_idx').on(table.repositoryId),
+    index('comparisons_series_id_idx').on(table.seriesId),
+    index('comparisons_pull_request_id_idx').on(table.pullRequestId),
+    index('comparisons_head_scenario_run_id_idx').on(table.headScenarioRunId),
+    index('comparisons_base_scenario_run_id_idx').on(table.baseScenarioRunId),
+  ],
+)
+
+export const budgetResults = sqliteTable(
+  'budget_results',
+  {
+    id: text('id').primaryKey(),
+    repositoryId: text('repository_id')
+      .notNull()
+      .references(() => repositories.id),
+    comparisonId: text('comparison_id')
+      .notNull()
+      .references(() => comparisons.id),
+    seriesId: text('series_id')
+      .notNull()
+      .references(() => series.id),
+    itemKey: text('item_key').notNull(),
+    metricKey: text('metric_key').notNull(),
+    status: text('status').notNull(),
+    blocking: integer('blocking').notNull(),
+    createdAt: text('created_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('budget_results_comparison_id_item_key_unique').on(
+      table.comparisonId,
+      table.itemKey,
+    ),
+    index('budget_results_repository_id_idx').on(table.repositoryId),
+    index('budget_results_series_id_idx').on(table.seriesId),
+    index('budget_results_comparison_id_idx').on(table.comparisonId),
+  ],
+)
