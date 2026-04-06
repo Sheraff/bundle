@@ -396,7 +396,7 @@ Build in this order:
 1. `packages/contracts` - done with noted remaining contract gaps below
 2. `packages/vite-plugin` - done
 3. `packages/github-action` - done for fixture-app and public `repo-synthetic` flows
-4. upload endpoint plus raw persistence - remaining
+4. upload endpoint plus raw persistence - done
 5. normalization worker plus snapshot blob write - remaining
 6. stable identity plus measurement derivation - remaining
 7. comparison and budget jobs - remaining
