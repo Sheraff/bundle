@@ -1,10 +1,12 @@
 import {
   SCHEMA_VERSION_V1,
+  deriveRunQueueMessageSchema,
   normalizedSnapshotV1Schema,
   normalizeRunQueueMessageSchema,
   pluginArtifactV1Schema,
   uploadScenarioRunEnvelopeV1Schema,
   type ArtifactWarningV1,
+  type DeriveRunQueueMessage,
   type NormalizeRunQueueMessage,
   type NormalizedAssetRelationV1,
   type NormalizedAssetV1,
@@ -89,8 +91,6 @@ export async function handleNormalizeRunMessage(
     if (error instanceof TerminalNormalizeError) {
       if (error.persistFailure) {
         await markScenarioRunFailed(env, normalizeRunMessage.scenarioRunId, error.code, error.message)
-      } else {
-        logger.warn(error.message)
       }
 
       message.ack()
@@ -128,6 +128,10 @@ async function normalizeScenarioRun(env: AppBindings, message: NormalizeRunQueue
   }
 
   if (scenarioRun.normalizedAt && scenarioRun.normalizedSnapshotR2Key) {
+    if (scenarioRun.status !== 'processed') {
+      await enqueueDeriveRun(env, scenarioRun.repositoryId, scenarioRun.id)
+    }
+
     return
   }
 
@@ -200,6 +204,8 @@ async function normalizeScenarioRun(env: AppBindings, message: NormalizeRunQueue
       updatedAt: normalizedAt,
     })
     .where(eq(schema.scenarioRuns.id, scenarioRun.id))
+
+  await enqueueDeriveRun(env, scenarioRun.repositoryId, scenarioRun.id)
 }
 
 export function buildNormalizedSnapshot({
@@ -904,6 +910,26 @@ function stableStringify(value: unknown): string {
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([key, entryValue]) => `${JSON.stringify(key)}:${stableStringify(entryValue)}`)
     .join(',')}}`
+}
+
+async function enqueueDeriveRun(env: AppBindings, repositoryId: string, scenarioRunId: string) {
+  const messageResult = v.safeParse(deriveRunQueueMessageSchema, {
+    schemaVersion: SCHEMA_VERSION_V1,
+    kind: 'derive-run',
+    repositoryId,
+    scenarioRunId,
+    dedupeKey: `derive-run:${scenarioRunId}:v1`,
+  })
+
+  if (!messageResult.success) {
+    throw new Error(`Generated derive-run message is invalid: ${formatIssues(messageResult.issues)}`)
+  }
+
+  const deriveRunMessage = messageResult.output as DeriveRunQueueMessage
+
+  await env.DERIVE_RUN_QUEUE.send(deriveRunMessage, {
+    contentType: 'json',
+  })
 }
 
 async function readStoredJson<TSchema extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(

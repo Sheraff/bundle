@@ -15,6 +15,7 @@ describe('normalize-run queue handling', () => {
   it('writes a normalized snapshot and updates scenario-run metadata', async () => {
     const logger = buildLogger()
     const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
+    const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
     const response = await sendUploadRequest(buildEnvelope())
 
     expect(response.status).toBe(202)
@@ -66,6 +67,7 @@ describe('normalize-run queue handling', () => {
     expect(snapshotObject?.httpMetadata?.contentType).toBe('application/json')
     expect(snapshotObject?.customMetadata?.schemaVersion).toBe('1')
     expect(snapshotObject?.customMetadata?.scenarioRunId).toBeTruthy()
+    expect(deriveSendSpy).toHaveBeenCalledTimes(1)
     if (snapshotResult.success) {
       expect(snapshotResult.output.environments[0]?.entrypoints[0]?.key).toBe('src/main.ts')
       expect(snapshotResult.output.environments[0]?.assets[0]?.ownerRoots).toEqual(['src/main.ts'])
@@ -319,6 +321,50 @@ describe('normalize-run queue handling', () => {
 
     expect(normalizedRun?.normalized_snapshot_r2_key).toBeTruthy()
     expect(normalizedRun?.normalized_at).toBeTruthy()
+  })
+
+  it('retries transient derive-queue failures without rewriting the snapshot', async () => {
+    const logger = buildLogger()
+    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
+    const deriveSendSpy = vi
+      .spyOn(env.DERIVE_RUN_QUEUE, 'send')
+      .mockRejectedValueOnce(new Error('queue unavailable'))
+    const response = await sendUploadRequest(buildEnvelope())
+
+    expect(response.status).toBe(202)
+
+    const firstMessage = buildQueueMessage(sendSpy.mock.calls[0]?.[0])
+    await handleNormalizeRunMessage(firstMessage, env, logger)
+
+    expect(firstMessage.ack).not.toHaveBeenCalled()
+    expect(firstMessage.retry).toHaveBeenCalledTimes(1)
+
+    const afterRetryRun = await env.DB.prepare(
+      `SELECT status, normalized_snapshot_r2_key, normalized_at
+       FROM scenario_runs
+       LIMIT 1`,
+    ).first<{
+      normalized_at: string | null
+      normalized_snapshot_r2_key: string | null
+      status: string
+    }>()
+
+    expect(afterRetryRun).toEqual({
+      status: 'processing',
+      normalized_snapshot_r2_key: expect.any(String),
+      normalized_at: expect.any(String),
+    })
+
+    const putSpy = vi.spyOn(env.CACHE_BUCKET, 'put')
+    putSpy.mockClear()
+
+    const secondMessage = buildQueueMessage(sendSpy.mock.calls[0]?.[0])
+    await handleNormalizeRunMessage(secondMessage, env, logger)
+
+    expect(secondMessage.ack).toHaveBeenCalledTimes(1)
+    expect(secondMessage.retry).not.toHaveBeenCalled()
+    expect(deriveSendSpy).toHaveBeenCalledTimes(2)
+    expect(putSpy).not.toHaveBeenCalled()
   })
 
   it('treats an already-normalized run as idempotent', async () => {

@@ -129,3 +129,76 @@ export const scenarioRuns = sqliteTable(
     index('scenario_runs_scenario_id_idx').on(table.scenarioId),
   ],
 )
+
+export const series = sqliteTable(
+  'series',
+  {
+    id: text('id').primaryKey(),
+    repositoryId: text('repository_id')
+      .notNull()
+      .references(() => repositories.id),
+    scenarioId: text('scenario_id')
+      .notNull()
+      .references(() => scenarios.id),
+    environment: text('environment').notNull(),
+    entrypointKey: text('entrypoint_key').notNull(),
+    entrypointKind: text('entrypoint_kind').notNull(),
+    lens: text('lens').notNull(),
+    createdAt: text('created_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('series_repository_id_scenario_id_environment_entrypoint_lens_unique').on(
+      table.repositoryId,
+      table.scenarioId,
+      table.environment,
+      table.entrypointKey,
+      table.lens,
+    ),
+    index('series_repository_id_idx').on(table.repositoryId),
+    index('series_scenario_id_idx').on(table.scenarioId),
+  ],
+)
+
+export const seriesPoints = sqliteTable(
+  'series_points',
+  {
+    id: text('id').primaryKey(),
+    repositoryId: text('repository_id')
+      .notNull()
+      .references(() => repositories.id),
+    seriesId: text('series_id')
+      .notNull()
+      .references(() => series.id),
+    scenarioRunId: text('scenario_run_id')
+      .notNull()
+      .references(() => scenarioRuns.id),
+    commitGroupId: text('commit_group_id')
+      .notNull()
+      .references(() => commitGroups.id),
+    pullRequestId: text('pull_request_id').references(() => pullRequests.id),
+    commitSha: text('commit_sha').notNull(),
+    branch: text('branch').notNull(),
+    measuredAt: text('measured_at').notNull(),
+    entryJsRawBytes: integer('entry_js_raw_bytes').notNull(),
+    entryJsGzipBytes: integer('entry_js_gzip_bytes').notNull(),
+    entryJsBrotliBytes: integer('entry_js_brotli_bytes').notNull(),
+    directCssRawBytes: integer('direct_css_raw_bytes').notNull(),
+    directCssGzipBytes: integer('direct_css_gzip_bytes').notNull(),
+    directCssBrotliBytes: integer('direct_css_brotli_bytes').notNull(),
+    totalRawBytes: integer('total_raw_bytes').notNull(),
+    totalGzipBytes: integer('total_gzip_bytes').notNull(),
+    totalBrotliBytes: integer('total_brotli_bytes').notNull(),
+    createdAt: text('created_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('series_points_series_id_scenario_run_id_unique').on(
+      table.seriesId,
+      table.scenarioRunId,
+    ),
+    index('series_points_repository_id_idx').on(table.repositoryId),
+    index('series_points_series_id_measured_at_idx').on(table.seriesId, table.measuredAt),
+    index('series_points_commit_group_id_idx').on(table.commitGroupId),
+  ],
+)

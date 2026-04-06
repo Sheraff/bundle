@@ -28,11 +28,20 @@
       {
         "binding": "NORMALIZE_RUN_QUEUE",
         "queue": "bundle-normalize-run"
+      },
+      {
+        "binding": "DERIVE_RUN_QUEUE",
+        "queue": "bundle-derive-run"
       }
     ],
     "consumers": [
       {
         "queue": "bundle-normalize-run",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5
+      },
+      {
+        "queue": "bundle-derive-run",
         "max_batch_size": 10,
         "max_batch_timeout": 5
       }

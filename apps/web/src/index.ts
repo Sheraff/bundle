@@ -1,7 +1,8 @@
 import { Hono } from 'hono'
 
 import type { AppEnv } from './env.js'
-import { handleNormalizeRunQueue } from './normalize-runs.js'
+import { handleDeriveRunMessage } from './derive-runs.js'
+import { handleNormalizeRunMessage } from './normalize-runs.js'
 import { registerUploadRoutes } from './routes/uploads.js'
 
 const app = new Hono<AppEnv>()
@@ -28,5 +29,24 @@ app.onError((error, c) => {
 
 export default {
   fetch: app.fetch.bind(app),
-  queue: handleNormalizeRunQueue,
+  queue: async (batch: MessageBatch<unknown>, env: Cloudflare.Env, _ctx?: ExecutionContext) => {
+    for (const message of batch.messages) {
+      const body = message.body
+      const kind =
+        typeof body === 'object' && body !== null && 'kind' in body ? body.kind : null
+
+      if (kind === 'normalize-run') {
+        await handleNormalizeRunMessage(message, env)
+        continue
+      }
+
+      if (kind === 'derive-run') {
+        await handleDeriveRunMessage(message, env)
+        continue
+      }
+
+      console.error('Dropping unknown queue message', body)
+      message.ack()
+    }
+  },
 }
