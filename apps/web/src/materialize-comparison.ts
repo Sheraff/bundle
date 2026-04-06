@@ -281,6 +281,25 @@ function summarizeSelectedEntrypointRelation(
         evidence: sameRelation.evidence,
       }
     }
+
+    const baseChunkExists = baseEnvironment.chunks.some(
+      (chunk) => chunk.fileName === baseEntrypoint.chunkFileName,
+    )
+    const headChunkExists = headEnvironment.chunks.some(
+      (chunk) => chunk.fileName === headEntrypoint.chunkFileName,
+    )
+
+    if (!baseChunkExists && !headChunkExists) {
+      const sharedManifestSourceKey = baseEntrypoint.manifestSourceKeys.find((sourceKey) =>
+        headEntrypoint.manifestSourceKeys.includes(sourceKey),
+      )
+
+      return {
+        relation: 'same',
+        confidence: 'exact',
+        evidence: [sharedManifestSourceKey ? `identity:${sharedManifestSourceKey}` : `identity:${entrypointKey}`],
+      }
+    }
   }
 
   if (!baseEntrypoint && headEntrypoint) {

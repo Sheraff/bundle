@@ -398,24 +398,27 @@ Build in this order:
 3. `packages/github-action` - done for fixture-app and public `repo-synthetic` flows
 4. upload endpoint plus raw persistence - done
 5. normalization worker plus snapshot blob write - done
-6. stable identity plus measurement derivation - partially done; see clarification below
-7. comparison and budget jobs - remaining
+6. stable identity plus measurement derivation - done for the V1 default-lens cut; see completion notes below
+7. comparison and budget jobs - done for scheduled branch and PR comparisons; see completion notes below
 8. commit-group summary and PR review summary jobs - remaining
 9. GitHub publication - remaining
 10. repository, scenario, and compare pages - remaining
 
-## Step 6 Clarification
+## Step 6 And 7 Completion Notes
 
-- Step 6 is partially implemented in `apps/web`.
+- Step 6 is complete in `apps/web` for the V1 default-lens cut.
 - Done in code: `derive-run` queue wiring, `series` and `series_points` persistence, `scenario_runs.status = 'processed'`, and default-lens measurement derivation for `entry-js-direct-css`.
 - Done in code: the derive worker correctly handles manifest-only HTML entrypoints by measuring their imported direct JS chunk plus direct CSS.
-- Done in code: an app-owned stable-identity matcher module exists and is covered by local tests.
-- Not done in code: no production job consumes the stable-identity matcher yet.
-- Not done in code: no cross-run lineage or continuity rows are persisted yet beyond the per-run `series` key reuse on `repository + scenario + environment + entrypoint + lens`.
-- Not done in code: no additional lenses beyond `entry-js-direct-css` are derived yet.
-- Step 7 should be treated as the point where stable identity becomes real product behavior.
-- Step 7 must consume normalized snapshots plus the stable-identity matcher to make cross-run `same`, `split`, `merge`, and `ambiguous` decisions.
-- Step 7 must materialize those decisions into `comparisons`, then compute `budget_results` from the comparison output.
+- Done in code: an app-owned stable-identity matcher module exists, is covered by local tests, and is now consumed by Step 7 comparison materialization.
+- Step 7 is complete in `apps/web` for scheduled same-branch and PR-base comparisons.
+- Done in code: `schedule-comparisons` and `materialize-comparison` queue wiring exist and persist `comparisons` rows for scheduled branch and PR baselines.
+- Done in code: comparison materialization consumes normalized snapshots plus the stable-identity matcher to make cross-run `same`, `split`, `merge`, and `ambiguous` decisions and stores compact stable-identity summaries on `comparisons`.
+- Done in code: comparison materialization preserves continuity for manifest-only HTML entrypoints and dynamic entrypoints.
+- Done in code: `budget_results` storage exists and comparison materialization exposes a budget-evaluation boundary, but the current V1 cut intentionally keeps budget evaluation at `not-configured` until the hosted synthetic `budgets` contract is added.
+- Intentionally left out for the current cut: no additional lenses beyond `entry-js-direct-css` are derived yet.
+- Intentionally left out for the current cut: no compact top changed package or asset relational rows are materialized yet; keep those for compare/read-model work that consumes them.
+- Intentionally left out for the current cut: no arbitrary run-to-run comparison creation path exists yet; current Step 7 only materializes scheduled same-branch and PR-base comparisons.
+- Intentionally left out for the current cut: no separate cross-run lineage tables are persisted beyond `comparisons` and their stored stable-identity summaries.
 
 ## Small Remaining Follow-Ons
 
