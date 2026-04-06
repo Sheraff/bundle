@@ -352,8 +352,9 @@ Status: resolved for V1.
 Resolution:
 
 - `infrastructure-v1.md`
+- `technology-stack-v1.md`
 
-This defines the core V1 infrastructure shape from GitHub App-anchored upload through durable raw artifact retention, async processing, shared read models, and public dashboard hosting.
+These documents define the V1 infrastructure shape from GitHub App-anchored upload through durable raw artifact retention, async processing, shared read models, public dashboard hosting, and the recommended concrete platform choices.
 
 What is now answered for V1:
 
@@ -365,10 +366,11 @@ What is now answered for V1:
 - summary-oriented precompute for PR and branch comparisons, landing pages, and history series
 - lazy cached generation for treemap, graph, and waterfall detail payloads
 - CDN and cache-friendly public dashboard delivery without a separate public read plane
+- the recommended concrete V1 stack of `TanStack Start + React`, `Cloudflare Workers`, `D1`, `R2`, `Queues`, and `Workflows`
 
 Follow-on work remains, but it belongs to later tasks rather than to core infrastructure uncertainty:
 
-- mapping the chosen shape onto concrete vendor choices, schemas, and storage keys
+- mapping the chosen stack onto concrete schemas, storage keys, queue families, and Workflow classes
 - defining the exact short-lived upload auth exchange and webhook flow
 - defining worker partitioning, retry policy, and backfill controls
 - tuning cache invalidation, retention controls, and cost-management after real usage appears
@@ -378,6 +380,7 @@ Follow-on work remains, but it belongs to later tasks rather than to core infras
 Local docs:
 
 - `infrastructure-v1.md`
+- `technology-stack-v1.md`
 - `architecture-v1.md`
   - `## Data Layers`
   - `## Processing Pipeline`

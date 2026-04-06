@@ -26,6 +26,8 @@ This document resolves the V1 infrastructure questions around:
 - public dashboard hosting model
 - the trust anchor for GitHub-only public-repo onboarding
 
+For the concrete V1 platform recommendation that maps this shape onto specific services, see `technology-stack-v1.md`.
+
 ## Core Deployment Model
 
 ### One hosted product
