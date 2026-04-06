@@ -2,6 +2,8 @@ import * as v from 'valibot'
 
 export const SCHEMA_VERSION_V1 = 1 as const
 
+export const DEFAULT_ARTIFACT_RELATIVE_PATH = '.bundle/artifact.json' as const
+
 export const DEFAULT_LENS_SLUG = 'entry-js-direct-css' as const
 
 export const PLUGIN_SCENARIO_KINDS = ['fixture-app', 'synthetic-import'] as const

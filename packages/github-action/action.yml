@@ -1,0 +1,25 @@
+name: Bundle Upload
+description: Build one bundle scenario run and upload the validated envelope
+inputs:
+  command:
+    description: Existing build command for fixture-app scenarios
+    required: false
+  source:
+    description: Generated ESM entry source for repo-defined synthetic-import scenarios
+    required: false
+  working-directory:
+    description: Directory to run the command in
+    required: false
+  scenario:
+    description: Stable scenario id for repo-defined synthetic-import scenarios
+    required: false
+outputs:
+  artifact-path:
+    description: Path to the validated artifact on disk
+  mode:
+    description: The resolved action mode
+  scenario:
+    description: The scenario id for the uploaded run
+runs:
+  using: node20
+  main: dist/index.js

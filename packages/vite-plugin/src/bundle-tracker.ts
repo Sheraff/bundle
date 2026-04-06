@@ -4,6 +4,7 @@ import path from 'node:path'
 import { brotliCompressSync, gzipSync } from 'node:zlib'
 
 import {
+  DEFAULT_ARTIFACT_RELATIVE_PATH,
   SCHEMA_VERSION_V1,
   pluginArtifactV1Schema,
   scenarioSlugSchema,
@@ -14,8 +15,6 @@ import {
 } from '@workspace/contracts'
 import * as v from 'valibot'
 import type { Plugin, UserConfig } from 'vite'
-
-export const DEFAULT_ARTIFACT_RELATIVE_PATH = '.bundle/artifact.json'
 
 const PLUGIN_VERSION = '0.0.0'
 const DEFAULT_ENVIRONMENT_NAME = 'default'

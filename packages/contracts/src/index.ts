@@ -85,6 +85,7 @@ export {
 } from './workflows.js'
 
 export {
+  DEFAULT_ARTIFACT_RELATIVE_PATH,
   CI_PROVIDERS,
   DEFAULT_LENS_SLUG,
   DETAIL_KINDS,
