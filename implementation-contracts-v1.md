@@ -397,7 +397,7 @@ Build in this order:
 2. `packages/vite-plugin` - done
 3. `packages/github-action` - done for fixture-app and public `repo-synthetic` flows
 4. upload endpoint plus raw persistence - done
-5. normalization worker plus snapshot blob write - remaining
+5. normalization worker plus snapshot blob write - done
 6. stable identity plus measurement derivation - remaining
 7. comparison and budget jobs - remaining
 8. commit-group summary and PR review summary jobs - remaining

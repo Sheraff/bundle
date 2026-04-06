@@ -7,10 +7,10 @@ import {
   ulidSchema,
 } from './shared.js'
 
-function createWorkflowInputSchema<TKind extends (typeof WORKFLOW_KINDS)[number]>(
-  kind: TKind,
-  entries: Record<string, v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>,
-) {
+function createWorkflowInputSchema<
+  TKind extends (typeof WORKFLOW_KINDS)[number],
+  const TEntries extends v.ObjectEntries,
+>(kind: TKind, entries: TEntries) {
   return v.strictObject({
     schemaVersion: schemaVersionV1Schema,
     kind: v.literal(kind),

@@ -17,6 +17,10 @@
     {
       "binding": "RAW_UPLOADS_BUCKET",
       "bucket_name": "bundle-raw-uploads"
+    },
+    {
+      "binding": "CACHE_BUCKET",
+      "bucket_name": "bundle-cache"
     }
   ],
   "queues": {
@@ -24,6 +28,13 @@
       {
         "binding": "NORMALIZE_RUN_QUEUE",
         "queue": "bundle-normalize-run"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "bundle-normalize-run",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5
       }
     ]
   }

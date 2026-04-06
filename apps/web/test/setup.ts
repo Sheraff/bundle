@@ -20,6 +20,12 @@ beforeEach(async () => {
   for (const object of listedObjects.objects) {
     await env.RAW_UPLOADS_BUCKET.delete(object.key)
   }
+
+  const listedCacheObjects = await env.CACHE_BUCKET.list()
+
+  for (const object of listedCacheObjects.objects) {
+    await env.CACHE_BUCKET.delete(object.key)
+  }
 })
 
 afterEach(() => {

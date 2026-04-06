@@ -4,6 +4,7 @@ import * as v from 'valibot'
 import {
   acknowledgeComparisonItemInputSchema,
   comparePageSearchParamsSchema,
+  normalizedSnapshotV1Schema,
   pluginArtifactV1Schema,
   queueMessageSchema,
   repositoryOverviewSearchParamsSchema,
@@ -110,6 +111,121 @@ function buildEnvelope(overrides: Record<string, unknown> = {}) {
       provider: 'github-actions',
       workflowRunId: '999',
     },
+    ...overrides,
+  }
+}
+
+function buildNormalizedSnapshot(overrides: Record<string, unknown> = {}) {
+  const envelope = buildEnvelope()
+  const environment = envelope.artifact.environments[0]
+
+  return {
+    schemaVersion: 1,
+    normalizedAt: '2026-04-06T12:05:00.000Z',
+    scenarioRunId: ulid,
+    repositoryId: secondUlid,
+    commitGroupId: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
+    scenario: envelope.artifact.scenario,
+    scenarioSource: envelope.scenarioSource,
+    repository: envelope.repository,
+    git: envelope.git,
+    ci: envelope.ci,
+    build: {
+      bundler: envelope.artifact.build.bundler,
+      bundlerVersion: envelope.artifact.build.bundlerVersion,
+      pluginVersion: envelope.artifact.pluginVersion,
+      generatedAt: envelope.artifact.generatedAt,
+      rootDir: envelope.artifact.build.rootDir,
+    },
+    raw: {
+      artifactR2Key: `raw/scenario-runs/${ulid}/artifact.json`,
+      envelopeR2Key: `raw/scenario-runs/${ulid}/envelope.json`,
+      artifactSha256: 'a'.repeat(64),
+      envelopeSha256: 'b'.repeat(64),
+      artifactSchemaVersion: 1,
+      uploadSchemaVersion: 1,
+    },
+    environments: [
+      {
+        name: environment.name,
+        build: environment.build,
+        entrypoints: [
+          {
+            key: 'src/main.ts',
+            kind: 'entry',
+            chunkFileName: 'assets/main.js',
+            manifestSourceKeys: ['src/main.ts'],
+            facadeModule: {
+              rawId: '/tmp/repo/src/main.ts',
+              stableId: 'src/main.ts',
+              scope: 'app',
+            },
+            importedCss: ['assets/main.css'],
+            importedAssets: [],
+            staticImportedChunkFileNames: [],
+            dynamicImportedChunkFileNames: [],
+          },
+        ],
+        chunks: [
+          {
+            fileName: 'assets/main.js',
+            fileLabel: 'main.js',
+            name: 'main',
+            isEntry: true,
+            isDynamicEntry: false,
+            facadeModule: {
+              rawId: '/tmp/repo/src/main.ts',
+              stableId: 'src/main.ts',
+              scope: 'app',
+            },
+            manifestSourceKeys: ['src/main.ts'],
+            ownerRoots: ['src/main.ts'],
+            imports: [],
+            dynamicImports: [],
+            implicitlyLoadedBefore: [],
+            importedCss: ['assets/main.css'],
+            importedAssets: [],
+            moduleIds: ['src/main.ts'],
+            totalRenderedLength: 123,
+            sizes: environment.chunks[0].sizes,
+            modules: [
+              {
+                rawId: '/tmp/repo/src/main.ts',
+                stableId: 'src/main.ts',
+                scope: 'app',
+                renderedLength: 123,
+                originalLength: 456,
+              },
+            ],
+          },
+        ],
+        assets: [
+          {
+            fileName: 'assets/main.css',
+            fileLabel: 'main.css',
+            kind: 'css',
+            names: ['main.css'],
+            originalFileNames: [],
+            sourceKeys: [],
+            importerKeys: ['src/main.ts'],
+            importerFiles: ['assets/main.js'],
+            ownerRoots: ['src/main.ts'],
+            needsCodeReference: false,
+            sizes: environment.assets[0].sizes,
+          },
+        ],
+        packages: [],
+        chunkGraphEdges: [],
+        assetRelations: [
+          {
+            kind: 'css',
+            chunkFileName: 'assets/main.js',
+            assetFileName: 'assets/main.css',
+          },
+        ],
+        warnings: [],
+      },
+    ],
     ...overrides,
   }
 }
@@ -221,6 +337,51 @@ describe('uploadScenarioRunEnvelopeV1Schema', () => {
     )
 
     expect(result.success).toBe(true)
+  })
+})
+
+describe('normalizedSnapshotV1Schema', () => {
+  it('accepts a valid normalized snapshot payload', () => {
+    const result = v.safeParse(normalizedSnapshotV1Schema, buildNormalizedSnapshot())
+
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects duplicate environment names', () => {
+    const snapshot = buildNormalizedSnapshot({
+      environments: [
+        buildNormalizedSnapshot().environments[0],
+        {
+          ...buildNormalizedSnapshot().environments[0],
+          build: { outDir: 'dist-client' },
+        },
+      ],
+    })
+
+    const result = v.safeParse(normalizedSnapshotV1Schema, snapshot)
+
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects duplicate entrypoint keys within one environment', () => {
+    const snapshot = buildNormalizedSnapshot({
+      environments: [
+        {
+          ...buildNormalizedSnapshot().environments[0],
+          entrypoints: [
+            buildNormalizedSnapshot().environments[0].entrypoints[0],
+            {
+              ...buildNormalizedSnapshot().environments[0].entrypoints[0],
+              chunkFileName: 'assets/secondary.js',
+            },
+          ],
+        },
+      ],
+    })
+
+    const result = v.safeParse(normalizedSnapshotV1Schema, snapshot)
+
+    expect(result.success).toBe(false)
   })
 })
 

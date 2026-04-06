@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 
 import type { AppEnv } from './env.js'
+import { handleNormalizeRunQueue } from './normalize-runs.js'
 import { registerUploadRoutes } from './routes/uploads.js'
 
 const app = new Hono<AppEnv>()
@@ -25,4 +26,7 @@ app.onError((error, c) => {
   )
 })
 
-export default app
+export default {
+  fetch: app.fetch.bind(app),
+  queue: handleNormalizeRunQueue,
+}

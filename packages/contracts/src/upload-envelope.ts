@@ -12,19 +12,19 @@ import {
   ulidSchema,
 } from './shared.js'
 
-const repositoryContextSchema = v.strictObject({
+export const repositoryContextSchema = v.strictObject({
   githubRepoId: positiveIntegerSchema,
   owner: githubOwnerSchema,
   name: githubRepoNameSchema,
   installationId: positiveIntegerSchema,
 })
 
-const gitContextSchema = v.strictObject({
+export const gitContextSchema = v.strictObject({
   commitSha: gitShaSchema,
   branch: nonEmptyStringSchema,
 })
 
-const pullRequestContextSchema = v.strictObject({
+export const pullRequestContextSchema = v.strictObject({
   number: positiveIntegerSchema,
   baseSha: gitShaSchema,
   baseRef: nonEmptyStringSchema,
@@ -45,12 +45,12 @@ const hostedSyntheticScenarioSourceSchema = v.strictObject({
   hostedScenarioId: ulidSchema,
 })
 
-const syntheticDefinitionSchema = v.strictObject({
+export const syntheticDefinitionSchema = v.strictObject({
   displayName: v.optional(nonEmptyStringSchema),
   source: nonEmptyStringSchema,
 })
 
-const ciContextSchema = v.strictObject({
+export const ciContextSchema = v.strictObject({
   provider: v.literal('github-actions'),
   workflowRunId: nonEmptyStringSchema,
   workflowRunAttempt: v.optional(positiveIntegerSchema),
