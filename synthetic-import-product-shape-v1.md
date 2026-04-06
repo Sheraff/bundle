@@ -113,6 +113,12 @@ Repo-owned scenarios should not become materially weaker than hosted ones.
 
 The main hosted UI surface should be a synthetic scenario catalog.
 
+Important V1 distinction:
+
+- this is an authenticated management surface for synthetic scenarios
+- it is not a second competing public repository scenario catalog
+- the public repository overview continues to show one repository-wide scenario catalog across all scenario kinds
+
 It should support:
 
 - listing synthetic-import scenarios
@@ -178,6 +184,11 @@ If a repo-defined synthetic-import scenario and a hosted synthetic-import scenar
 - the hosted definition is shadowed
 - the catalog should show one effective row, not two competing rows
 - the UI should show a clear notice that a hosted definition exists but is overridden by the repo definition
+
+Catalog behavior rule:
+
+- public repository scenario catalogs should filter and label that effective row by its effective source of truth, which is `repo`
+- the authenticated synthetic management surface should additionally show the override notice and the shadowed hosted definition state
 
 This keeps the catalog understandable and preserves repository-owned definitions as the higher-trust source of truth.
 

@@ -1,8 +1,0 @@
-[     442ms] [ERROR] Error: Loading initial props cancelled
-    at https://bundlephobia.com/_next/static/chunks/main-8609bb9c8a5e1975.js:1:79514
-    at async Router.getRouteInfo (https://bundlephobia.com/_next/static/chunks/main-8609bb9c8a5e1975.js:1:75912)
-    at async Router.change (https://bundlephobia.com/_next/static/chunks/main-8609bb9c8a5e1975.js:1:69684) @ https://browser.sentry-cdn.com/5.15.0/bundle.min.js:1
-[     672ms] [ERROR] Error: Loading initial props cancelled
-    at https://bundlephobia.com/_next/static/chunks/main-8609bb9c8a5e1975.js:1:79514
-    at async Router.getRouteInfo (https://bundlephobia.com/_next/static/chunks/main-8609bb9c8a5e1975.js:1:75912)
-    at async Router.change (https://bundlephobia.com/_next/static/chunks/main-8609bb9c8a5e1975.js:1:69684) @ https://browser.sentry-cdn.com/5.15.0/bundle.min.js:1

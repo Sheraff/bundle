@@ -239,6 +239,12 @@ If an expected scenario does not upload on a commit group:
 - exclude it from blocking budgets and aggregate check failure
 - attach a source-run pointer so the inheritance is explicit
 
+Important V1 rule:
+
+- skipped and inherited state is scenario-level in commit-group summaries
+- V1 should not synthesize fake per-series inherited rows for a scenario that did not upload at all on that commit group
+- if a fresh uploaded scenario run changed its own environment, entrypoint, or lens shape, that is handled as a normal per-series diff inside the fresh run rather than as commit-group inheritance
+
 If no comparable fresh result exists:
 
 - surface the scenario as missing rather than inherited
@@ -249,6 +255,22 @@ If no comparable fresh result exists:
 
 - A commit group with any inherited or missing expected scenario is marked partial.
 - This is a non-blocking warning shown in PR comment details, check details, and dashboards.
+
+### Settled state
+
+A commit group starts as `pending` and becomes `settled` without any public finalization step.
+
+Chosen V1 rule:
+
+- if any scenario run in the commit group is still queued or processing, the commit group remains pending
+- if no scenario runs are still queued or processing and every expected scenario has an active fresh run, the commit group settles immediately
+- otherwise, if no scenario runs are still queued or processing, the commit group settles after a short internal quiet window since the latest upload for that commit group
+- when that quiet window expires, any still-absent expected scenarios become `inherited` or `missing`
+- if a later upload arrives for the same commit group after settlement, the commit group reopens to pending and is recomputed
+
+Implementation note:
+
+- the quiet window is an internal product constant in V1 rather than a public contract knob
 
 ### Reruns and duplicate uploads
 
@@ -317,17 +339,26 @@ An acknowledgement should point at:
 
 PR comments, GitHub checks, and dashboards should not have separate business logic pipelines.
 
-They should read from the same derived objects:
+They should read from the same derived comparison pipeline, but not always from the same summary layer.
+
+Shared derived objects:
 
 - commit-group summary
+- pull-request review summary
 - scenario comparison summary
 - comparison detail
 - budget outcomes
-- acknowledgement overlay state
+
+Surface rule:
+
+- neutral repository, scenario, history, and non-PR compare surfaces read acknowledgement-neutral summaries
+- PR comments, PR-scoped aggregate checks, and PR-scoped compare views read pull-request review summaries with acknowledgement overlay state
 
 ### GitHub checks
 
-- One aggregate check per repository commit or PR in V1.
+- One aggregate check per commit group in V1.
+- If PR context exists, publish the PR-scoped review check.
+- Otherwise publish the neutral commit-group check.
 - The check details list the failing scenario, entrypoint, lens, and metric items.
 - Inherited skipped scenarios contribute warnings, not failures.
 
@@ -339,7 +370,8 @@ They should read from the same derived objects:
 
 ### Dashboards
 
-- Repository, scenario, branch, history, and diff views all consume the same stored measurements and comparisons.
+- Repository, scenario, branch, history, and neutral diff views consume acknowledgement-neutral measurements and comparisons.
+- PR-scoped compare views may consume the stored PR review summary for that PR.
 - Treemap and graph views hang off normalized snapshots and derived comparison artifacts rather than reparsing uploads.
 
 ## Why This Shape Fits V1

@@ -27,13 +27,14 @@ The matcher assumes the comparison is already partitioned by:
 - repository
 - scenario
 - environment
-- comparable build kind
 
 Important V1 rule:
 
 - Stable identity is not defined across environments.
 - Environment is an outer partition key.
 - A `client` snapshot is compared to a `client` snapshot, not to `ssr`.
+- V1 does not introduce a separate public `build kind` or `format` partition key inside the matcher.
+- If incompatible outputs need separate continuity frames in V1, they must already be separated as distinct environments or entrypoints before matching begins.
 
 This stays aligned with the existing V1 direction:
 
@@ -98,10 +99,15 @@ Module continuity is rooted in normalized stable module IDs.
 Normalization rules:
 
 - convert Windows separators to `/`
-- strip machine-specific absolute workspace prefixes when the path is inside the app root
+- strip machine-specific absolute prefixes when the path is inside the captured `build.rootDir`
 - preserve relative app paths like `src/routes/overview.js`
 - normalize `node_modules` paths into package-prefixed stable IDs such as `pkg:react` or `pkg:react-dom/client`
 - preserve virtual modules as `virtual:<id>`
+
+Synthetic-import entry rule:
+
+- V1 synthetic-import scenarios should prefer a stable generated on-disk entry module path over an ephemeral virtual entry id
+- when that rule is followed, the synthetic entry normalizes like any other app module path under the captured build root
 
 Result:
 

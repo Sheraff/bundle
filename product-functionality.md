@@ -195,7 +195,13 @@ The same scenario and entrypoint may expose multiple lenses, each with different
 ### Run
 
 - A CI execution uploaded for a repo at a given commit, branch, and PR context.
-- One run may contain results for many scenarios.
+- One build invocation produces one run for one scenario.
+
+### Commit Group
+
+- An internal commit-level grouping over many scenario runs for the same repository commit.
+- Exists to power one maintained PR comment, one aggregate GitHub check, and repository-level summaries.
+- Does not change the rule that one build invocation equals one scenario run.
 
 ### Snapshot
 
@@ -418,7 +424,8 @@ Recommended V1 matching strategy:
 - Vite-first plugin for collecting bundle metadata.
 - GitHub Action for CI integration.
 - Upload metadata should include commit, branch, PR, and CI context.
-- Auth can be token-based in V1. OIDC-style auth is desirable if it does not complicate the first release too much.
+- GitHub App installation should be the trust anchor in V1.
+- The normal GitHub Actions path should use short-lived repo-scoped upload credentials rather than long-lived manual secrets.
 - The plugin should write a standard local result artifact.
 - The GitHub Action should read that artifact and upload it.
 
@@ -456,7 +463,8 @@ Important V1 constraint:
 - Post one maintained PR comment instead of spamming multiple comments.
 - Summarize regressions and improvements by scenario.
 - Include current, baseline, and delta values.
-- Link to deep diff and treemap views.
+- Link to a focused compare page in the web app.
+- Keep the PR comment links limited in V1; richer treemap and graph views should be reachable from the compare page rather than linked inline from GitHub.
 - Stay readable when one repository has many scenarios.
 
 ### 6. GitHub Checks And Budget Gating
@@ -486,10 +494,11 @@ Important V1 constraint:
 - Show the latest results for a scenario across environments and entrypoints.
 - Show the available lenses for each entrypoint.
 
-#### Branch dashboard
+#### Branch view
 
 - Show the latest comparable results for a branch.
 - Provide quick comparison to the previous successful branch run.
+- In V1 this should live within repository and scenario history flows rather than as a separate top-level dashboard page.
 
 #### Historical dashboard
 

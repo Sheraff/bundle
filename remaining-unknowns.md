@@ -347,30 +347,41 @@ External references:
 
 ## 7. Infrastructure
 
-### Why this is still unknown
+Status: resolved for V1.
 
-Infrastructure is still open, but it should follow architecture rather than lead it.
+Resolution:
 
-We do not yet know:
+- `infrastructure-v1.md`
 
-- storage split between raw artifacts, normalized snapshots, and derived views
-- job model for ingestion and diff computation
-- what should be synchronous vs asynchronous
-- caching and precomputation strategy
-- public dashboard hosting model
+This defines the core V1 infrastructure shape from GitHub App-anchored upload through durable raw artifact retention, async processing, shared read models, and public dashboard hosting.
 
-This is important, but lower-priority than the architecture and data model choices above.
+What is now answered for V1:
 
-### What seems decided already
+- one hosted product origin for authenticated pages and public dashboards
+- GitHub App as the trust anchor plus short-lived repo-scoped Action upload auth
+- storage split between durable raw artifacts, rebuildable normalized caches, relational read models, and object-stored heavy detail payloads
+- a narrow synchronous ingest path plus queue-backed async workers
+- incremental commit-group recomputation without a public finalization protocol
+- summary-oriented precompute for PR and branch comparisons, landing pages, and history series
+- lazy cached generation for treemap, graph, and waterfall detail payloads
+- CDN and cache-friendly public dashboard delivery without a separate public read plane
 
-- V1 is GitHub-only.
-- V1 starts with public repositories and public dashboards.
-- The platform is CI-first.
+Follow-on work remains, but it belongs to later tasks rather than to core infrastructure uncertainty:
+
+- mapping the chosen shape onto concrete vendor choices, schemas, and storage keys
+- defining the exact short-lived upload auth exchange and webhook flow
+- defining worker partitioning, retry policy, and backfill controls
+- tuning cache invalidation, retention controls, and cost-management after real usage appears
 
 ### References an agent should read
 
 Local docs:
 
+- `infrastructure-v1.md`
+- `architecture-v1.md`
+  - `## Data Layers`
+  - `## Processing Pipeline`
+  - `## GitHub And Dashboard Consumption`
 - `product-functionality.md`
   - `## Goal`
   - `## Product Principles`
@@ -390,7 +401,10 @@ External references:
 
 ## Suggested Next Order
 
-If we want to reduce uncertainty efficiently, the next sequence should be:
+The main product-shape unknowns captured in this document are now resolved for V1.
 
-1. GitHub UX details
-2. Infrastructure
+The next work should come from the follow-on sections in the resolved V1 docs:
+
+1. map the decision docs onto concrete schemas, routes, jobs, and contracts
+2. implement the plugin, ingest, worker, GitHub, and dashboard slices against those contracts
+3. refine deferred UX and operational details only where the resolved V1 docs explicitly leave room for later choices

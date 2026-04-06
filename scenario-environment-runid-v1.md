@@ -61,7 +61,7 @@ inputs:
     required: false
 
   source:
-    description: Virtual ESM entry source for action-defined synthetic-import scenarios
+    description: Generated ESM entry source for action-defined synthetic-import scenarios
     required: false
 
   working-directory:
@@ -103,8 +103,14 @@ In this example:
 
 - The action owns the `scenario` id because this is a synthetic-import scenario, not a plugin-declared fixture app.
 - `scenario` is still only the stable id.
-- The source of truth for the synthetic import shape is plain ESM in a virtual file, not ad hoc CLI flags.
-- The action is responsible for materializing that virtual entry and bundling it for measurement.
+- The source of truth for the synthetic import shape is plain ESM in a generated file, not ad hoc CLI flags.
+- The action is responsible for materializing that generated entry at a stable tool-owned path under the working directory and bundling it for measurement.
+
+Important V1 rule for synthetic-import continuity:
+
+- The generated entry path should be deterministic for a given `scenario` id.
+- V1 should prefer a stable generated on-disk entry module over an ephemeral virtual-module id.
+- This keeps the entry module's raw ID stable enough for module continuity and treemap keying.
 
 Meaning:
 
@@ -128,7 +134,7 @@ The public v1 story is:
 ## Why This Cut Fits V1
 
 - Vite already exposes real per-environment build context via `this.environment.name`.
-- The plugin can capture bundle graph data directly from the output bundle without requiring `build.manifest`.
+- The plugin can capture bundle graph data directly from the output bundle while auto-enabling `build.manifest` for the captured environments.
 - GitHub Action inputs are string-only and weakly validated, so extra orchestration inputs add cost quickly.
 - Keeping upload in the GitHub Action keeps GitHub context and secrets out of the plugin contract.
 - Repeated-build support was starting to dominate the public API despite being an edge case.

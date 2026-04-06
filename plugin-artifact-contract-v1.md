@@ -7,6 +7,7 @@
 - The artifact is a build-inspection boundary, not an upload envelope.
 - The plugin auto-enables manifest generation and embeds the full Vite manifest block for every captured environment.
 - The artifact carries full raw graph evidence: manifest data, emitted chunks and assets, import edges, module membership, per-module rendered lengths, and Vite `importedCss` and `importedAssets` metadata.
+- The artifact carries the raw Vite root path used for path normalization.
 - The artifact does not carry sourcemaps, package aggregates, synthetic-import source text, or GitHub and CI metadata.
 - Validation is strict for required evidence and must fail in the plugin build step.
 - Opportunistic fields such as asset `originalFileNames` remain optional when Rollup or Vite truly do not expose them.
@@ -138,6 +139,7 @@ interface PluginArtifactV1 {
   build: {
     bundler: 'vite'
     bundlerVersion: string
+    rootDir: string
   }
   environments: EnvironmentArtifactV1[]
 }
@@ -224,6 +226,7 @@ Required top-level fields:
 - `scenario.kind`
 - `build.bundler`
 - `build.bundlerVersion`
+- `build.rootDir`
 - `environments`
 
 Required per-environment evidence:
@@ -234,6 +237,12 @@ Required per-environment evidence:
 - emitted `chunks`
 - emitted `assets`
 - `warnings` as an array, empty when there are no warnings
+
+Environment naming rules:
+
+- environment names must be unique within one artifact
+- if Vite does not expose an environment name, the plugin must emit `default`
+- environment names are part of the comparison partition key in V1 and must therefore be stable
 
 Required per-chunk evidence:
 
@@ -289,6 +298,25 @@ Important constraint:
 
 - optional means truly opportunistic
 - V1 does not allow a broad degraded state where obviously expected core graph data is missing
+
+## Path Normalization Root
+
+V1 stable identity needs one explicit raw root for path normalization.
+
+Chosen rule:
+
+- `build.rootDir` is the raw Vite root path seen during the build
+
+Why this belongs in the artifact:
+
+- Rollup module IDs are often absolute machine paths
+- later normalization needs a stable boundary for stripping machine-specific prefixes
+- this keeps root stripping as a deterministic derived step instead of guessing from unrelated paths later
+
+Important V1 note:
+
+- `build.rootDir` is raw producer evidence, not a normalized public identifier
+- normalized module IDs are still derived later and are not stored in the raw artifact
 
 ## Validation And Failure Model
 

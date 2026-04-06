@@ -3,10 +3,10 @@
 ## Summary
 
 - GitHub surfaces should be summary and decision surfaces, not the full investigation surface.
-- V1 should publish one maintained PR comment and one aggregate required GitHub check per PR or commit group.
+- V1 should publish one maintained PR comment per PR and one aggregate required GitHub check per commit group, using PR-scoped review state when PR context exists.
 - The PR comment should use a fixed format in V1: impacted scenarios only, grouped by scenario, with one visible summary row per scenario.
 - The visible row for a scenario should represent the highest-severity changed series, usually the worst unacknowledged regression, with a `+N more changed series` hint when more rows exist.
-- The main PR comment call to action should be `Open PR diff`, linking to the repository compare page for the PR base and head.
+- The main PR comment call to action should be `Open PR diff`, linking to the PR-scoped compare page for the PR base and head.
 - Each impacted scenario group should expose one inline `View diff` link to the filtered compare page for the visible series.
 - The comment may update before all expected scenarios finish, but pending state should appear only as header counts rather than as placeholder scenario rows.
 - Acknowledgements happen in the web app, stay item-scoped, and remain visible in GitHub with inline acknowledged badges or acknowledged counts.
@@ -59,6 +59,13 @@ This keeps GitHub fast to scan and keeps the richer compare flow as the real ins
 - Allow partial updates before all expected scenarios settle.
 - Show header-level pending counts while processing is incomplete.
 - Once processing settles, replace pending counts with final partial-state signals such as inherited or missing scenario counts when applicable.
+
+Processing-settled rule in V1:
+
+- a PR stays pending while any scenario run in its commit group is still queued or processing
+- if all expected scenarios have active fresh runs, the PR may settle immediately once processing drains
+- otherwise the PR settles after the architecture's short internal quiet window, at which point still-absent expected scenarios become inherited or missing
+- a later upload for the same commit group reopens the PR to pending and refreshes the maintained comment
 
 ### Top-level comment shape
 
@@ -127,8 +134,8 @@ The PR comment should use the link strategy already defined in `web-app-shape-v1
 
 Required links:
 
-- `Open PR diff` -> repository compare page for the current PR base and head
-- `View diff` -> filtered compare page for the visible series row in one scenario group
+- `Open PR diff` -> PR-scoped compare page for the current PR base and head
+- `View diff` -> filtered PR-scoped compare page for the visible series row in one scenario group
 
 The PR comment should not expose separate inline `Treemap`, `Graph`, or `Scenario history` links in V1. Those remain available after landing on the compare or scenario page.
 
@@ -150,7 +157,12 @@ After processing settles:
 
 ### Granularity
 
-V1 should publish one aggregate required GitHub check per PR or commit group.
+V1 should publish one aggregate required GitHub check per commit group.
+
+Scope rule:
+
+- if PR context exists, the published check is PR-scoped and reads from the PR review summary
+- otherwise the published check is the neutral commit-group check
 
 V1 should not create:
 
@@ -216,8 +228,13 @@ The acknowledgement action should live in the web app, not in GitHub.
 
 Primary acknowledgement entry points should be:
 
-- the filtered compare page
+- the filtered PR-scoped compare page
 - detail views under the selected series context
+
+Read and write rule:
+
+- for public repositories, the PR-scoped compare page may remain public-read so GitHub deep links work without auth friction
+- acknowledgement mutations require auth plus appropriate repository permission
 
 V1 should not require:
 

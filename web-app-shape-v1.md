@@ -8,6 +8,7 @@
 - Branch evolution and point-to-point commit comparison are both first-class in V1, but they serve different jobs.
 - Branch evolution lives on repository history and scenario history pages.
 - Point-to-point commit comparison lives on a dedicated compare page.
+- The compare page has a neutral public mode and an optional PR-scoped review mode.
 - Treemap and graph views are detail tabs inside scenario and compare flows, not top-level navigation items.
 - Metrics and charts must always keep lens semantics explicit.
 - One chart must not mix multiple lenses in the same plot.
@@ -215,6 +216,12 @@ Point comparison answers:
 
 The compare page should support comparing two comparable points for the same repository context.
 
+Mode rule:
+
+- neutral compare uses base and head plus normal repository context filters
+- PR-scoped compare adds PR review context so acknowledged and blocker state can match GitHub surfaces for that PR
+- for public repositories, both modes may remain public-read, but acknowledgement actions require auth and repo permission
+
 Typical use:
 
 - open the branch head commit against the base commit where the branch diverged
@@ -224,6 +231,15 @@ Typical use:
 The compare page should be public and URLable.
 
 The first content block should be a flat list of series rows rather than scenario-grouped sections.
+
+If the compare context is partial or contains non-series review states, the page should also expose a compact commit-group status block ahead of the main series table.
+
+That block should explain states such as:
+
+- inherited scenarios
+- missing scenarios
+- no-baseline cases
+- still-pending processing when the page is opened mid-flight
 
 Each row represents one comparable series and should include:
 
@@ -243,6 +259,10 @@ From a row, the user should be able to open deeper detail for:
 - graph diff
 - asset or package diff
 - budget explanation
+
+Important V1 rule:
+
+- inherited or missing scenario state should not be faked as ordinary series rows when no fresh comparable series was measured for that scenario on the selected head commit
 
 ## Selected-Series Detail Model
 
@@ -308,6 +328,7 @@ That includes:
 - environment
 - entrypoint
 - lens
+- optional PR review context
 - compare base
 - compare head
 
@@ -317,6 +338,7 @@ Route shape can still change during implementation, but the public model should 
 - repository history with branch and lens filters
 - scenario page with branch, environment, entrypoint, and lens filters
 - compare page with base and head plus the same context filters
+- PR-scoped compare page with the same filters plus PR context
 
 Illustrative examples:
 
@@ -324,6 +346,7 @@ Illustrative examples:
 - `/{repo}/history?branch=main&lens=entry-js-direct-css`
 - `/{repo}/scenarios/{scenario}?branch=main&env=all&entrypoint=all&lens=entry-js-direct-css`
 - `/{repo}/compare?base=<sha>&head=<sha>&scenario=<id>&env=client&entrypoint=<entry>&lens=entry-js-direct-css`
+- `/{repo}/compare?pr=<number>&base=<sha>&head=<sha>&scenario=<id>&env=client&entrypoint=<entry>&lens=entry-js-direct-css`
 
 These route examples are descriptive, not a final router contract.
 
@@ -424,7 +447,7 @@ Important rule:
 
 Primary link target:
 
-- `/{repo}/compare?base=<base-sha>&head=<head-sha>`
+- `/{repo}/compare?pr=<number>&base=<base-sha>&head=<head-sha>`
 
 This should be the main call to action from the PR comment because it best matches the user job:
 
@@ -437,23 +460,16 @@ Per-row or per-scenario links in the PR comment should go to filtered compare vi
 Recommended PR comment links:
 
 - `Open PR diff`
-  - `/{repo}/compare?base=<base-sha>&head=<head-sha>`
+  - `/{repo}/compare?pr=<number>&base=<base-sha>&head=<head-sha>`
 - `View diff` for one affected series
-  - `/{repo}/compare?base=<base-sha>&head=<head-sha>&scenario=<id>&env=<env>&entrypoint=<entry>&lens=<lens>`
-- `Treemap`
-  - `/{repo}/compare?base=<base-sha>&head=<head-sha>&scenario=<id>&env=<env>&entrypoint=<entry>&lens=<lens>&tab=treemap`
-- `Graph` when the selected lens and context have graph data worth showing
-  - `/{repo}/compare?base=<base-sha>&head=<head-sha>&scenario=<id>&env=<env>&entrypoint=<entry>&lens=<lens>&tab=graph`
-- scenario-name link for longer-term investigation
-  - `/{repo}/scenarios/{scenario}?branch=<pr-branch-or-base>&env=<env-or-all>&entrypoint=<entry-or-all>&lens=<lens>`
+  - `/{repo}/compare?pr=<number>&base=<base-sha>&head=<head-sha>&scenario=<id>&env=<env>&entrypoint=<entry>&lens=<lens>`
 
 Recommended meaning of each link:
 
 - `Open PR diff` is the main state-of-the-PR destination.
 - `View diff` is the main per-series delta inspection link.
-- `Treemap` is the deep visual diff link required by `product-functionality.md`.
-- `Graph` is an optional deep structural diff link when that context has graph value.
-- scenario-page links are secondary context links for understanding longer-term evolution.
+
+Once on the compare page, richer treemap, graph, and scenario-history exploration remain available as normal web-app navigation.
 
 Pages that should not be the primary PR comment destination:
 
