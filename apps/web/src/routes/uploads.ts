@@ -147,7 +147,24 @@ export function registerUploadRoutes(app: Hono<AppEnv>) {
     }
 
     if (persistedScenarioRun.id === scenarioRunId) {
-      await enqueueNormalizeRun(c.env, repository.id, scenarioRunId)
+      try {
+        await enqueueNormalizeRun(c.env, repository.id, scenarioRunId)
+      } catch {
+        await rollbackScenarioRunInsert(
+          db,
+          c.env,
+          scenarioRunId,
+          rawArtifactR2Key,
+          rawEnvelopeR2Key,
+        )
+
+        return jsonError(
+          c,
+          503,
+          'normalize_queue_unavailable',
+          'The upload could not be accepted because follow-up processing could not be scheduled.',
+        )
+      }
     }
 
     return c.json(buildAcceptedResponse(persistedScenarioRun), 202)
@@ -522,6 +539,20 @@ async function getScenarioRunByDedupeKey(db: AppDb, uploadDedupeKey: string) {
   )
 }
 
+async function rollbackScenarioRunInsert(
+  db: AppDb,
+  env: AppBindings,
+  scenarioRunId: string,
+  rawArtifactR2Key: string,
+  rawEnvelopeR2Key: string,
+) {
+  await Promise.allSettled([
+    db.delete(schema.scenarioRuns).where(eq(schema.scenarioRuns.id, scenarioRunId)),
+    env.RAW_UPLOADS_BUCKET.delete(rawArtifactR2Key),
+    env.RAW_UPLOADS_BUCKET.delete(rawEnvelopeR2Key),
+  ])
+}
+
 function buildAcceptedResponse(
   scenarioRun: Pick<ScenarioRunRecord, 'id' | 'repositoryId' | 'commitGroupId' | 'status'>,
 ): UploadScenarioRunAcceptedResponseV1 {
@@ -557,7 +588,7 @@ export function readBearerToken(authorizationHeader?: string) {
 
 function jsonError(
   c: Context<AppEnv>,
-  status: 400 | 401 | 500,
+  status: 400 | 401 | 500 | 503,
   code: string,
   message: string,
 ) {
