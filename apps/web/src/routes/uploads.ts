@@ -17,6 +17,7 @@ import { ulid } from 'ulid'
 
 import { getDb, schema } from '../db/index.js'
 import type { AppBindings, AppEnv } from '../env.js'
+import { enqueueRefreshSummaries } from '../refresh-summaries.js'
 
 const textEncoder = new TextEncoder()
 
@@ -195,6 +196,12 @@ export function registerUploadRoutes(app: Hono<AppEnv>) {
 
     try {
       await enqueueNormalizeRun(c.env, persistedScenarioRun.repositoryId, scenarioRunId)
+      await enqueueRefreshSummaries(
+        c.env,
+        persistedScenarioRun.repositoryId,
+        persistedScenarioRun.commitGroupId,
+        'upload-accepted',
+      )
     } catch {
       await rollbackScenarioRunInsert(
         db,

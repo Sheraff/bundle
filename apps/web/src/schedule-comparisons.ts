@@ -11,6 +11,7 @@ import { ulid } from 'ulid'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
+import { enqueueRefreshSummaries } from './refresh-summaries.js'
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
 type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
@@ -134,6 +135,13 @@ async function scheduleScenarioRunComparisons(
       await scheduleComparisonForKind(env, scenarioRun, headPoint, 'pr-base', pullRequest)
     }
   }
+
+  await enqueueRefreshSummaries(
+    env,
+    scenarioRun.repositoryId,
+    scenarioRun.commitGroupId,
+    'comparisons-scheduled',
+  )
 }
 
 async function scheduleComparisonForKind(

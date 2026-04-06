@@ -17,6 +17,7 @@ import { ulid } from 'ulid'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
+import { enqueueRefreshSummaries } from './refresh-summaries.js'
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
 
@@ -114,6 +115,12 @@ async function deriveScenarioRun(env: AppBindings, message: DeriveRunQueueMessag
 
   if (scenarioRun.status === 'processed') {
     await enqueueScheduleComparisons(env, scenarioRun.repositoryId, scenarioRun.id)
+    await enqueueRefreshSummaries(
+      env,
+      scenarioRun.repositoryId,
+      scenarioRun.commitGroupId,
+      'derive-replay',
+    )
     return
   }
 
@@ -158,6 +165,7 @@ async function deriveScenarioRun(env: AppBindings, message: DeriveRunQueueMessag
     .where(eq(schema.scenarioRuns.id, scenarioRun.id))
 
   await enqueueScheduleComparisons(env, scenarioRun.repositoryId, scenarioRun.id)
+  await enqueueRefreshSummaries(env, scenarioRun.repositoryId, scenarioRun.commitGroupId, 'derived')
 }
 
 function buildSeriesMeasurements(snapshot: NormalizedSnapshotV1): DerivedMeasurement[] {
@@ -452,6 +460,16 @@ async function markScenarioRunFailed(
   failureMessage: string,
 ) {
   const timestamp = new Date().toISOString()
+  const failedScenarioRun = await selectOne(
+    getDb(env)
+      .select({
+        repositoryId: schema.scenarioRuns.repositoryId,
+        commitGroupId: schema.scenarioRuns.commitGroupId,
+      })
+      .from(schema.scenarioRuns)
+      .where(eq(schema.scenarioRuns.id, scenarioRunId))
+      .limit(1),
+  )
 
   await getDb(env)
     .update(schema.scenarioRuns)
@@ -462,6 +480,15 @@ async function markScenarioRunFailed(
       updatedAt: timestamp,
     })
     .where(eq(schema.scenarioRuns.id, scenarioRunId))
+
+  if (failedScenarioRun) {
+    await enqueueRefreshSummaries(
+      env,
+      failedScenarioRun.repositoryId,
+      failedScenarioRun.commitGroupId,
+      'derive-failed',
+    )
+  }
 }
 
 async function enqueueScheduleComparisons(

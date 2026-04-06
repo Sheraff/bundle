@@ -8,6 +8,7 @@ import * as v from 'valibot'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
+import { enqueueRefreshSummaries } from './refresh-summaries.js'
 import {
   matchEnvironmentPair,
   type AmbiguousRelation,
@@ -216,6 +217,13 @@ async function materializeComparison(
       updatedAt: timestamp,
     })
     .where(eq(schema.comparisons.id, comparison.id))
+
+  await enqueueRefreshSummaries(
+    env,
+    comparison.repositoryId,
+    comparison.headCommitGroupId,
+    'comparison-materialized',
+  )
 }
 
 function toStableIdentityEnvironment(
@@ -436,6 +444,16 @@ async function markComparisonFailed(
   failureMessage: string,
 ) {
   const timestamp = new Date().toISOString()
+  const comparison = await selectOne(
+    getDb(env)
+      .select({
+        repositoryId: schema.comparisons.repositoryId,
+        headCommitGroupId: schema.comparisons.headCommitGroupId,
+      })
+      .from(schema.comparisons)
+      .where(eq(schema.comparisons.id, comparisonId))
+      .limit(1),
+  )
 
   await getDb(env)
     .update(schema.comparisons)
@@ -446,6 +464,15 @@ async function markComparisonFailed(
       updatedAt: timestamp,
     })
     .where(eq(schema.comparisons.id, comparisonId))
+
+  if (comparison) {
+    await enqueueRefreshSummaries(
+      env,
+      comparison.repositoryId,
+      comparison.headCommitGroupId,
+      'comparison-failed',
+    )
+  }
 }
 
 async function selectOne<T>(query: Promise<T[]>) {

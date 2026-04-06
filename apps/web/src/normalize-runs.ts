@@ -27,6 +27,7 @@ import * as v from 'valibot'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
+import { enqueueRefreshSummaries } from './refresh-summaries.js'
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
 
@@ -972,6 +973,16 @@ async function markScenarioRunFailed(
   failureMessage: string,
 ) {
   const timestamp = new Date().toISOString()
+  const failedScenarioRun = await selectOne(
+    getDb(env)
+      .select({
+        repositoryId: schema.scenarioRuns.repositoryId,
+        commitGroupId: schema.scenarioRuns.commitGroupId,
+      })
+      .from(schema.scenarioRuns)
+      .where(eq(schema.scenarioRuns.id, scenarioRunId))
+      .limit(1),
+  )
 
   await getDb(env)
     .update(schema.scenarioRuns)
@@ -982,6 +993,15 @@ async function markScenarioRunFailed(
       updatedAt: timestamp,
     })
     .where(eq(schema.scenarioRuns.id, scenarioRunId))
+
+  if (failedScenarioRun) {
+    await enqueueRefreshSummaries(
+      env,
+      failedScenarioRun.repositoryId,
+      failedScenarioRun.commitGroupId,
+      'normalize-failed',
+    )
+  }
 }
 
 function formatIssues(issues: readonly { message: string }[]) {

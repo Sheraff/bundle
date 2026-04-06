@@ -292,3 +292,124 @@ export const budgetResults = sqliteTable(
     index('budget_results_comparison_id_idx').on(table.comparisonId),
   ],
 )
+
+export const acknowledgements = sqliteTable(
+  'acknowledgements',
+  {
+    id: text('id').primaryKey(),
+    repositoryId: text('repository_id')
+      .notNull()
+      .references(() => repositories.id),
+    pullRequestId: text('pull_request_id')
+      .notNull()
+      .references(() => pullRequests.id),
+    comparisonId: text('comparison_id')
+      .notNull()
+      .references(() => comparisons.id),
+    seriesId: text('series_id')
+      .notNull()
+      .references(() => series.id),
+    itemKey: text('item_key').notNull(),
+    actorGithubUserId: integer('actor_github_user_id'),
+    actorLogin: text('actor_login'),
+    note: text('note'),
+    createdAt: text('created_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('acknowledgements_pull_request_id_comparison_id_item_key_unique').on(
+      table.pullRequestId,
+      table.comparisonId,
+      table.itemKey,
+    ),
+    index('acknowledgements_repository_id_idx').on(table.repositoryId),
+    index('acknowledgements_pull_request_id_idx').on(table.pullRequestId),
+    index('acknowledgements_comparison_id_idx').on(table.comparisonId),
+  ],
+)
+
+export const commitGroupSummaries = sqliteTable(
+  'commit_group_summaries',
+  {
+    id: text('id').primaryKey(),
+    repositoryId: text('repository_id')
+      .notNull()
+      .references(() => repositories.id),
+    commitGroupId: text('commit_group_id')
+      .notNull()
+      .references(() => commitGroups.id),
+    pullRequestId: text('pull_request_id').references(() => pullRequests.id),
+    commitSha: text('commit_sha').notNull(),
+    branch: text('branch').notNull(),
+    status: text('status').notNull(),
+    latestUploadAt: text('latest_upload_at').notNull(),
+    quietWindowDeadline: text('quiet_window_deadline').notNull(),
+    settledAt: text('settled_at'),
+    expectedScenarioCount: integer('expected_scenario_count').notNull(),
+    freshScenarioCount: integer('fresh_scenario_count').notNull(),
+    pendingScenarioCount: integer('pending_scenario_count').notNull(),
+    inheritedScenarioCount: integer('inherited_scenario_count').notNull(),
+    missingScenarioCount: integer('missing_scenario_count').notNull(),
+    failedScenarioCount: integer('failed_scenario_count').notNull(),
+    impactedScenarioCount: integer('impacted_scenario_count').notNull(),
+    unchangedScenarioCount: integer('unchanged_scenario_count').notNull(),
+    comparisonCount: integer('comparison_count').notNull(),
+    changedMetricCount: integer('changed_metric_count').notNull(),
+    noBaselineSeriesCount: integer('no_baseline_series_count').notNull(),
+    failedComparisonCount: integer('failed_comparison_count').notNull(),
+    degradedComparisonCount: integer('degraded_comparison_count').notNull(),
+    summaryJson: text('summary_json').notNull(),
+    createdAt: text('created_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('commit_group_summaries_commit_group_id_unique').on(table.commitGroupId),
+    index('commit_group_summaries_repository_id_idx').on(table.repositoryId),
+    index('commit_group_summaries_pull_request_id_idx').on(table.pullRequestId),
+    index('commit_group_summaries_status_idx').on(table.status),
+  ],
+)
+
+export const prReviewSummaries = sqliteTable(
+  'pr_review_summaries',
+  {
+    id: text('id').primaryKey(),
+    repositoryId: text('repository_id')
+      .notNull()
+      .references(() => repositories.id),
+    pullRequestId: text('pull_request_id')
+      .notNull()
+      .references(() => pullRequests.id),
+    commitGroupId: text('commit_group_id')
+      .notNull()
+      .references(() => commitGroups.id),
+    commitSha: text('commit_sha').notNull(),
+    branch: text('branch').notNull(),
+    latestUploadAt: text('latest_upload_at').notNull(),
+    settledAt: text('settled_at'),
+    status: text('status').notNull(),
+    overallState: text('overall_state').notNull(),
+    blockingRegressionCount: integer('blocking_regression_count').notNull(),
+    regressionCount: integer('regression_count').notNull(),
+    acknowledgedRegressionCount: integer('acknowledged_regression_count').notNull(),
+    improvementCount: integer('improvement_count').notNull(),
+    pendingScenarioCount: integer('pending_scenario_count').notNull(),
+    inheritedScenarioCount: integer('inherited_scenario_count').notNull(),
+    missingScenarioCount: integer('missing_scenario_count').notNull(),
+    failedScenarioCount: integer('failed_scenario_count').notNull(),
+    impactedScenarioCount: integer('impacted_scenario_count').notNull(),
+    unchangedScenarioCount: integer('unchanged_scenario_count').notNull(),
+    noBaselineSeriesCount: integer('no_baseline_series_count').notNull(),
+    failedComparisonCount: integer('failed_comparison_count').notNull(),
+    degradedComparisonCount: integer('degraded_comparison_count').notNull(),
+    summaryJson: text('summary_json').notNull(),
+    createdAt: text('created_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('pr_review_summaries_commit_group_id_unique').on(table.commitGroupId),
+    index('pr_review_summaries_repository_id_idx').on(table.repositoryId),
+    index('pr_review_summaries_pull_request_id_idx').on(table.pullRequestId),
+    index('pr_review_summaries_status_idx').on(table.status),
+  ],
+)

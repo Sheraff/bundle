@@ -400,11 +400,11 @@ Build in this order:
 5. normalization worker plus snapshot blob write - done
 6. stable identity plus measurement derivation - done for the V1 default-lens cut; see completion notes below
 7. comparison and budget jobs - done for scheduled branch and PR comparisons; see completion notes below
-8. commit-group summary and PR review summary jobs - remaining
+8. commit-group summary and PR review summary jobs - done for the V1 summary read-model cut; see completion notes below
 9. GitHub publication - remaining
 10. repository, scenario, and compare pages - remaining
 
-## Step 6 And 7 Completion Notes
+## Step 6, 7, And 8 Completion Notes
 
 - Step 6 is complete in `apps/web` for the V1 default-lens cut.
 - Done in code: `derive-run` queue wiring, `series` and `series_points` persistence, `scenario_runs.status = 'processed'`, and default-lens measurement derivation for `entry-js-direct-css`.
@@ -419,6 +419,17 @@ Build in this order:
 - Intentionally left out for the current cut: no compact top changed package or asset relational rows are materialized yet; keep those for compare/read-model work that consumes them.
 - Intentionally left out for the current cut: no arbitrary run-to-run comparison creation path exists yet; current Step 7 only materializes scheduled same-branch and PR-base comparisons.
 - Intentionally left out for the current cut: no separate cross-run lineage tables are persisted beyond `comparisons` and their stored stable-identity summaries.
+- Step 8 is complete in `apps/web` for the V1 summary read-model cut.
+- Done in code: `acknowledgements`, `commit_group_summaries`, and `pr_review_summaries` storage exists and is covered by local integration tests.
+- Done in code: `refresh-summaries` queue wiring exists and is triggered from upload acceptance, normalize failure, derive success and failure, comparison scheduling, and comparison materialization and failure.
+- Done in code: `CommitGroupSettlementWorkflow` exists and production Wrangler bindings are configured; settlement waits remain workflow-owned while summary recomputation stays queue-owned.
+- Done in code: commit-group summary recomputation selects the latest successful processed run per scenario as active, keeps commit groups pending while work is still queued or processing, settles to `inherited` or `missing` after the quiet window, and surfaces terminal failed scenarios.
+- Done in code: PR review summary recomputation overlays acknowledgements onto active `pr-base` comparison items only, derives blocker and warning state, and records scenario-grouped review ordering for later GitHub publication and compare-page reads.
+- Done in code: a newer failed rerun for a scenario remains visible as warning state while an older successful processed run for that same scenario stays active until a newer processed run arrives.
+- Done in code: summary refresh replay is idempotent at the row level and preserves stable `settledAt` timestamps for already-settled commit-group and PR review summaries.
+- Intentionally left out for the current cut: no app-facing read functions or UI pages consume `commit_group_summaries` or `pr_review_summaries` yet; those remain later Step 9 and 10 work.
+- Intentionally left out for the current cut: no auth-backed `acknowledgeComparisonItem` mutation path writes `acknowledgements` yet; Step 8 includes storage plus summary overlay support, and current tests seed acknowledgement rows directly.
+- Intentionally left out for the current cut: local automated tests do not run the Cloudflare Workflow runtime end-to-end for settlement because the current Worker test configuration uses a workflow-free test Wrangler config; queue-driven settlement and refresh logic are covered and the production workflow binding is configured.
 
 ## Small Remaining Follow-Ons
 
@@ -429,10 +440,12 @@ These are still implementation details, but they are no longer product-definitio
 - exact D1 column sets and indexes
 - exact cookie/session helper choice
 - exact Cloudflare binding names
-- exact quiet-window duration
+- confirm whether the current 30 second internal quiet-window constant should remain the final V1 value
 - exact GitHub upload auth exchange steps
 - wire `packages/github-action` to the final short-lived GitHub App upload auth flow instead of temporary runtime env inputs
 - add the hosted-synthetic fetch or resolution path once the auth and onboarding flow is defined; the current public action cut is fixture-app plus `repo-synthetic`
+- wire `acknowledgeComparisonItem` to persisted `acknowledgements` writes plus summary refresh; current Step 8 only adds the storage and overlay boundary
+- add end-to-end local Workflow settlement tests once the Cloudflare Worker test runtime can bind and execute the production workflow class cleanly
 - finalize publish-ready GitHub Action packaging for the bundled Vite runtime and native dependency edge cases
 - exact Sentry tagging fields
 - final product package names and npm scopes

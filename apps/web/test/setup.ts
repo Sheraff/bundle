@@ -6,6 +6,9 @@ beforeEach(async () => {
   await applyD1Migrations(env.DB, env.TEST_MIGRATIONS)
 
   for (const statement of [
+    'DELETE FROM pr_review_summaries',
+    'DELETE FROM commit_group_summaries',
+    'DELETE FROM acknowledgements',
     'DELETE FROM budget_results',
     'DELETE FROM comparisons',
     'DELETE FROM series_points',

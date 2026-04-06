@@ -1,9 +1,11 @@
 import { Hono } from 'hono'
 
+import { CommitGroupSettlementWorkflow } from './commit-group-settlement-workflow.js'
 import type { AppEnv } from './env.js'
 import { handleDeriveRunMessage } from './derive-runs.js'
 import { handleMaterializeComparisonMessage } from './materialize-comparison.js'
 import { handleNormalizeRunMessage } from './normalize-runs.js'
+import { handleRefreshSummariesMessage } from './refresh-summaries.js'
 import { registerUploadRoutes } from './routes/uploads.js'
 import { handleScheduleComparisonsMessage } from './schedule-comparisons.js'
 
@@ -57,8 +59,15 @@ export default {
         continue
       }
 
+      if (kind === 'refresh-summaries') {
+        await handleRefreshSummariesMessage(message, env)
+        continue
+      }
+
       console.error('Dropping unknown queue message', body)
       message.ack()
     }
   },
 }
+
+export { CommitGroupSettlementWorkflow }
