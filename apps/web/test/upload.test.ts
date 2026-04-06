@@ -500,6 +500,118 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
       artifact_scenario_kind: 'synthetic-import',
     })
   })
+
+  it('cleans up raw uploads and returns a handled error when the second R2 write fails', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const originalPut = env.RAW_UPLOADS_BUCKET.put.bind(env.RAW_UPLOADS_BUCKET)
+    let putCallCount = 0
+
+    vi.spyOn(env.RAW_UPLOADS_BUCKET, 'put').mockImplementation(async (...args) => {
+      putCallCount += 1
+
+      if (putCallCount === 2) {
+        throw new Error('r2 unavailable')
+      }
+
+      return originalPut(...args)
+    })
+
+    const response = await sendUploadRequest(buildEnvelope())
+    const responseBody = (await response.json()) as {
+      error?: { code?: string }
+    }
+    const listedObjects = await env.RAW_UPLOADS_BUCKET.list()
+
+    expect(response.status).toBe(503)
+    expect(responseBody.error?.code).toBe('raw_upload_storage_unavailable')
+    expect(await countRows('scenario_runs')).toBe(0)
+    expect(listedObjects.objects).toHaveLength(0)
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+  })
+
+  it('cleans up raw uploads and returns a handled error when D1 fails after raw persistence', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const originalPrepare = env.DB.prepare.bind(env.DB)
+    let prepareCallCount = 0
+
+    const prepareSpy = vi.spyOn(env.DB, 'prepare').mockImplementation((query) => {
+      prepareCallCount += 1
+
+      if (prepareCallCount > 1 && typeof query === 'string') {
+        throw new Error('d1 unavailable')
+      }
+
+      return originalPrepare(query)
+    })
+
+    const response = await sendUploadRequest(buildEnvelope())
+    const responseBody = (await response.json()) as {
+      error?: { code?: string }
+    }
+
+    prepareSpy.mockRestore()
+
+    const listedObjects = await env.RAW_UPLOADS_BUCKET.list()
+
+    expect(response.status).toBe(503)
+    expect(responseBody.error?.code).toBe('upload_persistence_failed')
+    expect(await countRows('scenario_runs')).toBe(0)
+    expect(listedObjects.objects).toHaveLength(0)
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+  })
+
+  it('reuses one scenario run and does not leak extra raw objects under a concurrent duplicate upload race', async () => {
+    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
+    const originalPut = env.RAW_UPLOADS_BUCKET.put.bind(env.RAW_UPLOADS_BUCKET)
+    let artifactPutCount = 0
+    let releaseArtifactGate: (() => void) | null = null
+    const artifactGate = new Promise<void>((resolve) => {
+      releaseArtifactGate = resolve
+    })
+
+    vi.spyOn(env.RAW_UPLOADS_BUCKET, 'put').mockImplementation(async (...args) => {
+      const key = args[0]
+
+      if (typeof key === 'string' && key.endsWith('/artifact.json')) {
+        artifactPutCount += 1
+
+        if (artifactPutCount === 1) {
+          await artifactGate
+        }
+
+        if (artifactPutCount === 2) {
+          releaseArtifactGate?.()
+        }
+      }
+
+      return originalPut(...args)
+    })
+
+    const [firstResponse, secondResponse] = await Promise.all([
+      sendUploadRequest(buildEnvelope()),
+      sendUploadRequest(buildEnvelope()),
+    ])
+    const firstBodyResult = v.safeParse(
+      uploadScenarioRunAcceptedResponseV1Schema,
+      await firstResponse.json(),
+    )
+    const secondBodyResult = v.safeParse(
+      uploadScenarioRunAcceptedResponseV1Schema,
+      await secondResponse.json(),
+    )
+    const listedObjects = await env.RAW_UPLOADS_BUCKET.list()
+
+    expect(firstResponse.status).toBe(202)
+    expect(secondResponse.status).toBe(202)
+    expect(firstBodyResult.success).toBe(true)
+    expect(secondBodyResult.success).toBe(true)
+    expect(firstBodyResult.success && firstBodyResult.output.scenarioRunId).toBe(
+      secondBodyResult.success ? secondBodyResult.output.scenarioRunId : null,
+    )
+    expect(await countRows('scenario_runs')).toBe(1)
+    expect(sendSpy).toHaveBeenCalledTimes(1)
+    expect(listedObjects.objects).toHaveLength(2)
+  })
 })
 
 async function sendUploadRequest(

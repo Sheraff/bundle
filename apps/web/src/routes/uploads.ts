@@ -76,95 +76,140 @@ export function registerUploadRoutes(app: Hono<AppEnv>) {
     const rawArtifactR2Key = `raw/scenario-runs/${scenarioRunId}/artifact.json`
     const rawEnvelopeR2Key = `raw/scenario-runs/${scenarioRunId}/envelope.json`
 
-    await Promise.all([
-      putRawUploadObject(
+    try {
+      await putRawUploadObject(
         c.env,
         rawArtifactR2Key,
         storedTexts.artifactText,
         storedTexts.artifactSha256,
         envelope.artifact.schemaVersion,
-      ),
-      putRawUploadObject(
+      )
+      await putRawUploadObject(
         c.env,
         rawEnvelopeR2Key,
         storedTexts.envelopeText,
         storedTexts.envelopeSha256,
         envelope.schemaVersion,
-      ),
-    ])
+      )
+    } catch {
+      await deleteRawUploadObjects(c.env, rawArtifactR2Key, rawEnvelopeR2Key)
 
-    const repository = await upsertRepository(db, envelope.repository, timestamp)
-    const scenario = await upsertScenario(db, repository.id, envelope, timestamp)
-    const pullRequest = envelope.pullRequest
-      ? await upsertPullRequest(db, repository.id, envelope.pullRequest, timestamp)
-      : null
-    const commitGroup = await upsertCommitGroup(
-      db,
-      repository.id,
-      pullRequest?.id ?? null,
-      envelope.git.commitSha,
-      envelope.git.branch,
-      timestamp,
-    )
-
-    await db
-      .insert(schema.scenarioRuns)
-      .values({
-        id: scenarioRunId,
-        repositoryId: repository.id,
-        scenarioId: scenario.id,
-        commitGroupId: commitGroup.id,
-        pullRequestId: pullRequest?.id ?? null,
-        commitSha: envelope.git.commitSha,
-        branch: envelope.git.branch,
-        status: 'queued',
-        scenarioSourceKind: envelope.scenarioSource.kind,
-        artifactScenarioKind: envelope.artifact.scenario.kind,
-        uploadDedupeKey,
-        rawArtifactR2Key,
-        rawEnvelopeR2Key,
-        artifactSha256: storedTexts.artifactSha256,
-        envelopeSha256: storedTexts.envelopeSha256,
-        artifactSizeBytes: storedTexts.artifactSizeBytes,
-        envelopeSizeBytes: storedTexts.envelopeSizeBytes,
-        artifactSchemaVersion: envelope.artifact.schemaVersion,
-        uploadSchemaVersion: envelope.schemaVersion,
-        ciProvider: envelope.ci.provider,
-        ciWorkflowRunId: envelope.ci.workflowRunId,
-        ciWorkflowRunAttempt: envelope.ci.workflowRunAttempt ?? null,
-        ciJob: envelope.ci.job ?? null,
-        ciActionVersion: envelope.ci.actionVersion ?? null,
-        uploadedAt: timestamp,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      })
-      .onConflictDoNothing({ target: schema.scenarioRuns.uploadDedupeKey })
-
-    const persistedScenarioRun = await getScenarioRunByDedupeKey(db, uploadDedupeKey)
-
-    if (!persistedScenarioRun) {
-      throw new Error('Scenario-run upload did not persist a scenario_runs row.')
+      return jsonError(
+        c,
+        503,
+        'raw_upload_storage_unavailable',
+        'The upload could not be accepted because raw evidence could not be persisted.',
+      )
     }
 
-    if (persistedScenarioRun.id === scenarioRunId) {
-      try {
-        await enqueueNormalizeRun(c.env, repository.id, scenarioRunId)
-      } catch {
-        await rollbackScenarioRunInsert(
-          db,
-          c.env,
-          scenarioRunId,
+    let persistedScenarioRun: Awaited<ReturnType<typeof getScenarioRunByDedupeKey>> = null
+
+    try {
+      const repository = await upsertRepository(db, envelope.repository, timestamp)
+      const scenario = await upsertScenario(db, repository.id, envelope, timestamp)
+      const pullRequest = envelope.pullRequest
+        ? await upsertPullRequest(db, repository.id, envelope.pullRequest, timestamp)
+        : null
+      const commitGroup = await upsertCommitGroup(
+        db,
+        repository.id,
+        pullRequest?.id ?? null,
+        envelope.git.commitSha,
+        envelope.git.branch,
+        timestamp,
+      )
+
+      await db
+        .insert(schema.scenarioRuns)
+        .values({
+          id: scenarioRunId,
+          repositoryId: repository.id,
+          scenarioId: scenario.id,
+          commitGroupId: commitGroup.id,
+          pullRequestId: pullRequest?.id ?? null,
+          commitSha: envelope.git.commitSha,
+          branch: envelope.git.branch,
+          status: 'queued',
+          scenarioSourceKind: envelope.scenarioSource.kind,
+          artifactScenarioKind: envelope.artifact.scenario.kind,
+          uploadDedupeKey,
           rawArtifactR2Key,
           rawEnvelopeR2Key,
-        )
+          artifactSha256: storedTexts.artifactSha256,
+          envelopeSha256: storedTexts.envelopeSha256,
+          artifactSizeBytes: storedTexts.artifactSizeBytes,
+          envelopeSizeBytes: storedTexts.envelopeSizeBytes,
+          artifactSchemaVersion: envelope.artifact.schemaVersion,
+          uploadSchemaVersion: envelope.schemaVersion,
+          ciProvider: envelope.ci.provider,
+          ciWorkflowRunId: envelope.ci.workflowRunId,
+          ciWorkflowRunAttempt: envelope.ci.workflowRunAttempt ?? null,
+          ciJob: envelope.ci.job ?? null,
+          ciActionVersion: envelope.ci.actionVersion ?? null,
+          uploadedAt: timestamp,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        })
+        .onConflictDoNothing({ target: schema.scenarioRuns.uploadDedupeKey })
 
-        return jsonError(
-          c,
-          503,
-          'normalize_queue_unavailable',
-          'The upload could not be accepted because follow-up processing could not be scheduled.',
-        )
-      }
+      persistedScenarioRun = await getScenarioRunByDedupeKey(db, uploadDedupeKey)
+    } catch {
+      await rollbackScenarioRunInsert(
+        db,
+        c.env,
+        scenarioRunId,
+        rawArtifactR2Key,
+        rawEnvelopeR2Key,
+      )
+
+      return jsonError(
+        c,
+        503,
+        'upload_persistence_failed',
+        'The upload could not be accepted because upload metadata could not be persisted.',
+      )
+    }
+
+    if (!persistedScenarioRun) {
+      await rollbackScenarioRunInsert(
+        db,
+        c.env,
+        scenarioRunId,
+        rawArtifactR2Key,
+        rawEnvelopeR2Key,
+      )
+
+      return jsonError(
+        c,
+        503,
+        'upload_persistence_failed',
+        'The upload could not be accepted because upload metadata could not be persisted.',
+      )
+    }
+
+    if (persistedScenarioRun.id !== scenarioRunId) {
+      await deleteRawUploadObjects(c.env, rawArtifactR2Key, rawEnvelopeR2Key)
+
+      return c.json(buildAcceptedResponse(persistedScenarioRun), 202)
+    }
+
+    try {
+      await enqueueNormalizeRun(c.env, persistedScenarioRun.repositoryId, scenarioRunId)
+    } catch {
+      await rollbackScenarioRunInsert(
+        db,
+        c.env,
+        scenarioRunId,
+        rawArtifactR2Key,
+        rawEnvelopeR2Key,
+      )
+
+      return jsonError(
+        c,
+        503,
+        'normalize_queue_unavailable',
+        'The upload could not be accepted because follow-up processing could not be scheduled.',
+      )
     }
 
     return c.json(buildAcceptedResponse(persistedScenarioRun), 202)
@@ -548,6 +593,16 @@ async function rollbackScenarioRunInsert(
 ) {
   await Promise.allSettled([
     db.delete(schema.scenarioRuns).where(eq(schema.scenarioRuns.id, scenarioRunId)),
+    deleteRawUploadObjects(env, rawArtifactR2Key, rawEnvelopeR2Key),
+  ])
+}
+
+async function deleteRawUploadObjects(
+  env: AppBindings,
+  rawArtifactR2Key: string,
+  rawEnvelopeR2Key: string,
+) {
+  await Promise.allSettled([
     env.RAW_UPLOADS_BUCKET.delete(rawArtifactR2Key),
     env.RAW_UPLOADS_BUCKET.delete(rawEnvelopeR2Key),
   ])
