@@ -8,6 +8,7 @@ import * as v from 'valibot'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
+import { getAppLogger, type AppLogger } from './logger.js'
 import { enqueueRefreshSummaries } from './refresh-summaries.js'
 import {
   matchEnvironmentPair,
@@ -19,11 +20,6 @@ import {
 } from './stable-identity.js'
 
 type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
-
-interface QueueLogger {
-  error: typeof console.error
-  warn: typeof console.warn
-}
 
 interface SelectedEntrypointRelationSummary {
   confidence: RelationConfidence | null
@@ -39,7 +35,7 @@ export async function handleMaterializeComparisonQueue(
   batch: MessageBatch<unknown>,
   env: AppBindings,
   _ctx?: ExecutionContext,
-  logger: QueueLogger = console,
+  logger: AppLogger = getAppLogger(),
 ) {
   for (const message of batch.messages) {
     await handleMaterializeComparisonMessage(message, env, logger)
@@ -49,7 +45,7 @@ export async function handleMaterializeComparisonQueue(
 export async function handleMaterializeComparisonMessage(
   message: QueueMessageLike<unknown>,
   env: AppBindings,
-  logger: QueueLogger = console,
+  logger: AppLogger = getAppLogger(),
 ) {
   const messageResult = v.safeParse(materializeComparisonQueueMessageSchema, message.body)
 

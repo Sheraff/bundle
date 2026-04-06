@@ -23,16 +23,12 @@ import { ulid } from 'ulid'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
+import { getAppLogger, type AppLogger } from './logger.js'
 
 type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
 type CommitGroupRow = typeof schema.commitGroups.$inferSelect
 type PullRequestRow = typeof schema.pullRequests.$inferSelect
 type SummaryComparisonKind = CommitGroupSummaryV1['comparisonKind']
-
-interface QueueLogger {
-  error: typeof console.error
-  warn: typeof console.warn
-}
 
 interface ScenarioCatalogRow {
   id: string
@@ -122,7 +118,7 @@ export async function handleRefreshSummariesQueue(
   batch: MessageBatch<unknown>,
   env: AppBindings,
   _ctx?: ExecutionContext,
-  logger: QueueLogger = console,
+  logger: AppLogger = getAppLogger(),
 ) {
   for (const message of batch.messages) {
     await handleRefreshSummariesMessage(message, env, logger)
@@ -132,7 +128,7 @@ export async function handleRefreshSummariesQueue(
 export async function handleRefreshSummariesMessage(
   message: QueueMessageLike<unknown>,
   env: AppBindings,
-  logger: QueueLogger = console,
+  logger: AppLogger = getAppLogger(),
 ) {
   const messageResult = v.safeParse(refreshSummariesQueueMessageSchema, message.body)
 

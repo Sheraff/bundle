@@ -27,14 +27,10 @@ import * as v from 'valibot'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
+import { getAppLogger, type AppLogger } from './logger.js'
 import { enqueueRefreshSummaries } from './refresh-summaries.js'
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
-
-interface QueueLogger {
-  error: typeof console.error
-  warn: typeof console.warn
-}
 
 interface ManifestEntryRecord {
   assets: string[]
@@ -63,7 +59,7 @@ export async function handleNormalizeRunQueue(
   batch: MessageBatch<unknown>,
   env: AppBindings,
   _ctx?: ExecutionContext,
-  logger: QueueLogger = console,
+  logger: AppLogger = getAppLogger(),
 ) {
   for (const message of batch.messages) {
     await handleNormalizeRunMessage(message, env, logger)
@@ -73,7 +69,7 @@ export async function handleNormalizeRunQueue(
 export async function handleNormalizeRunMessage(
   message: QueueMessageLike<unknown>,
   env: AppBindings,
-  logger: QueueLogger = console,
+  logger: AppLogger = getAppLogger(),
 ) {
   const messageResult = v.safeParse(normalizeRunQueueMessageSchema, message.body)
 

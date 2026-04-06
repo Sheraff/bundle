@@ -17,14 +17,10 @@ import { ulid } from 'ulid'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
+import { getAppLogger, type AppLogger } from './logger.js'
 import { enqueueRefreshSummaries } from './refresh-summaries.js'
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
-
-interface QueueLogger {
-  error: typeof console.error
-  warn: typeof console.warn
-}
 
 interface SizeBreakdown {
   raw: number
@@ -48,7 +44,7 @@ export async function handleDeriveRunQueue(
   batch: MessageBatch<unknown>,
   env: AppBindings,
   _ctx?: ExecutionContext,
-  logger: QueueLogger = console,
+  logger: AppLogger = getAppLogger(),
 ) {
   for (const message of batch.messages) {
     await handleDeriveRunMessage(message, env, logger)
@@ -58,7 +54,7 @@ export async function handleDeriveRunQueue(
 export async function handleDeriveRunMessage(
   message: QueueMessageLike<unknown>,
   env: AppBindings,
-  logger: QueueLogger = console,
+  logger: AppLogger = getAppLogger(),
 ) {
   const messageResult = v.safeParse(deriveRunQueueMessageSchema, message.body)
 

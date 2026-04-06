@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { CommitGroupSettlementWorkflow } from './commit-group-settlement-workflow.js'
 import type { AppEnv } from './env.js'
 import { handleDeriveRunMessage } from './derive-runs.js'
+import { getAppLogger } from './logger.js'
 import { handleMaterializeComparisonMessage } from './materialize-comparison.js'
 import { handleNormalizeRunMessage } from './normalize-runs.js'
 import { handleRefreshSummariesMessage } from './refresh-summaries.js'
@@ -18,7 +19,7 @@ app.get('/healthz', (c) => {
 registerUploadRoutes(app)
 
 app.onError((error, c) => {
-  console.error('Unhandled app error', error)
+  getAppLogger().error('Unhandled app error', error)
 
   return c.json(
     {
@@ -34,37 +35,39 @@ app.onError((error, c) => {
 export default {
   fetch: app.fetch.bind(app),
   queue: async (batch: MessageBatch<unknown>, env: Cloudflare.Env, _ctx?: ExecutionContext) => {
+    const logger = getAppLogger()
+
     for (const message of batch.messages) {
       const body = message.body
       const kind =
         typeof body === 'object' && body !== null && 'kind' in body ? body.kind : null
 
       if (kind === 'normalize-run') {
-        await handleNormalizeRunMessage(message, env)
+        await handleNormalizeRunMessage(message, env, logger)
         continue
       }
 
       if (kind === 'derive-run') {
-        await handleDeriveRunMessage(message, env)
+        await handleDeriveRunMessage(message, env, logger)
         continue
       }
 
       if (kind === 'schedule-comparisons') {
-        await handleScheduleComparisonsMessage(message, env)
+        await handleScheduleComparisonsMessage(message, env, logger)
         continue
       }
 
       if (kind === 'materialize-comparison') {
-        await handleMaterializeComparisonMessage(message, env)
+        await handleMaterializeComparisonMessage(message, env, logger)
         continue
       }
 
       if (kind === 'refresh-summaries') {
-        await handleRefreshSummariesMessage(message, env)
+        await handleRefreshSummariesMessage(message, env, logger)
         continue
       }
 
-      console.error('Dropping unknown queue message', body)
+      logger.error('Dropping unknown queue message', body)
       message.ack()
     }
   },

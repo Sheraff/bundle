@@ -2,6 +2,8 @@ import { applyD1Migrations } from 'cloudflare:test'
 import { env } from 'cloudflare:workers'
 import { afterEach, beforeEach, expect, vi } from 'vitest'
 
+import { noopLogger, setAppLoggerForTesting } from '../src/logger.js'
+
 interface QueueResultLike {
   ackAll: boolean
   retryBatch: {
@@ -47,6 +49,8 @@ expect.extend({
 })
 
 beforeEach(async () => {
+  setAppLoggerForTesting(noopLogger)
+
   await applyD1Migrations(env.DB, env.TEST_MIGRATIONS)
 
   for (const statement of [
@@ -80,5 +84,6 @@ beforeEach(async () => {
 })
 
 afterEach(() => {
+  setAppLoggerForTesting(null)
   vi.restoreAllMocks()
 })

@@ -11,16 +11,12 @@ import { ulid } from 'ulid'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
+import { getAppLogger, type AppLogger } from './logger.js'
 import { enqueueRefreshSummaries } from './refresh-summaries.js'
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
 type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
 type ComparisonKind = 'branch-previous' | 'pr-base'
-
-interface QueueLogger {
-  error: typeof console.error
-  warn: typeof console.warn
-}
 
 interface MeasuredSeriesPoint {
   commitGroupId: string
@@ -39,7 +35,7 @@ export async function handleScheduleComparisonsQueue(
   batch: MessageBatch<unknown>,
   env: AppBindings,
   _ctx?: ExecutionContext,
-  logger: QueueLogger = console,
+  logger: AppLogger = getAppLogger(),
 ) {
   for (const message of batch.messages) {
     await handleScheduleComparisonsMessage(message, env, logger)
@@ -49,7 +45,7 @@ export async function handleScheduleComparisonsQueue(
 export async function handleScheduleComparisonsMessage(
   message: QueueMessageLike<unknown>,
   env: AppBindings,
-  logger: QueueLogger = console,
+  logger: AppLogger = getAppLogger(),
 ) {
   const messageResult = v.safeParse(scheduleComparisonsQueueMessageSchema, message.body)
 
