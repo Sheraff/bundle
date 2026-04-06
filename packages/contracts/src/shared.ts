@@ -13,6 +13,12 @@ export const SCENARIO_SOURCE_KINDS = [
   'hosted-synthetic',
 ] as const
 export const CI_PROVIDERS = ['github-actions'] as const
+export const SCENARIO_RUN_STATUSES = [
+  'queued',
+  'processing',
+  'processed',
+  'failed',
+] as const
 export const QUEUE_KINDS = [
   'normalize-run',
   'derive-run',
@@ -99,4 +105,5 @@ export const nonAllStringSchema = v.pipe(
 
 export type DetailKind = (typeof DETAIL_KINDS)[number]
 export type QueueKind = (typeof QUEUE_KINDS)[number]
+export type ScenarioRunStatus = (typeof SCENARIO_RUN_STATUSES)[number]
 export type WorkflowKind = (typeof WORKFLOW_KINDS)[number]

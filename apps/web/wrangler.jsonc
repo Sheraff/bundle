@@ -1,0 +1,30 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "bundle-web",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-04-06",
+  "vars": {
+    "BUNDLE_UPLOAD_TOKEN": "test-upload-token"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bundle-web",
+      "database_id": "00000000-0000-0000-0000-000000000000"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "RAW_UPLOADS_BUCKET",
+      "bucket_name": "bundle-raw-uploads"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "NORMALIZE_RUN_QUEUE",
+        "queue": "bundle-normalize-run"
+      }
+    ]
+  }
+}

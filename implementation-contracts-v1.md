@@ -393,25 +393,30 @@ Rules:
 
 Build in this order:
 
-1. `packages/contracts`
-2. `packages/vite-plugin`
-3. `packages/github-action`
-4. upload endpoint plus raw persistence
-5. normalization worker plus snapshot blob write
-6. stable identity plus measurement derivation
-7. comparison and budget jobs
-8. commit-group summary and PR review summary jobs
-9. GitHub publication
-10. repository, scenario, and compare pages
+1. `packages/contracts` - done with noted remaining contract gaps below
+2. `packages/vite-plugin` - done
+3. `packages/github-action` - done for fixture-app and public `repo-synthetic` flows
+4. upload endpoint plus raw persistence - remaining
+5. normalization worker plus snapshot blob write - remaining
+6. stable identity plus measurement derivation - remaining
+7. comparison and budget jobs - remaining
+8. commit-group summary and PR review summary jobs - remaining
+9. GitHub publication - remaining
+10. repository, scenario, and compare pages - remaining
 
 ## Small Remaining Follow-Ons
 
 These are still implementation details, but they are no longer product-definition blockers:
 
+- define the hosted synthetic `budgets` contract and add it to `createHostedSyntheticScenario` and `updateHostedSyntheticScenario`; the current first pass intentionally omits `budgets`
+- lock the compare-detail `tab` enum and encode the `tab` activation rule that requires one full series context (`scenario + env + entrypoint + lens`); the current first pass keeps `tab` as a loose optional string
 - exact D1 column sets and indexes
 - exact cookie/session helper choice
 - exact Cloudflare binding names
 - exact quiet-window duration
 - exact GitHub upload auth exchange steps
+- wire `packages/github-action` to the final short-lived GitHub App upload auth flow instead of temporary runtime env inputs
+- add the hosted-synthetic fetch or resolution path once the auth and onboarding flow is defined; the current public action cut is fixture-app plus `repo-synthetic`
+- finalize publish-ready GitHub Action packaging for the bundled Vite runtime and native dependency edge cases
 - exact Sentry tagging fields
 - final product package names and npm scopes

@@ -12,13 +12,18 @@
     "contracts:typecheck": "pnpm --filter @workspace/contracts typecheck",
     "contracts:test": "pnpm --filter @workspace/contracts test",
     "contracts:check": "pnpm contracts:typecheck && pnpm contracts:test",
+    "web:typecheck": "pnpm --filter @workspace/web typecheck",
+    "web:test": "pnpm --filter @workspace/web test",
+    "web:test:unit": "pnpm --filter @workspace/web test:unit",
     "test": "pnpm stable-identity:test"
   },
   "devDependencies": {
     "@types/node": "25.5.2",
+    "drizzle-kit": "0.31.10",
     "typescript": "6.0.2",
     "valibot": "1.3.1",
-    "vitest": "4.1.2"
+    "vitest": "4.1.2",
+    "wrangler": "4.80.0"
   },
   "keywords": [],
   "author": "",

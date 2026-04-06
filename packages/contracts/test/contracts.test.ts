@@ -8,6 +8,7 @@ import {
   queueMessageSchema,
   repositoryOverviewSearchParamsSchema,
   scenarioPageSearchParamsSchema,
+  uploadScenarioRunAcceptedResponseV1Schema,
   uploadScenarioRunEnvelopeV1Schema,
   workflowInputSchema,
 } from '../src/index.js'
@@ -220,6 +221,33 @@ describe('uploadScenarioRunEnvelopeV1Schema', () => {
     )
 
     expect(result.success).toBe(true)
+  })
+})
+
+describe('uploadScenarioRunAcceptedResponseV1Schema', () => {
+  it('accepts a queued upload acknowledgement', () => {
+    const result = v.safeParse(uploadScenarioRunAcceptedResponseV1Schema, {
+      schemaVersion: 1,
+      accepted: true,
+      repositoryId: ulid,
+      commitGroupId: secondUlid,
+      scenarioRunId: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
+      status: 'queued',
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects responses without an accepted flag', () => {
+    const result = v.safeParse(uploadScenarioRunAcceptedResponseV1Schema, {
+      schemaVersion: 1,
+      repositoryId: ulid,
+      commitGroupId: secondUlid,
+      scenarioRunId: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
+      status: 'queued',
+    })
+
+    expect(result.success).toBe(false)
   })
 })
 
