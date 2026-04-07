@@ -3,6 +3,8 @@ import {
   type CommitGroupSettlementWorkflowInput,
 } from '@workspace/contracts'
 import * as v from 'valibot'
+import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from 'cloudflare:workers'
+import { NonRetryableError } from 'cloudflare:workflows'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
@@ -12,29 +14,7 @@ import {
 } from './refresh-summaries.js'
 import { eq } from 'drizzle-orm'
 
-const WorkflowEntrypointBase = (
-  globalThis as unknown as {
-    WorkflowEntrypoint?: typeof WorkflowEntrypoint
-  }
-).WorkflowEntrypoint ??
-  (class {
-    protected readonly env: AppBindings
-
-    constructor(_ctx: unknown, env: AppBindings) {
-      this.env = env
-    }
-  } as unknown as typeof WorkflowEntrypoint)
-
-const NonRetryableErrorBase = (
-  globalThis as unknown as {
-    NonRetryableError?: typeof NonRetryableError
-  }
-).NonRetryableError ?? Error
-
-export class CommitGroupSettlementWorkflow extends WorkflowEntrypointBase<
-  AppBindings,
-  CommitGroupSettlementWorkflowInput
-> {
+export class CommitGroupSettlementWorkflow extends WorkflowEntrypoint<AppBindings, CommitGroupSettlementWorkflowInput> {
   async run(
     event: WorkflowEvent<CommitGroupSettlementWorkflowInput>,
     step: WorkflowStep,
@@ -43,7 +23,7 @@ export class CommitGroupSettlementWorkflow extends WorkflowEntrypointBase<
       const result = v.safeParse(commitGroupSettlementWorkflowInputSchema, event.payload)
 
       if (!result.success) {
-        throw new NonRetryableErrorBase(
+        throw new NonRetryableError(
           `Invalid commit-group settlement workflow input: ${result.issues
             .map((issue) => issue.message)
             .join('; ')}`,
@@ -70,7 +50,7 @@ export class CommitGroupSettlementWorkflow extends WorkflowEntrypointBase<
       }
 
       if (row.repositoryId !== input.repositoryId) {
-        throw new NonRetryableErrorBase(
+        throw new NonRetryableError(
           `Commit group ${input.commitGroupId} does not belong to repository ${input.repositoryId}.`,
         )
       }

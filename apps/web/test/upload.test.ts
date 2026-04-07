@@ -616,14 +616,14 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
 
 async function sendUploadRequest(
   envelope: ReturnType<typeof buildEnvelope>,
-  token = env.BUNDLE_UPLOAD_TOKEN,
+  token: string = env.BUNDLE_UPLOAD_TOKEN,
 ) {
   return sendRawRequest(JSON.stringify(envelope), token)
 }
 
 async function sendRawRequest(
   body: string,
-  token = env.BUNDLE_UPLOAD_TOKEN,
+  token: string = env.BUNDLE_UPLOAD_TOKEN,
 ) {
   const executionContext = createExecutionContext()
   const worker = (exports as unknown as {

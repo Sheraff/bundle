@@ -413,3 +413,44 @@ export const prReviewSummaries = sqliteTable(
     index('pr_review_summaries_status_idx').on(table.status),
   ],
 )
+
+export const githubPublications = sqliteTable(
+  'github_publications',
+  {
+    id: text('id').primaryKey(),
+    repositoryId: text('repository_id')
+      .notNull()
+      .references(() => repositories.id),
+    pullRequestId: text('pull_request_id')
+      .notNull()
+      .references(() => pullRequests.id),
+    commitGroupId: text('commit_group_id').references(() => commitGroups.id),
+    surface: text('surface').notNull(),
+    status: text('status').notNull(),
+    externalPublicationId: text('external_publication_id'),
+    externalPublicationNodeId: text('external_publication_node_id'),
+    externalUrl: text('external_url'),
+    publishedHeadSha: text('published_head_sha'),
+    payloadHash: text('payload_hash'),
+    lastAttemptedAt: text('last_attempted_at'),
+    lastPublishedAt: text('last_published_at'),
+    lastErrorCode: text('last_error_code'),
+    lastErrorMessage: text('last_error_message'),
+    createdAt: text('created_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('github_publications_pull_request_id_surface_unique').on(
+      table.pullRequestId,
+      table.surface,
+    ),
+    uniqueIndex('github_publications_commit_group_id_surface_unique').on(
+      table.commitGroupId,
+      table.surface,
+    ),
+    index('github_publications_repository_id_idx').on(table.repositoryId),
+    index('github_publications_pull_request_id_idx').on(table.pullRequestId),
+    index('github_publications_commit_group_id_idx').on(table.commitGroupId),
+    index('github_publications_surface_idx').on(table.surface),
+  ],
+)

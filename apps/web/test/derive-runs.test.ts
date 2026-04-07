@@ -356,7 +356,7 @@ async function processEnvelope(envelope: ReturnType<typeof buildEnvelope>) {
 
 async function sendUploadRequest(
   envelope: ReturnType<typeof buildEnvelope>,
-  token = env.BUNDLE_UPLOAD_TOKEN,
+  token: string = env.BUNDLE_UPLOAD_TOKEN,
 ) {
   const executionContext = createExecutionContext()
   const worker = (exports as unknown as {

@@ -6,6 +6,8 @@ import { handleDeriveRunMessage } from './derive-runs.js'
 import { getAppLogger } from './logger.js'
 import { handleMaterializeComparisonMessage } from './materialize-comparison.js'
 import { handleNormalizeRunMessage } from './normalize-runs.js'
+import { PrPublishDebounceWorkflow } from './pr-publish-debounce-workflow.js'
+import { handlePublishGithubMessage } from './publish-github.js'
 import { handleRefreshSummariesMessage } from './refresh-summaries.js'
 import { registerUploadRoutes } from './routes/uploads.js'
 import { handleScheduleComparisonsMessage } from './schedule-comparisons.js'
@@ -67,10 +69,15 @@ export default {
         continue
       }
 
+      if (kind === 'publish-github') {
+        await handlePublishGithubMessage(message, env, logger)
+        continue
+      }
+
       logger.error('Dropping unknown queue message', body)
       message.ack()
     }
   },
 }
 
-export { CommitGroupSettlementWorkflow }
+export { CommitGroupSettlementWorkflow, PrPublishDebounceWorkflow }

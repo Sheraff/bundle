@@ -401,7 +401,7 @@ Build in this order:
 6. stable identity plus measurement derivation - done for the V1 default-lens cut; see completion notes below
 7. comparison and budget jobs - done for scheduled branch and PR comparisons; see completion notes below
 8. commit-group summary and PR review summary jobs - done for the V1 summary read-model cut; see completion notes below
-9. GitHub publication - remaining
+9. GitHub publication - done for the PR publication cut; see completion notes below
 10. repository, scenario, and compare pages - remaining
 
 ## Step 6, 7, And 8 Completion Notes
@@ -429,7 +429,14 @@ Build in this order:
 - Done in code: summary refresh replay is idempotent at the row level and preserves stable `settledAt` timestamps for already-settled commit-group and PR review summaries.
 - Intentionally left out for the current cut: no app-facing read functions or UI pages consume `commit_group_summaries` or `pr_review_summaries` yet; those remain later Step 9 and 10 work.
 - Intentionally left out for the current cut: no auth-backed `acknowledgeComparisonItem` mutation path writes `acknowledgements` yet; Step 8 includes storage plus summary overlay support, and current tests seed acknowledgement rows directly.
-- Intentionally left out for the current cut: local automated tests do not run the Cloudflare Workflow runtime end-to-end for settlement because the current Worker test configuration uses a workflow-free test Wrangler config; queue-driven settlement and refresh logic are covered and the production workflow binding is configured.
+- Intentionally left out for the current cut: local automated tests still do not run the settlement workflow end-to-end; queue-driven settlement and refresh logic are covered, the production workflow binding is configured, and the current test runtime now covers the PR publish debounce workflow path.
+- Step 9 is complete in `apps/web` for the PR publication cut.
+- Done in code: `github_publications` storage exists and persists publication identity, payload hashes, head SHA, timestamps, and last error state for the maintained PR comment and PR aggregate check surfaces.
+- Done in code: `publish-github` queue wiring exists and publishes one maintained PR comment plus one PR-scoped aggregate check from the stored PR review summary.
+- Done in code: `PrPublishDebounceWorkflow` exists, is bound in Wrangler, and schedules debounced PR publication from summary refresh.
+- Done in code: GitHub publication uses GitHub App installation auth, stored publication IDs with marker-based recovery for PR comments, payload-hash no-op suppression, and retry versus terminal failure handling.
+- Done in tests: local automated tests cover initial PR publication, in-place updates, unchanged no-op behavior, retryable and terminal GitHub failures, stale stored publication ID recovery, and the PR publish debounce workflow path.
+- Intentionally left out for the current cut: no neutral non-PR GitHub publication path is implemented; Step 9 currently covers PR publication only.
 
 ## Small Remaining Follow-Ons
 

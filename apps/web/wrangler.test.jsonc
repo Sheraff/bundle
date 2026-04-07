@@ -4,7 +4,9 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-04-06",
   "vars": {
-    "BUNDLE_UPLOAD_TOKEN": "test-upload-token"
+    "BUNDLE_UPLOAD_TOKEN": "test-upload-token",
+    "PUBLIC_APP_ORIGIN": "https://bundle.test",
+    "GITHUB_APP_ID": "1"
   },
   "d1_databases": [
     {
@@ -21,6 +23,18 @@
     {
       "binding": "CACHE_BUCKET",
       "bucket_name": "bundle-cache-test"
+    }
+  ],
+  "workflows": [
+    {
+      "name": "bundle-commit-group-settlement-test",
+      "binding": "COMMIT_GROUP_SETTLEMENT_WORKFLOW",
+      "class_name": "CommitGroupSettlementWorkflow"
+    },
+    {
+      "name": "bundle-pr-publish-debounce-test",
+      "binding": "PR_PUBLISH_DEBOUNCE_WORKFLOW",
+      "class_name": "PrPublishDebounceWorkflow"
     }
   ],
   "queues": {
@@ -44,6 +58,10 @@
       {
         "binding": "REFRESH_SUMMARIES_QUEUE",
         "queue": "bundle-refresh-summaries-test"
+      },
+      {
+        "binding": "PUBLISH_GITHUB_QUEUE",
+        "queue": "bundle-publish-github-test"
       }
     ]
   }

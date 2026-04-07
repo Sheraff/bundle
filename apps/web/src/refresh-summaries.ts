@@ -2,6 +2,7 @@ import {
   SCHEMA_VERSION_V1,
   commitGroupSettlementWorkflowInputSchema,
   commitGroupSummaryV1Schema,
+  prPublishDebounceWorkflowInputSchema,
   prReviewSummaryV1Schema,
   refreshSummariesQueueMessageSchema,
   type CommitGroupSummaryV1,
@@ -253,6 +254,7 @@ async function refreshSummariesForCommitGroup(
 
   const prSummary = await buildPrReviewSummary(env, commitGroup, pullRequest, summary)
   await upsertPrReviewSummary(db, commitGroup, pullRequest, prSummary, timestamp)
+  await schedulePrPublishDebounceWorkflow(env, commitGroup, pullRequest)
 }
 
 async function buildCommitGroupSummary(
@@ -1170,6 +1172,45 @@ async function scheduleCommitGroupSettlementWorkflow(
   await env.COMMIT_GROUP_SETTLEMENT_WORKFLOW.createBatch([
     {
       id: `commit-group-settlement-${commitGroup.id}-${latestUploadTimestamp}`,
+      params: workflowInputResult.output,
+    },
+  ])
+}
+
+async function schedulePrPublishDebounceWorkflow(
+  env: AppBindings,
+  commitGroup: CommitGroupRow,
+  pullRequest: PullRequestRow,
+) {
+  if (
+    !env.PR_PUBLISH_DEBOUNCE_WORKFLOW ||
+    typeof env.PR_PUBLISH_DEBOUNCE_WORKFLOW.createBatch !== 'function'
+  ) {
+    return
+  }
+
+  const latestUploadTimestamp = Date.parse(commitGroup.latestUploadAt)
+  if (Number.isNaN(latestUploadTimestamp)) {
+    return
+  }
+
+  const workflowInputResult = v.safeParse(prPublishDebounceWorkflowInputSchema, {
+    schemaVersion: SCHEMA_VERSION_V1,
+    kind: 'PrPublishDebounceWorkflow',
+    repositoryId: commitGroup.repositoryId,
+    pullRequestId: pullRequest.id,
+    orchestrationKey: `latest-upload-${latestUploadTimestamp}`,
+  })
+
+  if (!workflowInputResult.success) {
+    throw new Error(
+      `Generated PR publish debounce workflow input is invalid: ${formatIssues(workflowInputResult.issues)}`,
+    )
+  }
+
+  await env.PR_PUBLISH_DEBOUNCE_WORKFLOW.createBatch([
+    {
+      id: `pr-publish-debounce-${pullRequest.id}-${latestUploadTimestamp}`,
       params: workflowInputResult.output,
     },
   ])

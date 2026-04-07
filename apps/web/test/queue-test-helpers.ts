@@ -11,6 +11,7 @@ export const TEST_QUEUE_NAMES = {
   deriveRun: 'bundle-derive-run-test',
   materializeComparison: 'bundle-materialize-comparison-test',
   normalizeRun: 'bundle-normalize-run-test',
+  publishGithub: 'bundle-publish-github-test',
   refreshSummaries: 'bundle-refresh-summaries-test',
   scheduleComparisons: 'bundle-schedule-comparisons-test',
 } as const

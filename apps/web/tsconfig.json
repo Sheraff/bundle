@@ -3,10 +3,16 @@
   "compilerOptions": {
     "lib": ["ESNext", "WebWorker"],
     "types": [
+      "./worker-configuration.d.ts",
       "node",
-      "@cloudflare/workers-types",
       "@cloudflare/vitest-pool-workers/types"
     ]
   },
-  "include": ["src/**/*", "test/**/*", "vitest.config.mts", "drizzle.config.ts"]
+  "include": [
+    "src/**/*",
+    "test/**/*",
+    "worker-configuration.d.ts",
+    "vitest.config.mts",
+    "drizzle.config.ts"
+  ]
 }
