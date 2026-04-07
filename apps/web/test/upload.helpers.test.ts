@@ -5,7 +5,7 @@ import {
   readBearerToken,
   sha256Hex,
   stableStringify,
-} from '../src/routes/uploads.js'
+} from '../src/api/uploads.js'
 
 const sha = '0123456789abcdef0123456789abcdef01234567'
 

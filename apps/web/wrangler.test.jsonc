@@ -3,6 +3,7 @@
   "name": "bundle-web-test",
   "main": "src/index.ts",
   "compatibility_date": "2026-04-06",
+  "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "BUNDLE_UPLOAD_TOKEN": "test-upload-token",
     "PUBLIC_APP_ORIGIN": "https://bundle.test",

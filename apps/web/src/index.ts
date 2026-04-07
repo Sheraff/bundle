@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import startHandler from '@tanstack/react-start/server-entry'
 
 import { CommitGroupSettlementWorkflow } from './commit-group-settlement-workflow.js'
 import type { AppEnv } from './env.js'
@@ -9,7 +10,7 @@ import { handleNormalizeRunMessage } from './normalize-runs.js'
 import { PrPublishDebounceWorkflow } from './pr-publish-debounce-workflow.js'
 import { handlePublishGithubMessage } from './publish-github.js'
 import { handleRefreshSummariesMessage } from './refresh-summaries.js'
-import { registerUploadRoutes } from './routes/uploads.js'
+import { registerUploadRoutes } from './api/uploads.js'
 import { handleScheduleComparisonsMessage } from './schedule-comparisons.js'
 
 const app = new Hono<AppEnv>()
@@ -20,18 +21,31 @@ app.get('/healthz', (c) => {
 
 registerUploadRoutes(app)
 
+app.all('*', async (c) => {
+  return startHandler.fetch(c.req.raw, {
+    context: {
+      env: c.env,
+      executionContext: c.executionCtx as ExecutionContext<unknown>,
+    },
+  })
+})
+
 app.onError((error, c) => {
   getAppLogger().error('Unhandled app error', error)
 
-  return c.json(
-    {
-      error: {
-        code: 'internal_error',
-        message: 'The server could not complete the request.',
+  if (c.req.path.startsWith('/api/')) {
+    return c.json(
+      {
+        error: {
+          code: 'internal_error',
+          message: 'The server could not complete the request.',
+        },
       },
-    },
-    500,
-  )
+      500,
+    )
+  }
+
+  return c.text('The server could not complete the request.', 500)
 })
 
 export default {

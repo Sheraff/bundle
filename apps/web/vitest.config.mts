@@ -2,10 +2,14 @@ import path from 'node:path'
 
 import { cloudflareTest } from '@cloudflare/vitest-pool-workers'
 import { readD1Migrations } from '@cloudflare/vitest-pool-workers'
+import react from '@vitejs/plugin-react'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [
+    ...tanstackStart(),
+    react(),
     cloudflareTest(async () => {
       const migrations = await readD1Migrations(path.join(import.meta.dirname, 'drizzle'))
 

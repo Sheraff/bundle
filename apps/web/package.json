@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "vite dev",
+    "build": "vite build",
     "generate-types": "wrangler types",
     "test": "vitest run --config vitest.config.mts",
     "test:unit": "vitest run --config vitest.unit.config.mts",
@@ -13,13 +14,23 @@
     "db:migrate:local": "wrangler d1 migrations apply DB --local"
   },
   "dependencies": {
+    "@cloudflare/vite-plugin": "1.31.0",
+    "@tanstack/react-router": "1.168.10",
+    "@tanstack/react-start": "1.167.16",
+    "@tanstack/router-core": "1.168.9",
     "@workspace/contracts": "workspace:*",
     "drizzle-orm": "0.45.2",
-    "hono": "4.12.11",
+    "hono": "4.12.12",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "ulid": "3.0.2",
     "valibot": "1.3.1"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "0.14.1"
+    "@cloudflare/vitest-pool-workers": "0.14.1",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.1",
+    "vite": "8.0.6"
   }
 }

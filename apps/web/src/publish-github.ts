@@ -8,6 +8,7 @@ import {
   type ReviewedComparisonSeriesSummaryV1,
   type ReviewedScenarioSummaryV1,
 } from '@workspace/contracts'
+import { defaultStringifySearch } from '@tanstack/react-router'
 import { and, eq } from 'drizzle-orm'
 import { ulid } from 'ulid'
 import * as v from 'valibot'
@@ -290,7 +291,6 @@ async function buildCommentPublicationPayload(
   const openPrDiffUrl = buildPrCompareUrl(env.PUBLIC_APP_ORIGIN, owner, repository, pullRequestNumber, {
     base: summary.baseSha,
     head: summary.headSha,
-    pr: String(pullRequestNumber),
   })
   const visibleScenarioGroups = summary.scenarioGroups.filter(
     (scenarioGroup) => scenarioGroup.reviewState !== 'neutral',
@@ -403,7 +403,6 @@ function renderCommentScenarioGroup(
     `[View diff](${buildPrCompareUrl(env.PUBLIC_APP_ORIGIN, owner, repository, pullRequestNumber, {
       base: summary.baseSha,
       head: summary.headSha,
-      pr: String(pullRequestNumber),
       scenario: scenarioGroup.scenarioSlug,
       env: visibleSeries.environment,
       entrypoint: visibleSeries.entrypoint,
@@ -425,7 +424,6 @@ async function buildCheckRunPublicationPayload(
   const detailsUrl = buildPrCompareUrl(env.PUBLIC_APP_ORIGIN, owner, repository, pullRequestNumber, {
     base: summary.baseSha,
     head: summary.headSha,
-    pr: String(pullRequestNumber),
   })
   const status = summary.status === 'pending' ? 'in_progress' : 'completed'
   const conclusion = status === 'completed'
@@ -752,15 +750,9 @@ function buildPrCompareUrl(
   searchParams: Record<string, string>,
 ) {
   const url = new URL(
-    `/r/${encodeURIComponent(owner)}/${encodeURIComponent(repository)}/compare`,
+    `/r/${encodeURIComponent(owner)}/${encodeURIComponent(repository)}/compare${defaultStringifySearch({ pr: pullRequestNumber, ...searchParams })}`,
     origin,
   )
-
-  url.searchParams.set('pr', String(pullRequestNumber))
-
-  for (const [key, value] of Object.entries(searchParams)) {
-    url.searchParams.set(key, value)
-  }
 
   return url.toString()
 }
