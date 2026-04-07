@@ -402,7 +402,7 @@ Build in this order:
 7. comparison and budget jobs - done for scheduled branch and PR comparisons; see completion notes below
 8. commit-group summary and PR review summary jobs - done for the V1 summary read-model cut; see completion notes below
 9. GitHub publication - done for the PR publication cut; see completion notes below
-10. repository, scenario, and compare pages - remaining
+10. repository, scenario, and compare pages - mostly done for the public structure and read-path cut; see completion notes below
 
 ## Step 6, 7, And 8 Completion Notes
 
@@ -437,6 +437,19 @@ Build in this order:
 - Done in code: GitHub publication uses GitHub App installation auth, stored publication IDs with marker-based recovery for PR comments, payload-hash no-op suppression, and retry versus terminal failure handling.
 - Done in tests: local automated tests cover initial PR publication, in-place updates, unchanged no-op behavior, retryable and terminal GitHub failures, stale stored publication ID recovery, and the PR publish debounce workflow path.
 - Intentionally left out for the current cut: no neutral non-PR GitHub publication path is implemented; Step 9 currently covers PR publication only.
+- Step 10 is mostly complete in `apps/web` for the initial public page structure cut.
+- Done in code: TanStack Start is wired into the existing Worker app, file-based routing is in place, and the public repository overview, scenario page, and compare page now render through app-facing server functions.
+- Done in code: the current Step 10 cut reads from the existing Step 8 and Step 9 summary models plus `series_points` and scheduled `comparisons`; it does not add new persistence for page reads.
+- Done in code: neutral branch compare and PR-scoped compare both render through the same public compare route, with PR mode driven by stored `pr_review_summaries`.
+- Done in code: the current UI cut intentionally stays structural only; charts, detail tabs, and compare widgets render as rough outlines backed by the current read paths rather than final styled components.
+- Done in tests: local automated tests now smoke-test the repository overview, scenario page, neutral compare page, PR compare page, and empty-state repository/scenario rendering through the Worker HTTP surface.
+- Intentionally left out for the current cut: `/r/$owner/$repo/history` is still not implemented.
+- Intentionally left out for the current cut: `getRepositoryHistory` is still not implemented as an app-facing read boundary.
+- Intentionally left out for the current cut: `getPrComparePage` is not split as a separate app-facing read function yet; the current compare page read path handles neutral and PR modes inside one function.
+- Intentionally left out for the current cut: compare detail tabs still do not load generated treemap, graph, waterfall, or other heavy detail payloads; the page currently exposes only the structure and lightweight summary data.
+- Intentionally left out for the current cut: compare reads still only surface already-materialized scheduled comparisons (`branch-previous` and `pr-base`); there is still no arbitrary run-to-run compare creation path.
+- Test gaps still worth covering for the current cut: invalid public search params such as bad SHA or bad `pr`, nonexistent repository and scenario routes, compare routes whose requested base/head pair has no stored comparison, and scenario filters that intentionally produce no history rows.
+- Test gaps still worth covering for the current cut: branch-selection edge cases such as repositories with multiple branches, explicitly requested missing branches, and deterministic ordering for the repository overview's latest-important-compare and scenario catalog selections.
 
 ## Small Remaining Follow-Ons
 
