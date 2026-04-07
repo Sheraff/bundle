@@ -12,10 +12,13 @@ import {
 } from '../lib/public-read-models.server.js'
 import {
   formatBytes,
-  formatSignedBytes,
-  formatSignedPercentage,
   shortSha,
 } from '../lib/formatting.js'
+import {
+  describeNeutralDelta,
+  describeStatusScenarioDetail,
+  formatSeriesLabel,
+} from '../lib/public-route-presentation.js'
 
 const scenarioPageSearchSchema = v.strictObject({
   branch: v.optional(nonEmptyStringSchema),
@@ -189,11 +192,7 @@ function ScenarioPageRouteComponent() {
         ) : data.latestStatusScenario ? (
           <>
             <p>State: {data.latestStatusScenario.state}</p>
-            <p>
-              {data.latestStatusScenario.state === 'missing'
-                ? data.latestStatusScenario.reason
-                : 'The latest branch summary does not include a fresh run for this scenario.'}
-            </p>
+            <p>{describeStatusScenarioDetail(data.latestStatusScenario)}</p>
           </>
         ) : (
           <p>No branch summary is available for this scenario yet.</p>
@@ -236,10 +235,9 @@ function ScenarioPageRouteComponent() {
         {data.selectedSeries ? (
           <>
             <p>
-              {data.selectedSeries.series.environment} / {data.selectedSeries.series.entrypoint} /{' '}
-              {data.selectedSeries.series.lens}
+              {formatSeriesLabel(data.selectedSeries.series)}
             </p>
-            <p>{renderNeutralSeriesSummary(data.selectedSeries.series, data.selectedSeries.primaryItem)}</p>
+            <p>{describeNeutralDelta(data.selectedSeries.series, data.selectedSeries.primaryItem, { detailed: true, noBaselineText: 'No baseline is available for this series yet.', failedPrefix: 'Comparison failed', unchangedPrefix: 'Brotli total unchanged at' })}</p>
           </>
         ) : (
           <p>Select a full series context (`env + entrypoint + lens`) to unlock the detail area.</p>
@@ -249,7 +247,7 @@ function ScenarioPageRouteComponent() {
       <section>
         <h2>Tabs</h2>
         <p>Current tab: {data.tab ?? 'history'}</p>
-        <p>Detail widgets are structural only in this pass. Heavy compare detail payloads are not wired yet.</p>
+        <p>Additional detail tabs are not available yet.</p>
       </section>
     </main>
   )
@@ -259,7 +257,7 @@ function ScenarioHistoryTable(props: { series: ScenarioHistorySeries }) {
   return (
     <article>
       <h3>
-        {props.series.environment} / {props.series.entrypoint} / {props.series.lens}
+        {formatSeriesLabel(props.series)}
       </h3>
       <table>
         <thead>
@@ -285,32 +283,4 @@ function ScenarioHistoryTable(props: { series: ScenarioHistorySeries }) {
       </table>
     </article>
   )
-}
-
-function renderNeutralSeriesSummary(
-  series: {
-    status: string
-    failureMessage?: string
-  } & {
-    currentTotals: { brotli: number }
-    baselineTotals: { brotli: number } | null
-  },
-  primaryItem: {
-    deltaValue: number
-    percentageDelta: number
-  } | null,
-) {
-  if (series.status === 'failed') {
-    return `Comparison failed: ${series.failureMessage ?? 'Comparison materialization failed.'}`
-  }
-
-  if (series.status === 'no-baseline' || !series.baselineTotals) {
-    return 'No baseline is available for this series yet.'
-  }
-
-  if (!primaryItem) {
-    return `Brotli total unchanged at ${formatBytes(series.currentTotals.brotli)}.`
-  }
-
-  return `${formatBytes(series.currentTotals.brotli)} vs ${formatBytes(series.baselineTotals.brotli)} (${formatSignedBytes(primaryItem.deltaValue)}, ${formatSignedPercentage(primaryItem.percentageDelta)})`
 }

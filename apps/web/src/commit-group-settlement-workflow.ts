@@ -5,14 +5,12 @@ import {
 import * as v from 'valibot'
 import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from 'cloudflare:workers'
 import { NonRetryableError } from 'cloudflare:workflows'
+import { eq } from 'drizzle-orm'
 
 import { getDb, schema } from './db/index.js'
 import type { AppBindings } from './env.js'
-import {
-  COMMIT_GROUP_SETTLEMENT_QUIET_WINDOW_MS,
-  enqueueRefreshSummaries,
-} from './refresh-summaries.js'
-import { eq } from 'drizzle-orm'
+import { enqueueRefreshSummaries } from './summaries/refresh-queue.js'
+import { COMMIT_GROUP_SETTLEMENT_QUIET_WINDOW_MS } from './summaries/constants.js'
 
 export class CommitGroupSettlementWorkflow extends WorkflowEntrypoint<AppBindings, CommitGroupSettlementWorkflowInput> {
   async run(

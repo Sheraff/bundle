@@ -7,7 +7,7 @@ import { NonRetryableError } from 'cloudflare:workflows'
 import * as v from 'valibot'
 
 import type { AppBindings } from './env.js'
-import { enqueuePublishGithub } from './publish-github.js'
+import { enqueuePublishGithub } from './github/publish-queue.js'
 
 export const PR_PUBLISH_DEBOUNCE_WINDOW_MS = 10_000
 

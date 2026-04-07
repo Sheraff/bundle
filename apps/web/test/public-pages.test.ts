@@ -112,6 +112,36 @@ describe('public pages', () => {
     expect(scenarioPageText).toContain('No branch data yet')
     expect(scenarioPageText).toContain('No branch summary is available for this scenario yet.')
   })
+
+  it('returns an error page when compare search params are invalid', async () => {
+    const response = await fetchPage(
+      'https://bundle.test/r/acme/widget/compare?base=not-a-sha&head=still-not-a-sha',
+    )
+
+    expect(response.status).toBe(500)
+  })
+
+  it('returns an error page when repository or scenario pages do not exist', async () => {
+    const repositoryPage = await fetchPage('https://bundle.test/r/acme/missing-widget')
+    const repositoryPageText = await repositoryPage.text()
+    expect(repositoryPage.status).toBe(500)
+    expect(repositoryPageText).toContain('Repository acme/missing-widget was not found.')
+
+    await insertRepository({
+      id: 'repo-missing-scenario-page',
+      githubRepoId: 1001,
+      installationId: 1001,
+      owner: 'acme',
+      name: 'missing-scenario-page',
+    })
+
+    const scenarioPage = await fetchPage(
+      'https://bundle.test/r/acme/missing-scenario-page/scenarios/not-there',
+    )
+    const scenarioPageText = await scenarioPage.text()
+    expect(scenarioPage.status).toBe(500)
+    expect(scenarioPageText).toContain('Scenario not-there was not found for this repository.')
+  })
 })
 
 async function seedPrComparison(harness: ReturnType<typeof createPipelineHarness>) {

@@ -1,11 +1,11 @@
 import type { AppBindings } from '../env.js'
 import { handleDeriveRunMessage } from '../derive-runs.js'
+import { handlePublishGithubMessage } from '../github/publish-queue.js'
 import { getAppLogger, type AppLogger } from '../logger.js'
 import { handleMaterializeComparisonMessage } from '../materialize-comparison.js'
 import { handleNormalizeRunMessage } from '../normalize-runs.js'
-import { handlePublishGithubMessage } from '../publish-github.js'
-import { handleRefreshSummariesMessage } from '../refresh-summaries.js'
 import { handleScheduleComparisonsMessage } from '../schedule-comparisons.js'
+import { handleRefreshSummariesMessage } from '../summaries/refresh-queue.js'
 
 type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
 

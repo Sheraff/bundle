@@ -10,7 +10,7 @@ import { getDb, schema } from './db/index.js'
 import { selectOne } from './db/select-one.js'
 import type { AppBindings } from './env.js'
 import { getAppLogger, type AppLogger } from './logger.js'
-import { enqueueRefreshSummaries } from './refresh-summaries.js'
+import { enqueueRefreshSummaries } from './summaries/refresh-queue.js'
 import { formatIssues } from './shared/format-issues.js'
 import {
   matchEnvironmentPair,

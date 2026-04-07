@@ -11,13 +11,21 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
 
-import { getComparePageData } from '../lib/public-read-models.server.js'
 import {
-  formatBytes,
-  formatSignedBytes,
-  formatSignedPercentage,
+  getNeutralComparePageData,
+  getPullRequestComparePageData,
+} from '../lib/public-read-models.server.js'
+import {
   shortSha,
 } from '../lib/formatting.js'
+import {
+  describeNeutralDelta,
+  describeReviewedDelta,
+  describeReviewedSeriesState,
+  describeScenarioReviewState,
+  describeStatusScenarioDetail,
+  formatSeriesLabel,
+} from '../lib/public-route-presentation.js'
 
 const comparePageSearchSchema = v.strictObject({
   base: gitShaSchema,
@@ -35,11 +43,21 @@ const getComparePage = createServerFn({ method: 'GET' })
     params: publicRepositoryRouteParamsSchema,
     search: comparePageSearchSchema,
   }))
-  .handler(({ data, context }) => getComparePageData(context.env, {
-    owner: data.params.owner,
-    repo: data.params.repo,
-    search: data.search,
-  }))
+  .handler(({ data, context }) =>
+    data.search.pr
+      ? getPullRequestComparePageData(context.env, {
+          owner: data.params.owner,
+          repo: data.params.repo,
+          search: {
+            ...data.search,
+            pr: data.search.pr,
+          },
+        })
+      : getNeutralComparePageData(context.env, {
+          owner: data.params.owner,
+          repo: data.params.repo,
+          search: data.search,
+        }))
 
 export const Route = createFileRoute('/r/$owner/$repo/compare')({
   validateSearch: comparePageSearchSchema,
@@ -107,13 +125,7 @@ function ComparePageRouteComponent() {
                 <tr key={`${scenario.state}:${scenario.scenarioId}`}>
                   <td>{scenario.scenarioSlug}</td>
                   <td>{scenario.state}</td>
-                  <td>
-                    {scenario.state === 'missing'
-                      ? scenario.reason
-                      : scenario.state === 'failed'
-                        ? scenario.failureMessage ?? 'Scenario rerun failed.'
-                        : `Inherited from ${shortSha(scenario.sourceCommitSha)}`}
-                  </td>
+                  <td>{describeStatusScenarioDetail(scenario)}</td>
                 </tr>
               ))}
             </tbody>
@@ -148,10 +160,7 @@ function ComparePageRouteComponent() {
       <section>
         <h2>Tabs</h2>
         <p>Current tab: {search.tab ?? 'summary'}</p>
-        <p>
-          Treemap, graph, waterfall, and deeper diff widgets are placeholders in this pass. The page structure and
-          read paths are wired, but detail payload generation is still pending.
-        </p>
+        <p>Detailed treemap, graph, and waterfall views are not available yet.</p>
       </section>
     </main>
   )
@@ -176,11 +185,11 @@ function NeutralRowsTable() {
         {data.neutralRows.map((row) => (
           <tr key={row.series.seriesId}>
             <td>{row.scenarioSlug}</td>
-            <td>
-              {row.series.environment} / {row.series.entrypoint} / {row.series.lens}
-            </td>
-            <td>{row.series.status}</td>
-            <td>{renderNeutralDelta(row.series, row.primaryItem)}</td>
+             <td>
+              {formatSeriesLabel(row.series)}
+             </td>
+             <td>{row.series.status}</td>
+              <td>{describeNeutralDelta(row.series, row.primaryItem)}</td>
             <td>
               <Link
                 to="/r/$owner/$repo/scenarios/$scenario"
@@ -248,11 +257,11 @@ function ReviewedRowsTable() {
         {data.reviewedRows.map((row) => (
           <tr key={row.series.seriesId}>
             <td>{row.scenarioSlug}</td>
-            <td>
-              {row.series.environment} / {row.series.entrypoint} / {row.series.lens}
-            </td>
-            <td>{row.series.reviewState}</td>
-            <td>{renderReviewedDelta(row.series, row.primaryItem)}</td>
+             <td>
+              {formatSeriesLabel(row.series)}
+             </td>
+              <td>{describeReviewedSeriesState(row.series)}</td>
+              <td>{describeReviewedDelta(row.series, row.primaryItem)}</td>
             <td>
               <Link
                 to="/r/$owner/$repo/scenarios/$scenario"
@@ -299,11 +308,9 @@ function NeutralRowDetail() {
   return (
     <>
       <p>Scenario: {row.scenarioSlug}</p>
-      <p>
-        Series: {row.series.environment} / {row.series.entrypoint} / {row.series.lens}
-      </p>
+      <p>Series: {formatSeriesLabel(row.series)}</p>
       <p>Status: {row.series.status}</p>
-      <p>{renderNeutralDelta(row.series, row.primaryItem)}</p>
+      <p>{describeNeutralDelta(row.series, row.primaryItem, { detailed: true })}</p>
       <p>Selected entrypoint relation: {row.series.selectedEntrypointRelation ?? 'unknown'}</p>
       <p>Degraded stable identity: {row.series.hasDegradedStableIdentity ? 'yes' : 'no'}</p>
     </>
@@ -316,68 +323,11 @@ function ReviewedRowDetail() {
   return (
     <>
       <p>Scenario: {row.scenarioSlug}</p>
-      <p>
-        Series: {row.series.environment} / {row.series.entrypoint} / {row.series.lens}
-      </p>
-      <p>Scenario review state: {row.scenarioReviewState}</p>
-      <p>Series review state: {row.series.reviewState}</p>
-      <p>{renderReviewedDelta(row.series, row.primaryItem)}</p>
+      <p>Series: {formatSeriesLabel(row.series)}</p>
+      <p>Scenario review state: {describeScenarioReviewState(row.scenarioReviewState)}</p>
+      <p>Series review state: {describeReviewedSeriesState(row.series)}</p>
+      <p>{describeReviewedDelta(row.series, row.primaryItem)}</p>
       <p>Acknowledged items on this scenario: {row.acknowledgedItemCount}</p>
     </>
   )
-}
-
-function renderNeutralDelta(
-  series: {
-    status: string
-    currentTotals: { brotli: number }
-    baselineTotals: { brotli: number } | null
-    failureMessage?: string
-  },
-  primaryItem: {
-    deltaValue: number
-    percentageDelta: number
-  } | null,
-) {
-  if (series.status === 'failed') {
-    return `Failed: ${series.failureMessage ?? 'Comparison materialization failed.'}`
-  }
-
-  if (series.status === 'no-baseline' || !series.baselineTotals) {
-    return 'No baseline'
-  }
-
-  if (!primaryItem) {
-    return `Unchanged at ${formatBytes(series.currentTotals.brotli)}`
-  }
-
-  return `${formatSignedBytes(primaryItem.deltaValue)} (${formatSignedPercentage(primaryItem.percentageDelta)})`
-}
-
-function renderReviewedDelta(
-  series: {
-    status: string
-    currentTotals: { brotli: number }
-    baselineTotals: { brotli: number } | null
-    failureMessage?: string
-  },
-  primaryItem: {
-    deltaValue: number
-    percentageDelta: number
-    reviewState?: string
-  } | null,
-) {
-  if (series.status === 'failed') {
-    return `Failed: ${series.failureMessage ?? 'Comparison materialization failed.'}`
-  }
-
-  if (series.status === 'no-baseline' || !series.baselineTotals) {
-    return 'No baseline'
-  }
-
-  if (!primaryItem) {
-    return `Unchanged at ${formatBytes(series.currentTotals.brotli)}`
-  }
-
-  return `${formatSignedBytes(primaryItem.deltaValue)} (${formatSignedPercentage(primaryItem.percentageDelta)}) ${primaryItem.reviewState ?? ''}`.trim()
 }

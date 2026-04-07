@@ -11,7 +11,7 @@ import { ulid } from 'ulid'
 import { getDb, schema } from '../db/index.js'
 import { selectOne } from '../db/select-one.js'
 import type { AppBindings } from '../env.js'
-import { enqueueRefreshSummaries } from '../refresh-summaries.js'
+import { enqueueRefreshSummaries } from '../summaries/refresh-queue.js'
 import { formatIssues } from '../shared/format-issues.js'
 import { sha256Hex } from '../shared/sha256-hex.js'
 

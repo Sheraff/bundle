@@ -16,6 +16,12 @@ import {
   formatSignedPercentage,
   shortSha,
 } from '../lib/formatting.js'
+import {
+  describeNeutralDelta,
+  describeStatusScenarioDetail,
+  formatSeriesLabel,
+  formatStateBadge,
+} from '../lib/public-route-presentation.js'
 
 const repositoryOverviewSearchSchema = v.strictObject({
   branch: v.optional(nonEmptyStringSchema),
@@ -157,11 +163,11 @@ function RepositoryOverviewRouteComponent() {
         {data.latestImportantCompare ? (
           <>
             <p>Scenario: {data.latestImportantCompare.scenarioSlug}</p>
-            <p>
-              Series: {data.latestImportantCompare.environment} / {data.latestImportantCompare.entrypoint} /{' '}
-              {data.latestImportantCompare.lens}
-            </p>
-            <p>
+             <p>
+               Series: {data.latestImportantCompare.environment} / {data.latestImportantCompare.entrypoint} /{' '}
+               {data.latestImportantCompare.lens}
+             </p>
+             <p>
               {formatBytes(data.latestImportantCompare.primaryItem.currentValue)} vs{' '}
               {formatBytes(data.latestImportantCompare.primaryItem.baselineValue)} ({' '}
               {formatSignedBytes(data.latestImportantCompare.primaryItem.deltaValue)},{' '}
@@ -227,9 +233,9 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
   row: RepositoryScenarioCatalogRow
 }) {
 
-  if (row.kind === 'fresh') {
-    const primarySeries = row.primarySeries
-    const primaryItem = row.primaryItem
+    if (row.kind === 'fresh') {
+      const primarySeries = row.primarySeries
+      const primaryItem = row.primaryItem
 
     return (
       <tr>
@@ -247,17 +253,11 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
             {row.scenario.scenarioSlug}
           </Link>
         </td>
-        <td>{row.scenario.hasNewerFailedRun ? 'warning' : 'fresh'}</td>
+        <td>{formatStateBadge(row.scenario.hasNewerFailedRun ? 'warning' : 'fresh')}</td>
         <td>
-          {primarySeries
-            ? `${primarySeries.environment} / ${primarySeries.entrypoint} / ${primarySeries.lens}`
-            : 'No active series'}
+          {primarySeries ? formatSeriesLabel(primarySeries) : 'No active series'}
         </td>
-        <td>
-          {primaryItem
-            ? `${formatSignedBytes(primaryItem.deltaValue)} (${formatSignedPercentage(primaryItem.percentageDelta)})`
-            : 'No delta'}
-        </td>
+        <td>{primarySeries ? describeNeutralDelta(primarySeries, primaryItem) : 'No delta'}</td>
         <td>
           <Link
             to="/r/$owner/$repo/scenarios/$scenario"
@@ -312,9 +312,9 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
             {row.scenario.scenarioSlug}
           </Link>
         </td>
-        <td>{row.scenario.state}</td>
+        <td>{formatStateBadge(row.scenario.state)}</td>
         <td>Not available on the active commit group</td>
-        <td>{row.scenario.state === 'missing' ? row.scenario.reason : 'Unavailable'}</td>
+        <td>{describeStatusScenarioDetail(row.scenario)}</td>
         <td>
           <Link
             to="/r/$owner/$repo/scenarios/$scenario"
@@ -349,7 +349,7 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
           {row.scenario.slug}
         </Link>
       </td>
-      <td>known</td>
+      <td>{formatStateBadge('known')}</td>
       <td>No active summary row yet</td>
       <td>Awaiting the first processed branch summary</td>
       <td>
