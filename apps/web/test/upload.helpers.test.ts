@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  buildStoredUploadTexts,
-  readBearerToken,
-  sha256Hex,
-  stableStringify,
-} from '../src/api/uploads.js'
+import { stableStringify } from '../src/uploads/accept-upload.js'
+import { sha256Hex } from '../src/shared/sha256-hex.js'
+import { buildStoredUploadTexts } from '../src/uploads/raw-upload-storage.js'
+import { readBearerToken } from '../src/api/uploads.js'
 
 const sha = '0123456789abcdef0123456789abcdef01234567'
 

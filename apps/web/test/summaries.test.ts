@@ -1,15 +1,19 @@
-import {
-  createExecutionContext,
-  waitOnExecutionContext,
-} from 'cloudflare:test'
-import { env, exports } from 'cloudflare:workers'
-import { describe, expect, it, vi } from 'vitest'
+import { env } from 'cloudflare:workers'
+import { describe, expect, it } from 'vitest'
 import { ulid } from 'ulid'
 
 import {
   dispatchQueueMessage,
   TEST_QUEUE_NAMES,
 } from './queue-test-helpers.js'
+import {
+  buildCiContext,
+  buildEnvelope,
+  buildSimpleArtifact,
+  size,
+} from './support/builders.js'
+import { countRows } from './support/db-helpers.js'
+import { createPipelineHarness } from './support/pipeline-harness.js'
 
 const baseSha = '0123456789abcdef0123456789abcdef01234567'
 const commitSha = '1111111111111111111111111111111111111111'
@@ -54,7 +58,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5001'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     const summary = await getCommitGroupSummary(commitSha)
     expect(summary?.status).toBe('settled')
@@ -77,7 +81,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5100'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     await harness.acceptUpload(
       buildEnvelope({
@@ -89,7 +93,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5101'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     const repository = await env.DB.prepare(`SELECT id FROM repositories LIMIT 1`).first<{ id: string }>()
     expect(repository?.id).toBeTruthy()
@@ -114,7 +118,7 @@ describe('commit-group summary and PR review summary jobs', () => {
       }),
     )
     const currentPayload = await currentResponse.json<{ commitGroupId: string }>()
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     const pendingSummary = await getCommitGroupSummary(commitSha)
     expect(pendingSummary?.status).toBe('pending')
@@ -167,7 +171,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5200'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     const firstSummary = await getCommitGroupSummary(rerunSha)
     const firstActiveRunId = firstSummary?.summary.freshScenarioGroups[0]?.activeScenarioRunId
@@ -267,7 +271,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5400'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     await harness.acceptUpload(
       buildEnvelope({
@@ -290,7 +294,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5401'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     const initialComparison = await env.DB.prepare(
       `SELECT id, repository_id, pull_request_id, series_id
@@ -370,7 +374,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5402'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     const refreshedSummary = await getPrReviewSummary(prHeadSha)
     expect(refreshedSummary?.acknowledged_regression_count).toBe(0)
@@ -395,7 +399,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5500'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     await harness.acceptUpload(
       buildEnvelope({
@@ -418,7 +422,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5501'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     const beforeFailureSummary = await getCommitGroupSummary(failedRerunSha)
     const activeRunId = beforeFailureSummary?.summary.freshScenarioGroups[0]?.activeScenarioRunId
@@ -492,7 +496,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5600'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     await harness.acceptUpload(
       buildEnvelope({
@@ -515,7 +519,7 @@ describe('commit-group summary and PR review summary jobs', () => {
         ci: buildCiContext('5601'),
       }),
     )
-    await harness.processAll()
+    await harness.processUploadPipeline()
 
     const commitSummaryBeforeReplay = await getCommitGroupSummary(replaySha)
     const reviewSummaryBeforeReplay = await getPrReviewSummary(replaySha)
@@ -552,103 +556,6 @@ describe('commit-group summary and PR review summary jobs', () => {
     expect(reviewSummaryAfterReplay?.settled_at).toBe(reviewSummaryBeforeReplay?.settled_at)
   })
 })
-
-function createPipelineHarness() {
-  const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
-  const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
-  const scheduleSendSpy = vi.spyOn(env.SCHEDULE_COMPARISONS_QUEUE, 'send')
-  const materializeSendSpy = vi.spyOn(env.MATERIALIZE_COMPARISON_QUEUE, 'send')
-  const refreshSendSpy = vi.spyOn(env.REFRESH_SUMMARIES_QUEUE, 'send')
-  normalizeSendSpy.mockClear()
-  deriveSendSpy.mockClear()
-  scheduleSendSpy.mockClear()
-  materializeSendSpy.mockClear()
-  refreshSendSpy.mockClear()
-
-  let normalizeIndex = 0
-  let deriveIndex = 0
-  let scheduleIndex = 0
-  let materializeIndex = 0
-  let refreshIndex = 0
-
-  return {
-    acceptUpload,
-    drainDerive,
-    drainMaterialize,
-    drainNormalize,
-    drainRefresh,
-    drainSchedule,
-    processAll,
-  }
-
-  async function acceptUpload(envelope: ReturnType<typeof buildEnvelope>) {
-    const response = await sendUploadRequest(envelope)
-    expect(response.status).toBe(202)
-    return response
-  }
-
-  async function drainRefresh() {
-    while (refreshIndex < refreshSendSpy.mock.calls.length) {
-      const refreshMessageBody = refreshSendSpy.mock.calls[refreshIndex]?.[0]
-      refreshIndex += 1
-      const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.refreshSummaries, refreshMessageBody)
-      expect(result).toBeAcknowledged()
-    }
-  }
-
-  async function drainNormalize() {
-    while (normalizeIndex < normalizeSendSpy.mock.calls.length) {
-      const normalizeMessageBody = normalizeSendSpy.mock.calls[normalizeIndex]?.[0]
-      normalizeIndex += 1
-      const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.normalizeRun, normalizeMessageBody)
-      expect(result).toBeAcknowledged()
-    }
-  }
-
-  async function drainDerive() {
-    while (deriveIndex < deriveSendSpy.mock.calls.length) {
-      const deriveMessageBody = deriveSendSpy.mock.calls[deriveIndex]?.[0]
-      deriveIndex += 1
-      const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.deriveRun, deriveMessageBody)
-      expect(result).toBeAcknowledged()
-    }
-  }
-
-  async function drainSchedule() {
-    while (scheduleIndex < scheduleSendSpy.mock.calls.length) {
-      const scheduleMessageBody = scheduleSendSpy.mock.calls[scheduleIndex]?.[0]
-      scheduleIndex += 1
-      const result = await dispatchQueueMessage(
-        TEST_QUEUE_NAMES.scheduleComparisons,
-        scheduleMessageBody,
-      )
-      expect(result).toBeAcknowledged()
-    }
-  }
-
-  async function drainMaterialize() {
-    while (materializeIndex < materializeSendSpy.mock.calls.length) {
-      const materializeMessageBody = materializeSendSpy.mock.calls[materializeIndex]?.[0]
-      materializeIndex += 1
-      const result = await dispatchQueueMessage(
-        TEST_QUEUE_NAMES.materializeComparison,
-        materializeMessageBody,
-      )
-      expect(result).toBeAcknowledged()
-    }
-  }
-
-  async function processAll() {
-    await drainRefresh()
-    await drainNormalize()
-    await drainDerive()
-    await drainRefresh()
-    await drainSchedule()
-    await drainRefresh()
-    await drainMaterialize()
-    await drainRefresh()
-  }
-}
 
 async function getCommitGroupSummary(commitSha: string) {
   const row = await env.DB.prepare(
@@ -714,155 +621,4 @@ async function getPrReviewSummary(commitSha: string) {
         summary: JSON.parse(row.summary_json),
       }
     : null
-}
-
-async function sendUploadRequest(
-  envelope: ReturnType<typeof buildEnvelope>,
-  token: string = env.BUNDLE_UPLOAD_TOKEN,
-) {
-  const executionContext = createExecutionContext()
-  const worker = (exports as unknown as {
-    default: {
-      fetch: (request: Request, env: Cloudflare.Env, ctx: ExecutionContext) => Promise<Response>
-    }
-  }).default
-
-  const response = await worker.fetch(
-    new Request('https://bundle.test/api/v1/uploads/scenario-runs', {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${token}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(envelope),
-    }),
-    env,
-    executionContext,
-  )
-
-  await waitOnExecutionContext(executionContext)
-
-  return response
-}
-
-function buildEnvelope(overrides: Record<string, unknown> = {}) {
-  return {
-    schemaVersion: 1,
-    artifact: buildSimpleArtifact(),
-    repository: {
-      githubRepoId: 123,
-      owner: 'acme',
-      name: 'widget',
-      installationId: 456,
-    },
-    git: {
-      commitSha: baseSha,
-      branch: 'main',
-    },
-    scenarioSource: {
-      kind: 'fixture-app',
-    },
-    ci: buildCiContext('999'),
-    ...overrides,
-  }
-}
-
-function buildCiContext(workflowRunId: string) {
-  return {
-    provider: 'github-actions',
-    workflowRunId,
-    workflowRunAttempt: 1,
-    job: 'build',
-    actionVersion: 'v1',
-  }
-}
-
-function buildSimpleArtifact({
-  scenarioId = 'fixture-app-cost',
-  generatedAt = '2026-04-06T12:00:00.000Z',
-  chunkFileName = 'assets/main.js',
-  cssFileName = 'assets/main.css',
-  chunkSizes = size(123, 45, 38),
-  cssSizes = size(10, 8, 6),
-}: {
-  chunkFileName?: string
-  chunkSizes?: { brotli: number; gzip: number; raw: number }
-  cssFileName?: string
-  cssSizes?: { brotli: number; gzip: number; raw: number }
-  generatedAt?: string
-  scenarioId?: string
-} = {}) {
-  return {
-    schemaVersion: 1,
-    pluginVersion: '0.1.0',
-    generatedAt,
-    scenario: {
-      id: scenarioId,
-      kind: 'fixture-app',
-    },
-    build: {
-      bundler: 'vite',
-      bundlerVersion: '8.0.4',
-      rootDir: '/tmp/repo',
-    },
-    environments: [
-      {
-        name: 'default',
-        build: {
-          outDir: 'dist',
-        },
-        manifest: {
-          'src/main.ts': {
-            file: chunkFileName,
-            src: 'src/main.ts',
-            isEntry: true,
-            css: [cssFileName],
-          },
-        },
-        chunks: [
-          {
-            fileName: chunkFileName,
-            name: 'main',
-            isEntry: true,
-            isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: [],
-            dynamicImports: [],
-            implicitlyLoadedBefore: [],
-            importedCss: [cssFileName],
-            importedAssets: [],
-            modules: [
-              {
-                rawId: '/tmp/repo/src/main.ts',
-                renderedLength: chunkSizes.raw,
-                originalLength: 456,
-              },
-            ],
-            sizes: chunkSizes,
-          },
-        ],
-        assets: [
-          {
-            fileName: cssFileName,
-            names: ['main.css'],
-            needsCodeReference: false,
-            sizes: cssSizes,
-          },
-        ],
-        warnings: [],
-      },
-    ],
-  }
-}
-
-function size(raw: number, gzip: number, brotli: number) {
-  return { raw, gzip, brotli }
-}
-
-async function countRows(tableName: string) {
-  const result = await env.DB.prepare(`SELECT COUNT(*) AS count FROM ${tableName}`).first<{
-    count: number
-  }>()
-
-  return result?.count ?? 0
 }

@@ -23,8 +23,10 @@ import * as v from 'valibot'
 import { ulid } from 'ulid'
 
 import { getDb, schema } from './db/index.js'
+import { selectOne } from './db/select-one.js'
 import type { AppBindings } from './env.js'
 import { getAppLogger, type AppLogger } from './logger.js'
+import { formatIssues } from './shared/format-issues.js'
 
 type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
 type CommitGroupRow = typeof schema.commitGroups.$inferSelect
@@ -1343,15 +1345,6 @@ function percentageDelta(currentValue: number, baselineValue: number) {
   }
 
   return (currentValue - baselineValue) / baselineValue * 100
-}
-
-async function selectOne<T>(query: Promise<T[]>) {
-  const [row] = await query
-  return row ?? null
-}
-
-function formatIssues(issues: readonly { message: string }[]) {
-  return issues.map((issue) => issue.message).join('; ')
 }
 
 class TerminalRefreshSummariesError extends Error {

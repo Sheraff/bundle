@@ -8,8 +8,6 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [
-    ...tanstackStart(),
-    react(),
     cloudflareTest(async () => {
       const migrations = await readD1Migrations(path.join(import.meta.dirname, 'drizzle'))
 
@@ -26,6 +24,8 @@ export default defineConfig({
         },
       }
     }),
+    tanstackStart({ router: { addExtensions: '.js' } }),
+    react(),
   ],
   test: {
     globals: true,

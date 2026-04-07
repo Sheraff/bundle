@@ -16,9 +16,11 @@ import * as v from 'valibot'
 import { ulid } from 'ulid'
 
 import { getDb, schema } from './db/index.js'
+import { selectOne } from './db/select-one.js'
 import type { AppBindings } from './env.js'
 import { getAppLogger, type AppLogger } from './logger.js'
 import { enqueueRefreshSummaries } from './refresh-summaries.js'
+import { formatIssues } from './shared/format-issues.js'
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
 
@@ -511,15 +513,6 @@ async function enqueueScheduleComparisons(
   await env.SCHEDULE_COMPARISONS_QUEUE.send(scheduleComparisonsMessage, {
     contentType: 'json',
   })
-}
-
-function formatIssues(issues: readonly { message: string }[]) {
-  return issues.map((issue) => issue.message).join('; ')
-}
-
-async function selectOne<T>(query: Promise<T[]>) {
-  const [row] = await query
-  return row ?? null
 }
 
 function sortUnique<T>(values: Iterable<T>) {

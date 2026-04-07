@@ -26,9 +26,11 @@ import { eq } from 'drizzle-orm'
 import * as v from 'valibot'
 
 import { getDb, schema } from './db/index.js'
+import { selectOne } from './db/select-one.js'
 import type { AppBindings } from './env.js'
 import { getAppLogger, type AppLogger } from './logger.js'
 import { enqueueRefreshSummaries } from './refresh-summaries.js'
+import { formatIssues } from './shared/format-issues.js'
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
 
@@ -998,15 +1000,6 @@ async function markScenarioRunFailed(
       'normalize-failed',
     )
   }
-}
-
-function formatIssues(issues: readonly { message: string }[]) {
-  return issues.map((issue) => issue.message).join('; ')
-}
-
-async function selectOne<T>(query: Promise<T[]>) {
-  const [row] = await query
-  return row ?? null
 }
 
 class TerminalNormalizeError extends Error {

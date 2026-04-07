@@ -18,7 +18,9 @@ import { and, asc, desc, eq, isNull, sql } from 'drizzle-orm'
 import * as v from 'valibot'
 
 import { getDb, schema } from '../db/index.js'
+import { selectOne } from '../db/select-one.js'
 import type { AppBindings } from '../env.js'
+import { formatIssues } from '../shared/format-issues.js'
 
 interface RepositoryReference {
   id: string
@@ -912,17 +914,8 @@ function parseStoredJson<TSchema extends v.BaseSchema<unknown, unknown, v.BaseIs
   const result = v.safeParse(schemaToParse, parsedValue)
 
   if (!result.success) {
-    throw new Error(`${label} failed validation: ${formatValidationIssues(result.issues)}`)
+    throw new Error(`${label} failed validation: ${formatIssues(result.issues)}`)
   }
 
   return result.output
-}
-
-function formatValidationIssues(issues: readonly { message: string }[]) {
-  return issues.map((issue) => issue.message).join('; ')
-}
-
-async function selectOne<T>(query: Promise<T[]>) {
-  const [row] = await query
-  return row ?? null
 }

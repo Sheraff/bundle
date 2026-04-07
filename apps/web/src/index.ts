@@ -3,15 +3,10 @@ import startHandler from '@tanstack/react-start/server-entry'
 
 import { CommitGroupSettlementWorkflow } from './commit-group-settlement-workflow.js'
 import type { AppEnv } from './env.js'
-import { handleDeriveRunMessage } from './derive-runs.js'
 import { getAppLogger } from './logger.js'
-import { handleMaterializeComparisonMessage } from './materialize-comparison.js'
-import { handleNormalizeRunMessage } from './normalize-runs.js'
 import { PrPublishDebounceWorkflow } from './pr-publish-debounce-workflow.js'
-import { handlePublishGithubMessage } from './publish-github.js'
-import { handleRefreshSummariesMessage } from './refresh-summaries.js'
+import { dispatchMessage } from './queues/dispatch-message.js'
 import { registerUploadRoutes } from './api/uploads.js'
-import { handleScheduleComparisonsMessage } from './schedule-comparisons.js'
 
 const app = new Hono<AppEnv>()
 
@@ -54,42 +49,7 @@ export default {
     const logger = getAppLogger()
 
     for (const message of batch.messages) {
-      const body = message.body
-      const kind =
-        typeof body === 'object' && body !== null && 'kind' in body ? body.kind : null
-
-      if (kind === 'normalize-run') {
-        await handleNormalizeRunMessage(message, env, logger)
-        continue
-      }
-
-      if (kind === 'derive-run') {
-        await handleDeriveRunMessage(message, env, logger)
-        continue
-      }
-
-      if (kind === 'schedule-comparisons') {
-        await handleScheduleComparisonsMessage(message, env, logger)
-        continue
-      }
-
-      if (kind === 'materialize-comparison') {
-        await handleMaterializeComparisonMessage(message, env, logger)
-        continue
-      }
-
-      if (kind === 'refresh-summaries') {
-        await handleRefreshSummariesMessage(message, env, logger)
-        continue
-      }
-
-      if (kind === 'publish-github') {
-        await handlePublishGithubMessage(message, env, logger)
-        continue
-      }
-
-      logger.error('Dropping unknown queue message', body)
-      message.ack()
+      await dispatchMessage(message, env, logger)
     }
   },
 }

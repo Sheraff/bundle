@@ -10,6 +10,18 @@ import {
 import { describe, expect, it, vi } from 'vitest'
 import * as v from 'valibot'
 
+import {
+  buildArtifact,
+  buildCiContext,
+  type BuildEnvelopeOverrides,
+  buildEnvelope as buildBaseEnvelope,
+} from './support/builders.js'
+import { countRows } from './support/db-helpers.js'
+import {
+  sendRawRequest,
+  sendUploadRequest,
+} from './support/request-helpers.js'
+
 const sha = '0123456789abcdef0123456789abcdef01234567'
 
 describe('POST /api/v1/uploads/scenario-runs', () => {
@@ -614,148 +626,15 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
   })
 })
 
-async function sendUploadRequest(
-  envelope: ReturnType<typeof buildEnvelope>,
-  token: string = env.BUNDLE_UPLOAD_TOKEN,
-) {
-  return sendRawRequest(JSON.stringify(envelope), token)
-}
-
-async function sendRawRequest(
-  body: string,
-  token: string = env.BUNDLE_UPLOAD_TOKEN,
-) {
-  const executionContext = createExecutionContext()
-  const worker = (exports as unknown as {
-    default: {
-      fetch: (request: Request, env: Cloudflare.Env, ctx: ExecutionContext) => Promise<Response>
-    }
-  }).default
-
-  const response = await worker.fetch(
-    new Request('https://bundle.test/api/v1/uploads/scenario-runs', {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${token}`,
-        'content-type': 'application/json',
-      },
-      body,
-    }),
-    env,
-    executionContext,
-  )
-
-  await waitOnExecutionContext(executionContext)
-
-  return response
-}
-
-async function countRows(tableName: string) {
-  const result = await env.DB.prepare(`SELECT COUNT(*) AS count FROM ${tableName}`).first<{
-    count: number
-  }>()
-
-  return result?.count ?? 0
-}
-
-function buildArtifact(overrides: Record<string, unknown> = {}) {
-  return {
-    schemaVersion: 1,
-    pluginVersion: '0.1.0',
-    generatedAt: '2026-04-06T12:00:00.000Z',
-    scenario: {
-      id: 'fixture-app-cost',
-      kind: 'fixture-app',
-    },
-    build: {
-      bundler: 'vite',
-      bundlerVersion: '8.0.4',
-      rootDir: '/tmp/repo',
-    },
-    environments: [
-      {
-        name: 'default',
-        build: {
-          outDir: 'dist',
-        },
-        manifest: {
-          'src/main.ts': {
-            file: 'assets/main.js',
-            src: 'src/main.ts',
-            isEntry: true,
-          },
-        },
-        chunks: [
-          {
-            fileName: 'assets/main.js',
-            name: 'main',
-            isEntry: true,
-            isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: [],
-            dynamicImports: [],
-            implicitlyLoadedBefore: [],
-            importedCss: ['assets/main.css'],
-            importedAssets: [],
-            modules: [
-              {
-                rawId: '/tmp/repo/src/main.ts',
-                renderedLength: 123,
-                originalLength: 456,
-              },
-            ],
-            sizes: {
-              raw: 123,
-              gzip: 45,
-              brotli: 38,
-            },
-          },
-        ],
-        assets: [
-          {
-            fileName: 'assets/main.css',
-            names: ['main.css'],
-            needsCodeReference: false,
-            sizes: {
-              raw: 10,
-              gzip: 8,
-              brotli: 6,
-            },
-          },
-        ],
-        warnings: [],
-      },
-    ],
-    ...overrides,
-  }
-}
-
-function buildEnvelope(overrides: Record<string, unknown> = {}) {
-  return {
-    schemaVersion: 1,
-    artifact: buildArtifact(),
-    repository: {
-      githubRepoId: 123,
-      owner: 'acme',
-      name: 'widget',
-      installationId: 456,
-    },
+function buildEnvelope(overrides: BuildEnvelopeOverrides = {}) {
+  return buildBaseEnvelope({
     git: {
       commitSha: sha,
       branch: 'main',
     },
-    scenarioSource: {
-      kind: 'fixture-app',
-    },
-    ci: {
-      provider: 'github-actions',
-      workflowRunId: '999',
-      workflowRunAttempt: 2,
-      job: 'build',
-      actionVersion: 'v1',
-    },
+    ci: buildCiContext('999', { workflowRunAttempt: 2 }),
     ...overrides,
-  }
+  })
 }
 
 function buildReorderedEnvelopeBody(envelope: ReturnType<typeof buildEnvelope>) {

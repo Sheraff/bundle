@@ -1,14 +1,17 @@
-import {
-  createExecutionContext,
-  waitOnExecutionContext,
-} from 'cloudflare:test'
-import { env, exports } from 'cloudflare:workers'
+import { env } from 'cloudflare:workers'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
   dispatchQueueMessage,
   TEST_QUEUE_NAMES,
 } from './queue-test-helpers.js'
+import {
+  buildEnvelope,
+  buildSimpleArtifact,
+  size,
+} from './support/builders.js'
+import { countRows } from './support/db-helpers.js'
+import { sendUploadRequest } from './support/request-helpers.js'
 
 const sha = '0123456789abcdef0123456789abcdef01234567'
 const secondSha = '1111111111111111111111111111111111111111'
@@ -123,7 +126,7 @@ describe('derive-run queue handling', () => {
           job: 'build',
           actionVersion: 'v1',
         },
-        artifact: buildArtifact({
+        artifact: buildSimpleArtifact({
           generatedAt: '2026-04-06T12:10:00.000Z',
           chunkFileName: 'assets/main-NEW123.js',
           cssFileName: 'assets/main-NEW123.css',
@@ -159,7 +162,7 @@ describe('derive-run queue handling', () => {
     await processEnvelope(
       buildEnvelope({
         artifact: {
-          ...buildArtifact(),
+          ...buildSimpleArtifact(),
           environments: [
             {
               name: 'default',
@@ -352,157 +355,4 @@ async function processEnvelope(envelope: ReturnType<typeof buildEnvelope>) {
     normalizeMessageBody,
     deriveMessageBody,
   }
-}
-
-async function sendUploadRequest(
-  envelope: ReturnType<typeof buildEnvelope>,
-  token: string = env.BUNDLE_UPLOAD_TOKEN,
-) {
-  const executionContext = createExecutionContext()
-  const worker = (exports as unknown as {
-    default: {
-      fetch: (request: Request, env: Cloudflare.Env, ctx: ExecutionContext) => Promise<Response>
-    }
-  }).default
-
-  const response = await worker.fetch(
-    new Request('https://bundle.test/api/v1/uploads/scenario-runs', {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${token}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(envelope),
-    }),
-    env,
-    executionContext,
-  )
-
-  await waitOnExecutionContext(executionContext)
-
-  return response
-}
-
-async function countRows(tableName: string) {
-  const result = await env.DB.prepare(`SELECT COUNT(*) AS count FROM ${tableName}`).first<{
-    count: number
-  }>()
-
-  return result?.count ?? 0
-}
-
-function buildArtifact({
-  generatedAt = '2026-04-06T12:00:00.000Z',
-  chunkFileName = 'assets/main.js',
-  cssFileName = 'assets/main.css',
-  chunkSizes = {
-    raw: 123,
-    gzip: 45,
-    brotli: 38,
-  },
-  cssSizes = {
-    raw: 10,
-    gzip: 8,
-    brotli: 6,
-  },
-}: {
-  chunkFileName?: string
-  chunkSizes?: { brotli: number; gzip: number; raw: number }
-  cssFileName?: string
-  cssSizes?: { brotli: number; gzip: number; raw: number }
-  generatedAt?: string
-} = {}) {
-  return {
-    schemaVersion: 1,
-    pluginVersion: '0.1.0',
-    generatedAt,
-    scenario: {
-      id: 'fixture-app-cost',
-      kind: 'fixture-app',
-    },
-    build: {
-      bundler: 'vite',
-      bundlerVersion: '8.0.4',
-      rootDir: '/tmp/repo',
-    },
-    environments: [
-      {
-        name: 'default',
-        build: {
-          outDir: 'dist',
-        },
-        manifest: {
-          'src/main.ts': {
-            file: chunkFileName,
-            src: 'src/main.ts',
-            isEntry: true,
-            css: [cssFileName],
-          },
-        },
-        chunks: [
-          {
-            fileName: chunkFileName,
-            name: 'main',
-            isEntry: true,
-            isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: [],
-            dynamicImports: [],
-            implicitlyLoadedBefore: [],
-            importedCss: [cssFileName],
-            importedAssets: [],
-            modules: [
-              {
-                rawId: '/tmp/repo/src/main.ts',
-                renderedLength: chunkSizes.raw,
-                originalLength: 456,
-              },
-            ],
-            sizes: chunkSizes,
-          },
-        ],
-        assets: [
-          {
-            fileName: cssFileName,
-            names: ['main.css'],
-            needsCodeReference: false,
-            sizes: cssSizes,
-          },
-        ],
-        warnings: [],
-      },
-    ],
-  }
-}
-
-function buildEnvelope(overrides: Record<string, unknown> = {}) {
-  return {
-    schemaVersion: 1,
-    artifact: buildArtifact(),
-    repository: {
-      githubRepoId: 123,
-      owner: 'acme',
-      name: 'widget',
-      installationId: 456,
-    },
-    git: {
-      commitSha: sha,
-      branch: 'main',
-    },
-    scenarioSource: {
-      kind: 'fixture-app',
-    },
-    ci: {
-      provider: 'github-actions',
-      workflowRunId: '999',
-      workflowRunAttempt: 1,
-      job: 'build',
-      actionVersion: 'v1',
-    },
-    ...overrides,
-  }
-}
-
-function size(raw: number, gzip: number, brotli: number) {
-  return { raw, gzip, brotli }
 }

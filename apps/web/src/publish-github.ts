@@ -14,9 +14,12 @@ import { ulid } from 'ulid'
 import * as v from 'valibot'
 
 import { getDb, schema } from './db/index.js'
+import { selectOne } from './db/select-one.js'
 import type { AppBindings } from './env.js'
 import * as githubApi from './github-api.js'
 import { getAppLogger, type AppLogger } from './logger.js'
+import { formatIssues } from './shared/format-issues.js'
+import { sha256Hex } from './shared/sha256-hex.js'
 
 type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
 type GithubPublicationRow = typeof schema.githubPublications.$inferSelect
@@ -785,26 +788,12 @@ function formatCount(count: number, singular: string) {
   return `${count} ${singular}${count === 1 ? '' : 's'}`
 }
 
-async function sha256Hex(value: string) {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
-}
-
-async function selectOne<T>(query: Promise<T[]>) {
-  const [row] = await query
-  return row ?? null
-}
-
 function safeParseJson(text: string) {
   try {
     return JSON.parse(text) as unknown
   } catch {
     return null
   }
-}
-
-function formatIssues(issues: readonly { message: string }[]) {
-  return issues.map((issue) => issue.message).join('; ')
 }
 
 class TerminalPublishGithubError extends Error {
