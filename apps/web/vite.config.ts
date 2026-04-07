@@ -5,12 +5,8 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [
-    cloudflare({
-      viteEnvironment: {
-        name: 'ssr',
-      },
-    }),
-    ...tanstackStart({ router: { addExtensions: '.js' } }),
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
+    tanstackStart({ router: { addExtensions: '.js' } }),
     react(),
   ],
 })
