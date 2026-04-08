@@ -21,12 +21,8 @@
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
-      "css": [
-        "assets/renderPanel-BS-6-KwC.css"
-      ],
-      "assets": [
-        "assets/surface-wave-DKeiaxq_.svg"
-      ]
+      "css": ["assets/renderPanel-BS-6-KwC.css"],
+      "assets": ["assets/surface-wave-DKeiaxq_.svg"]
     },
     {
       "key": "_renderPanel-BS-6-KwC.css",
@@ -60,13 +56,8 @@
       "isEntry": true,
       "isDynamicEntry": false,
       "imports": [],
-      "dynamicImports": [
-        "src/routes/reports.js",
-        "src/routes/settings.js"
-      ],
-      "css": [
-        "assets/main-D1MEb7hZ.css"
-      ],
+      "dynamicImports": ["src/routes/reports.js", "src/routes/settings.js"],
+      "css": ["assets/main-D1MEb7hZ.css"],
       "assets": []
     },
     {
@@ -76,9 +67,7 @@
       "file": "assets/reports-15hq-EuG.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_renderPanel-BQ-_GR60.js"
-      ],
+      "imports": ["_renderPanel-BQ-_GR60.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -90,9 +79,7 @@
       "file": "assets/settings-eY2GmyMQ.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_renderPanel-BQ-_GR60.js"
-      ],
+      "imports": ["_renderPanel-BQ-_GR60.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -111,14 +98,9 @@
         "scope": "app"
       },
       "imports": [],
-      "dynamicImports": [
-        "assets/reports-15hq-EuG.js",
-        "assets/settings-eY2GmyMQ.js"
-      ],
+      "dynamicImports": ["assets/reports-15hq-EuG.js", "assets/settings-eY2GmyMQ.js"],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/main-D1MEb7hZ.css"
-      ],
+      "importedCss": ["assets/main-D1MEb7hZ.css"],
       "importedAssets": [],
       "modules": [
         {
@@ -142,17 +124,11 @@
           "stableId": "virtual:vite/preload-helper.js",
           "scope": "virtual",
           "renderedLength": 2104,
-          "renderedExports": [
-            "__vitePreload"
-          ],
+          "renderedExports": ["__vitePreload"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/main.js",
-        "src/styles/app.css",
-        "virtual:vite/preload-helper.js"
-      ],
+      "moduleIds": ["src/main.js", "src/styles/app.css", "virtual:vite/preload-helper.js"],
       "sizes": {
         "raw": 1745,
         "gzip": 932,
@@ -169,21 +145,15 @@
       "imports": [],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/renderPanel-BS-6-KwC.css"
-      ],
-      "importedAssets": [
-        "assets/surface-wave-DKeiaxq_.svg"
-      ],
+      "importedCss": ["assets/renderPanel-BS-6-KwC.css"],
+      "importedAssets": ["assets/surface-wave-DKeiaxq_.svg"],
       "modules": [
         {
           "rawId": "src/shared/renderPanel.js",
           "stableId": "src/shared/renderPanel.js",
           "scope": "app",
           "renderedLength": 329,
-          "renderedExports": [
-            "renderPanel"
-          ],
+          "renderedExports": ["renderPanel"],
           "removedExports": []
         },
         {
@@ -195,10 +165,7 @@
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/shared/renderPanel.js",
-        "src/styles/panel.css"
-      ],
+      "moduleIds": ["src/shared/renderPanel.js", "src/styles/panel.css"],
       "sizes": {
         "raw": 207,
         "gzip": 177,
@@ -216,9 +183,7 @@
         "stableId": "src/routes/reports.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/renderPanel-BQ-_GR60.js"
-      ],
+      "imports": ["assets/renderPanel-BQ-_GR60.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -229,15 +194,11 @@
           "stableId": "src/routes/reports.js",
           "scope": "app",
           "renderedLength": 155,
-          "renderedExports": [
-            "renderReports"
-          ],
+          "renderedExports": ["renderReports"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/routes/reports.js"
-      ],
+      "moduleIds": ["src/routes/reports.js"],
       "sizes": {
         "raw": 151,
         "gzip": 141,
@@ -255,9 +216,7 @@
         "stableId": "src/routes/settings.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/renderPanel-BQ-_GR60.js"
-      ],
+      "imports": ["assets/renderPanel-BQ-_GR60.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -268,15 +227,11 @@
           "stableId": "src/routes/settings.js",
           "scope": "app",
           "renderedLength": 159,
-          "renderedExports": [
-            "renderSettings"
-          ],
+          "renderedExports": ["renderSettings"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/routes/settings.js"
-      ],
+      "moduleIds": ["src/routes/settings.js"],
       "sizes": {
         "raw": 154,
         "gzip": 143,
@@ -288,12 +243,8 @@
     {
       "fileName": "assets/main-D1MEb7hZ.css",
       "kind": "css",
-      "names": [
-        "main.css"
-      ],
-      "originalFileNames": [
-        "src/main.js"
-      ],
+      "names": ["main.css"],
+      "originalFileNames": ["src/main.js"],
       "sourceLength": 208,
       "sizes": {
         "raw": 196,
@@ -304,9 +255,7 @@
     {
       "fileName": "assets/renderPanel-BS-6-KwC.css",
       "kind": "css",
-      "names": [
-        "renderPanel.css"
-      ],
+      "names": ["renderPanel.css"],
       "originalFileNames": [],
       "sourceLength": 245,
       "sizes": {
@@ -318,12 +267,8 @@
     {
       "fileName": "assets/surface-wave-DKeiaxq_.svg",
       "kind": "svg",
-      "names": [
-        "surface-wave.svg"
-      ],
-      "originalFileNames": [
-        "src/assets/surface-wave.svg"
-      ],
+      "names": ["surface-wave.svg"],
+      "originalFileNames": ["src/assets/surface-wave.svg"],
       "sourceLength": 259,
       "sizes": {
         "raw": 259,

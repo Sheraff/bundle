@@ -1,6 +1,13 @@
-import { DEFAULT_LENS_SLUG, type CommitGroupStatusScenarioSummaryV1, type CommitGroupSummaryV1, type FreshCommitGroupScenarioSummaryV1, type NeutralComparisonItemSummaryV1, type NeutralComparisonSeriesSummaryV1 } from '@workspace/contracts'
+import {
+  DEFAULT_LENS_SLUG,
+  type CommitGroupStatusScenarioSummaryV1,
+  type CommitGroupSummaryV1,
+  type FreshCommitGroupScenarioSummaryV1,
+  type NeutralComparisonItemSummaryV1,
+  type NeutralComparisonSeriesSummaryV1,
+} from "@workspace/contracts"
 
-import type { AppBindings } from '../../env.js'
+import type { AppBindings } from "../../env.js"
 
 import {
   listRepositoryBranches,
@@ -12,21 +19,21 @@ import {
   selectLatestImportantCompare,
   selectPrimaryNeutralItem,
   selectPrimaryNeutralSeries,
-} from './shared.server.js'
+} from "./shared.server.js"
 
 type RepositoryScenarioCatalogRow =
   | {
-      kind: 'fresh'
+      kind: "fresh"
       scenario: FreshCommitGroupScenarioSummaryV1
       primarySeries: NeutralComparisonSeriesSummaryV1 | null
       primaryItem: NeutralComparisonItemSummaryV1 | null
     }
   | {
-      kind: 'status'
+      kind: "status"
       scenario: CommitGroupStatusScenarioSummaryV1
     }
   | {
-      kind: 'known'
+      kind: "known"
       scenario: {
         id: string
         slug: string
@@ -58,7 +65,9 @@ export async function getRepositoryOverviewPageData(
     lens: resolvedLens,
     branchOptions,
     lensOptions,
-    trend: resolvedBranch ? await loadRepositoryTrend(env, repository.id, resolvedBranch, resolvedLens) : [],
+    trend: resolvedBranch
+      ? await loadRepositoryTrend(env, repository.id, resolvedBranch, resolvedLens)
+      : [],
     latestSummary,
     latestImportantCompare: latestSummary ? selectLatestImportantCompare(latestSummary) : null,
     scenarioCatalog: latestSummary
@@ -67,20 +76,22 @@ export async function getRepositoryOverviewPageData(
   }
 }
 
-function buildRepositoryScenarioCatalog(summary: CommitGroupSummaryV1): RepositoryScenarioCatalogRow[] {
+function buildRepositoryScenarioCatalog(
+  summary: CommitGroupSummaryV1,
+): RepositoryScenarioCatalogRow[] {
   return [
     ...summary.freshScenarioGroups.map((scenario) => {
       const primarySeries = selectPrimaryNeutralSeries(scenario.series)
 
       return {
-        kind: 'fresh' as const,
+        kind: "fresh" as const,
         scenario,
         primarySeries,
         primaryItem: selectPrimaryNeutralItem(primarySeries),
       }
     }),
     ...summary.statusScenarios.map((scenario) => ({
-      kind: 'status' as const,
+      kind: "status" as const,
       scenario,
     })),
   ]

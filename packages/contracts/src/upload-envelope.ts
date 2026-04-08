@@ -1,6 +1,6 @@
-import * as v from 'valibot'
+import * as v from "valibot"
 
-import { pluginArtifactV1Schema } from './plugin-artifact.js'
+import { pluginArtifactV1Schema } from "./plugin-artifact.js"
 import {
   SCENARIO_SOURCE_KINDS,
   gitShaSchema,
@@ -10,7 +10,7 @@ import {
   positiveIntegerSchema,
   schemaVersionV1Schema,
   ulidSchema,
-} from './shared.js'
+} from "./shared.js"
 
 export const repositoryContextSchema = v.strictObject({
   githubRepoId: positiveIntegerSchema,
@@ -51,7 +51,7 @@ export const syntheticDefinitionSchema = v.strictObject({
 })
 
 export const ciContextSchema = v.strictObject({
-  provider: v.literal('github-actions'),
+  provider: v.literal("github-actions"),
   workflowRunId: nonEmptyStringSchema,
   workflowRunAttempt: v.optional(positiveIntegerSchema),
   job: v.optional(nonEmptyStringSchema),
@@ -74,7 +74,7 @@ export const uploadScenarioRunEnvelopeV1Schema = v.union([
   }),
   v.strictObject({
     ...uploadEnvelopeBaseEntries,
-    scenarioSource: v.variant('kind', [
+    scenarioSource: v.variant("kind", [
       repoSyntheticScenarioSourceSchema,
       hostedSyntheticScenarioSourceSchema,
     ]),
@@ -82,15 +82,13 @@ export const uploadScenarioRunEnvelopeV1Schema = v.union([
   }),
 ])
 
-export const scenarioSourceSchema = v.variant('kind', [
+export const scenarioSourceSchema = v.variant("kind", [
   fixtureScenarioSourceSchema,
   repoSyntheticScenarioSourceSchema,
   hostedSyntheticScenarioSourceSchema,
 ])
 
-export type UploadScenarioRunEnvelopeV1 = v.InferOutput<
-  typeof uploadScenarioRunEnvelopeV1Schema
->
+export type UploadScenarioRunEnvelopeV1 = v.InferOutput<typeof uploadScenarioRunEnvelopeV1Schema>
 export type ScenarioSource = v.InferOutput<typeof scenarioSourceSchema>
 export type SyntheticDefinition = v.InferOutput<typeof syntheticDefinitionSchema>
 export type RepositoryContext = v.InferOutput<typeof repositoryContextSchema>

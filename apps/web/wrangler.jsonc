@@ -7,24 +7,24 @@
   "vars": {
     "BUNDLE_UPLOAD_TOKEN": "test-upload-token",
     "PUBLIC_APP_ORIGIN": "https://bundle.example.com",
-    "GITHUB_APP_ID": "1"
+    "GITHUB_APP_ID": "1",
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "bundle-web",
-      "database_id": "00000000-0000-0000-0000-000000000000"
-    }
+      "database_id": "00000000-0000-0000-0000-000000000000",
+    },
   ],
   "r2_buckets": [
     {
       "binding": "RAW_UPLOADS_BUCKET",
-      "bucket_name": "bundle-raw-uploads"
+      "bucket_name": "bundle-raw-uploads",
     },
     {
       "binding": "CACHE_BUCKET",
-      "bucket_name": "bundle-cache"
-    }
+      "bucket_name": "bundle-cache",
+    },
   ],
   "workflows": [
     {
@@ -36,66 +36,66 @@
       "name": "bundle-pr-publish-debounce",
       "binding": "PR_PUBLISH_DEBOUNCE_WORKFLOW",
       "class_name": "PrPublishDebounceWorkflow",
-    }
+    },
   ],
   "queues": {
     "producers": [
       {
         "binding": "NORMALIZE_RUN_QUEUE",
-        "queue": "bundle-normalize-run"
+        "queue": "bundle-normalize-run",
       },
       {
         "binding": "DERIVE_RUN_QUEUE",
-        "queue": "bundle-derive-run"
+        "queue": "bundle-derive-run",
       },
       {
         "binding": "SCHEDULE_COMPARISONS_QUEUE",
-        "queue": "bundle-schedule-comparisons"
+        "queue": "bundle-schedule-comparisons",
       },
       {
         "binding": "MATERIALIZE_COMPARISON_QUEUE",
-        "queue": "bundle-materialize-comparison"
+        "queue": "bundle-materialize-comparison",
       },
       {
         "binding": "REFRESH_SUMMARIES_QUEUE",
-        "queue": "bundle-refresh-summaries"
+        "queue": "bundle-refresh-summaries",
       },
       {
         "binding": "PUBLISH_GITHUB_QUEUE",
-        "queue": "bundle-publish-github"
-      }
+        "queue": "bundle-publish-github",
+      },
     ],
     "consumers": [
       {
         "queue": "bundle-normalize-run",
         "max_batch_size": 10,
-        "max_batch_timeout": 5
+        "max_batch_timeout": 5,
       },
       {
         "queue": "bundle-derive-run",
         "max_batch_size": 10,
-        "max_batch_timeout": 5
+        "max_batch_timeout": 5,
       },
       {
         "queue": "bundle-schedule-comparisons",
         "max_batch_size": 10,
-        "max_batch_timeout": 5
+        "max_batch_timeout": 5,
       },
       {
         "queue": "bundle-materialize-comparison",
         "max_batch_size": 10,
-        "max_batch_timeout": 5
+        "max_batch_timeout": 5,
       },
       {
         "queue": "bundle-refresh-summaries",
         "max_batch_size": 10,
-        "max_batch_timeout": 5
+        "max_batch_timeout": 5,
       },
       {
         "queue": "bundle-publish-github",
         "max_batch_size": 10,
-        "max_batch_timeout": 5
-      }
-    ]
-  }
+        "max_batch_timeout": 5,
+      },
+    ],
+  },
 }

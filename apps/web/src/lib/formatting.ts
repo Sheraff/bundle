@@ -1,11 +1,11 @@
 const byteFormatters = {
-  byte: createUnitFormatter('byte', {
+  byte: createUnitFormatter("byte", {
     maximumFractionDigits: 0,
   }),
-  kilobyte: createUnitFormatter('kilobyte', {
+  kilobyte: createUnitFormatter("kilobyte", {
     maximumFractionDigits: 1,
   }),
-  megabyte: createUnitFormatter('megabyte', {
+  megabyte: createUnitFormatter("megabyte", {
     maximumFractionDigits: 1,
   }),
 }
@@ -15,17 +15,17 @@ export function formatBytes(value: number) {
 }
 
 const signedByteFormatters = {
-  byte: createUnitFormatter('byte', {
+  byte: createUnitFormatter("byte", {
     maximumFractionDigits: 0,
-    signDisplay: 'always',
+    signDisplay: "always",
   }),
-  kilobyte: createUnitFormatter('kilobyte', {
+  kilobyte: createUnitFormatter("kilobyte", {
     maximumFractionDigits: 1,
-    signDisplay: 'always',
+    signDisplay: "always",
   }),
-  megabyte: createUnitFormatter('megabyte', {
+  megabyte: createUnitFormatter("megabyte", {
     maximumFractionDigits: 1,
-    signDisplay: 'always',
+    signDisplay: "always",
   }),
 }
 
@@ -36,7 +36,7 @@ export function formatSignedBytes(value: number) {
 const signedPercentFormatter = createPercentFormatter({
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
-  signDisplay: 'always',
+  signDisplay: "always",
 })
 
 export function formatSignedPercentage(value: number) {
@@ -70,14 +70,14 @@ function formatByteValue(
 }
 
 function createUnitFormatter(
-  unit: 'byte' | 'kilobyte' | 'megabyte',
+  unit: "byte" | "kilobyte" | "megabyte",
   options: Intl.NumberFormatOptions,
 ) {
   const formatter = new Intl.NumberFormat(undefined, {
     ...options,
-    style: 'unit',
+    style: "unit",
     unit,
-    unitDisplay: 'narrow',
+    unitDisplay: "narrow",
   })
 
   return (value: number) => formatter.format(value)
@@ -86,7 +86,7 @@ function createUnitFormatter(
 function createPercentFormatter(options: Intl.NumberFormatOptions) {
   const formatter = new Intl.NumberFormat(undefined, {
     ...options,
-    style: 'percent',
+    style: "percent",
   })
 
   return (value: number) => formatter.format(value)

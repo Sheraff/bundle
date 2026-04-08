@@ -4,7 +4,7 @@
   border-radius: 20px;
   background:
     linear-gradient(135deg, rgba(8, 15, 30, 0.95), rgba(15, 23, 42, 0.95)),
-    url('../assets/panel-stripe.svg');
+    url("../assets/panel-stripe.svg");
   background-size: cover;
 }
 

@@ -2,9 +2,9 @@ import type {
   CommitGroupStatusScenarioSummaryV1,
   ReviewedComparisonSeriesSummaryV1,
   ReviewSeriesState,
-} from '@workspace/contracts'
+} from "@workspace/contracts"
 
-import { formatBytes, formatSignedBytes, formatSignedPercentage, shortSha } from './formatting.js'
+import { formatBytes, formatSignedBytes, formatSignedPercentage, shortSha } from "./formatting.js"
 
 export function formatSeriesLabel(series: {
   environment: string
@@ -19,12 +19,12 @@ export function formatStateBadge(state: string) {
 }
 
 export function describeStatusScenarioDetail(scenario: CommitGroupStatusScenarioSummaryV1) {
-  if (scenario.state === 'missing') {
+  if (scenario.state === "missing") {
     return scenario.reason
   }
 
-  if (scenario.state === 'failed') {
-    return scenario.failureMessage ?? 'Scenario rerun failed.'
+  if (scenario.state === "failed") {
+    return scenario.failureMessage ?? "Scenario rerun failed."
   }
 
   return `Inherited from ${shortSha(scenario.sourceCommitSha)}`
@@ -50,19 +50,19 @@ export function describeNeutralDelta(
 ) {
   const detailed = options?.detailed ?? false
 
-  if (series.status === 'failed') {
-    return `${options?.failedPrefix ?? 'Failed'}: ${series.failureMessage ?? 'Comparison materialization failed.'}`
+  if (series.status === "failed") {
+    return `${options?.failedPrefix ?? "Failed"}: ${series.failureMessage ?? "Comparison materialization failed."}`
   }
 
-  if (series.status === 'no-baseline' || !series.baselineTotals) {
-    return options?.noBaselineText ?? 'No baseline'
+  if (series.status === "no-baseline" || !series.baselineTotals) {
+    return options?.noBaselineText ?? "No baseline"
   }
 
   if (!primaryItem) {
     const unchangedValue = formatBytes(series.currentTotals.brotli)
     return detailed
-      ? `${options?.unchangedPrefix ?? 'Brotli total unchanged at'} ${unchangedValue}.`
-      : `${options?.unchangedPrefix ?? 'Unchanged at'} ${unchangedValue}`
+      ? `${options?.unchangedPrefix ?? "Brotli total unchanged at"} ${unchangedValue}.`
+      : `${options?.unchangedPrefix ?? "Unchanged at"} ${unchangedValue}`
   }
 
   if (detailed) {
@@ -86,7 +86,7 @@ export function describeReviewedDelta(
   } | null,
 ) {
   const summary = describeNeutralDelta(series, primaryItem, {
-    noBaselineText: 'No baseline',
+    noBaselineText: "No baseline",
   })
 
   return primaryItem?.reviewState ? `${summary} ${primaryItem.reviewState}` : summary

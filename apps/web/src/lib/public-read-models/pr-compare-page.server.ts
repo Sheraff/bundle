@@ -1,6 +1,6 @@
-import type { ComparePageSearchParams } from '@workspace/contracts'
+import type { ComparePageSearchParams } from "@workspace/contracts"
 
-import type { AppBindings } from '../../env.js'
+import type { AppBindings } from "../../env.js"
 
 import {
   buildReviewedCompareRows,
@@ -8,7 +8,7 @@ import {
   loadPrReviewSummaryByPullRequestNumber,
   requireRepository,
   selectReviewedRow,
-} from './shared.server.js'
+} from "./shared.server.js"
 
 export async function getPullRequestComparePageData(
   env: AppBindings,
@@ -30,12 +30,13 @@ export async function getPullRequestComparePageData(
     : []
   const selectedReviewedRow = selectReviewedRow(reviewedRows, input.search)
   const contextMatched = latestReviewSummary
-    ? latestReviewSummary.baseSha === input.search.base && latestReviewSummary.headSha === input.search.head
+    ? latestReviewSummary.baseSha === input.search.base &&
+      latestReviewSummary.headSha === input.search.head
     : false
 
   return {
     repository,
-    mode: 'pr' as const,
+    mode: "pr" as const,
     contextMatched,
     latestSummary: null,
     latestReviewSummary,

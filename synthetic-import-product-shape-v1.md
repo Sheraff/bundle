@@ -58,7 +58,7 @@ The canonical saved definition should stay:
 Example:
 
 ```js
-export { Button } from '@acme/ui'
+export { Button } from "@acme/ui"
 ```
 
 This means:

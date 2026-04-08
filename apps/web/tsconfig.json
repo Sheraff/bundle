@@ -2,17 +2,13 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "WebWorker"
-    ],
+    "lib": ["ESNext", "DOM", "WebWorker"],
     "types": [
       "./worker-configuration.d.ts",
       "node",
       "@cloudflare/vitest-pool-workers/types",
       "vite/client"
-    ],
+    ]
   },
   "include": [
     "src/**/*",

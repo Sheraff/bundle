@@ -1,38 +1,29 @@
-import {
-  createExecutionContext,
-  waitOnExecutionContext,
-} from 'cloudflare:test'
-import { env, exports } from 'cloudflare:workers'
+import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test"
+import { env, exports } from "cloudflare:workers"
 import {
   normalizeRunQueueMessageSchema,
   uploadScenarioRunAcceptedResponseV1Schema,
-} from '@workspace/contracts'
-import { describe, expect, it, vi } from 'vitest'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import { describe, expect, it, vi } from "vitest"
+import * as v from "valibot"
 
 import {
   buildArtifact,
   buildCiContext,
   type BuildEnvelopeOverrides,
   buildEnvelope as buildBaseEnvelope,
-} from './support/builders.js'
-import { countRows } from './support/db-helpers.js'
-import {
-  sendRawRequest,
-  sendUploadRequest,
-} from './support/request-helpers.js'
+} from "./support/builders.js"
+import { countRows } from "./support/db-helpers.js"
+import { sendRawRequest, sendUploadRequest } from "./support/request-helpers.js"
 
-const sha = '0123456789abcdef0123456789abcdef01234567'
+const sha = "0123456789abcdef0123456789abcdef01234567"
 
-describe('POST /api/v1/uploads/scenario-runs', () => {
-  it('persists a fixture-app upload to D1 and R2 and enqueues normalization', async () => {
-    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
+describe("POST /api/v1/uploads/scenario-runs", () => {
+  it("persists a fixture-app upload to D1 and R2 and enqueues normalization", async () => {
+    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
     const response = await sendUploadRequest(buildEnvelope())
     const responseBody = await response.json()
-    const responseResult = v.safeParse(
-      uploadScenarioRunAcceptedResponseV1Schema,
-      responseBody,
-    )
+    const responseResult = v.safeParse(uploadScenarioRunAcceptedResponseV1Schema, responseBody)
 
     expect(response.status).toBe(202)
     expect(responseResult.success).toBe(true)
@@ -48,10 +39,10 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     expect((queuedMessage as Record<string, unknown>).scenarioRunId).toBe(
       responseResult.success ? responseResult.output.scenarioRunId : null,
     )
-    expect(queuedMessageOptions).toEqual({ contentType: 'json' })
+    expect(queuedMessageOptions).toEqual({ contentType: "json" })
 
     const scenarioRun = await env.DB.prepare(
-      'SELECT repository_id, commit_group_id, status, raw_artifact_r2_key, raw_envelope_r2_key FROM scenario_runs',
+      "SELECT repository_id, commit_group_id, status, raw_artifact_r2_key, raw_envelope_r2_key FROM scenario_runs",
     ).first<{
       commit_group_id: string
       raw_artifact_r2_key: string
@@ -67,33 +58,33 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     expect(scenarioRun?.commit_group_id).toBe(
       responseResult.success ? responseResult.output.commitGroupId : null,
     )
-    expect(scenarioRun?.status).toBe('queued')
+    expect(scenarioRun?.status).toBe("queued")
 
     const artifactObject = await env.RAW_UPLOADS_BUCKET.get(scenarioRun!.raw_artifact_r2_key)
     const envelopeObject = await env.RAW_UPLOADS_BUCKET.get(scenarioRun!.raw_envelope_r2_key)
 
-    expect(await artifactObject?.text()).toContain('fixture-app-cost')
+    expect(await artifactObject?.text()).toContain("fixture-app-cost")
     expect(await envelopeObject?.text()).toContain('"githubRepoId":123')
-    expect(artifactObject?.httpMetadata?.contentType).toBe('application/json')
-    expect(envelopeObject?.httpMetadata?.contentType).toBe('application/json')
-    expect(artifactObject?.customMetadata?.schemaVersion).toBe('1')
-    expect(envelopeObject?.customMetadata?.schemaVersion).toBe('1')
+    expect(artifactObject?.httpMetadata?.contentType).toBe("application/json")
+    expect(envelopeObject?.httpMetadata?.contentType).toBe("application/json")
+    expect(artifactObject?.customMetadata?.schemaVersion).toBe("1")
+    expect(envelopeObject?.customMetadata?.schemaVersion).toBe("1")
     expect(artifactObject?.customMetadata?.sha256).toMatch(/^[a-f0-9]{64}$/)
     expect(envelopeObject?.customMetadata?.sha256).toMatch(/^[a-f0-9]{64}$/)
   })
 
-  it('accepts repo-synthetic uploads and records the scenario source kind', async () => {
-    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
+  it("accepts repo-synthetic uploads and records the scenario source kind", async () => {
+    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
     const response = await sendUploadRequest(
       buildEnvelope({
         artifact: buildArtifact({
           scenario: {
-            id: 'button-cost',
-            kind: 'synthetic-import',
+            id: "button-cost",
+            kind: "synthetic-import",
           },
         }),
         scenarioSource: {
-          kind: 'repo-synthetic',
+          kind: "repo-synthetic",
         },
         syntheticDefinition: {
           source: "export { Button } from '@acme/ui'",
@@ -104,28 +95,26 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     expect(response.status).toBe(202)
     expect(sendSpy).toHaveBeenCalledTimes(1)
 
-    const scenario = await env.DB.prepare(
-      'SELECT slug, source_kind FROM scenarios LIMIT 1',
-    ).first<{
+    const scenario = await env.DB.prepare("SELECT slug, source_kind FROM scenarios LIMIT 1").first<{
       slug: string
       source_kind: string
     }>()
 
     expect(scenario).toEqual({
-      slug: 'button-cost',
-      source_kind: 'repo-synthetic',
+      slug: "button-cost",
+      source_kind: "repo-synthetic",
     })
   })
 
-  it('persists pull request metadata when the upload includes PR context', async () => {
+  it("persists pull request metadata when the upload includes PR context", async () => {
     const response = await sendUploadRequest(
       buildEnvelope({
         pullRequest: {
           number: 42,
-          baseSha: '1111111111111111111111111111111111111111',
-          baseRef: 'main',
+          baseSha: "1111111111111111111111111111111111111111",
+          baseRef: "main",
           headSha: sha,
-          headRef: 'feature/upload-ingest',
+          headRef: "feature/upload-ingest",
         },
       }),
     )
@@ -133,7 +122,7 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     expect(response.status).toBe(202)
 
     const pullRequest = await env.DB.prepare(
-      'SELECT pr_number, base_ref, head_ref FROM pull_requests LIMIT 1',
+      "SELECT pr_number, base_ref, head_ref FROM pull_requests LIMIT 1",
     ).first<{
       base_ref: string
       head_ref: string
@@ -141,7 +130,7 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     }>()
 
     const commitGroup = await env.DB.prepare(
-      'SELECT status, pull_request_id FROM commit_groups LIMIT 1',
+      "SELECT status, pull_request_id FROM commit_groups LIMIT 1",
     ).first<{
       pull_request_id: string | null
       status: string
@@ -149,32 +138,34 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
 
     expect(pullRequest).toEqual({
       pr_number: 42,
-      base_ref: 'main',
-      head_ref: 'feature/upload-ingest',
+      base_ref: "main",
+      head_ref: "feature/upload-ingest",
     })
-    expect(commitGroup?.status).toBe('pending')
+    expect(commitGroup?.status).toBe("pending")
     expect(commitGroup?.pull_request_id).toBeTruthy()
   })
 
-  it('rejects requests with an invalid bearer token', async () => {
-    const response = await sendUploadRequest(buildEnvelope(), 'wrong-token')
+  it("rejects requests with an invalid bearer token", async () => {
+    const response = await sendUploadRequest(buildEnvelope(), "wrong-token")
 
     expect(response.status).toBe(401)
-    expect(await countRows('scenario_runs')).toBe(0)
+    expect(await countRows("scenario_runs")).toBe(0)
   })
 
-  it('rejects requests that omit the authorization header', async () => {
+  it("rejects requests that omit the authorization header", async () => {
     const executionContext = createExecutionContext()
-    const worker = (exports as unknown as {
-      default: {
-        fetch: (request: Request, env: Cloudflare.Env, ctx: ExecutionContext) => Promise<Response>
+    const worker = (
+      exports as unknown as {
+        default: {
+          fetch: (request: Request, env: Cloudflare.Env, ctx: ExecutionContext) => Promise<Response>
+        }
       }
-    }).default
+    ).default
     const response = await worker.fetch(
-      new Request('https://bundle.test/api/v1/uploads/scenario-runs', {
-        method: 'POST',
+      new Request("https://bundle.test/api/v1/uploads/scenario-runs", {
+        method: "POST",
         headers: {
-          'content-type': 'application/json',
+          "content-type": "application/json",
         },
         body: JSON.stringify(buildEnvelope()),
       }),
@@ -185,10 +176,10 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     await waitOnExecutionContext(executionContext)
 
     expect(response.status).toBe(401)
-    expect(await countRows('scenario_runs')).toBe(0)
+    expect(await countRows("scenario_runs")).toBe(0)
   })
 
-  it('rejects requests with an invalid envelope body', async () => {
+  it("rejects requests with an invalid envelope body", async () => {
     const response = await sendRawRequest(
       JSON.stringify({
         schemaVersion: 1,
@@ -196,22 +187,22 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     )
 
     expect(response.status).toBe(400)
-    expect(await countRows('scenario_runs')).toBe(0)
+    expect(await countRows("scenario_runs")).toBe(0)
   })
 
-  it('rejects malformed JSON before schema validation', async () => {
+  it("rejects malformed JSON before schema validation", async () => {
     const response = await sendRawRequest('{"schemaVersion":1')
     const responseBody = (await response.json()) as {
       error?: { code?: string }
     }
 
     expect(response.status).toBe(400)
-    expect(responseBody.error?.code).toBe('invalid_json')
-    expect(await countRows('scenario_runs')).toBe(0)
+    expect(responseBody.error?.code).toBe("invalid_json")
+    expect(await countRows("scenario_runs")).toBe(0)
   })
 
-  it('reuses the same scenario run for an exact duplicate upload', async () => {
-    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
+  it("reuses the same scenario run for an exact duplicate upload", async () => {
+    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
     const firstResponse = await sendUploadRequest(buildEnvelope())
     const secondResponse = await sendUploadRequest(buildEnvelope())
     const firstBodyResult = v.safeParse(
@@ -231,14 +222,14 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
       secondBodyResult.success ? secondBodyResult.output.scenarioRunId : null,
     )
     expect(sendSpy).toHaveBeenCalledTimes(1)
-    expect(await countRows('scenario_runs')).toBe(1)
+    expect(await countRows("scenario_runs")).toBe(1)
   })
 
-  it('rolls back the scenario run when queue send fails so retries can enqueue again', async () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  it("rolls back the scenario run when queue send fails so retries can enqueue again", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
     const sendSpy = vi
-      .spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
-      .mockRejectedValueOnce(new Error('queue unavailable'))
+      .spyOn(env.NORMALIZE_RUN_QUEUE, "send")
+      .mockRejectedValueOnce(new Error("queue unavailable"))
 
     const firstResponse = await sendUploadRequest(buildEnvelope())
     const firstResponseBody = (await firstResponse.json()) as {
@@ -246,8 +237,8 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     }
 
     expect(firstResponse.status).toBe(503)
-    expect(firstResponseBody.error?.code).toBe('normalize_queue_unavailable')
-    expect(await countRows('scenario_runs')).toBe(0)
+    expect(firstResponseBody.error?.code).toBe("normalize_queue_unavailable")
+    expect(await countRows("scenario_runs")).toBe(0)
     expect(consoleErrorSpy).not.toHaveBeenCalled()
 
     const secondResponse = await sendUploadRequest(buildEnvelope())
@@ -259,18 +250,18 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     expect(secondResponse.status).toBe(202)
     expect(secondBodyResult.success).toBe(true)
     expect(sendSpy).toHaveBeenCalledTimes(2)
-    expect(await countRows('scenario_runs')).toBe(1)
+    expect(await countRows("scenario_runs")).toBe(1)
   })
 
-  it('stores distinct scenario runs under the same commit group for one commit sha', async () => {
-    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
+  it("stores distinct scenario runs under the same commit group for one commit sha", async () => {
+    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
     const firstResponse = await sendUploadRequest(buildEnvelope())
     const secondResponse = await sendUploadRequest(
       buildEnvelope({
         artifact: buildArtifact({
           scenario: {
-            id: 'fixture-app-graph',
-            kind: 'fixture-app',
+            id: "fixture-app-graph",
+            kind: "fixture-app",
           },
         }),
       }),
@@ -291,14 +282,14 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     expect(firstBodyResult.success && firstBodyResult.output.commitGroupId).toBe(
       secondBodyResult.success ? secondBodyResult.output.commitGroupId : null,
     )
-    expect(await countRows('commit_groups')).toBe(1)
-    expect(await countRows('scenario_runs')).toBe(2)
-    expect(await countRows('scenarios')).toBe(2)
+    expect(await countRows("commit_groups")).toBe(1)
+    expect(await countRows("scenario_runs")).toBe(2)
+    expect(await countRows("scenarios")).toBe(2)
     expect(sendSpy).toHaveBeenCalledTimes(2)
   })
 
-  it('dedupes semantically identical uploads even when raw JSON formatting differs', async () => {
-    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
+  it("dedupes semantically identical uploads even when raw JSON formatting differs", async () => {
+    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
     const envelope = buildEnvelope()
     const firstResponse = await sendRawRequest(JSON.stringify(envelope))
     const secondResponse = await sendRawRequest(buildReorderedEnvelopeBody(envelope))
@@ -319,55 +310,55 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
       secondBodyResult.success ? secondBodyResult.output.scenarioRunId : null,
     )
     expect(sendSpy).toHaveBeenCalledTimes(1)
-    expect(await countRows('scenario_runs')).toBe(1)
+    expect(await countRows("scenario_runs")).toBe(1)
   })
 
-  it('updates the repository row when the same github repo uploads refreshed metadata', async () => {
+  it("updates the repository row when the same github repo uploads refreshed metadata", async () => {
     await sendUploadRequest(buildEnvelope())
     await sendUploadRequest(
       buildEnvelope({
         repository: {
           githubRepoId: 123,
-          owner: 'acme-renamed',
-          name: 'widget-next',
+          owner: "acme-renamed",
+          name: "widget-next",
           installationId: 789,
         },
         git: {
-          commitSha: 'fedcba9876543210fedcba9876543210fedcba98',
-          branch: 'release',
+          commitSha: "fedcba9876543210fedcba9876543210fedcba98",
+          branch: "release",
         },
       }),
     )
 
     const repository = await env.DB.prepare(
-      'SELECT owner, name, installation_id FROM repositories LIMIT 1',
+      "SELECT owner, name, installation_id FROM repositories LIMIT 1",
     ).first<{
       installation_id: number
       name: string
       owner: string
     }>()
 
-    expect(await countRows('repositories')).toBe(1)
+    expect(await countRows("repositories")).toBe(1)
     expect(repository).toEqual({
-      owner: 'acme-renamed',
-      name: 'widget-next',
+      owner: "acme-renamed",
+      name: "widget-next",
       installation_id: 789,
     })
   })
 
-  it('updates pull request and commit-group rows when the same PR commit is re-uploaded', async () => {
+  it("updates pull request and commit-group rows when the same PR commit is re-uploaded", async () => {
     await sendUploadRequest(
       buildEnvelope({
         git: {
-          commitSha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          branch: 'feature/original',
+          commitSha: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          branch: "feature/original",
         },
         pullRequest: {
           number: 42,
-          baseSha: '1111111111111111111111111111111111111111',
-          baseRef: 'main',
-          headSha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          headRef: 'feature/original',
+          baseSha: "1111111111111111111111111111111111111111",
+          baseRef: "main",
+          headSha: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          headRef: "feature/original",
         },
       }),
     )
@@ -375,21 +366,21 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     await sendUploadRequest(
       buildEnvelope({
         git: {
-          commitSha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          branch: 'feature/renamed',
+          commitSha: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          branch: "feature/renamed",
         },
         pullRequest: {
           number: 42,
-          baseSha: '2222222222222222222222222222222222222222',
-          baseRef: 'release',
-          headSha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-          headRef: 'feature/renamed',
+          baseSha: "2222222222222222222222222222222222222222",
+          baseRef: "release",
+          headSha: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          headRef: "feature/renamed",
         },
       }),
     )
 
     const pullRequest = await env.DB.prepare(
-      'SELECT pr_number, base_sha, base_ref, head_sha, head_ref FROM pull_requests LIMIT 1',
+      "SELECT pr_number, base_sha, base_ref, head_sha, head_ref FROM pull_requests LIMIT 1",
     ).first<{
       base_ref: string
       base_sha: string
@@ -399,41 +390,41 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     }>()
 
     const commitGroup = await env.DB.prepare(
-      'SELECT branch, status, pull_request_id FROM commit_groups LIMIT 1',
+      "SELECT branch, status, pull_request_id FROM commit_groups LIMIT 1",
     ).first<{
       branch: string
       pull_request_id: string | null
       status: string
     }>()
 
-    expect(await countRows('pull_requests')).toBe(1)
-    expect(await countRows('commit_groups')).toBe(1)
-    expect(await countRows('scenario_runs')).toBe(2)
+    expect(await countRows("pull_requests")).toBe(1)
+    expect(await countRows("commit_groups")).toBe(1)
+    expect(await countRows("scenario_runs")).toBe(2)
     expect(pullRequest).toEqual({
       pr_number: 42,
-      base_sha: '2222222222222222222222222222222222222222',
-      base_ref: 'release',
-      head_sha: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      head_ref: 'feature/renamed',
+      base_sha: "2222222222222222222222222222222222222222",
+      base_ref: "release",
+      head_sha: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      head_ref: "feature/renamed",
     })
     expect(commitGroup).toEqual({
-      branch: 'feature/renamed',
-      status: 'pending',
+      branch: "feature/renamed",
+      status: "pending",
       pull_request_id: expect.any(String),
     })
   })
 
-  it('updates the scenario row when the same slug is re-uploaded with a new source kind', async () => {
+  it("updates the scenario row when the same slug is re-uploaded with a new source kind", async () => {
     await sendUploadRequest(
       buildEnvelope({
         artifact: buildArtifact({
           scenario: {
-            id: 'button-cost',
-            kind: 'synthetic-import',
+            id: "button-cost",
+            kind: "synthetic-import",
           },
         }),
         scenarioSource: {
-          kind: 'repo-synthetic',
+          kind: "repo-synthetic",
         },
         syntheticDefinition: {
           source: "export { Button } from '@acme/ui'",
@@ -445,62 +436,60 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
       buildEnvelope({
         artifact: buildArtifact({
           scenario: {
-            id: 'button-cost',
-            kind: 'synthetic-import',
+            id: "button-cost",
+            kind: "synthetic-import",
           },
         }),
         git: {
-          commitSha: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-          branch: 'main',
+          commitSha: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          branch: "main",
         },
         scenarioSource: {
-          kind: 'hosted-synthetic',
-          hostedScenarioId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+          kind: "hosted-synthetic",
+          hostedScenarioId: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
         },
         syntheticDefinition: {
-          displayName: 'Hosted button cost',
+          displayName: "Hosted button cost",
           source: "export { Button } from '@acme/ui/hosted'",
         },
       }),
     )
 
-    const scenario = await env.DB.prepare(
-      'SELECT slug, source_kind FROM scenarios LIMIT 1',
-    ).first<{
+    const scenario = await env.DB.prepare("SELECT slug, source_kind FROM scenarios LIMIT 1").first<{
       slug: string
       source_kind: string
     }>()
 
-    expect(await countRows('scenarios')).toBe(1)
-    expect(await countRows('scenario_runs')).toBe(2)
+    expect(await countRows("scenarios")).toBe(1)
+    expect(await countRows("scenario_runs")).toBe(2)
     expect(scenario).toEqual({
-      slug: 'button-cost',
-      source_kind: 'hosted-synthetic',
+      slug: "button-cost",
+      source_kind: "hosted-synthetic",
     })
   })
 
-  it('accepts hosted-synthetic uploads and stores the source kind on the scenario run', async () => {
+  it("accepts hosted-synthetic uploads and stores the source kind on the scenario run", async () => {
     const response = await sendUploadRequest(
       buildEnvelope({
         artifact: buildArtifact({
           scenario: {
-            id: 'hosted-button-cost',
-            kind: 'synthetic-import',
+            id: "hosted-button-cost",
+            kind: "synthetic-import",
           },
         }),
         scenarioSource: {
-          kind: 'hosted-synthetic',
-          hostedScenarioId: '01ARZ3NDEKTSV4RRFFQ69G5FAW',
+          kind: "hosted-synthetic",
+          hostedScenarioId: "01ARZ3NDEKTSV4RRFFQ69G5FAW",
         },
         syntheticDefinition: {
-          displayName: 'Hosted button cost',
+          displayName: "Hosted button cost",
           source: "export { Button } from '@acme/ui/hosted'",
         },
       }),
     )
 
     const scenarioRun = await env.DB.prepare(
-      'SELECT scenario_source_kind, artifact_scenario_kind FROM scenario_runs LIMIT 1',
+      "SELECT scenario_source_kind, artifact_scenario_kind FROM scenario_runs LIMIT 1",
     ).first<{
       artifact_scenario_kind: string
       scenario_source_kind: string
@@ -508,21 +497,21 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
 
     expect(response.status).toBe(202)
     expect(scenarioRun).toEqual({
-      scenario_source_kind: 'hosted-synthetic',
-      artifact_scenario_kind: 'synthetic-import',
+      scenario_source_kind: "hosted-synthetic",
+      artifact_scenario_kind: "synthetic-import",
     })
   })
 
-  it('cleans up raw uploads and returns a handled error when the second R2 write fails', async () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  it("cleans up raw uploads and returns a handled error when the second R2 write fails", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
     const originalPut = env.RAW_UPLOADS_BUCKET.put.bind(env.RAW_UPLOADS_BUCKET)
     let putCallCount = 0
 
-    vi.spyOn(env.RAW_UPLOADS_BUCKET, 'put').mockImplementation(async (...args) => {
+    vi.spyOn(env.RAW_UPLOADS_BUCKET, "put").mockImplementation(async (...args) => {
       putCallCount += 1
 
       if (putCallCount === 2) {
-        throw new Error('r2 unavailable')
+        throw new Error("r2 unavailable")
       }
 
       return originalPut(...args)
@@ -535,22 +524,22 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     const listedObjects = await env.RAW_UPLOADS_BUCKET.list()
 
     expect(response.status).toBe(503)
-    expect(responseBody.error?.code).toBe('raw_upload_storage_unavailable')
-    expect(await countRows('scenario_runs')).toBe(0)
+    expect(responseBody.error?.code).toBe("raw_upload_storage_unavailable")
+    expect(await countRows("scenario_runs")).toBe(0)
     expect(listedObjects.objects).toHaveLength(0)
     expect(consoleErrorSpy).not.toHaveBeenCalled()
   })
 
-  it('cleans up raw uploads and returns a handled error when D1 fails after raw persistence', async () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  it("cleans up raw uploads and returns a handled error when D1 fails after raw persistence", async () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
     const originalPrepare = env.DB.prepare.bind(env.DB)
     let prepareCallCount = 0
 
-    const prepareSpy = vi.spyOn(env.DB, 'prepare').mockImplementation((query) => {
+    const prepareSpy = vi.spyOn(env.DB, "prepare").mockImplementation((query) => {
       prepareCallCount += 1
 
-      if (prepareCallCount > 1 && typeof query === 'string') {
-        throw new Error('d1 unavailable')
+      if (prepareCallCount > 1 && typeof query === "string") {
+        throw new Error("d1 unavailable")
       }
 
       return originalPrepare(query)
@@ -566,14 +555,14 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     const listedObjects = await env.RAW_UPLOADS_BUCKET.list()
 
     expect(response.status).toBe(503)
-    expect(responseBody.error?.code).toBe('upload_persistence_failed')
-    expect(await countRows('scenario_runs')).toBe(0)
+    expect(responseBody.error?.code).toBe("upload_persistence_failed")
+    expect(await countRows("scenario_runs")).toBe(0)
     expect(listedObjects.objects).toHaveLength(0)
     expect(consoleErrorSpy).not.toHaveBeenCalled()
   })
 
-  it('reuses one scenario run and does not leak extra raw objects under a concurrent duplicate upload race', async () => {
-    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
+  it("reuses one scenario run and does not leak extra raw objects under a concurrent duplicate upload race", async () => {
+    const sendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
     const originalPut = env.RAW_UPLOADS_BUCKET.put.bind(env.RAW_UPLOADS_BUCKET)
     let artifactPutCount = 0
     let releaseArtifactGate: (() => void) | null = null
@@ -581,10 +570,10 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
       releaseArtifactGate = resolve
     })
 
-    vi.spyOn(env.RAW_UPLOADS_BUCKET, 'put').mockImplementation(async (...args) => {
+    vi.spyOn(env.RAW_UPLOADS_BUCKET, "put").mockImplementation(async (...args) => {
       const key = args[0]
 
-      if (typeof key === 'string' && key.endsWith('/artifact.json')) {
+      if (typeof key === "string" && key.endsWith("/artifact.json")) {
         artifactPutCount += 1
 
         if (artifactPutCount === 1) {
@@ -620,7 +609,7 @@ describe('POST /api/v1/uploads/scenario-runs', () => {
     expect(firstBodyResult.success && firstBodyResult.output.scenarioRunId).toBe(
       secondBodyResult.success ? secondBodyResult.output.scenarioRunId : null,
     )
-    expect(await countRows('scenario_runs')).toBe(1)
+    expect(await countRows("scenario_runs")).toBe(1)
     expect(sendSpy).toHaveBeenCalledTimes(1)
     expect(listedObjects.objects).toHaveLength(2)
   })
@@ -630,9 +619,9 @@ function buildEnvelope(overrides: BuildEnvelopeOverrides = {}) {
   return buildBaseEnvelope({
     git: {
       commitSha: sha,
-      branch: 'main',
+      branch: "main",
     },
-    ci: buildCiContext('999', { workflowRunAttempt: 2 }),
+    ci: buildCiContext("999", { workflowRunAttempt: 2 }),
     ...overrides,
   })
 }

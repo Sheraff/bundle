@@ -4,7 +4,7 @@
   border: 1px solid rgba(148, 163, 184, 0.22);
   background:
     linear-gradient(135deg, rgba(7, 24, 39, 0.94), rgba(15, 23, 42, 0.9)),
-    url('../assets/grid-pattern.svg');
+    url("../assets/grid-pattern.svg");
   background-size: cover;
 }
 

@@ -44,10 +44,7 @@
       "isEntry": true,
       "isDynamicEntry": false,
       "imports": [],
-      "dynamicImports": [
-        "src/routes/alpha.js",
-        "src/routes/beta.js"
-      ],
+      "dynamicImports": ["src/routes/alpha.js", "src/routes/beta.js"],
       "css": [],
       "assets": []
     },
@@ -58,10 +55,7 @@
       "file": "assets/alpha-y_KqONDY.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_bridge-left-BcA5Z4Bz.js",
-        "_bridge-right-DZeBEV0g.js"
-      ],
+      "imports": ["_bridge-left-BcA5Z4Bz.js", "_bridge-right-DZeBEV0g.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -73,10 +67,7 @@
       "file": "assets/beta-BLaHuIAF.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_bridge-left-BcA5Z4Bz.js",
-        "_bridge-right-DZeBEV0g.js"
-      ],
+      "imports": ["_bridge-left-BcA5Z4Bz.js", "_bridge-right-DZeBEV0g.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -94,10 +85,7 @@
         "stableId": "src/routes/alpha.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/bridge-left-BcA5Z4Bz.js",
-        "assets/bridge-right-DZeBEV0g.js"
-      ],
+      "imports": ["assets/bridge-left-BcA5Z4Bz.js", "assets/bridge-right-DZeBEV0g.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -108,15 +96,11 @@
           "stableId": "src/routes/alpha.js",
           "scope": "app",
           "renderedLength": 435,
-          "renderedExports": [
-            "renderAlpha"
-          ],
+          "renderedExports": ["renderAlpha"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/routes/alpha.js"
-      ],
+      "moduleIds": ["src/routes/alpha.js"],
       "sizes": {
         "raw": 384,
         "gzip": 250,
@@ -134,10 +118,7 @@
         "stableId": "src/routes/beta.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/bridge-left-BcA5Z4Bz.js",
-        "assets/bridge-right-DZeBEV0g.js"
-      ],
+      "imports": ["assets/bridge-left-BcA5Z4Bz.js", "assets/bridge-right-DZeBEV0g.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -148,15 +129,11 @@
           "stableId": "src/routes/beta.js",
           "scope": "app",
           "renderedLength": 430,
-          "renderedExports": [
-            "renderBeta"
-          ],
+          "renderedExports": ["renderBeta"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/routes/beta.js"
-      ],
+      "moduleIds": ["src/routes/beta.js"],
       "sizes": {
         "raw": 380,
         "gzip": 248,
@@ -181,9 +158,7 @@
           "stableId": "src/shared/fetchBudget.js",
           "scope": "app",
           "renderedLength": 156,
-          "renderedExports": [
-            "fetchBudget"
-          ],
+          "renderedExports": ["fetchBudget"],
           "removedExports": []
         },
         {
@@ -191,9 +166,7 @@
           "stableId": "src/shared/renderBadge.js",
           "scope": "app",
           "renderedLength": 152,
-          "renderedExports": [
-            "renderBadge"
-          ],
+          "renderedExports": ["renderBadge"],
           "removedExports": []
         },
         {
@@ -201,9 +174,7 @@
           "stableId": "src/shared/summarizeVariance.js",
           "scope": "app",
           "renderedLength": 159,
-          "renderedExports": [
-            "summarizeVariance"
-          ],
+          "renderedExports": ["summarizeVariance"],
           "removedExports": []
         }
       ],
@@ -236,9 +207,7 @@
           "stableId": "src/shared/formatWave.js",
           "scope": "app",
           "renderedLength": 108,
-          "renderedExports": [
-            "formatWave"
-          ],
+          "renderedExports": ["formatWave"],
           "removedExports": []
         },
         {
@@ -246,9 +215,7 @@
           "stableId": "src/shared/renderCells.js",
           "scope": "app",
           "renderedLength": 137,
-          "renderedExports": [
-            "renderCells"
-          ],
+          "renderedExports": ["renderCells"],
           "removedExports": []
         },
         {
@@ -256,9 +223,7 @@
           "stableId": "src/shared/renderSpark.js",
           "scope": "app",
           "renderedLength": 152,
-          "renderedExports": [
-            "renderSpark"
-          ],
+          "renderedExports": ["renderSpark"],
           "removedExports": []
         }
       ],
@@ -285,10 +250,7 @@
         "scope": "app"
       },
       "imports": [],
-      "dynamicImports": [
-        "assets/alpha-y_KqONDY.js",
-        "assets/beta-BLaHuIAF.js"
-      ],
+      "dynamicImports": ["assets/alpha-y_KqONDY.js", "assets/beta-BLaHuIAF.js"],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
       "importedAssets": [],
@@ -306,16 +268,11 @@
           "stableId": "virtual:vite/preload-helper.js",
           "scope": "virtual",
           "renderedLength": 2104,
-          "renderedExports": [
-            "__vitePreload"
-          ],
+          "renderedExports": ["__vitePreload"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/main.js",
-        "virtual:vite/preload-helper.js"
-      ],
+      "moduleIds": ["src/main.js", "virtual:vite/preload-helper.js"],
       "sizes": {
         "raw": 1688,
         "gzip": 905,

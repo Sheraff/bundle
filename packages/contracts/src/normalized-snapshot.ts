@@ -1,6 +1,6 @@
-import * as v from 'valibot'
+import * as v from "valibot"
 
-import { fileSizesV1Schema } from './plugin-artifact.js'
+import { fileSizesV1Schema } from "./plugin-artifact.js"
 import {
   ciContextSchema,
   gitContextSchema,
@@ -8,7 +8,7 @@ import {
   repositoryContextSchema,
   scenarioSourceSchema,
   syntheticDefinitionSchema,
-} from './upload-envelope.js'
+} from "./upload-envelope.js"
 import {
   PLUGIN_SCENARIO_KINDS,
   isoTimestampSchema,
@@ -19,12 +19,12 @@ import {
   scenarioSlugSchema,
   schemaVersionV1Schema,
   ulidSchema,
-} from './shared.js'
+} from "./shared.js"
 
-const NORMALIZED_MODULE_SCOPES = ['app', 'package', 'virtual', 'other'] as const
-const ENTRYPOINT_KINDS = ['entry', 'dynamic-entry'] as const
-const CHUNK_GRAPH_EDGE_KINDS = ['static-import', 'dynamic-import'] as const
-const ASSET_RELATION_KINDS = ['css', 'asset'] as const
+const NORMALIZED_MODULE_SCOPES = ["app", "package", "virtual", "other"] as const
+const ENTRYPOINT_KINDS = ["entry", "dynamic-entry"] as const
+const CHUNK_GRAPH_EDGE_KINDS = ["static-import", "dynamic-import"] as const
+const ASSET_RELATION_KINDS = ["css", "asset"] as const
 
 export const normalizedModuleReferenceV1Schema = v.strictObject({
   rawId: nonEmptyStringSchema,
@@ -120,7 +120,7 @@ export const normalizedEnvironmentSnapshotV1Schema = v.strictObject({
     v.check((entrypoints) => {
       const keys = entrypoints.map((entrypoint) => entrypoint.key)
       return new Set(keys).size === keys.length
-    }, 'Entrypoint keys must be unique within one environment'),
+    }, "Entrypoint keys must be unique within one environment"),
   ),
   chunks: v.pipe(v.array(normalizedChunkV1Schema), v.nonEmpty()),
   assets: v.array(normalizedAssetV1Schema),
@@ -156,7 +156,7 @@ export const normalizedSnapshotV1Schema = v.strictObject({
   pullRequest: v.optional(pullRequestContextSchema),
   ci: ciContextSchema,
   build: v.strictObject({
-    bundler: v.literal('vite'),
+    bundler: v.literal("vite"),
     bundlerVersion: nonEmptyStringSchema,
     pluginVersion: nonEmptyStringSchema,
     generatedAt: isoTimestampSchema,
@@ -169,31 +169,21 @@ export const normalizedSnapshotV1Schema = v.strictObject({
     v.check((environments) => {
       const names = environments.map((environment) => environment.name)
       return new Set(names).size === names.length
-    }, 'Environment names must be unique within one normalized snapshot'),
+    }, "Environment names must be unique within one normalized snapshot"),
   ),
 })
 
-export type NormalizedModuleReferenceV1 = v.InferOutput<
-  typeof normalizedModuleReferenceV1Schema
->
+export type NormalizedModuleReferenceV1 = v.InferOutput<typeof normalizedModuleReferenceV1Schema>
 export type NormalizedModuleV1 = v.InferOutput<typeof normalizedModuleV1Schema>
-export type NormalizedSnapshotWarningV1 = v.InferOutput<
-  typeof normalizedSnapshotWarningV1Schema
->
+export type NormalizedSnapshotWarningV1 = v.InferOutput<typeof normalizedSnapshotWarningV1Schema>
 export type NormalizedEntrypointV1 = v.InferOutput<typeof normalizedEntrypointV1Schema>
 export type NormalizedChunkV1 = v.InferOutput<typeof normalizedChunkV1Schema>
 export type NormalizedAssetV1 = v.InferOutput<typeof normalizedAssetV1Schema>
 export type NormalizedPackageV1 = v.InferOutput<typeof normalizedPackageV1Schema>
-export type NormalizedChunkGraphEdgeV1 = v.InferOutput<
-  typeof normalizedChunkGraphEdgeV1Schema
->
-export type NormalizedAssetRelationV1 = v.InferOutput<
-  typeof normalizedAssetRelationV1Schema
->
+export type NormalizedChunkGraphEdgeV1 = v.InferOutput<typeof normalizedChunkGraphEdgeV1Schema>
+export type NormalizedAssetRelationV1 = v.InferOutput<typeof normalizedAssetRelationV1Schema>
 export type NormalizedEnvironmentSnapshotV1 = v.InferOutput<
   typeof normalizedEnvironmentSnapshotV1Schema
 >
-export type NormalizedSnapshotSourceV1 = v.InferOutput<
-  typeof normalizedSnapshotSourceV1Schema
->
+export type NormalizedSnapshotSourceV1 = v.InferOutput<typeof normalizedSnapshotSourceV1Schema>
 export type NormalizedSnapshotV1 = v.InferOutput<typeof normalizedSnapshotV1Schema>

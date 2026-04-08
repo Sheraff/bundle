@@ -1,9 +1,9 @@
-import { and, asc, desc, eq, inArray, ne } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, ne } from "drizzle-orm"
 
-import { schema } from '../db/index.js'
-import { selectOne } from '../db/select-one.js'
+import { schema } from "../db/index.js"
+import { selectOne } from "../db/select-one.js"
 
-import type { DbClient, SummaryComparisonKind } from './types.js'
+import type { DbClient, SummaryComparisonKind } from "./types.js"
 
 export async function loadActiveSeriesComparisons(
   db: DbClient,
@@ -80,7 +80,7 @@ export async function findInheritedScenarioSource(
         and(
           eq(schema.scenarioRuns.repositoryId, repositoryId),
           eq(schema.scenarioRuns.scenarioId, scenarioId),
-          eq(schema.scenarioRuns.status, 'processed'),
+          eq(schema.scenarioRuns.status, "processed"),
           ne(schema.scenarioRuns.commitGroupId, excludedCommitGroupId),
         ),
       )

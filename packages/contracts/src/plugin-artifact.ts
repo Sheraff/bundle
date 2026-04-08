@@ -1,4 +1,4 @@
-import * as v from 'valibot'
+import * as v from "valibot"
 
 import {
   PLUGIN_SCENARIO_KINDS,
@@ -8,7 +8,7 @@ import {
   nonNegativeIntegerSchema,
   scenarioSlugSchema,
   schemaVersionV1Schema,
-} from './shared.js'
+} from "./shared.js"
 
 export const fileSizesV1Schema = v.strictObject({
   raw: nonNegativeIntegerSchema,
@@ -74,7 +74,7 @@ export const environmentArtifactV1Schema = v.strictObject({
     v.record(nonEmptyStringSchema, viteManifestEntrySchema),
     v.check(
       (manifest) => Object.keys(manifest).length > 0,
-      'Each environment must include a non-empty manifest',
+      "Each environment must include a non-empty manifest",
     ),
   ),
   chunks: v.array(chunkArtifactV1Schema),
@@ -91,7 +91,7 @@ export const pluginArtifactV1Schema = v.strictObject({
     kind: v.union(PLUGIN_SCENARIO_KINDS.map((kind) => v.literal(kind))),
   }),
   build: v.strictObject({
-    bundler: v.literal('vite'),
+    bundler: v.literal("vite"),
     bundlerVersion: nonEmptyStringSchema,
     rootDir: nonEmptyStringSchema,
   }),
@@ -101,7 +101,7 @@ export const pluginArtifactV1Schema = v.strictObject({
     v.check((environments) => {
       const names = environments.map((environment) => environment.name)
       return new Set(names).size === names.length
-    }, 'Environment names must be unique within one artifact'),
+    }, "Environment names must be unique within one artifact"),
   ),
 })
 

@@ -1,15 +1,18 @@
-import { eq } from 'drizzle-orm'
+import { eq } from "drizzle-orm"
 
-import { getDb, schema } from '../db/index.js'
-import { selectOne } from '../db/select-one.js'
-import type { AppBindings } from '../env.js'
+import { getDb, schema } from "../db/index.js"
+import { selectOne } from "../db/select-one.js"
+import type { AppBindings } from "../env.js"
 
-import { buildCommitGroupSummary } from './commit-group-summary-builder.js'
-import { upsertCommitGroupSummary, upsertPrReviewSummary } from './persist-summary.js'
-import { buildPrReviewSummary } from './pr-review-summary-builder.js'
-import { scheduleCommitGroupSettlementWorkflow, schedulePrPublishDebounceWorkflow } from './workflow-orchestration.js'
+import { buildCommitGroupSummary } from "./commit-group-summary-builder.js"
+import { upsertCommitGroupSummary, upsertPrReviewSummary } from "./persist-summary.js"
+import { buildPrReviewSummary } from "./pr-review-summary-builder.js"
+import {
+  scheduleCommitGroupSettlementWorkflow,
+  schedulePrPublishDebounceWorkflow,
+} from "./workflow-orchestration.js"
 
-import type { RefreshSummariesQueueMessage } from '@workspace/contracts'
+import type { RefreshSummariesQueueMessage } from "@workspace/contracts"
 
 export async function refreshSummariesForCommitGroup(
   env: AppBindings,
@@ -25,7 +28,9 @@ export async function refreshSummariesForCommitGroup(
   )
 
   if (!commitGroup) {
-    throw new TerminalRefreshSummariesError(`Commit group ${message.commitGroupId} no longer exists.`)
+    throw new TerminalRefreshSummariesError(
+      `Commit group ${message.commitGroupId} no longer exists.`,
+    )
   }
 
   if (commitGroup.repositoryId !== message.repositoryId) {
@@ -76,7 +81,9 @@ export async function refreshSummariesForCommitGroup(
   }
 
   if (!pullRequest) {
-    await db.delete(schema.prReviewSummaries).where(eq(schema.prReviewSummaries.commitGroupId, commitGroup.id))
+    await db
+      .delete(schema.prReviewSummaries)
+      .where(eq(schema.prReviewSummaries.commitGroupId, commitGroup.id))
     return
   }
 
@@ -88,6 +95,6 @@ export async function refreshSummariesForCommitGroup(
 export class TerminalRefreshSummariesError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'TerminalRefreshSummariesError'
+    this.name = "TerminalRefreshSummariesError"
   }
 }

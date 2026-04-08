@@ -6,18 +6,16 @@ import {
   positiveIntegerSchema,
   publicRepositoryRouteParamsSchema,
   scenarioSlugSchema,
-} from '@workspace/contracts'
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import { Link, createFileRoute } from "@tanstack/react-router"
+import { createServerFn } from "@tanstack/react-start"
+import * as v from "valibot"
 
 import {
   getNeutralComparePageData,
   getPullRequestComparePageData,
-} from '../lib/public-read-models.server.js'
-import {
-  shortSha,
-} from '../lib/formatting.js'
+} from "../lib/public-read-models.server.js"
+import { shortSha } from "../lib/formatting.js"
 import {
   describeNeutralDelta,
   describeReviewedDelta,
@@ -25,7 +23,7 @@ import {
   describeScenarioReviewState,
   describeStatusScenarioDetail,
   formatSeriesLabel,
-} from '../lib/public-route-presentation.js'
+} from "../lib/public-route-presentation.js"
 
 const comparePageSearchSchema = v.strictObject({
   base: gitShaSchema,
@@ -38,11 +36,13 @@ const comparePageSearchSchema = v.strictObject({
   tab: v.optional(nonEmptyStringSchema),
 })
 
-const getComparePage = createServerFn({ method: 'GET' })
-  .inputValidator(v.strictObject({
-    params: publicRepositoryRouteParamsSchema,
-    search: comparePageSearchSchema,
-  }))
+const getComparePage = createServerFn({ method: "GET" })
+  .inputValidator(
+    v.strictObject({
+      params: publicRepositoryRouteParamsSchema,
+      search: comparePageSearchSchema,
+    }),
+  )
   .handler(({ data, context }) =>
     data.search.pr
       ? getPullRequestComparePageData(context.env, {
@@ -57,17 +57,19 @@ const getComparePage = createServerFn({ method: 'GET' })
           owner: data.params.owner,
           repo: data.params.repo,
           search: data.search,
-        }))
+        }),
+  )
 
-export const Route = createFileRoute('/r/$owner/$repo/compare')({
+export const Route = createFileRoute("/r/$owner/$repo/compare")({
   validateSearch: comparePageSearchSchema,
   loaderDeps: ({ search }) => search,
-  loader: ({ params, deps }) => getComparePage({
-    data: {
-      params,
-      search: deps,
-    },
-  }),
+  loader: ({ params, deps }) =>
+    getComparePage({
+      data: {
+        params,
+        search: deps,
+      },
+    }),
   component: ComparePageRouteComponent,
 })
 
@@ -90,27 +92,29 @@ function ComparePageRouteComponent() {
             {data.repository.owner}/{data.repository.name}
           </Link>
         </p>
-        <h1>{data.mode === 'pr' ? 'PR Compare' : 'Compare'}</h1>
+        <h1>{data.mode === "pr" ? "PR Compare" : "Compare"}</h1>
         <p>
           Base {shortSha(search.base)} to head {shortSha(search.head)}
-          {search.pr ? ` for PR #${search.pr}` : ''}
+          {search.pr ? ` for PR #${search.pr}` : ""}
         </p>
       </header>
 
       <section>
         <h2>Context</h2>
-        <p>Requested scenario: {search.scenario ?? 'all'}</p>
-        <p>Requested environment: {search.env ?? 'all'}</p>
-        <p>Requested entrypoint: {search.entrypoint ?? 'all'}</p>
-        <p>Requested lens: {search.lens ?? 'table mode'}</p>
-        <p>Requested tab: {search.tab ?? 'summary'}</p>
-        <p>Stored compare context matched: {data.contextMatched ? 'yes' : 'no'}</p>
+        <p>Requested scenario: {search.scenario ?? "all"}</p>
+        <p>Requested environment: {search.env ?? "all"}</p>
+        <p>Requested entrypoint: {search.entrypoint ?? "all"}</p>
+        <p>Requested lens: {search.lens ?? "table mode"}</p>
+        <p>Requested tab: {search.tab ?? "summary"}</p>
+        <p>Stored compare context matched: {data.contextMatched ? "yes" : "no"}</p>
       </section>
 
       <section>
         <h2>Status Block</h2>
         {data.statusScenarios.length === 0 ? (
-          <p>No inherited, missing, or failed scenario states are attached to this compare context.</p>
+          <p>
+            No inherited, missing, or failed scenario states are attached to this compare context.
+          </p>
         ) : (
           <table>
             <thead>
@@ -135,16 +139,12 @@ function ComparePageRouteComponent() {
 
       <section>
         <h2>Series Table</h2>
-        {data.mode === 'pr' ? (
-          <ReviewedRowsTable />
-        ) : (
-          <NeutralRowsTable />
-        )}
+        {data.mode === "pr" ? <ReviewedRowsTable /> : <NeutralRowsTable />}
       </section>
 
       <section>
         <h2>Selected Series Detail</h2>
-        {data.mode === 'pr' ? (
+        {data.mode === "pr" ? (
           data.selectedReviewedRow ? (
             <ReviewedRowDetail />
           ) : (
@@ -159,7 +159,7 @@ function ComparePageRouteComponent() {
 
       <section>
         <h2>Tabs</h2>
-        <p>Current tab: {search.tab ?? 'summary'}</p>
+        <p>Current tab: {search.tab ?? "summary"}</p>
         <p>Detailed treemap, graph, and waterfall views are not available yet.</p>
       </section>
     </main>
@@ -185,11 +185,9 @@ function NeutralRowsTable() {
         {data.neutralRows.map((row) => (
           <tr key={row.series.seriesId}>
             <td>{row.scenarioSlug}</td>
-             <td>
-              {formatSeriesLabel(row.series)}
-             </td>
-             <td>{row.series.status}</td>
-              <td>{describeNeutralDelta(row.series, row.primaryItem)}</td>
+            <td>{formatSeriesLabel(row.series)}</td>
+            <td>{row.series.status}</td>
+            <td>{describeNeutralDelta(row.series, row.primaryItem)}</td>
             <td>
               <Link
                 to="/r/$owner/$repo/scenarios/$scenario"
@@ -209,7 +207,7 @@ function NeutralRowsTable() {
               </Link>
               {row.series.selectedBaseCommitSha ? (
                 <>
-                  {' '}
+                  {" "}
                   <Link
                     to="/r/$owner/$repo/compare"
                     params={{
@@ -257,11 +255,9 @@ function ReviewedRowsTable() {
         {data.reviewedRows.map((row) => (
           <tr key={row.series.seriesId}>
             <td>{row.scenarioSlug}</td>
-             <td>
-              {formatSeriesLabel(row.series)}
-             </td>
-              <td>{describeReviewedSeriesState(row.series)}</td>
-              <td>{describeReviewedDelta(row.series, row.primaryItem)}</td>
+            <td>{formatSeriesLabel(row.series)}</td>
+            <td>{describeReviewedSeriesState(row.series)}</td>
+            <td>{describeReviewedDelta(row.series, row.primaryItem)}</td>
             <td>
               <Link
                 to="/r/$owner/$repo/scenarios/$scenario"
@@ -278,7 +274,7 @@ function ReviewedRowsTable() {
                 }}
               >
                 Scenario
-              </Link>{' '}
+              </Link>{" "}
               <Link
                 from={Route.fullPath}
                 to="/r/$owner/$repo/compare"
@@ -311,8 +307,8 @@ function NeutralRowDetail() {
       <p>Series: {formatSeriesLabel(row.series)}</p>
       <p>Status: {row.series.status}</p>
       <p>{describeNeutralDelta(row.series, row.primaryItem, { detailed: true })}</p>
-      <p>Selected entrypoint relation: {row.series.selectedEntrypointRelation ?? 'unknown'}</p>
-      <p>Degraded stable identity: {row.series.hasDegradedStableIdentity ? 'yes' : 'no'}</p>
+      <p>Selected entrypoint relation: {row.series.selectedEntrypointRelation ?? "unknown"}</p>
+      <p>Degraded stable identity: {row.series.hasDegradedStableIdentity ? "yes" : "no"}</p>
     </>
   )
 }

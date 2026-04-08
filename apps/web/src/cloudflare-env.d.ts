@@ -1,4 +1,4 @@
-import type { AppBindings } from './env.js'
+import type { AppBindings } from "./env.js"
 
 declare global {
   namespace Cloudflare {

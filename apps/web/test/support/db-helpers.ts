@@ -1,6 +1,6 @@
-import { env } from 'cloudflare:workers'
+import { env } from "cloudflare:workers"
 
-const DEFAULT_TIMESTAMP = '2026-04-07T12:00:00.000Z'
+const DEFAULT_TIMESTAMP = "2026-04-07T12:00:00.000Z"
 
 export async function countRows(tableName: string) {
   const result = await env.DB.prepare(`SELECT COUNT(*) AS count FROM ${tableName}`).first<{
@@ -49,6 +49,13 @@ export async function insertScenario(
     `INSERT INTO scenarios (id, repository_id, slug, source_kind, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?, ?)`,
   )
-    .bind(scenario.id, scenario.repositoryId, scenario.slug, scenario.sourceKind, timestamp, timestamp)
+    .bind(
+      scenario.id,
+      scenario.repositoryId,
+      scenario.slug,
+      scenario.sourceKind,
+      timestamp,
+      timestamp,
+    )
     .run()
 }

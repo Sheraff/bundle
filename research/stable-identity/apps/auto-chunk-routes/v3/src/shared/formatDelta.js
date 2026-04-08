@@ -1,3 +1,3 @@
 export function formatDelta(value) {
-  return `${value > 0 ? '+' : ''}${value}kb`;
+  return `${value > 0 ? "+" : ""}${value}kb`
 }

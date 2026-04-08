@@ -1,13 +1,13 @@
-import { and, eq } from 'drizzle-orm'
-import { ulid } from 'ulid'
+import { and, eq } from "drizzle-orm"
+import { ulid } from "ulid"
 
-import { schema } from '../db/index.js'
-import { selectOne } from '../db/select-one.js'
-import * as githubApi from '../github-api.js'
+import { schema } from "../db/index.js"
+import { selectOne } from "../db/select-one.js"
+import * as githubApi from "../github-api.js"
 
-import type { DbClient } from '../summaries/types.js'
+import type { DbClient } from "../summaries/types.js"
 
-import type { GithubPublicationRow } from './types.js'
+import type { GithubPublicationRow } from "./types.js"
 
 export function shouldPublishSurface(
   publication: GithubPublicationRow | null,
@@ -16,7 +16,7 @@ export function shouldPublishSurface(
 ) {
   return !(
     publication &&
-    publication.status === 'published' &&
+    publication.status === "published" &&
     publication.externalPublicationId &&
     publication.payloadHash === payloadHash &&
     publication.publishedHeadSha === publishedHeadSha
@@ -31,7 +31,7 @@ export async function selectCommentPublication(db: DbClient, pullRequestId: stri
       .where(
         and(
           eq(schema.githubPublications.pullRequestId, pullRequestId),
-          eq(schema.githubPublications.surface, 'pr-comment'),
+          eq(schema.githubPublications.surface, "pr-comment"),
         ),
       )
       .limit(1),
@@ -46,7 +46,7 @@ export async function selectCheckPublication(db: DbClient, commitGroupId: string
       .where(
         and(
           eq(schema.githubPublications.commitGroupId, commitGroupId),
-          eq(schema.githubPublications.surface, 'pr-check'),
+          eq(schema.githubPublications.surface, "pr-check"),
         ),
       )
       .limit(1),
@@ -82,7 +82,7 @@ export async function upsertPublicationSuccess(
     publishedHeadSha: options.publishedHeadSha,
     pullRequestId: options.pullRequestId,
     repositoryId: options.repositoryId,
-    status: 'published',
+    status: "published",
     surface: options.surface,
     updatedAt: timestamp,
   })
@@ -104,9 +104,9 @@ export async function upsertPublicationFailure(
   const timestamp = new Date().toISOString()
   const existingPublication = options.existingPublication
   const errorCode =
-    options.error instanceof githubApi.GithubApiError ? options.error.code : 'github_publish_failed'
+    options.error instanceof githubApi.GithubApiError ? options.error.code : "github_publish_failed"
   const errorMessage =
-    options.error instanceof Error ? options.error.message : 'GitHub publication failed.'
+    options.error instanceof Error ? options.error.message : "GitHub publication failed."
 
   await upsertPublicationRow(db, existingPublication, {
     commitGroupId: options.commitGroupId,
@@ -121,7 +121,7 @@ export async function upsertPublicationFailure(
     publishedHeadSha: options.publishedHeadSha,
     pullRequestId: options.pullRequestId,
     repositoryId: options.repositoryId,
-    status: 'failed',
+    status: "failed",
     surface: options.surface,
     updatedAt: timestamp,
   })
@@ -130,7 +130,9 @@ export async function upsertPublicationFailure(
 async function upsertPublicationRow(
   db: DbClient,
   existingPublication: GithubPublicationRow | null,
-  values: Omit<typeof schema.githubPublications.$inferInsert, 'createdAt' | 'id'> & { updatedAt: string },
+  values: Omit<typeof schema.githubPublications.$inferInsert, "createdAt" | "id"> & {
+    updatedAt: string
+  },
 ) {
   if (existingPublication) {
     await db

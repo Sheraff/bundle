@@ -1,3 +1,3 @@
 export function linkRows(values) {
-  return values.join(' + ');
+  return values.join(" + ")
 }

@@ -31,9 +31,7 @@
       "file": "entry-ssr.mjs",
       "isEntry": true,
       "isDynamicEntry": false,
-      "imports": [
-        "_server-core-D8Vm5LgN.mjs"
-      ],
+      "imports": ["_server-core-D8Vm5LgN.mjs"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -58,9 +56,7 @@
           "stableId": "src/shared/formatBytes.js",
           "scope": "app",
           "renderedLength": 122,
-          "renderedExports": [
-            "formatBytes"
-          ],
+          "renderedExports": ["formatBytes"],
           "removedExports": []
         },
         {
@@ -68,9 +64,7 @@
           "stableId": "src/shared/serverFrame.js",
           "scope": "app",
           "renderedLength": 258,
-          "renderedExports": [
-            "renderServerDocument"
-          ],
+          "renderedExports": ["renderServerDocument"],
           "removedExports": []
         },
         {
@@ -78,9 +72,7 @@
           "stableId": "src/shared/serverMetrics.js",
           "scope": "app",
           "renderedLength": 193,
-          "renderedExports": [
-            "renderMetricsMarkup"
-          ],
+          "renderedExports": ["renderMetricsMarkup"],
           "removedExports": []
         }
       ],
@@ -106,9 +98,7 @@
         "stableId": "src/entry-ssr.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/server-core-D8Vm5LgN.mjs"
-      ],
+      "imports": ["assets/server-core-D8Vm5LgN.mjs"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -119,15 +109,11 @@
           "stableId": "src/entry-ssr.js",
           "scope": "app",
           "renderedLength": 101,
-          "renderedExports": [
-            "html"
-          ],
+          "renderedExports": ["html"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/entry-ssr.js"
-      ],
+      "moduleIds": ["src/entry-ssr.js"],
       "sizes": {
         "raw": 197,
         "gzip": 164,

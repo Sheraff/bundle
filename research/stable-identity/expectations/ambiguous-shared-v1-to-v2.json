@@ -26,10 +26,7 @@
       {
         "kind": "ambiguous",
         "from": "assets/bridge-core-BoLJdJNn.js",
-        "to": [
-          "assets/bridge-left-BcA5Z4Bz.js",
-          "assets/bridge-right-DZeBEV0g.js"
-        ]
+        "to": ["assets/bridge-left-BcA5Z4Bz.js", "assets/bridge-right-DZeBEV0g.js"]
       }
     ]
   },
@@ -37,13 +34,8 @@
     "sharedChunks": [
       {
         "relation": "ambiguous",
-        "from": [
-          "assets/bridge-core-BoLJdJNn.js"
-        ],
-        "to": [
-          "assets/bridge-left-BcA5Z4Bz.js",
-          "assets/bridge-right-DZeBEV0g.js"
-        ],
+        "from": ["assets/bridge-core-BoLJdJNn.js"],
+        "to": ["assets/bridge-left-BcA5Z4Bz.js", "assets/bridge-right-DZeBEV0g.js"],
         "stableKeyPrefix": "shared-lineage:"
       }
     ],

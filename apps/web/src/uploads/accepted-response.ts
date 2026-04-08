@@ -3,15 +3,15 @@ import {
   uploadScenarioRunAcceptedResponseV1Schema,
   type ScenarioRunStatus,
   type UploadScenarioRunAcceptedResponseV1,
-} from '@workspace/contracts'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import * as v from "valibot"
 
-import { schema } from '../db/index.js'
-import { formatIssues } from '../shared/format-issues.js'
+import { schema } from "../db/index.js"
+import { formatIssues } from "../shared/format-issues.js"
 
 export type AcceptedScenarioRun = Pick<
   typeof schema.scenarioRuns.$inferSelect,
-  'id' | 'repositoryId' | 'commitGroupId' | 'status'
+  "id" | "repositoryId" | "commitGroupId" | "status"
 >
 
 export function buildAcceptedResponse(

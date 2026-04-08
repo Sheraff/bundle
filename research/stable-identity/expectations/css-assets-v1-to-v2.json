@@ -19,10 +19,7 @@
       {
         "kind": "split",
         "from": "assets/skin-one-B8_WAgOM.js",
-        "to": [
-          "assets/palette-thread-C9j7480P.js",
-          "assets/shell-spine-voifiD_v.js"
-        ]
+        "to": ["assets/palette-thread-C9j7480P.js", "assets/shell-spine-voifiD_v.js"]
       }
     ],
     "css": [
@@ -39,10 +36,7 @@
       {
         "kind": "split",
         "from": "assets/skin-one-DDDSeQh6.css",
-        "to": [
-          "assets/palette-thread-zzV0Z8at.css",
-          "assets/shell-spine-BdxKV6TZ.css"
-        ]
+        "to": ["assets/palette-thread-zzV0Z8at.css", "assets/shell-spine-BdxKV6TZ.css"]
       }
     ],
     "assets": [
@@ -72,13 +66,8 @@
     "css": [
       {
         "relation": "split",
-        "from": [
-          "assets/skin-one-DDDSeQh6.css"
-        ],
-        "to": [
-          "assets/palette-thread-zzV0Z8at.css",
-          "assets/shell-spine-BdxKV6TZ.css"
-        ],
+        "from": ["assets/skin-one-DDDSeQh6.css"],
+        "to": ["assets/palette-thread-zzV0Z8at.css", "assets/shell-spine-BdxKV6TZ.css"],
         "stableKeyPrefix": "css-lineage:"
       }
     ],

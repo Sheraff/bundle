@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import * as v from 'valibot'
+import { describe, expect, it } from "vitest"
+import * as v from "valibot"
 
 import {
   acknowledgeComparisonItemInputSchema,
@@ -12,54 +12,54 @@ import {
   uploadScenarioRunAcceptedResponseV1Schema,
   uploadScenarioRunEnvelopeV1Schema,
   workflowInputSchema,
-} from '../src/index.js'
+} from "../src/index.js"
 
-const ulid = '01ARZ3NDEKTSV4RRFFQ69G5FAV'
-const secondUlid = '01ARZ3NDEKTSV4RRFFQ69G5FAW'
-const sha = '0123456789abcdef0123456789abcdef01234567'
+const ulid = "01ARZ3NDEKTSV4RRFFQ69G5FAV"
+const secondUlid = "01ARZ3NDEKTSV4RRFFQ69G5FAW"
+const sha = "0123456789abcdef0123456789abcdef01234567"
 
 function buildArtifact(overrides: Record<string, unknown> = {}) {
   return {
     schemaVersion: 1,
-    pluginVersion: '0.1.0',
-    generatedAt: '2026-04-06T12:00:00.000Z',
+    pluginVersion: "0.1.0",
+    generatedAt: "2026-04-06T12:00:00.000Z",
     scenario: {
-      id: 'minimal-react-app',
-      kind: 'fixture-app',
+      id: "minimal-react-app",
+      kind: "fixture-app",
     },
     build: {
-      bundler: 'vite',
-      bundlerVersion: '7.1.0',
-      rootDir: '/tmp/repo',
+      bundler: "vite",
+      bundlerVersion: "7.1.0",
+      rootDir: "/tmp/repo",
     },
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
-            file: 'assets/main.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main.js",
+            src: "src/main.ts",
             isEntry: true,
           },
         },
         chunks: [
           {
-            fileName: 'assets/main.js',
-            name: 'main',
+            fileName: "assets/main.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
+            facadeModuleId: "/tmp/repo/src/main.ts",
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main.css'],
+            importedCss: ["assets/main.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -73,8 +73,8 @@ function buildArtifact(overrides: Record<string, unknown> = {}) {
         ],
         assets: [
           {
-            fileName: 'assets/main.css',
-            names: ['main.css'],
+            fileName: "assets/main.css",
+            names: ["main.css"],
             needsCodeReference: false,
             sizes: {
               raw: 10,
@@ -96,20 +96,20 @@ function buildEnvelope(overrides: Record<string, unknown> = {}) {
     artifact: buildArtifact(),
     repository: {
       githubRepoId: 123,
-      owner: 'acme',
-      name: 'widget',
+      owner: "acme",
+      name: "widget",
       installationId: 456,
     },
     git: {
       commitSha: sha,
-      branch: 'main',
+      branch: "main",
     },
     scenarioSource: {
-      kind: 'fixture-app',
+      kind: "fixture-app",
     },
     ci: {
-      provider: 'github-actions',
-      workflowRunId: '999',
+      provider: "github-actions",
+      workflowRunId: "999",
     },
     ...overrides,
   }
@@ -121,10 +121,10 @@ function buildNormalizedSnapshot(overrides: Record<string, unknown> = {}) {
 
   return {
     schemaVersion: 1,
-    normalizedAt: '2026-04-06T12:05:00.000Z',
+    normalizedAt: "2026-04-06T12:05:00.000Z",
     scenarioRunId: ulid,
     repositoryId: secondUlid,
-    commitGroupId: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
+    commitGroupId: "01ARZ3NDEKTSV4RRFFQ69G5FAX",
     scenario: envelope.artifact.scenario,
     scenarioSource: envelope.scenarioSource,
     repository: envelope.repository,
@@ -140,8 +140,8 @@ function buildNormalizedSnapshot(overrides: Record<string, unknown> = {}) {
     raw: {
       artifactR2Key: `raw/scenario-runs/${ulid}/artifact.json`,
       envelopeR2Key: `raw/scenario-runs/${ulid}/envelope.json`,
-      artifactSha256: 'a'.repeat(64),
-      envelopeSha256: 'b'.repeat(64),
+      artifactSha256: "a".repeat(64),
+      envelopeSha256: "b".repeat(64),
       artifactSchemaVersion: 1,
       uploadSchemaVersion: 1,
     },
@@ -151,16 +151,16 @@ function buildNormalizedSnapshot(overrides: Record<string, unknown> = {}) {
         build: environment.build,
         entrypoints: [
           {
-            key: 'src/main.ts',
-            kind: 'entry',
-            chunkFileName: 'assets/main.js',
-            manifestSourceKeys: ['src/main.ts'],
+            key: "src/main.ts",
+            kind: "entry",
+            chunkFileName: "assets/main.js",
+            manifestSourceKeys: ["src/main.ts"],
             facadeModule: {
-              rawId: '/tmp/repo/src/main.ts',
-              stableId: 'src/main.ts',
-              scope: 'app',
+              rawId: "/tmp/repo/src/main.ts",
+              stableId: "src/main.ts",
+              scope: "app",
             },
-            importedCss: ['assets/main.css'],
+            importedCss: ["assets/main.css"],
             importedAssets: [],
             staticImportedChunkFileNames: [],
             dynamicImportedChunkFileNames: [],
@@ -168,31 +168,31 @@ function buildNormalizedSnapshot(overrides: Record<string, unknown> = {}) {
         ],
         chunks: [
           {
-            fileName: 'assets/main.js',
-            fileLabel: 'main.js',
-            name: 'main',
+            fileName: "assets/main.js",
+            fileLabel: "main.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
             facadeModule: {
-              rawId: '/tmp/repo/src/main.ts',
-              stableId: 'src/main.ts',
-              scope: 'app',
+              rawId: "/tmp/repo/src/main.ts",
+              stableId: "src/main.ts",
+              scope: "app",
             },
-            manifestSourceKeys: ['src/main.ts'],
-            ownerRoots: ['src/main.ts'],
+            manifestSourceKeys: ["src/main.ts"],
+            ownerRoots: ["src/main.ts"],
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main.css'],
+            importedCss: ["assets/main.css"],
             importedAssets: [],
-            moduleIds: ['src/main.ts'],
+            moduleIds: ["src/main.ts"],
             totalRenderedLength: 123,
             sizes: environment.chunks[0].sizes,
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
-                stableId: 'src/main.ts',
-                scope: 'app',
+                rawId: "/tmp/repo/src/main.ts",
+                stableId: "src/main.ts",
+                scope: "app",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -201,15 +201,15 @@ function buildNormalizedSnapshot(overrides: Record<string, unknown> = {}) {
         ],
         assets: [
           {
-            fileName: 'assets/main.css',
-            fileLabel: 'main.css',
-            kind: 'css',
-            names: ['main.css'],
+            fileName: "assets/main.css",
+            fileLabel: "main.css",
+            kind: "css",
+            names: ["main.css"],
             originalFileNames: [],
             sourceKeys: [],
-            importerKeys: ['src/main.ts'],
-            importerFiles: ['assets/main.js'],
-            ownerRoots: ['src/main.ts'],
+            importerKeys: ["src/main.ts"],
+            importerFiles: ["assets/main.js"],
+            ownerRoots: ["src/main.ts"],
             needsCodeReference: false,
             sizes: environment.assets[0].sizes,
           },
@@ -218,9 +218,9 @@ function buildNormalizedSnapshot(overrides: Record<string, unknown> = {}) {
         chunkGraphEdges: [],
         assetRelations: [
           {
-            kind: 'css',
-            chunkFileName: 'assets/main.js',
-            assetFileName: 'assets/main.css',
+            kind: "css",
+            chunkFileName: "assets/main.js",
+            assetFileName: "assets/main.css",
           },
         ],
         warnings: [],
@@ -230,20 +230,20 @@ function buildNormalizedSnapshot(overrides: Record<string, unknown> = {}) {
   }
 }
 
-describe('pluginArtifactV1Schema', () => {
-  it('accepts a valid artifact payload', () => {
+describe("pluginArtifactV1Schema", () => {
+  it("accepts a valid artifact payload", () => {
     const result = v.safeParse(pluginArtifactV1Schema, buildArtifact())
 
     expect(result.success).toBe(true)
   })
 
-  it('rejects duplicate environment names', () => {
+  it("rejects duplicate environment names", () => {
     const artifact = buildArtifact({
       environments: [
         buildArtifact().environments[0],
         {
           ...buildArtifact().environments[0],
-          build: { outDir: 'dist-client' },
+          build: { outDir: "dist-client" },
         },
       ],
     })
@@ -253,7 +253,7 @@ describe('pluginArtifactV1Schema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('rejects an environment without a manifest', () => {
+  it("rejects an environment without a manifest", () => {
     const artifact = buildArtifact({
       environments: [
         {
@@ -268,7 +268,7 @@ describe('pluginArtifactV1Schema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('allows optional originalFileNames on assets', () => {
+  it("allows optional originalFileNames on assets", () => {
     const artifact = buildArtifact({
       environments: [
         {
@@ -276,7 +276,7 @@ describe('pluginArtifactV1Schema', () => {
           assets: [
             {
               ...buildArtifact().environments[0].assets[0],
-              originalFileNames: ['src/styles/main.css'],
+              originalFileNames: ["src/styles/main.css"],
             },
           ],
         },
@@ -289,29 +289,29 @@ describe('pluginArtifactV1Schema', () => {
   })
 })
 
-describe('uploadScenarioRunEnvelopeV1Schema', () => {
-  it('accepts a fixture-app envelope without a synthetic definition', () => {
+describe("uploadScenarioRunEnvelopeV1Schema", () => {
+  it("accepts a fixture-app envelope without a synthetic definition", () => {
     const result = v.safeParse(uploadScenarioRunEnvelopeV1Schema, buildEnvelope())
 
     expect(result.success).toBe(true)
   })
 
-  it('requires syntheticDefinition for synthetic uploads', () => {
+  it("requires syntheticDefinition for synthetic uploads", () => {
     const result = v.safeParse(
       uploadScenarioRunEnvelopeV1Schema,
       buildEnvelope({
-        scenarioSource: { kind: 'repo-synthetic' },
+        scenarioSource: { kind: "repo-synthetic" },
       }),
     )
 
     expect(result.success).toBe(false)
   })
 
-  it('requires hostedScenarioId for hosted synthetic uploads', () => {
+  it("requires hostedScenarioId for hosted synthetic uploads", () => {
     const result = v.safeParse(
       uploadScenarioRunEnvelopeV1Schema,
       buildEnvelope({
-        scenarioSource: { kind: 'hosted-synthetic' },
+        scenarioSource: { kind: "hosted-synthetic" },
         syntheticDefinition: {
           source: "export { Button } from '@acme/ui'",
         },
@@ -321,16 +321,16 @@ describe('uploadScenarioRunEnvelopeV1Schema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('accepts a hosted synthetic envelope when both contracts are present', () => {
+  it("accepts a hosted synthetic envelope when both contracts are present", () => {
     const result = v.safeParse(
       uploadScenarioRunEnvelopeV1Schema,
       buildEnvelope({
         scenarioSource: {
-          kind: 'hosted-synthetic',
+          kind: "hosted-synthetic",
           hostedScenarioId: ulid,
         },
         syntheticDefinition: {
-          displayName: 'Button import',
+          displayName: "Button import",
           source: "export { Button } from '@acme/ui'",
         },
       }),
@@ -340,20 +340,20 @@ describe('uploadScenarioRunEnvelopeV1Schema', () => {
   })
 })
 
-describe('normalizedSnapshotV1Schema', () => {
-  it('accepts a valid normalized snapshot payload', () => {
+describe("normalizedSnapshotV1Schema", () => {
+  it("accepts a valid normalized snapshot payload", () => {
     const result = v.safeParse(normalizedSnapshotV1Schema, buildNormalizedSnapshot())
 
     expect(result.success).toBe(true)
   })
 
-  it('rejects duplicate environment names', () => {
+  it("rejects duplicate environment names", () => {
     const snapshot = buildNormalizedSnapshot({
       environments: [
         buildNormalizedSnapshot().environments[0],
         {
           ...buildNormalizedSnapshot().environments[0],
-          build: { outDir: 'dist-client' },
+          build: { outDir: "dist-client" },
         },
       ],
     })
@@ -363,7 +363,7 @@ describe('normalizedSnapshotV1Schema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('rejects duplicate entrypoint keys within one environment', () => {
+  it("rejects duplicate entrypoint keys within one environment", () => {
     const snapshot = buildNormalizedSnapshot({
       environments: [
         {
@@ -372,7 +372,7 @@ describe('normalizedSnapshotV1Schema', () => {
             buildNormalizedSnapshot().environments[0].entrypoints[0],
             {
               ...buildNormalizedSnapshot().environments[0].entrypoints[0],
-              chunkFileName: 'assets/secondary.js',
+              chunkFileName: "assets/secondary.js",
             },
           ],
         },
@@ -385,38 +385,38 @@ describe('normalizedSnapshotV1Schema', () => {
   })
 })
 
-describe('uploadScenarioRunAcceptedResponseV1Schema', () => {
-  it('accepts a queued upload acknowledgement', () => {
+describe("uploadScenarioRunAcceptedResponseV1Schema", () => {
+  it("accepts a queued upload acknowledgement", () => {
     const result = v.safeParse(uploadScenarioRunAcceptedResponseV1Schema, {
       schemaVersion: 1,
       accepted: true,
       repositoryId: ulid,
       commitGroupId: secondUlid,
-      scenarioRunId: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
-      status: 'queued',
+      scenarioRunId: "01ARZ3NDEKTSV4RRFFQ69G5FAX",
+      status: "queued",
     })
 
     expect(result.success).toBe(true)
   })
 
-  it('rejects responses without an accepted flag', () => {
+  it("rejects responses without an accepted flag", () => {
     const result = v.safeParse(uploadScenarioRunAcceptedResponseV1Schema, {
       schemaVersion: 1,
       repositoryId: ulid,
       commitGroupId: secondUlid,
-      scenarioRunId: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
-      status: 'queued',
+      scenarioRunId: "01ARZ3NDEKTSV4RRFFQ69G5FAX",
+      status: "queued",
     })
 
     expect(result.success).toBe(false)
   })
 })
 
-describe('queueMessageSchema', () => {
-  it('requires schemaVersion, repositoryId, target id, and dedupeKey', () => {
+describe("queueMessageSchema", () => {
+  it("requires schemaVersion, repositoryId, target id, and dedupeKey", () => {
     const result = v.safeParse(queueMessageSchema, {
       schemaVersion: 1,
-      kind: 'normalize-run',
+      kind: "normalize-run",
       repositoryId: ulid,
       scenarioRunId: secondUlid,
     })
@@ -424,25 +424,25 @@ describe('queueMessageSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('accepts detail generation requests', () => {
+  it("accepts detail generation requests", () => {
     const result = v.safeParse(queueMessageSchema, {
       schemaVersion: 1,
-      kind: 'generate-detail',
+      kind: "generate-detail",
       repositoryId: ulid,
       comparisonId: secondUlid,
-      detailKind: 'graph',
-      dedupeKey: 'comparison:graph:v1',
+      detailKind: "graph",
+      dedupeKey: "comparison:graph:v1",
     })
 
     expect(result.success).toBe(true)
   })
 })
 
-describe('workflowInputSchema', () => {
-  it('requires orchestrationKey on workflow inputs', () => {
+describe("workflowInputSchema", () => {
+  it("requires orchestrationKey on workflow inputs", () => {
     const result = v.safeParse(workflowInputSchema, {
       schemaVersion: 1,
-      kind: 'CommitGroupSettlementWorkflow',
+      kind: "CommitGroupSettlementWorkflow",
       repositoryId: ulid,
       commitGroupId: secondUlid,
     })
@@ -450,39 +450,39 @@ describe('workflowInputSchema', () => {
     expect(result.success).toBe(false)
   })
 
-  it('accepts repository backfill workflow inputs', () => {
+  it("accepts repository backfill workflow inputs", () => {
     const result = v.safeParse(workflowInputSchema, {
       schemaVersion: 1,
-      kind: 'RepositoryBackfillWorkflow',
+      kind: "RepositoryBackfillWorkflow",
       repositoryId: ulid,
-      backfillScope: 'repository:all',
-      orchestrationKey: 'backfill:v1',
+      backfillScope: "repository:all",
+      orchestrationKey: "backfill:v1",
     })
 
     expect(result.success).toBe(true)
   })
 })
 
-describe('public route search params', () => {
-  it('requires lens on repository overview routes', () => {
+describe("public route search params", () => {
+  it("requires lens on repository overview routes", () => {
     const result = v.safeParse(repositoryOverviewSearchParamsSchema, {
-      branch: 'main',
+      branch: "main",
     })
 
     expect(result.success).toBe(false)
   })
 
-  it('requires lens on scenario routes', () => {
+  it("requires lens on scenario routes", () => {
     const result = v.safeParse(scenarioPageSearchParamsSchema, {
-      branch: 'main',
-      env: 'all',
-      entrypoint: 'all',
+      branch: "main",
+      env: "all",
+      entrypoint: "all",
     })
 
     expect(result.success).toBe(false)
   })
 
-  it('allows compare routes without lens for top-level tables', () => {
+  it("allows compare routes without lens for top-level tables", () => {
     const result = v.safeParse(comparePageSearchParamsSchema, {
       base: sha,
       head: sha,
@@ -491,24 +491,24 @@ describe('public route search params', () => {
     expect(result.success).toBe(true)
   })
 
-  it('rejects compare routes that use all for env', () => {
+  it("rejects compare routes that use all for env", () => {
     const result = v.safeParse(comparePageSearchParamsSchema, {
       base: sha,
       head: sha,
-      env: 'all',
+      env: "all",
     })
 
     expect(result.success).toBe(false)
   })
 })
 
-describe('mutation contracts', () => {
-  it('requires the PR-scoped acknowledgement identifiers', () => {
+describe("mutation contracts", () => {
+  it("requires the PR-scoped acknowledgement identifiers", () => {
     const result = v.safeParse(acknowledgeComparisonItemInputSchema, {
       repositoryId: ulid,
       pullRequestId: secondUlid,
       comparisonId: ulid,
-      itemKey: 'raw',
+      itemKey: "raw",
     })
 
     expect(result.success).toBe(false)

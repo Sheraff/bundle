@@ -5,10 +5,7 @@
   padding: 14px 16px;
   list-style: none;
   border-radius: 999px;
-  background:
-    rgba(17, 24, 39, 0.84)
-    url('../assets/token-ring.svg')
-    right center / 160px no-repeat;
+  background: rgba(17, 24, 39, 0.84) url("../assets/token-ring.svg") right center / 160px no-repeat;
 }
 
 .token-strip li {

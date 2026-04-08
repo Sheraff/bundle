@@ -5,13 +5,13 @@ import {
   type ComparisonMetricKey,
   type FreshCommitGroupScenarioSummaryV1,
   type NeutralComparisonSeriesSummaryV1,
-} from '@workspace/contracts'
-import { and, asc, desc, eq } from 'drizzle-orm'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import { and, asc, desc, eq } from "drizzle-orm"
+import * as v from "valibot"
 
-import { getDb, schema } from '../db/index.js'
-import type { AppBindings } from '../env.js'
-import { formatIssues } from '../shared/format-issues.js'
+import { getDb, schema } from "../db/index.js"
+import type { AppBindings } from "../env.js"
+import { formatIssues } from "../shared/format-issues.js"
 
 import {
   groupScenarioRunsByScenarioId,
@@ -19,9 +19,9 @@ import {
   hasNewerFailedRun,
   selectActiveRunsByScenarioId,
   selectLatestFailedRun,
-} from './active-run-policy.js'
-import { loadActiveSeriesComparisons, findInheritedScenarioSource } from './comparison-loaders.js'
-import { COMMIT_GROUP_SETTLEMENT_QUIET_WINDOW_MS } from './constants.js'
+} from "./active-run-policy.js"
+import { loadActiveSeriesComparisons, findInheritedScenarioSource } from "./comparison-loaders.js"
+import { COMMIT_GROUP_SETTLEMENT_QUIET_WINDOW_MS } from "./constants.js"
 import type {
   ActiveSeriesComparisonRow,
   CommitGroupRow,
@@ -29,12 +29,12 @@ import type {
   ScenarioCatalogRow,
   ScenarioRunSummaryRow,
   SummaryComparisonKind,
-} from './types.js'
+} from "./types.js"
 
 const METRIC_KEY_ORDER = [
-  'total-raw-bytes',
-  'total-gzip-bytes',
-  'total-brotli-bytes',
+  "total-raw-bytes",
+  "total-gzip-bytes",
+  "total-brotli-bytes",
 ] as const satisfies readonly ComparisonMetricKey[]
 
 export async function buildCommitGroupSummary(
@@ -74,7 +74,9 @@ export async function buildCommitGroupSummary(
       .orderBy(desc(schema.scenarioRuns.uploadedAt), desc(schema.scenarioRuns.createdAt)),
   ])
 
-  const comparisonKind: SummaryComparisonKind = commitGroup.pullRequestId ? 'pr-base' : 'branch-previous'
+  const comparisonKind: SummaryComparisonKind = commitGroup.pullRequestId
+    ? "pr-base"
+    : "branch-previous"
   const runsByScenarioId = groupScenarioRunsByScenarioId(scenarioRuns)
   const activeRunsByScenarioId = selectActiveRunsByScenarioId(runsByScenarioId)
   const activeSeriesRows = await loadActiveSeriesComparisons(
@@ -95,7 +97,7 @@ export async function buildCommitGroupSummary(
   ).toISOString()
   const quietWindowElapsed = Date.now() >= Date.parse(quietWindowDeadline)
   const freshScenarioGroups: FreshCommitGroupScenarioSummaryV1[] = []
-  const statusScenarios: CommitGroupSummaryV1['statusScenarios'] = []
+  const statusScenarios: CommitGroupSummaryV1["statusScenarios"] = []
   let pendingScenarioCount = 0
   let unresolvedAbsentScenarioCount = 0
 
@@ -127,7 +129,7 @@ export async function buildCommitGroupSummary(
 
     if (latestFailedRun) {
       statusScenarios.push({
-        state: 'failed',
+        state: "failed",
         scenarioId: catalogScenario.id,
         scenarioSlug: catalogScenario.slug,
         sourceKind: catalogScenario.sourceKind,
@@ -154,7 +156,7 @@ export async function buildCommitGroupSummary(
 
     if (inheritedSource) {
       statusScenarios.push({
-        state: 'inherited',
+        state: "inherited",
         scenarioId: catalogScenario.id,
         scenarioSlug: catalogScenario.slug,
         sourceKind: catalogScenario.sourceKind,
@@ -168,11 +170,11 @@ export async function buildCommitGroupSummary(
     }
 
     statusScenarios.push({
-      state: 'missing',
+      state: "missing",
       scenarioId: catalogScenario.id,
       scenarioSlug: catalogScenario.slug,
       sourceKind: catalogScenario.sourceKind,
-      reason: 'No prior processed scenario run was available to inherit.',
+      reason: "No prior processed scenario run was available to inherit.",
     })
   }
 
@@ -191,12 +193,15 @@ export async function buildCommitGroupSummary(
   )
   const noBaselineSeriesCount = freshScenarioGroups.reduce(
     (total, freshScenarioGroup) =>
-      total + freshScenarioGroup.series.filter((seriesSummary) => seriesSummary.status === 'no-baseline').length,
+      total +
+      freshScenarioGroup.series.filter((seriesSummary) => seriesSummary.status === "no-baseline")
+        .length,
     0,
   )
   const failedComparisonCount = freshScenarioGroups.reduce(
     (total, freshScenarioGroup) =>
-      total + freshScenarioGroup.series.filter((seriesSummary) => seriesSummary.status === 'failed').length,
+      total +
+      freshScenarioGroup.series.filter((seriesSummary) => seriesSummary.status === "failed").length,
     0,
   )
   const degradedComparisonCount = freshScenarioGroups.reduce(
@@ -204,16 +209,17 @@ export async function buildCommitGroupSummary(
       total +
       freshScenarioGroup.series.filter(
         (seriesSummary) =>
-          seriesSummary.status === 'materialized' && seriesSummary.hasDegradedStableIdentity,
+          seriesSummary.status === "materialized" && seriesSummary.hasDegradedStableIdentity,
       ).length,
     0,
   )
   const impactedScenarioCount = freshScenarioGroups.filter(isFreshScenarioImpacted).length
   const unchangedScenarioCount = freshScenarioGroups.filter(isFreshScenarioUnchanged).length
-  const summaryStatus: CommitGroupSummaryV1['status'] = pendingScenarioCount > 0 ? 'pending' : 'settled'
+  const summaryStatus: CommitGroupSummaryV1["status"] =
+    pendingScenarioCount > 0 ? "pending" : "settled"
   const settledAt =
-    summaryStatus === 'settled'
-      ? existingSummaryState?.status === 'settled' && existingSummaryState.settledAt
+    summaryStatus === "settled"
+      ? existingSummaryState?.status === "settled" && existingSummaryState.settledAt
         ? existingSummaryState.settledAt
         : new Date().toISOString()
       : null
@@ -232,9 +238,11 @@ export async function buildCommitGroupSummary(
       expectedScenarioCount: catalogScenarios.length,
       freshScenarioCount: activeRunsByScenarioId.size,
       pendingScenarioCount,
-      inheritedScenarioCount: statusScenarios.filter((scenario) => scenario.state === 'inherited').length,
-      missingScenarioCount: statusScenarios.filter((scenario) => scenario.state === 'missing').length,
-      failedScenarioCount: statusScenarios.filter((scenario) => scenario.state === 'failed').length,
+      inheritedScenarioCount: statusScenarios.filter((scenario) => scenario.state === "inherited")
+        .length,
+      missingScenarioCount: statusScenarios.filter((scenario) => scenario.state === "missing")
+        .length,
+      failedScenarioCount: statusScenarios.filter((scenario) => scenario.state === "failed").length,
       impactedScenarioCount,
       unchangedScenarioCount,
       comparisonCount,
@@ -248,7 +256,9 @@ export async function buildCommitGroupSummary(
   })
 
   if (!summaryResult.success) {
-    throw new Error(`Generated commit-group summary is invalid: ${formatIssues(summaryResult.issues)}`)
+    throw new Error(
+      `Generated commit-group summary is invalid: ${formatIssues(summaryResult.issues)}`,
+    )
   }
 
   return {
@@ -274,17 +284,24 @@ function buildFreshScenarioGroup(
     activeCommitSha: activeRun.commitSha,
     activeUploadedAt: activeRun.uploadedAt,
     totalRunCount: scenarioRuns.length,
-    processedRunCount: scenarioRuns.filter((scenarioRun) => scenarioRun.status === 'processed').length,
-    failedRunCount: scenarioRuns.filter((scenarioRun) => scenarioRun.status === 'failed').length,
-    hasMultipleProcessedRuns: scenarioRuns.filter((scenarioRun) => scenarioRun.status === 'processed').length > 1,
+    processedRunCount: scenarioRuns.filter((scenarioRun) => scenarioRun.status === "processed")
+      .length,
+    failedRunCount: scenarioRuns.filter((scenarioRun) => scenarioRun.status === "failed").length,
+    hasMultipleProcessedRuns:
+      scenarioRuns.filter((scenarioRun) => scenarioRun.status === "processed").length > 1,
     hasNewerFailedRun: scenarioHasNewerFailedRun,
-    latestFailedScenarioRunId: scenarioHasNewerFailedRun ? latestFailedRun?.id ?? null : null,
-    latestFailedAt: scenarioHasNewerFailedRun ? latestFailedRun?.uploadedAt ?? null : null,
-    latestFailureCode: scenarioHasNewerFailedRun ? latestFailedRun?.failureCode ?? null : null,
-    latestFailureMessage: scenarioHasNewerFailedRun ? latestFailedRun?.failureMessage ?? null : null,
+    latestFailedScenarioRunId: scenarioHasNewerFailedRun ? (latestFailedRun?.id ?? null) : null,
+    latestFailedAt: scenarioHasNewerFailedRun ? (latestFailedRun?.uploadedAt ?? null) : null,
+    latestFailureCode: scenarioHasNewerFailedRun ? (latestFailedRun?.failureCode ?? null) : null,
+    latestFailureMessage: scenarioHasNewerFailedRun
+      ? (latestFailedRun?.failureMessage ?? null)
+      : null,
     series: activeSeriesRows
       .map(buildNeutralSeriesSummary)
-      .filter((seriesSummary): seriesSummary is NeutralComparisonSeriesSummaryV1 => seriesSummary !== null)
+      .filter(
+        (seriesSummary): seriesSummary is NeutralComparisonSeriesSummaryV1 =>
+          seriesSummary !== null,
+      )
       .sort(compareSeriesSummaries),
   }
 }
@@ -341,34 +358,34 @@ function buildNeutralSeriesSummary(
     currentTotals,
     baselineTotals,
     deltaTotals,
-    budgetState: activeSeriesRow.budgetState ?? 'not-configured',
+    budgetState: activeSeriesRow.budgetState ?? "not-configured",
     hasDegradedStableIdentity: Boolean(activeSeriesRow.hasDegradedStableIdentity),
     selectedEntrypointRelation: activeSeriesRow.selectedEntrypointRelation,
   }
 
-  if (activeSeriesRow.comparisonStatus === 'materialized') {
+  if (activeSeriesRow.comparisonStatus === "materialized") {
     return {
       ...commonSummaryFields,
-      status: 'materialized',
+      status: "materialized",
       items: buildNeutralComparisonItems(activeSeriesRow),
     }
   }
 
-  if (activeSeriesRow.comparisonStatus === 'no-baseline') {
+  if (activeSeriesRow.comparisonStatus === "no-baseline") {
     return {
       ...commonSummaryFields,
-      status: 'no-baseline',
+      status: "no-baseline",
       items: [],
     }
   }
 
-  if (activeSeriesRow.comparisonStatus === 'failed') {
+  if (activeSeriesRow.comparisonStatus === "failed") {
     return {
       ...commonSummaryFields,
-      status: 'failed',
+      status: "failed",
       items: [],
-      failureCode: activeSeriesRow.failureCode ?? 'comparison_failed',
-      failureMessage: activeSeriesRow.failureMessage ?? 'Comparison materialization failed.',
+      failureCode: activeSeriesRow.failureCode ?? "comparison_failed",
+      failureMessage: activeSeriesRow.failureMessage ?? "Comparison materialization failed.",
     }
   }
 
@@ -391,15 +408,19 @@ function buildNeutralComparisonItems(activeSeriesRow: ActiveSeriesComparisonRow)
         baselineValue: metricValues.baselineValue,
         deltaValue: metricValues.deltaValue,
         percentageDelta: percentageDelta(metricValues.currentValue, metricValues.baselineValue),
-        direction: metricValues.deltaValue > 0 ? ('regression' as const) : ('improvement' as const),
+        direction: metricValues.deltaValue > 0 ? ("regression" as const) : ("improvement" as const),
       },
     ]
   })
 }
 
-function getMetricValues(activeSeriesRow: ActiveSeriesComparisonRow, metricKey: ComparisonMetricKey) {
-  if (metricKey === 'total-raw-bytes') {
-    return activeSeriesRow.baselineTotalRawBytes === null || activeSeriesRow.deltaTotalRawBytes === null
+function getMetricValues(
+  activeSeriesRow: ActiveSeriesComparisonRow,
+  metricKey: ComparisonMetricKey,
+) {
+  if (metricKey === "total-raw-bytes") {
+    return activeSeriesRow.baselineTotalRawBytes === null ||
+      activeSeriesRow.deltaTotalRawBytes === null
       ? null
       : {
           currentValue: activeSeriesRow.currentTotalRawBytes ?? 0,
@@ -408,8 +429,9 @@ function getMetricValues(activeSeriesRow: ActiveSeriesComparisonRow, metricKey: 
         }
   }
 
-  if (metricKey === 'total-gzip-bytes') {
-    return activeSeriesRow.baselineTotalGzipBytes === null || activeSeriesRow.deltaTotalGzipBytes === null
+  if (metricKey === "total-gzip-bytes") {
+    return activeSeriesRow.baselineTotalGzipBytes === null ||
+      activeSeriesRow.deltaTotalGzipBytes === null
       ? null
       : {
           currentValue: activeSeriesRow.currentTotalGzipBytes ?? 0,
@@ -434,7 +456,7 @@ function isFreshScenarioImpacted(freshScenarioGroup: FreshCommitGroupScenarioSum
   }
 
   return freshScenarioGroup.series.some((seriesSummary) => {
-    if (seriesSummary.status === 'materialized') {
+    if (seriesSummary.status === "materialized") {
       return seriesSummary.items.length > 0
     }
 
@@ -447,7 +469,8 @@ function isFreshScenarioUnchanged(freshScenarioGroup: FreshCommitGroupScenarioSu
     !freshScenarioGroup.hasNewerFailedRun &&
     freshScenarioGroup.series.length > 0 &&
     freshScenarioGroup.series.every(
-      (seriesSummary) => seriesSummary.status === 'materialized' && seriesSummary.items.length === 0,
+      (seriesSummary) =>
+        seriesSummary.status === "materialized" && seriesSummary.items.length === 0,
     )
   )
 }
@@ -464,12 +487,15 @@ function compareSeriesSummaries(
 }
 
 function sortFreshScenarioGroups(freshScenarioGroups: FreshCommitGroupScenarioSummaryV1[]) {
-  return [...freshScenarioGroups].sort((left, right) => left.scenarioSlug.localeCompare(right.scenarioSlug))
+  return [...freshScenarioGroups].sort((left, right) =>
+    left.scenarioSlug.localeCompare(right.scenarioSlug),
+  )
 }
 
-function sortStatusScenarios(statusScenarios: CommitGroupSummaryV1['statusScenarios']) {
+function sortStatusScenarios(statusScenarios: CommitGroupSummaryV1["statusScenarios"]) {
   return [...statusScenarios].sort(
-    (left, right) => left.scenarioSlug.localeCompare(right.scenarioSlug) || left.state.localeCompare(right.state),
+    (left, right) =>
+      left.scenarioSlug.localeCompare(right.scenarioSlug) || left.state.localeCompare(right.state),
   )
 }
 
@@ -478,5 +504,5 @@ function percentageDelta(currentValue: number, baselineValue: number) {
     return currentValue === 0 ? 0 : 100
   }
 
-  return (currentValue - baselineValue) / baselineValue * 100
+  return ((currentValue - baselineValue) / baselineValue) * 100
 }

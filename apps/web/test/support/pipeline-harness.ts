@@ -1,20 +1,17 @@
-import { env } from 'cloudflare:workers'
-import type { UploadScenarioRunEnvelopeV1 } from '@workspace/contracts'
-import { expect, vi } from 'vitest'
+import { env } from "cloudflare:workers"
+import type { UploadScenarioRunEnvelopeV1 } from "@workspace/contracts"
+import { expect, vi } from "vitest"
 
-import {
-  dispatchQueueMessage,
-  TEST_QUEUE_NAMES,
-} from '../queue-test-helpers.js'
-import { sendUploadRequest } from './request-helpers.js'
+import { dispatchQueueMessage, TEST_QUEUE_NAMES } from "../queue-test-helpers.js"
+import { sendUploadRequest } from "./request-helpers.js"
 
 export function createPipelineHarness() {
-  const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
-  const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
-  const scheduleSendSpy = vi.spyOn(env.SCHEDULE_COMPARISONS_QUEUE, 'send')
-  const materializeSendSpy = vi.spyOn(env.MATERIALIZE_COMPARISON_QUEUE, 'send')
-  const publishSendSpy = vi.spyOn(env.PUBLISH_GITHUB_QUEUE, 'send')
-  const refreshSendSpy = vi.spyOn(env.REFRESH_SUMMARIES_QUEUE, 'send')
+  const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
+  const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, "send")
+  const scheduleSendSpy = vi.spyOn(env.SCHEDULE_COMPARISONS_QUEUE, "send")
+  const materializeSendSpy = vi.spyOn(env.MATERIALIZE_COMPARISON_QUEUE, "send")
+  const publishSendSpy = vi.spyOn(env.PUBLISH_GITHUB_QUEUE, "send")
+  const refreshSendSpy = vi.spyOn(env.REFRESH_SUMMARIES_QUEUE, "send")
   normalizeSendSpy.mockClear()
   deriveSendSpy.mockClear()
   scheduleSendSpy.mockClear()
@@ -59,11 +56,7 @@ export function createPipelineHarness() {
   }
 
   async function drainSchedule() {
-    await drainQueuedMessages(
-      scheduleSendSpy,
-      scheduleIndex,
-      TEST_QUEUE_NAMES.scheduleComparisons,
-    )
+    await drainQueuedMessages(scheduleSendSpy, scheduleIndex, TEST_QUEUE_NAMES.scheduleComparisons)
   }
 
   async function drainMaterialize() {

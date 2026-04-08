@@ -1,35 +1,27 @@
-import { env } from 'cloudflare:workers'
-import { describe, expect, it } from 'vitest'
-import { ulid } from 'ulid'
+import { env } from "cloudflare:workers"
+import { describe, expect, it } from "vitest"
+import { ulid } from "ulid"
 
-import {
-  dispatchQueueMessage,
-  TEST_QUEUE_NAMES,
-} from './queue-test-helpers.js'
-import {
-  buildCiContext,
-  buildEnvelope,
-  buildSimpleArtifact,
-  size,
-} from './support/builders.js'
-import { countRows } from './support/db-helpers.js'
-import { createPipelineHarness } from './support/pipeline-harness.js'
+import { dispatchQueueMessage, TEST_QUEUE_NAMES } from "./queue-test-helpers.js"
+import { buildCiContext, buildEnvelope, buildSimpleArtifact, size } from "./support/builders.js"
+import { countRows } from "./support/db-helpers.js"
+import { createPipelineHarness } from "./support/pipeline-harness.js"
 
-const baseSha = '0123456789abcdef0123456789abcdef01234567'
-const commitSha = '1111111111111111111111111111111111111111'
-const rerunSha = '2222222222222222222222222222222222222222'
-const prHeadSha = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+const baseSha = "0123456789abcdef0123456789abcdef01234567"
+const commitSha = "1111111111111111111111111111111111111111"
+const rerunSha = "2222222222222222222222222222222222222222"
+const prHeadSha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
-describe('commit-group summary and PR review summary jobs', () => {
-  it('writes an immediate pending commit-group summary on upload acceptance', async () => {
+describe("commit-group summary and PR review summary jobs", () => {
+  it("writes an immediate pending commit-group summary on upload acceptance", async () => {
     const harness = createPipelineHarness()
     const response = await harness.acceptUpload(
       buildEnvelope({
         git: {
           commitSha: commitSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5000'),
+        ci: buildCiContext("5000"),
       }),
     )
     const payload = await response.json<{ commitGroupId: string; repositoryId: string }>()
@@ -37,7 +29,7 @@ describe('commit-group summary and PR review summary jobs', () => {
     await harness.drainRefresh()
 
     const summary = await getCommitGroupSummary(commitSha)
-    expect(summary?.status).toBe('pending')
+    expect(summary?.status).toBe("pending")
     expect(summary?.pending_scenario_count).toBe(1)
     expect(summary?.fresh_scenario_count).toBe(0)
     expect(summary?.summary.counts.pendingScenarioCount).toBe(1)
@@ -46,82 +38,91 @@ describe('commit-group summary and PR review summary jobs', () => {
     expect(payload.repositoryId).toBe(summary?.repository_id)
   })
 
-  it('settles immediately when every expected scenario has an active fresh run', async () => {
+  it("settles immediately when every expected scenario has an active fresh run", async () => {
     const harness = createPipelineHarness()
 
     await harness.acceptUpload(
       buildEnvelope({
         git: {
           commitSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5001'),
+        ci: buildCiContext("5001"),
       }),
     )
     await harness.processUploadPipeline()
 
     const summary = await getCommitGroupSummary(commitSha)
-    expect(summary?.status).toBe('settled')
+    expect(summary?.status).toBe("settled")
     expect(summary?.pending_scenario_count).toBe(0)
     expect(summary?.fresh_scenario_count).toBe(1)
     expect(summary?.summary.freshScenarioGroups[0]?.series).toHaveLength(1)
     expect(summary?.summary.freshScenarioGroups).toHaveLength(1)
   })
 
-  it('settles quiet-window gaps into inherited and missing scenarios', async () => {
+  it("settles quiet-window gaps into inherited and missing scenarios", async () => {
     const harness = createPipelineHarness()
 
     await harness.acceptUpload(
       buildEnvelope({
-        artifact: buildSimpleArtifact({ scenarioId: 'scenario-a' }),
+        artifact: buildSimpleArtifact({ scenarioId: "scenario-a" }),
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5100'),
+        ci: buildCiContext("5100"),
       }),
     )
     await harness.processUploadPipeline()
 
     await harness.acceptUpload(
       buildEnvelope({
-        artifact: buildSimpleArtifact({ scenarioId: 'scenario-b' }),
+        artifact: buildSimpleArtifact({ scenarioId: "scenario-b" }),
         git: {
-          commitSha: '3333333333333333333333333333333333333333',
-          branch: 'main',
+          commitSha: "3333333333333333333333333333333333333333",
+          branch: "main",
         },
-        ci: buildCiContext('5101'),
+        ci: buildCiContext("5101"),
       }),
     )
     await harness.processUploadPipeline()
 
-    const repository = await env.DB.prepare(`SELECT id FROM repositories LIMIT 1`).first<{ id: string }>()
+    const repository = await env.DB.prepare(`SELECT id FROM repositories LIMIT 1`).first<{
+      id: string
+    }>()
     expect(repository?.id).toBeTruthy()
 
     const missingScenarioId = ulid()
-    const timestamp = '2026-04-06T12:00:00.000Z'
+    const timestamp = "2026-04-06T12:00:00.000Z"
     await env.DB.prepare(
       `INSERT INTO scenarios (id, repository_id, slug, source_kind, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
     )
-      .bind(missingScenarioId, repository?.id ?? '', 'scenario-c', 'fixture-app', timestamp, timestamp)
+      .bind(
+        missingScenarioId,
+        repository?.id ?? "",
+        "scenario-c",
+        "fixture-app",
+        timestamp,
+        timestamp,
+      )
       .run()
 
     const currentResponse = await harness.acceptUpload(
       buildEnvelope({
-        artifact: buildSimpleArtifact({ scenarioId: 'scenario-a' }),
+        artifact: buildSimpleArtifact({ scenarioId: "scenario-a" }),
         git: {
           commitSha: commitSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5102'),
+        ci: buildCiContext("5102"),
       }),
     )
     const currentPayload = await currentResponse.json<{ commitGroupId: string }>()
     await harness.processUploadPipeline()
 
     const pendingSummary = await getCommitGroupSummary(commitSha)
-    expect(pendingSummary?.status).toBe('pending')
+    expect(pendingSummary?.status).toBe("pending")
     expect(pendingSummary?.pending_scenario_count).toBe(2)
 
     await env.DB.prepare(
@@ -129,76 +130,78 @@ describe('commit-group summary and PR review summary jobs', () => {
        SET latest_upload_at = ?, updated_at = ?
        WHERE id = ?`,
     )
-      .bind('2026-04-06T11:00:00.000Z', '2026-04-06T11:00:00.000Z', currentPayload.commitGroupId)
+      .bind("2026-04-06T11:00:00.000Z", "2026-04-06T11:00:00.000Z", currentPayload.commitGroupId)
       .run()
 
     const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.refreshSummaries, {
       schemaVersion: 1,
-      kind: 'refresh-summaries',
-      repositoryId: pendingSummary?.repository_id ?? '',
+      kind: "refresh-summaries",
+      repositoryId: pendingSummary?.repository_id ?? "",
       commitGroupId: currentPayload.commitGroupId,
       dedupeKey: `refresh-summaries:${currentPayload.commitGroupId}:manual-expiry:v1`,
     })
     expect(result).toBeAcknowledged()
 
     const settledSummary = await getCommitGroupSummary(commitSha)
-    expect(settledSummary?.status).toBe('settled')
+    expect(settledSummary?.status).toBe("settled")
     expect(settledSummary?.pending_scenario_count).toBe(0)
     expect(settledSummary?.inherited_scenario_count).toBe(1)
     expect(settledSummary?.missing_scenario_count).toBe(1)
     expect(settledSummary?.summary.statusScenarios).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ state: 'inherited', scenarioSlug: 'scenario-b' }),
-        expect.objectContaining({ state: 'missing', scenarioSlug: 'scenario-c' }),
+        expect.objectContaining({ state: "inherited", scenarioSlug: "scenario-b" }),
+        expect.objectContaining({ state: "missing", scenarioSlug: "scenario-c" }),
       ]),
     )
   })
 
-  it('reopens to pending on rerun and switches the active summary run after processing', async () => {
+  it("reopens to pending on rerun and switches the active summary run after processing", async () => {
     const harness = createPipelineHarness()
 
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-rerun',
+          scenarioId: "scenario-rerun",
           chunkSizes: size(123, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: rerunSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5200'),
+        ci: buildCiContext("5200"),
       }),
     )
     await harness.processUploadPipeline()
 
     const firstSummary = await getCommitGroupSummary(rerunSha)
     const firstActiveRunId = firstSummary?.summary.freshScenarioGroups[0]?.activeScenarioRunId
-    expect(firstSummary?.status).toBe('settled')
+    expect(firstSummary?.status).toBe("settled")
     expect(firstSummary?.summary.freshScenarioGroups[0]?.series[0]?.currentTotals.raw).toBe(133)
 
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-rerun',
+          scenarioId: "scenario-rerun",
           chunkSizes: size(200, 45, 38),
           cssSizes: size(20, 8, 6),
         }),
         git: {
           commitSha: rerunSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5201'),
+        ci: buildCiContext("5201"),
       }),
     )
 
     await harness.drainRefresh()
 
     const pendingSummary = await getCommitGroupSummary(rerunSha)
-    expect(pendingSummary?.status).toBe('pending')
+    expect(pendingSummary?.status).toBe("pending")
     expect(pendingSummary?.pending_scenario_count).toBe(1)
-    expect(pendingSummary?.summary.freshScenarioGroups[0]?.activeScenarioRunId).toBe(firstActiveRunId)
+    expect(pendingSummary?.summary.freshScenarioGroups[0]?.activeScenarioRunId).toBe(
+      firstActiveRunId,
+    )
 
     await harness.drainNormalize()
     await harness.drainDerive()
@@ -209,24 +212,26 @@ describe('commit-group summary and PR review summary jobs', () => {
     await harness.drainRefresh()
 
     const settledSummary = await getCommitGroupSummary(rerunSha)
-    expect(settledSummary?.status).toBe('settled')
+    expect(settledSummary?.status).toBe("settled")
     expect(settledSummary?.pending_scenario_count).toBe(0)
-    expect(settledSummary?.summary.freshScenarioGroups[0]?.activeScenarioRunId).not.toBe(firstActiveRunId)
+    expect(settledSummary?.summary.freshScenarioGroups[0]?.activeScenarioRunId).not.toBe(
+      firstActiveRunId,
+    )
     expect(settledSummary?.summary.freshScenarioGroups[0]?.hasMultipleProcessedRuns).toBe(true)
     expect(settledSummary?.summary.freshScenarioGroups[0]?.series[0]?.currentTotals.raw).toBe(220)
   })
 
-  it('surfaces failed scenario runs in commit-group summaries', async () => {
+  it("surfaces failed scenario runs in commit-group summaries", async () => {
     const harness = createPipelineHarness()
 
     await harness.acceptUpload(
       buildEnvelope({
-        artifact: buildSimpleArtifact({ scenarioId: 'scenario-failure' }),
+        artifact: buildSimpleArtifact({ scenarioId: "scenario-failure" }),
         git: {
-          commitSha: '4444444444444444444444444444444444444444',
-          branch: 'main',
+          commitSha: "4444444444444444444444444444444444444444",
+          branch: "main",
         },
-        ci: buildCiContext('5300'),
+        ci: buildCiContext("5300"),
       }),
     )
     await harness.drainRefresh()
@@ -236,39 +241,41 @@ describe('commit-group summary and PR review summary jobs', () => {
        FROM scenario_runs
        WHERE commit_sha = ?
        LIMIT 1`,
-    ).bind('4444444444444444444444444444444444444444').first<{ raw_artifact_r2_key: string }>()
+    )
+      .bind("4444444444444444444444444444444444444444")
+      .first<{ raw_artifact_r2_key: string }>()
     expect(rawArtifactKey?.raw_artifact_r2_key).toBeTruthy()
 
-    await env.RAW_UPLOADS_BUCKET.delete(rawArtifactKey?.raw_artifact_r2_key ?? '')
+    await env.RAW_UPLOADS_BUCKET.delete(rawArtifactKey?.raw_artifact_r2_key ?? "")
 
     await harness.drainNormalize()
     await harness.drainRefresh()
 
-    const summary = await getCommitGroupSummary('4444444444444444444444444444444444444444')
-    expect(summary?.status).toBe('settled')
+    const summary = await getCommitGroupSummary("4444444444444444444444444444444444444444")
+    expect(summary?.status).toBe("settled")
     expect(summary?.failed_scenario_count).toBe(1)
     expect(summary?.summary.statusScenarios).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ state: 'failed', scenarioSlug: 'scenario-failure' }),
+        expect.objectContaining({ state: "failed", scenarioSlug: "scenario-failure" }),
       ]),
     )
   })
 
-  it('overlays acknowledgements only for the active PR comparison rows', async () => {
+  it("overlays acknowledgements only for the active PR comparison rows", async () => {
     const harness = createPipelineHarness()
 
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-pr',
+          scenarioId: "scenario-pr",
           chunkSizes: size(123, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5400'),
+        ci: buildCiContext("5400"),
       }),
     )
     await harness.processUploadPipeline()
@@ -276,22 +283,22 @@ describe('commit-group summary and PR review summary jobs', () => {
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-pr',
+          scenarioId: "scenario-pr",
           chunkSizes: size(150, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: prHeadSha,
-          branch: 'feature/login',
+          branch: "feature/login",
         },
         pullRequest: {
           number: 42,
           baseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: prHeadSha,
-          headRef: 'feature/login',
+          headRef: "feature/login",
         },
-        ci: buildCiContext('5401'),
+        ci: buildCiContext("5401"),
       }),
     )
     await harness.processUploadPipeline()
@@ -302,16 +309,18 @@ describe('commit-group summary and PR review summary jobs', () => {
        WHERE kind = 'pr-base' AND selected_head_commit_sha = ?
        ORDER BY created_at ASC
        LIMIT 1`,
-    ).bind(prHeadSha).first<{
-      id: string
-      repository_id: string
-      pull_request_id: string
-      series_id: string
-    }>()
+    )
+      .bind(prHeadSha)
+      .first<{
+        id: string
+        repository_id: string
+        pull_request_id: string
+        series_id: string
+      }>()
     expect(initialComparison?.id).toBeTruthy()
 
     const ackId = ulid()
-    const ackTimestamp = '2026-04-06T12:30:00.000Z'
+    const ackTimestamp = "2026-04-06T12:30:00.000Z"
     await env.DB.prepare(
       `INSERT INTO acknowledgements (
          id,
@@ -328,13 +337,13 @@ describe('commit-group summary and PR review summary jobs', () => {
     )
       .bind(
         ackId,
-        initialComparison?.repository_id ?? '',
-        initialComparison?.pull_request_id ?? '',
-        initialComparison?.id ?? '',
-        initialComparison?.series_id ?? '',
-        'metric:total-raw-bytes',
-        'flo',
-        'known regression',
+        initialComparison?.repository_id ?? "",
+        initialComparison?.pull_request_id ?? "",
+        initialComparison?.id ?? "",
+        initialComparison?.series_id ?? "",
+        "metric:total-raw-bytes",
+        "flo",
+        "known regression",
         ackTimestamp,
         ackTimestamp,
       )
@@ -342,10 +351,10 @@ describe('commit-group summary and PR review summary jobs', () => {
 
     const acknowledgedResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.refreshSummaries, {
       schemaVersion: 1,
-      kind: 'refresh-summaries',
-      repositoryId: initialComparison?.repository_id ?? '',
-      commitGroupId: (await getCommitGroupSummary(prHeadSha))?.commit_group_id ?? '',
-      dedupeKey: 'refresh-summaries:acknowledgement:v1',
+      kind: "refresh-summaries",
+      repositoryId: initialComparison?.repository_id ?? "",
+      commitGroupId: (await getCommitGroupSummary(prHeadSha))?.commit_group_id ?? "",
+      dedupeKey: "refresh-summaries:acknowledgement:v1",
     })
     expect(acknowledgedResult).toBeAcknowledged()
 
@@ -356,22 +365,22 @@ describe('commit-group summary and PR review summary jobs', () => {
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-pr',
+          scenarioId: "scenario-pr",
           chunkSizes: size(180, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: prHeadSha,
-          branch: 'feature/login',
+          branch: "feature/login",
         },
         pullRequest: {
           number: 42,
           baseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: prHeadSha,
-          headRef: 'feature/login',
+          headRef: "feature/login",
         },
-        ci: buildCiContext('5402'),
+        ci: buildCiContext("5402"),
       }),
     )
     await harness.processUploadPipeline()
@@ -381,22 +390,22 @@ describe('commit-group summary and PR review summary jobs', () => {
     expect(refreshedSummary?.regression_count).toBe(1)
   })
 
-  it('surfaces a newer failed rerun while keeping the older active fresh run', async () => {
+  it("surfaces a newer failed rerun while keeping the older active fresh run", async () => {
     const harness = createPipelineHarness()
-    const failedRerunSha = '5555555555555555555555555555555555555555'
+    const failedRerunSha = "5555555555555555555555555555555555555555"
 
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-failed-rerun',
+          scenarioId: "scenario-failed-rerun",
           chunkSizes: size(123, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5500'),
+        ci: buildCiContext("5500"),
       }),
     )
     await harness.processUploadPipeline()
@@ -404,22 +413,22 @@ describe('commit-group summary and PR review summary jobs', () => {
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-failed-rerun',
+          scenarioId: "scenario-failed-rerun",
           chunkSizes: size(123, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: failedRerunSha,
-          branch: 'feature/failure',
+          branch: "feature/failure",
         },
         pullRequest: {
           number: 55,
           baseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: failedRerunSha,
-          headRef: 'feature/failure',
+          headRef: "feature/failure",
         },
-        ci: buildCiContext('5501'),
+        ci: buildCiContext("5501"),
       }),
     )
     await harness.processUploadPipeline()
@@ -431,22 +440,22 @@ describe('commit-group summary and PR review summary jobs', () => {
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-failed-rerun',
+          scenarioId: "scenario-failed-rerun",
           chunkSizes: size(123, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: failedRerunSha,
-          branch: 'feature/failure',
+          branch: "feature/failure",
         },
         pullRequest: {
           number: 55,
           baseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: failedRerunSha,
-          headRef: 'feature/failure',
+          headRef: "feature/failure",
         },
-        ci: buildCiContext('5502'),
+        ci: buildCiContext("5502"),
       }),
     )
 
@@ -458,15 +467,17 @@ describe('commit-group summary and PR review summary jobs', () => {
        WHERE commit_sha = ?
        ORDER BY uploaded_at DESC
        LIMIT 1`,
-    ).bind(failedRerunSha).first<{ raw_artifact_r2_key: string }>()
+    )
+      .bind(failedRerunSha)
+      .first<{ raw_artifact_r2_key: string }>()
     expect(failingArtifactKey?.raw_artifact_r2_key).toBeTruthy()
-    await env.RAW_UPLOADS_BUCKET.delete(failingArtifactKey?.raw_artifact_r2_key ?? '')
+    await env.RAW_UPLOADS_BUCKET.delete(failingArtifactKey?.raw_artifact_r2_key ?? "")
 
     await harness.drainNormalize()
     await harness.drainRefresh()
 
     const commitSummary = await getCommitGroupSummary(failedRerunSha)
-    expect(commitSummary?.status).toBe('settled')
+    expect(commitSummary?.status).toBe("settled")
     expect(commitSummary?.summary.freshScenarioGroups[0]?.activeScenarioRunId).toBe(activeRunId)
     expect(commitSummary?.summary.freshScenarioGroups[0]?.hasNewerFailedRun).toBe(true)
     expect(commitSummary?.summary.freshScenarioGroups[0]?.latestFailedScenarioRunId).toBeTruthy()
@@ -474,26 +485,26 @@ describe('commit-group summary and PR review summary jobs', () => {
 
     const reviewSummary = await getPrReviewSummary(failedRerunSha)
     expect(reviewSummary?.summary.scenarioGroups[0]?.hasNewerFailedRun).toBe(true)
-    expect(reviewSummary?.summary.scenarioGroups[0]?.reviewState).toBe('warning')
+    expect(reviewSummary?.summary.scenarioGroups[0]?.reviewState).toBe("warning")
     expect(reviewSummary?.summary.scenarioGroups[0]?.visibleSeriesId).toBeNull()
   })
 
-  it('treats refresh-summaries replay as idempotent for settled commit and PR summaries', async () => {
+  it("treats refresh-summaries replay as idempotent for settled commit and PR summaries", async () => {
     const harness = createPipelineHarness()
-    const replaySha = '6666666666666666666666666666666666666666'
+    const replaySha = "6666666666666666666666666666666666666666"
 
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-replay',
+          scenarioId: "scenario-replay",
           chunkSizes: size(123, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5600'),
+        ci: buildCiContext("5600"),
       }),
     )
     await harness.processUploadPipeline()
@@ -501,22 +512,22 @@ describe('commit-group summary and PR review summary jobs', () => {
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-replay',
+          scenarioId: "scenario-replay",
           chunkSizes: size(150, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: replaySha,
-          branch: 'feature/replay',
+          branch: "feature/replay",
         },
         pullRequest: {
           number: 66,
           baseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: replaySha,
-          headRef: 'feature/replay',
+          headRef: "feature/replay",
         },
-        ci: buildCiContext('5601'),
+        ci: buildCiContext("5601"),
       }),
     )
     await harness.processUploadPipeline()
@@ -526,19 +537,19 @@ describe('commit-group summary and PR review summary jobs', () => {
     expect(commitSummaryBeforeReplay).toBeTruthy()
     expect(reviewSummaryBeforeReplay).toBeTruthy()
 
-    const replayRepositoryId = commitSummaryBeforeReplay?.repository_id ?? ''
-    const replayCommitGroupId = commitSummaryBeforeReplay?.commit_group_id ?? ''
+    const replayRepositoryId = commitSummaryBeforeReplay?.repository_id ?? ""
+    const replayCommitGroupId = commitSummaryBeforeReplay?.commit_group_id ?? ""
 
     const firstReplayResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.refreshSummaries, {
       schemaVersion: 1,
-      kind: 'refresh-summaries',
+      kind: "refresh-summaries",
       repositoryId: replayRepositoryId,
       commitGroupId: replayCommitGroupId,
       dedupeKey: `refresh-summaries:${replayCommitGroupId}:replay-1:v1`,
     })
     const secondReplayResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.refreshSummaries, {
       schemaVersion: 1,
-      kind: 'refresh-summaries',
+      kind: "refresh-summaries",
       repositoryId: replayRepositoryId,
       commitGroupId: replayCommitGroupId,
       dedupeKey: `refresh-summaries:${replayCommitGroupId}:replay-2:v1`,
@@ -548,8 +559,8 @@ describe('commit-group summary and PR review summary jobs', () => {
 
     const commitSummaryAfterReplay = await getCommitGroupSummary(replaySha)
     const reviewSummaryAfterReplay = await getPrReviewSummary(replaySha)
-    expect(await countRows('commit_group_summaries')).toBe(2)
-    expect(await countRows('pr_review_summaries')).toBe(1)
+    expect(await countRows("commit_group_summaries")).toBe(2)
+    expect(await countRows("pr_review_summaries")).toBe(1)
     expect(commitSummaryAfterReplay?.summary_json).toBe(commitSummaryBeforeReplay?.summary_json)
     expect(commitSummaryAfterReplay?.settled_at).toBe(commitSummaryBeforeReplay?.settled_at)
     expect(reviewSummaryAfterReplay?.summary_json).toBe(reviewSummaryBeforeReplay?.summary_json)
@@ -574,19 +585,21 @@ async function getCommitGroupSummary(commitSha: string) {
      FROM commit_group_summaries
      WHERE commit_sha = ?
      LIMIT 1`,
-  ).bind(commitSha).first<{
-    id: string
-    repository_id: string
-    commit_group_id: string
-    status: string
-    settled_at: string | null
-    fresh_scenario_count: number
-    pending_scenario_count: number
-    inherited_scenario_count: number
-    missing_scenario_count: number
-    failed_scenario_count: number
-    summary_json: string
-  }>()
+  )
+    .bind(commitSha)
+    .first<{
+      id: string
+      repository_id: string
+      commit_group_id: string
+      status: string
+      settled_at: string | null
+      fresh_scenario_count: number
+      pending_scenario_count: number
+      inherited_scenario_count: number
+      missing_scenario_count: number
+      failed_scenario_count: number
+      summary_json: string
+    }>()
 
   return row
     ? {
@@ -607,13 +620,15 @@ async function getPrReviewSummary(commitSha: string) {
      FROM pr_review_summaries
      WHERE commit_sha = ?
      LIMIT 1`,
-  ).bind(commitSha).first<{
-    status: string
-    settled_at: string | null
-    regression_count: number
-    acknowledged_regression_count: number
-    summary_json: string
-  }>()
+  )
+    .bind(commitSha)
+    .first<{
+      status: string
+      settled_at: string | null
+      regression_count: number
+      acknowledged_regression_count: number
+      summary_json: string
+    }>()
 
   return row
     ? {

@@ -1,15 +1,15 @@
-import './settings.css';
-import { formatCurrency } from '../shared/formatCurrency.js';
-import { buildCards } from '../shared/kpiCards.js';
-import { RouteShell } from '../shared/routeShell.jsx';
-import { trendBadge } from '../shared/trendBadge.js';
+import "./settings.css"
+import { formatCurrency } from "../shared/formatCurrency.js"
+import { buildCards } from "../shared/kpiCards.js"
+import { RouteShell } from "../shared/routeShell.jsx"
+import { trendBadge } from "../shared/trendBadge.js"
 
 export default function Settings() {
   const cards = buildCards(26000, 2100).map((card) => ({
     ...card,
     value: formatCurrency(card.value),
     badge: trendBadge(card.value),
-  }));
+  }))
 
   return (
     <RouteShell
@@ -29,5 +29,5 @@ export default function Settings() {
         ))}
       </ul>
     </RouteShell>
-  );
+  )
 }

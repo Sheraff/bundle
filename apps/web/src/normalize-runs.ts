@@ -21,16 +21,16 @@ import {
   type PluginArtifactV1,
   type UploadScenarioRunEnvelopeV1,
   type ViteManifestEntry,
-} from '@workspace/contracts'
-import { eq } from 'drizzle-orm'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import { eq } from "drizzle-orm"
+import * as v from "valibot"
 
-import { getDb, schema } from './db/index.js'
-import { selectOne } from './db/select-one.js'
-import type { AppBindings } from './env.js'
-import { getAppLogger, type AppLogger } from './logger.js'
-import { enqueueRefreshSummaries } from './summaries/refresh-queue.js'
-import { formatIssues } from './shared/format-issues.js'
+import { getDb, schema } from "./db/index.js"
+import { selectOne } from "./db/select-one.js"
+import type { AppBindings } from "./env.js"
+import { getAppLogger, type AppLogger } from "./logger.js"
+import { enqueueRefreshSummaries } from "./summaries/refresh-queue.js"
+import { formatIssues } from "./shared/format-issues.js"
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
 
@@ -48,14 +48,14 @@ interface ManifestEntryRecord {
 
 interface ManifestImporterRecord {
   entry: ManifestEntryRecord
-  relation: 'assets' | 'css' | 'dynamicImports' | 'imports'
+  relation: "assets" | "css" | "dynamicImports" | "imports"
 }
 
 interface ChunkIndexRecord extends NormalizedChunkV1 {
   ownerRoots: string[]
 }
 
-type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
+type QueueMessageLike<TBody> = Pick<Message<TBody>, "ack" | "retry" | "body" | "id" | "attempts">
 
 export async function handleNormalizeRunQueue(
   batch: MessageBatch<unknown>,
@@ -76,7 +76,7 @@ export async function handleNormalizeRunMessage(
   const messageResult = v.safeParse(normalizeRunQueueMessageSchema, message.body)
 
   if (!messageResult.success) {
-    logger.error('Dropping invalid normalize-run message', formatIssues(messageResult.issues))
+    logger.error("Dropping invalid normalize-run message", formatIssues(messageResult.issues))
     message.ack()
     return
   }
@@ -89,14 +89,19 @@ export async function handleNormalizeRunMessage(
   } catch (error) {
     if (error instanceof TerminalNormalizeError) {
       if (error.persistFailure) {
-        await markScenarioRunFailed(env, normalizeRunMessage.scenarioRunId, error.code, error.message)
+        await markScenarioRunFailed(
+          env,
+          normalizeRunMessage.scenarioRunId,
+          error.code,
+          error.message,
+        )
       }
 
       message.ack()
       return
     }
 
-    logger.error('Retrying normalize-run message after transient failure', error)
+    logger.error("Retrying normalize-run message after transient failure", error)
     message.retry()
   }
 }
@@ -113,7 +118,7 @@ async function normalizeScenarioRun(env: AppBindings, message: NormalizeRunQueue
 
   if (!scenarioRun) {
     throw new TerminalNormalizeError(
-      'scenario_run_not_found',
+      "scenario_run_not_found",
       `Scenario run ${message.scenarioRunId} no longer exists.`,
       false,
     )
@@ -121,13 +126,13 @@ async function normalizeScenarioRun(env: AppBindings, message: NormalizeRunQueue
 
   if (scenarioRun.repositoryId !== message.repositoryId) {
     throw new TerminalNormalizeError(
-      'repository_mismatch',
+      "repository_mismatch",
       `Scenario run ${message.scenarioRunId} does not belong to repository ${message.repositoryId}.`,
     )
   }
 
   if (scenarioRun.normalizedAt && scenarioRun.normalizedSnapshotR2Key) {
-    if (scenarioRun.status !== 'processed') {
+    if (scenarioRun.status !== "processed") {
       await enqueueDeriveRun(env, scenarioRun.repositoryId, scenarioRun.id)
     }
 
@@ -139,7 +144,7 @@ async function normalizeScenarioRun(env: AppBindings, message: NormalizeRunQueue
   await getDb(env)
     .update(schema.scenarioRuns)
     .set({
-      status: 'processing',
+      status: "processing",
       normalizationStartedAt: scenarioRun.normalizationStartedAt ?? processingTimestamp,
       failureCode: null,
       failureMessage: null,
@@ -151,15 +156,15 @@ async function normalizeScenarioRun(env: AppBindings, message: NormalizeRunQueue
     env.RAW_UPLOADS_BUCKET,
     scenarioRun.rawArtifactR2Key,
     pluginArtifactV1Schema,
-    'raw_artifact_missing',
-    'invalid_raw_artifact',
+    "raw_artifact_missing",
+    "invalid_raw_artifact",
   )
   const envelope = await readStoredJson(
     env.RAW_UPLOADS_BUCKET,
     scenarioRun.rawEnvelopeR2Key,
     uploadScenarioRunEnvelopeV1Schema,
-    'raw_envelope_missing',
-    'invalid_raw_envelope',
+    "raw_envelope_missing",
+    "invalid_raw_envelope",
   )
 
   const normalizedAt = new Date().toISOString()
@@ -173,7 +178,7 @@ async function normalizeScenarioRun(env: AppBindings, message: NormalizeRunQueue
 
   if (!snapshotResult.success) {
     throw new TerminalNormalizeError(
-      'invalid_normalized_snapshot',
+      "invalid_normalized_snapshot",
       `Generated normalized snapshot is invalid: ${formatIssues(snapshotResult.issues)}`,
     )
   }
@@ -183,7 +188,7 @@ async function normalizeScenarioRun(env: AppBindings, message: NormalizeRunQueue
 
   await env.CACHE_BUCKET.put(normalizedSnapshotR2Key, normalizedSnapshotText, {
     httpMetadata: {
-      contentType: 'application/json',
+      contentType: "application/json",
     },
     customMetadata: {
       scenarioRunId: scenarioRun.id,
@@ -194,7 +199,7 @@ async function normalizeScenarioRun(env: AppBindings, message: NormalizeRunQueue
   await getDb(env)
     .update(schema.scenarioRuns)
     .set({
-      status: 'processing',
+      status: "processing",
       normalizedSnapshotR2Key,
       normalizedSchemaVersion: SCHEMA_VERSION_V1,
       normalizedAt,
@@ -227,7 +232,7 @@ export function buildNormalizedSnapshot({
     scenario: artifact.scenario,
     scenarioSource: envelope.scenarioSource,
     syntheticDefinition:
-      'syntheticDefinition' in envelope ? envelope.syntheticDefinition : undefined,
+      "syntheticDefinition" in envelope ? envelope.syntheticDefinition : undefined,
     repository: envelope.repository,
     git: envelope.git,
     pullRequest: envelope.pullRequest,
@@ -254,11 +259,13 @@ export function buildNormalizedSnapshot({
 }
 
 function normalizeEnvironment(
-  environment: PluginArtifactV1['environments'][number],
+  environment: PluginArtifactV1["environments"][number],
   rootDir: string,
 ): NormalizedEnvironmentSnapshotV1 {
   const manifestIndexes = buildManifestIndexes(environment.manifest)
-  const chunks = environment.chunks.map((chunk) => normalizeChunk(chunk, rootDir, manifestIndexes.selfByFile))
+  const chunks = environment.chunks.map((chunk) =>
+    normalizeChunk(chunk, rootDir, manifestIndexes.selfByFile),
+  )
   const chunkByFile = new Map(chunks.map((chunk) => [chunk.fileName, chunk] as const))
   const rootEntries = getRootManifestEntries(manifestIndexes.selfByFile)
 
@@ -274,7 +281,13 @@ function normalizeEnvironment(
       ...chunk,
       ownerRoots: sortUnique(chunk.ownerRoots),
     })),
-    assets: normalizeAssets(environment, rootDir, manifestIndexes, chunkByFile, directAssetOwnerRoots),
+    assets: normalizeAssets(
+      environment,
+      rootDir,
+      manifestIndexes,
+      chunkByFile,
+      directAssetOwnerRoots,
+    ),
     packages: normalizePackages(chunks),
     chunkGraphEdges: normalizeChunkGraphEdges(chunks, chunkByFile),
     assetRelations: normalizeAssetRelations(chunks),
@@ -302,16 +315,16 @@ function buildEntrypoints(
 
     if (!rootChunk) {
       const rootFileKind = getFileKind(rootEntry.file)
-      if (rootFileKind === 'css') {
+      if (rootFileKind === "css") {
         importedCss.push(rootEntry.file)
-      } else if (rootFileKind && rootFileKind !== 'html' && rootFileKind !== 'js') {
+      } else if (rootFileKind && rootFileKind !== "html" && rootFileKind !== "js") {
         importedAssets.push(rootEntry.file)
       }
     }
 
     entrypoints.push({
       key,
-      kind: rootEntry.isDynamicEntry ? 'dynamic-entry' : 'entry',
+      kind: rootEntry.isDynamicEntry ? "dynamic-entry" : "entry",
       chunkFileName: rootEntry.file,
       manifestSourceKeys: getManifestSourceKeys([rootEntry]),
       facadeModule: rootChunk?.facadeModule ?? null,
@@ -319,7 +332,10 @@ function buildEntrypoints(
       importedAssets: sortUnique(importedAssets),
       staticImportedChunkFileNames: sortUnique(
         rootChunk
-          ? [...rootEntry.imports.filter((fileName) => chunkByFile.has(fileName)), ...rootChunk.imports]
+          ? [
+              ...rootEntry.imports.filter((fileName) => chunkByFile.has(fileName)),
+              ...rootChunk.imports,
+            ]
           : rootEntry.imports.filter((fileName) => chunkByFile.has(fileName)),
       ),
       dynamicImportedChunkFileNames: sortUnique(
@@ -334,7 +350,9 @@ function buildEntrypoints(
     seenKeys.add(key)
   }
 
-  for (const chunk of chunks.filter((currentChunk) => currentChunk.isEntry || currentChunk.isDynamicEntry)) {
+  for (const chunk of chunks.filter(
+    (currentChunk) => currentChunk.isEntry || currentChunk.isDynamicEntry,
+  )) {
     const key = getRootKey(chunk)
     if (seenKeys.has(key)) {
       continue
@@ -347,14 +365,16 @@ function buildEntrypoints(
 }
 
 function normalizeChunk(
-  chunk: PluginArtifactV1['environments'][number]['chunks'][number],
+  chunk: PluginArtifactV1["environments"][number]["chunks"][number],
   rootDir: string,
   selfByFile: Map<string, ManifestEntryRecord[]>,
 ): ChunkIndexRecord {
   const modules = chunk.modules
     .map((moduleEntry) => normalizeModule(moduleEntry, rootDir))
     .sort((left, right) => left.stableId.localeCompare(right.stableId))
-  const facadeModule = chunk.facadeModuleId ? normalizeModuleReference(chunk.facadeModuleId, rootDir) : null
+  const facadeModule = chunk.facadeModuleId
+    ? normalizeModuleReference(chunk.facadeModuleId, rootDir)
+    : null
 
   return {
     fileName: chunk.fileName,
@@ -383,7 +403,7 @@ function normalizeChunk(
 function normalizeEntrypoint(chunk: ChunkIndexRecord): NormalizedEntrypointV1 {
   return {
     key: getRootKey(chunk),
-    kind: chunk.isEntry ? 'entry' : 'dynamic-entry',
+    kind: chunk.isEntry ? "entry" : "dynamic-entry",
     chunkFileName: chunk.fileName,
     manifestSourceKeys: chunk.manifestSourceKeys,
     facadeModule: chunk.facadeModule,
@@ -395,7 +415,7 @@ function normalizeEntrypoint(chunk: ChunkIndexRecord): NormalizedEntrypointV1 {
 }
 
 function normalizeAssets(
-  environment: PluginArtifactV1['environments'][number],
+  environment: PluginArtifactV1["environments"][number],
   rootDir: string,
   manifestIndexes: {
     importersByFile: Map<string, ManifestImporterRecord[]>
@@ -405,7 +425,10 @@ function normalizeAssets(
   directAssetOwnerRoots: Map<string, Set<string>>,
 ): NormalizedAssetV1[] {
   const assetOwnerRoots = new Map(
-    [...directAssetOwnerRoots.entries()].map(([fileName, ownerRoots]) => [fileName, new Set(ownerRoots)]),
+    [...directAssetOwnerRoots.entries()].map(([fileName, ownerRoots]) => [
+      fileName,
+      new Set(ownerRoots),
+    ]),
   )
 
   for (const chunk of chunkByFile.values()) {
@@ -489,7 +512,7 @@ function normalizeChunkGraphEdges(
       }
 
       const edge = {
-        kind: 'static-import' as const,
+        kind: "static-import" as const,
         fromChunkFileName: chunk.fileName,
         toChunkFileName: importedChunkFileName,
       }
@@ -502,7 +525,7 @@ function normalizeChunkGraphEdges(
       }
 
       const edge = {
-        kind: 'dynamic-import' as const,
+        kind: "dynamic-import" as const,
         fromChunkFileName: chunk.fileName,
         toChunkFileName: importedChunkFileName,
       }
@@ -519,20 +542,26 @@ function normalizeAssetRelations(chunks: ChunkIndexRecord[]): NormalizedAssetRel
   for (const chunk of chunks) {
     for (const assetFileName of chunk.importedCss) {
       const relation = {
-        kind: 'css' as const,
+        kind: "css" as const,
         chunkFileName: chunk.fileName,
         assetFileName,
       }
-      relations.set(`${relation.kind}:${relation.chunkFileName}:${relation.assetFileName}`, relation)
+      relations.set(
+        `${relation.kind}:${relation.chunkFileName}:${relation.assetFileName}`,
+        relation,
+      )
     }
 
     for (const assetFileName of chunk.importedAssets) {
       const relation = {
-        kind: 'asset' as const,
+        kind: "asset" as const,
         chunkFileName: chunk.fileName,
         assetFileName,
       }
-      relations.set(`${relation.kind}:${relation.chunkFileName}:${relation.assetFileName}`, relation)
+      relations.set(
+        `${relation.kind}:${relation.chunkFileName}:${relation.assetFileName}`,
+        relation,
+      )
     }
   }
 
@@ -550,7 +579,9 @@ function buildManifestIndexes(manifest: Record<string, ViteManifestEntry>) {
   const selfByFile = new Map<string, ManifestEntryRecord[]>()
   const importersByFile = new Map<string, ManifestImporterRecord[]>()
 
-  for (const [key, entry] of Object.entries(manifest).sort(([left], [right]) => left.localeCompare(right))) {
+  for (const [key, entry] of Object.entries(manifest).sort(([left], [right]) =>
+    left.localeCompare(right),
+  )) {
     const manifestEntry: ManifestEntryRecord = {
       key,
       src: entry.src ?? null,
@@ -569,28 +600,28 @@ function buildManifestIndexes(manifest: Record<string, ViteManifestEntry>) {
 
     for (const fileName of manifestEntry.imports) {
       pushManifestImporter(importersByFile, fileName, {
-        relation: 'imports',
+        relation: "imports",
         entry: manifestEntry,
       })
     }
 
     for (const fileName of manifestEntry.dynamicImports) {
       pushManifestImporter(importersByFile, fileName, {
-        relation: 'dynamicImports',
+        relation: "dynamicImports",
         entry: manifestEntry,
       })
     }
 
     for (const fileName of manifestEntry.css) {
       pushManifestImporter(importersByFile, fileName, {
-        relation: 'css',
+        relation: "css",
         entry: manifestEntry,
       })
     }
 
     for (const fileName of manifestEntry.assets) {
       pushManifestImporter(importersByFile, fileName, {
-        relation: 'assets',
+        relation: "assets",
         entry: manifestEntry,
       })
     }
@@ -638,7 +669,11 @@ function buildOwnerRoots(
       addOwnerRoot(directAssetOwnerRoots, assetFileName, rootKey)
     }
 
-    propagateOwnerRoot(rootKey, [rootEntry.file, ...rootEntry.imports, ...rootEntry.dynamicImports], chunkByFile)
+    propagateOwnerRoot(
+      rootKey,
+      [rootEntry.file, ...rootEntry.imports, ...rootEntry.dynamicImports],
+      chunkByFile,
+    )
   }
 
   for (const rootChunk of chunks.filter((chunk) => chunk.isEntry || chunk.isDynamicEntry)) {
@@ -682,7 +717,11 @@ function propagateOwnerRoot(
   }
 }
 
-function addOwnerRoot(assetOwnerRoots: Map<string, Set<string>>, fileName: string, rootKey: string) {
+function addOwnerRoot(
+  assetOwnerRoots: Map<string, Set<string>>,
+  fileName: string,
+  rootKey: string,
+) {
   const ownerRoots = assetOwnerRoots.get(fileName) ?? new Set<string>()
   ownerRoots.add(rootKey)
   assetOwnerRoots.set(fileName, ownerRoots)
@@ -696,12 +735,14 @@ function getManifestEntryKey(entry: ManifestEntryRecord) {
   return entry.src ?? entry.key
 }
 
-function getRootKey(chunk: Pick<ChunkIndexRecord, 'facadeModule' | 'fileName' | 'manifestSourceKeys'>) {
+function getRootKey(
+  chunk: Pick<ChunkIndexRecord, "facadeModule" | "fileName" | "manifestSourceKeys">,
+) {
   return chunk.manifestSourceKeys[0] ?? chunk.facadeModule?.stableId ?? chunk.fileName
 }
 
 function normalizeModule(
-  moduleEntry: PluginArtifactV1['environments'][number]['chunks'][number]['modules'][number],
+  moduleEntry: PluginArtifactV1["environments"][number]["chunks"][number]["modules"][number],
   rootDir: string,
 ): NormalizedModuleV1 {
   const normalizedModuleReference = normalizeModuleReference(moduleEntry.rawId, rootDir)
@@ -715,7 +756,7 @@ function normalizeModule(
 
 function normalizeModuleReference(rawId: string, rootDir: string): NormalizedModuleReferenceV1 {
   const normalizedRawId = toPosixPath(String(rawId))
-  const virtualValue = normalizedRawId.startsWith('\0')
+  const virtualValue = normalizedRawId.startsWith("\0")
     ? `virtual:${normalizedRawId.slice(1)}`
     : normalizedRawId
   const [pathPart] = splitQuery(virtualValue)
@@ -725,15 +766,15 @@ function normalizeModuleReference(rawId: string, rootDir: string): NormalizedMod
     return {
       rawId: normalizedRawId,
       stableId: packagePath.stableId,
-      scope: 'package',
+      scope: "package",
     }
   }
 
-  if (pathPart.startsWith('virtual:')) {
+  if (pathPart.startsWith("virtual:")) {
     return {
       rawId: normalizedRawId,
       stableId: pathPart,
-      scope: 'virtual',
+      scope: "virtual",
     }
   }
 
@@ -743,17 +784,17 @@ function normalizeModuleReference(rawId: string, rootDir: string): NormalizedMod
       return {
         rawId: normalizedRawId,
         stableId: appRelativePath,
-        scope: 'app',
+        scope: "app",
       }
     }
   }
 
-  const cleanedPath = pathPart.replace(/^\.\//, '')
+  const cleanedPath = pathPart.replace(/^\.\//, "")
 
   return {
     rawId: normalizedRawId,
     stableId: cleanedPath,
-    scope: 'other',
+    scope: "other",
   }
 }
 
@@ -763,7 +804,7 @@ function normalizeOriginalFileName(value: string, rootDir: string) {
 
 function normalizeNodeModulesPath(value: string) {
   const normalizedValue = toPosixPath(value)
-  const marker = '/node_modules/'
+  const marker = "/node_modules/"
   const lastMarkerIndex = normalizedValue.lastIndexOf(marker)
 
   if (lastMarkerIndex === -1) {
@@ -771,22 +812,22 @@ function normalizeNodeModulesPath(value: string) {
   }
 
   let suffix = normalizedValue.slice(lastMarkerIndex + marker.length)
-  if (suffix.startsWith('.pnpm/')) {
-    const nestedMarker = '/node_modules/'
+  if (suffix.startsWith(".pnpm/")) {
+    const nestedMarker = "/node_modules/"
     const nestedIndex = suffix.indexOf(nestedMarker)
     if (nestedIndex !== -1) {
       suffix = suffix.slice(nestedIndex + nestedMarker.length)
     }
   }
 
-  const segments = suffix.split('/').filter(Boolean)
+  const segments = suffix.split("/").filter(Boolean)
   if (segments.length === 0) {
     return null
   }
 
-  const packageName = segments[0].startsWith('@') ? segments.slice(0, 2).join('/') : segments[0]
-  const packageDepth = packageName.startsWith('@') ? 2 : 1
-  const packagePath = segments.slice(packageDepth).join('/')
+  const packageName = segments[0].startsWith("@") ? segments.slice(0, 2).join("/") : segments[0]
+  const packageDepth = packageName.startsWith("@") ? 2 : 1
+  const packagePath = segments.slice(packageDepth).join("/")
 
   return {
     stableId: packagePath ? `pkg:${packageName}/${packagePath}` : `pkg:${packageName}`,
@@ -794,28 +835,28 @@ function normalizeNodeModulesPath(value: string) {
 }
 
 function packageNameFromStableId(stableId: string) {
-  if (!stableId.startsWith('pkg:')) {
+  if (!stableId.startsWith("pkg:")) {
     return null
   }
 
   const withoutPrefix = stableId.slice(4)
-  const segments = withoutPrefix.split('/')
-  if (withoutPrefix.startsWith('@')) {
-    return segments.slice(0, 2).join('/')
+  const segments = withoutPrefix.split("/")
+  if (withoutPrefix.startsWith("@")) {
+    return segments.slice(0, 2).join("/")
   }
 
   return segments[0]
 }
 
 function toPosixPath(value: string) {
-  return value.replaceAll('\\', '/')
+  return value.replaceAll("\\", "/")
 }
 
 function splitQuery(value: string) {
-  const queryIndex = value.indexOf('?')
+  const queryIndex = value.indexOf("?")
 
   if (queryIndex === -1) {
-    return [value, ''] as const
+    return [value, ""] as const
   }
 
   return [value.slice(0, queryIndex), value.slice(queryIndex + 1)] as const
@@ -829,7 +870,7 @@ function makeRelativeIfInside(basePath: string, candidatePath: string) {
     normalizedCandidate === normalizedBase ||
     normalizedCandidate.startsWith(`${normalizedBase}/`)
   ) {
-    return normalizedCandidate.slice(normalizedBase.length).replace(/^\//, '')
+    return normalizedCandidate.slice(normalizedBase.length).replace(/^\//, "")
   }
 
   return null
@@ -838,25 +879,25 @@ function makeRelativeIfInside(basePath: string, candidatePath: string) {
 function getFileKind(fileName: string) {
   const extension = getFileExtension(fileName).toLowerCase()
 
-  if (extension === '.css') {
-    return 'css'
+  if (extension === ".css") {
+    return "css"
   }
 
-  if (extension === '.js' || extension === '.mjs' || extension === '.cjs') {
-    return 'js'
+  if (extension === ".js" || extension === ".mjs" || extension === ".cjs") {
+    return "js"
   }
 
-  if (extension === '.html') {
-    return 'html'
+  if (extension === ".html") {
+    return "html"
   }
 
-  return extension.slice(1) || 'unknown'
+  return extension.slice(1) || "unknown"
 }
 
 function stripHashFromFileName(fileName: string) {
   const extension = getFileExtension(fileName)
   const baseName = getBaseName(fileName, extension)
-  return baseName.replace(/-[A-Za-z0-9_-]{6,}$/u, '')
+  return baseName.replace(/-[A-Za-z0-9_-]{6,}$/u, "")
 }
 
 function fileLabel(fileName: string) {
@@ -864,22 +905,22 @@ function fileLabel(fileName: string) {
 }
 
 function isAbsolutePath(value: string) {
-  return value.startsWith('/') || /^[A-Za-z]:\//.test(value)
+  return value.startsWith("/") || /^[A-Za-z]:\//.test(value)
 }
 
 function stripTrailingSlash(value: string) {
-  return value.replace(/\/$/, '')
+  return value.replace(/\/$/, "")
 }
 
 function getFileExtension(fileName: string) {
   const baseName = getBaseName(fileName)
-  const extensionIndex = baseName.lastIndexOf('.')
-  return extensionIndex === -1 ? '' : baseName.slice(extensionIndex)
+  const extensionIndex = baseName.lastIndexOf(".")
+  return extensionIndex === -1 ? "" : baseName.slice(extensionIndex)
 }
 
 function getBaseName(fileName: string, extension?: string) {
   const normalizedFileName = toPosixPath(fileName)
-  const baseName = normalizedFileName.slice(normalizedFileName.lastIndexOf('/') + 1)
+  const baseName = normalizedFileName.slice(normalizedFileName.lastIndexOf("/") + 1)
 
   if (!extension || !baseName.endsWith(extension)) {
     return baseName
@@ -897,37 +938,39 @@ function compareByStableJson(left: unknown, right: unknown) {
 }
 
 function stableStringify(value: unknown): string {
-  if (value === null || typeof value !== 'object') {
+  if (value === null || typeof value !== "object") {
     return JSON.stringify(value)
   }
 
   if (Array.isArray(value)) {
-    return `[${value.map((entry) => stableStringify(entry)).join(',')}]`
+    return `[${value.map((entry) => stableStringify(entry)).join(",")}]`
   }
 
   return `{${Object.entries(value as Record<string, unknown>)
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([key, entryValue]) => `${JSON.stringify(key)}:${stableStringify(entryValue)}`)
-    .join(',')}}`
+    .join(",")}}`
 }
 
 async function enqueueDeriveRun(env: AppBindings, repositoryId: string, scenarioRunId: string) {
   const messageResult = v.safeParse(deriveRunQueueMessageSchema, {
     schemaVersion: SCHEMA_VERSION_V1,
-    kind: 'derive-run',
+    kind: "derive-run",
     repositoryId,
     scenarioRunId,
     dedupeKey: `derive-run:${scenarioRunId}:v1`,
   })
 
   if (!messageResult.success) {
-    throw new Error(`Generated derive-run message is invalid: ${formatIssues(messageResult.issues)}`)
+    throw new Error(
+      `Generated derive-run message is invalid: ${formatIssues(messageResult.issues)}`,
+    )
   }
 
   const deriveRunMessage = messageResult.output as DeriveRunQueueMessage
 
   await env.DERIVE_RUN_QUEUE.send(deriveRunMessage, {
-    contentType: 'json',
+    contentType: "json",
   })
 }
 
@@ -985,7 +1028,7 @@ async function markScenarioRunFailed(
   await getDb(env)
     .update(schema.scenarioRuns)
     .set({
-      status: 'failed',
+      status: "failed",
       failureCode,
       failureMessage,
       updatedAt: timestamp,
@@ -997,7 +1040,7 @@ async function markScenarioRunFailed(
       env,
       failedScenarioRun.repositoryId,
       failedScenarioRun.commitGroupId,
-      'normalize-failed',
+      "normalize-failed",
     )
   }
 }
@@ -1009,6 +1052,6 @@ class TerminalNormalizeError extends Error {
     readonly persistFailure = true,
   ) {
     super(message)
-    this.name = 'TerminalNormalizeError'
+    this.name = "TerminalNormalizeError"
   }
 }

@@ -36,10 +36,7 @@
       {
         "kind": "split",
         "from": "assets/routing-common-Be-lyhSa.js",
-        "to": [
-          "assets/route-format-AlVtcXM2.js",
-          "assets/route-ui-CHe5M3Mx.js"
-        ]
+        "to": ["assets/route-format-AlVtcXM2.js", "assets/route-ui-CHe5M3Mx.js"]
       }
     ],
     "css": [
@@ -81,13 +78,8 @@
     "sharedChunks": [
       {
         "relation": "split",
-        "from": [
-          "assets/routing-common-Be-lyhSa.js"
-        ],
-        "to": [
-          "assets/route-format-AlVtcXM2.js",
-          "assets/route-ui-CHe5M3Mx.js"
-        ],
+        "from": ["assets/routing-common-Be-lyhSa.js"],
+        "to": ["assets/route-format-AlVtcXM2.js", "assets/route-ui-CHe5M3Mx.js"],
         "stableKeyPrefix": "shared-lineage:"
       }
     ],

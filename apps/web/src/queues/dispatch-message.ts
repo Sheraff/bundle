@@ -1,13 +1,13 @@
-import type { AppBindings } from '../env.js'
-import { handleDeriveRunMessage } from '../derive-runs.js'
-import { handlePublishGithubMessage } from '../github/publish-queue.js'
-import { getAppLogger, type AppLogger } from '../logger.js'
-import { handleMaterializeComparisonMessage } from '../materialize-comparison.js'
-import { handleNormalizeRunMessage } from '../normalize-runs.js'
-import { handleScheduleComparisonsMessage } from '../schedule-comparisons.js'
-import { handleRefreshSummariesMessage } from '../summaries/refresh-queue.js'
+import type { AppBindings } from "../env.js"
+import { handleDeriveRunMessage } from "../derive-runs.js"
+import { handlePublishGithubMessage } from "../github/publish-queue.js"
+import { getAppLogger, type AppLogger } from "../logger.js"
+import { handleMaterializeComparisonMessage } from "../materialize-comparison.js"
+import { handleNormalizeRunMessage } from "../normalize-runs.js"
+import { handleScheduleComparisonsMessage } from "../schedule-comparisons.js"
+import { handleRefreshSummariesMessage } from "../summaries/refresh-queue.js"
 
-type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
+type QueueMessageLike<TBody> = Pick<Message<TBody>, "ack" | "retry" | "body" | "id" | "attempts">
 
 export async function dispatchMessage(
   message: QueueMessageLike<unknown>,
@@ -15,29 +15,29 @@ export async function dispatchMessage(
   logger: AppLogger = getAppLogger(),
 ) {
   const body = message.body
-  const kind = typeof body === 'object' && body !== null && 'kind' in body ? body.kind : null
+  const kind = typeof body === "object" && body !== null && "kind" in body ? body.kind : null
 
   switch (kind) {
-    case 'normalize-run':
+    case "normalize-run":
       await handleNormalizeRunMessage(message, env, logger)
       return
-    case 'derive-run':
+    case "derive-run":
       await handleDeriveRunMessage(message, env, logger)
       return
-    case 'schedule-comparisons':
+    case "schedule-comparisons":
       await handleScheduleComparisonsMessage(message, env, logger)
       return
-    case 'materialize-comparison':
+    case "materialize-comparison":
       await handleMaterializeComparisonMessage(message, env, logger)
       return
-    case 'refresh-summaries':
+    case "refresh-summaries":
       await handleRefreshSummariesMessage(message, env, logger)
       return
-    case 'publish-github':
+    case "publish-github":
       await handlePublishGithubMessage(message, env, logger)
       return
     default:
-      logger.error('Dropping unknown queue message', body)
+      logger.error("Dropping unknown queue message", body)
       message.ack()
   }
 }

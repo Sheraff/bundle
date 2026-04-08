@@ -1,11 +1,17 @@
-import type { PrReviewSummaryV1, ReviewedScenarioSummaryV1 } from '@workspace/contracts'
+import type { PrReviewSummaryV1, ReviewedScenarioSummaryV1 } from "@workspace/contracts"
 
-import type { AppBindings } from '../env.js'
-import { sha256Hex } from '../shared/sha256-hex.js'
+import type { AppBindings } from "../env.js"
+import { sha256Hex } from "../shared/sha256-hex.js"
 
-import { buildPrCompareUrl, formatBytes, formatCount, formatSignedBytes, formatSignedPercentage } from './formatting.js'
-import { formatScenarioBadge, selectPrimaryItem, selectVisibleSeries } from './render-shared.js'
-import type { CommentPublicationPayload } from './types.js'
+import {
+  buildPrCompareUrl,
+  formatBytes,
+  formatCount,
+  formatSignedBytes,
+  formatSignedPercentage,
+} from "./formatting.js"
+import { formatScenarioBadge, selectPrimaryItem, selectVisibleSeries } from "./render-shared.js"
+import type { CommentPublicationPayload } from "./types.js"
 
 export async function buildCommentPublicationPayload(
   env: AppBindings,
@@ -16,52 +22,72 @@ export async function buildCommentPublicationPayload(
   summary: PrReviewSummaryV1,
 ): Promise<CommentPublicationPayload> {
   const marker = `<!-- bundle-review:pr:${pullRequestId} -->`
-  const openPrDiffUrl = buildPrCompareUrl(env.PUBLIC_APP_ORIGIN, owner, repository, pullRequestNumber, {
-    base: summary.baseSha,
-    head: summary.headSha,
-  })
+  const openPrDiffUrl = buildPrCompareUrl(
+    env.PUBLIC_APP_ORIGIN,
+    owner,
+    repository,
+    pullRequestNumber,
+    {
+      base: summary.baseSha,
+      head: summary.headSha,
+    },
+  )
   const visibleScenarioGroups = summary.scenarioGroups.filter(
-    (scenarioGroup) => scenarioGroup.reviewState !== 'neutral',
+    (scenarioGroup) => scenarioGroup.reviewState !== "neutral",
   )
   const headerCounts = [
     summary.counts.blockingRegressionCount > 0
-      ? formatCount(summary.counts.blockingRegressionCount, 'blocking regression')
+      ? formatCount(summary.counts.blockingRegressionCount, "blocking regression")
       : null,
-    summary.counts.regressionCount > 0 ? formatCount(summary.counts.regressionCount, 'regression') : null,
+    summary.counts.regressionCount > 0
+      ? formatCount(summary.counts.regressionCount, "regression")
+      : null,
     summary.counts.acknowledgedRegressionCount > 0
-      ? formatCount(summary.counts.acknowledgedRegressionCount, 'acknowledged regression')
+      ? formatCount(summary.counts.acknowledgedRegressionCount, "acknowledged regression")
       : null,
-    summary.counts.improvementCount > 0 ? formatCount(summary.counts.improvementCount, 'improvement') : null,
+    summary.counts.improvementCount > 0
+      ? formatCount(summary.counts.improvementCount, "improvement")
+      : null,
     summary.counts.pendingScenarioCount > 0
-      ? formatCount(summary.counts.pendingScenarioCount, 'pending scenario')
+      ? formatCount(summary.counts.pendingScenarioCount, "pending scenario")
       : null,
     summary.counts.inheritedScenarioCount > 0
-      ? formatCount(summary.counts.inheritedScenarioCount, 'inherited scenario')
+      ? formatCount(summary.counts.inheritedScenarioCount, "inherited scenario")
       : null,
     summary.counts.missingScenarioCount > 0
-      ? formatCount(summary.counts.missingScenarioCount, 'missing scenario')
+      ? formatCount(summary.counts.missingScenarioCount, "missing scenario")
       : null,
     summary.counts.failedScenarioCount > 0
-      ? formatCount(summary.counts.failedScenarioCount, 'failed scenario')
+      ? formatCount(summary.counts.failedScenarioCount, "failed scenario")
       : null,
   ].filter((value): value is string => value !== null)
   const lines = [
     `Bundle review: ${summary.overallState}`,
-    headerCounts.join('  ') || 'No changes detected',
+    headerCounts.join("  ") || "No changes detected",
     `[Open PR diff](${openPrDiffUrl})`,
   ]
 
   for (const scenarioGroup of visibleScenarioGroups) {
-    lines.push('', ...renderCommentScenarioGroup(env, owner, repository, pullRequestNumber, summary, scenarioGroup))
+    lines.push(
+      "",
+      ...renderCommentScenarioGroup(
+        env,
+        owner,
+        repository,
+        pullRequestNumber,
+        summary,
+        scenarioGroup,
+      ),
+    )
   }
 
   if (summary.counts.unchangedScenarioCount > 0) {
-    lines.push('', `${summary.counts.unchangedScenarioCount} unchanged scenarios omitted`)
+    lines.push("", `${summary.counts.unchangedScenarioCount} unchanged scenarios omitted`)
   }
 
-  lines.push('', marker)
+  lines.push("", marker)
 
-  const body = `${lines.join('\n')}\n`
+  const body = `${lines.join("\n")}\n`
   return {
     body,
     marker,
@@ -84,18 +110,18 @@ function renderCommentScenarioGroup(
     badges.push(`+${scenarioGroup.additionalChangedSeriesCount} more changed series`)
   }
 
-  if (scenarioGroup.acknowledgedItemCount > 0 && scenarioGroup.reviewState !== 'acknowledged') {
+  if (scenarioGroup.acknowledgedItemCount > 0 && scenarioGroup.reviewState !== "acknowledged") {
     badges.push(`${scenarioGroup.acknowledgedItemCount} acknowledged`)
   }
 
   const lines = [
-    `${scenarioGroup.scenarioSlug}${badges.length > 0 ? `  ${badges.map((badge) => `[${badge}]`).join(' ')}` : ''}`,
+    `${scenarioGroup.scenarioSlug}${badges.length > 0 ? `  ${badges.map((badge) => `[${badge}]`).join(" ")}` : ""}`,
   ]
 
   if (!visibleSeries) {
     if (scenarioGroup.hasNewerFailedRun) {
       lines.push(
-        `Latest rerun failed${scenarioGroup.latestFailureMessage ? `: ${scenarioGroup.latestFailureMessage}` : '.'}`,
+        `Latest rerun failed${scenarioGroup.latestFailureMessage ? `: ${scenarioGroup.latestFailureMessage}` : "."}`,
       )
     }
 
@@ -107,17 +133,17 @@ function renderCommentScenarioGroup(
 
   if (primaryItem) {
     lines.push(
-      `${formatBytes(primaryItem.currentValue)} vs ${formatBytes(primaryItem.baselineValue)}  (${formatSignedBytes(primaryItem.deltaValue)}, ${formatSignedPercentage(primaryItem.percentageDelta)})${primaryItem.acknowledged ? '  [Acknowledged]' : ''}`,
+      `${formatBytes(primaryItem.currentValue)} vs ${formatBytes(primaryItem.baselineValue)}  (${formatSignedBytes(primaryItem.deltaValue)}, ${formatSignedPercentage(primaryItem.percentageDelta)})${primaryItem.acknowledged ? "  [Acknowledged]" : ""}`,
     )
-  } else if (visibleSeries.status === 'no-baseline') {
-    lines.push('No baseline available for this series yet.')
-  } else if (visibleSeries.status === 'failed') {
+  } else if (visibleSeries.status === "no-baseline") {
+    lines.push("No baseline available for this series yet.")
+  } else if (visibleSeries.status === "failed") {
     lines.push(`Comparison failed: ${visibleSeries.failureMessage}`)
   }
 
   if (scenarioGroup.hasNewerFailedRun) {
     lines.push(
-      `Latest rerun failed${scenarioGroup.latestFailureMessage ? `: ${scenarioGroup.latestFailureMessage}` : '.'}`,
+      `Latest rerun failed${scenarioGroup.latestFailureMessage ? `: ${scenarioGroup.latestFailureMessage}` : "."}`,
     )
   }
 

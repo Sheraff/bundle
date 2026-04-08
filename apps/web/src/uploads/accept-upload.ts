@@ -3,25 +3,25 @@ import {
   normalizeRunQueueMessageSchema,
   type UploadScenarioRunAcceptedResponseV1,
   type UploadScenarioRunEnvelopeV1,
-} from '@workspace/contracts'
-import { eq } from 'drizzle-orm'
-import * as v from 'valibot'
-import { ulid } from 'ulid'
+} from "@workspace/contracts"
+import { eq } from "drizzle-orm"
+import * as v from "valibot"
+import { ulid } from "ulid"
 
-import { getDb, schema } from '../db/index.js'
-import { selectOne } from '../db/select-one.js'
-import type { AppBindings } from '../env.js'
-import { enqueueRefreshSummaries } from '../summaries/refresh-queue.js'
-import { formatIssues } from '../shared/format-issues.js'
-import { sha256Hex } from '../shared/sha256-hex.js'
+import { getDb, schema } from "../db/index.js"
+import { selectOne } from "../db/select-one.js"
+import type { AppBindings } from "../env.js"
+import { enqueueRefreshSummaries } from "../summaries/refresh-queue.js"
+import { formatIssues } from "../shared/format-issues.js"
+import { sha256Hex } from "../shared/sha256-hex.js"
 
-import { buildAcceptedResponse, type AcceptedScenarioRun } from './accepted-response.js'
-import { persistScenarioRun } from './persist-scenario-run.js'
+import { buildAcceptedResponse, type AcceptedScenarioRun } from "./accepted-response.js"
+import { persistScenarioRun } from "./persist-scenario-run.js"
 import {
   buildStoredUploadTexts,
   deleteRawUploadObjects,
   persistRawUploadObjects,
-} from './raw-upload-storage.js'
+} from "./raw-upload-storage.js"
 
 type AppDb = ReturnType<typeof getDb>
 
@@ -33,9 +33,9 @@ export type AcceptUploadResult =
   | {
       ok: false
       code:
-        | 'normalize_queue_unavailable'
-        | 'raw_upload_storage_unavailable'
-        | 'upload_persistence_failed'
+        | "normalize_queue_unavailable"
+        | "raw_upload_storage_unavailable"
+        | "upload_persistence_failed"
       message: string
     }
 
@@ -75,8 +75,8 @@ export async function acceptUpload(
 
     return {
       ok: false,
-      code: 'raw_upload_storage_unavailable',
-      message: 'The upload could not be accepted because raw evidence could not be persisted.',
+      code: "raw_upload_storage_unavailable",
+      message: "The upload could not be accepted because raw evidence could not be persisted.",
     }
   }
 
@@ -96,8 +96,8 @@ export async function acceptUpload(
 
     return {
       ok: false,
-      code: 'upload_persistence_failed',
-      message: 'The upload could not be accepted because upload metadata could not be persisted.',
+      code: "upload_persistence_failed",
+      message: "The upload could not be accepted because upload metadata could not be persisted.",
     }
   }
 
@@ -106,8 +106,8 @@ export async function acceptUpload(
 
     return {
       ok: false,
-      code: 'upload_persistence_failed',
-      message: 'The upload could not be accepted because upload metadata could not be persisted.',
+      code: "upload_persistence_failed",
+      message: "The upload could not be accepted because upload metadata could not be persisted.",
     }
   }
 
@@ -126,15 +126,16 @@ export async function acceptUpload(
       env,
       persistedScenarioRun.repositoryId,
       persistedScenarioRun.commitGroupId,
-      'upload-accepted',
+      "upload-accepted",
     )
   } catch {
     await rollbackScenarioRunInsert(db, env, scenarioRunId, rawArtifactR2Key, rawEnvelopeR2Key)
 
     return {
       ok: false,
-      code: 'normalize_queue_unavailable',
-      message: 'The upload could not be accepted because follow-up processing could not be scheduled.',
+      code: "normalize_queue_unavailable",
+      message:
+        "The upload could not be accepted because follow-up processing could not be scheduled.",
     }
   }
 
@@ -144,25 +145,23 @@ export async function acceptUpload(
   }
 }
 
-async function enqueueNormalizeRun(
-  env: AppBindings,
-  repositoryId: string,
-  scenarioRunId: string,
-) {
+async function enqueueNormalizeRun(env: AppBindings, repositoryId: string, scenarioRunId: string) {
   const messageResult = v.safeParse(normalizeRunQueueMessageSchema, {
     schemaVersion: SCHEMA_VERSION_V1,
-    kind: 'normalize-run',
+    kind: "normalize-run",
     repositoryId,
     scenarioRunId,
     dedupeKey: `normalize-run:${scenarioRunId}:v1`,
   })
 
   if (!messageResult.success) {
-    throw new Error(`Generated normalize-run message is invalid: ${formatIssues(messageResult.issues)}`)
+    throw new Error(
+      `Generated normalize-run message is invalid: ${formatIssues(messageResult.issues)}`,
+    )
   }
 
   await env.NORMALIZE_RUN_QUEUE.send(messageResult.output, {
-    contentType: 'json',
+    contentType: "json",
   })
 }
 
@@ -195,16 +194,16 @@ async function rollbackScenarioRunInsert(
 }
 
 export function stableStringify(value: unknown): string {
-  if (value === null || typeof value !== 'object') {
+  if (value === null || typeof value !== "object") {
     return JSON.stringify(value)
   }
 
   if (Array.isArray(value)) {
-    return `[${value.map((item) => stableStringify(item)).join(',')}]`
+    return `[${value.map((item) => stableStringify(item)).join(",")}]`
   }
 
   return `{${Object.entries(value as Record<string, unknown>)
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([key, entryValue]) => `${JSON.stringify(key)}:${stableStringify(entryValue)}`)
-    .join(',')}}`
+    .join(",")}}`
 }

@@ -10,11 +10,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
-    "lib": [
-      "ESNext"
-    ],
-    "types": [
-      "node"
-    ]
+    "lib": ["ESNext"],
+    "types": ["node"]
   }
 }

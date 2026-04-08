@@ -1,4 +1,4 @@
-export type RelationConfidence = 'exact' | 'strong' | 'low'
+export type RelationConfidence = "exact" | "strong" | "low"
 
 export interface StableIdentityModuleReference {
   stableId: string
@@ -48,7 +48,7 @@ export interface StableIdentityEnvironment {
 }
 
 export interface SameRelation {
-  relation: 'same'
+  relation: "same"
   from: string
   to: string
   confidence: RelationConfidence
@@ -56,7 +56,7 @@ export interface SameRelation {
 }
 
 export interface SplitRelation {
-  relation: 'split'
+  relation: "split"
   from: string
   to: string[]
   confidence: RelationConfidence
@@ -64,7 +64,7 @@ export interface SplitRelation {
 }
 
 export interface MergeRelation {
-  relation: 'merge'
+  relation: "merge"
   from: string[]
   to: string
   confidence: RelationConfidence
@@ -72,20 +72,20 @@ export interface MergeRelation {
 }
 
 export interface AmbiguousRelation {
-  relation: 'ambiguous'
+  relation: "ambiguous"
   from: string
   to: string[]
-  confidence: 'low'
+  confidence: "low"
   evidence: string[]
 }
 
 export interface AddedRelation {
-  relation: 'added'
+  relation: "added"
   to: string
 }
 
 export interface RemovedRelation {
-  relation: 'removed'
+  relation: "removed"
   from: string
 }
 
@@ -187,8 +187,8 @@ function analyzeEnvironment(environment: StableIdentityEnvironment): Environment
     entries: chunks.filter((chunk) => chunk.isEntry),
     dynamicEntries: chunks.filter((chunk) => chunk.isDynamicEntry),
     sharedChunks: chunks.filter((chunk) => !chunk.isEntry && !chunk.isDynamicEntry),
-    cssAssets: environment.assets.filter((asset) => asset.kind === 'css'),
-    staticAssets: environment.assets.filter((asset) => asset.kind !== 'css'),
+    cssAssets: environment.assets.filter((asset) => asset.kind === "css"),
+    staticAssets: environment.assets.filter((asset) => asset.kind !== "css"),
     chunkByFile,
   }
 }
@@ -213,7 +213,10 @@ function jaccard(leftValues: string[], rightValues: string[]) {
   return union === 0 ? 0 : intersection / union
 }
 
-function weightedIntersection(fromWeights: Record<string, number>, toWeights: Record<string, number>) {
+function weightedIntersection(
+  fromWeights: Record<string, number>,
+  toWeights: Record<string, number>,
+) {
   let total = 0
 
   for (const [stableId, fromSize] of Object.entries(fromWeights)) {
@@ -252,11 +255,16 @@ function weightedCoverage(
   return total === 0 ? 0 : covered / total
 }
 
-function getPrimaryIdentity(chunk: Pick<StableIdentityChunk, 'manifestSourceKeys' | 'facadeModule'>) {
+function getPrimaryIdentity(
+  chunk: Pick<StableIdentityChunk, "manifestSourceKeys" | "facadeModule">,
+) {
   return chunk.manifestSourceKeys[0] ?? chunk.facadeModule?.stableId ?? null
 }
 
-function matchRootChunks(fromChunks: AnnotatedChunk[], toChunks: AnnotatedChunk[]): RootMatchCollection {
+function matchRootChunks(
+  fromChunks: AnnotatedChunk[],
+  toChunks: AnnotatedChunk[],
+): RootMatchCollection {
   const same: SameRelation[] = []
   const added: AddedRelation[] = []
   const removed: RemovedRelation[] = []
@@ -277,16 +285,16 @@ function matchRootChunks(fromChunks: AnnotatedChunk[], toChunks: AnnotatedChunk[
 
   for (const fromChunk of fromChunks) {
     const identity = getPrimaryIdentity(fromChunk)
-    const candidates = identity ? toByIdentity.get(identity) ?? [] : []
+    const candidates = identity ? (toByIdentity.get(identity) ?? []) : []
 
     if (candidates.length === 1) {
       const toChunk = candidates[0]
       matchedTo.add(toChunk.fileName)
       same.push({
-        relation: 'same',
+        relation: "same",
         from: fromChunk.fileName,
         to: toChunk.fileName,
-        confidence: 'exact',
+        confidence: "exact",
         evidence: sortUnique(
           compactStrings([
             identity ? `identity:${identity}` : null,
@@ -300,12 +308,12 @@ function matchRootChunks(fromChunks: AnnotatedChunk[], toChunks: AnnotatedChunk[
       continue
     }
 
-    removed.push({ relation: 'removed', from: fromChunk.fileName })
+    removed.push({ relation: "removed", from: fromChunk.fileName })
   }
 
   for (const toChunk of toChunks) {
     if (!matchedTo.has(toChunk.fileName)) {
-      added.push({ relation: 'added', to: toChunk.fileName })
+      added.push({ relation: "added", to: toChunk.fileName })
     }
   }
 
@@ -325,11 +333,8 @@ function scoreSharedChunkCandidate(fromChunk: AnnotatedChunk, toChunk: Annotated
 
   const fromCoverage = overlap / Math.max(fromChunk.totalRenderedLength, 1)
   const toCoverage = overlap / Math.max(toChunk.totalRenderedLength, 1)
-  const moduleScore = overlap / Math.max(
-    fromChunk.totalRenderedLength,
-    toChunk.totalRenderedLength,
-    1,
-  )
+  const moduleScore =
+    overlap / Math.max(fromChunk.totalRenderedLength, toChunk.totalRenderedLength, 1)
 
   return {
     from: fromChunk.fileName,
@@ -347,14 +352,14 @@ function classifyConfidence(candidate: {
   toCoverage: number
 }): RelationConfidence {
   if (candidate.score >= 0.9 && candidate.fromCoverage >= 0.95 && candidate.toCoverage >= 0.95) {
-    return 'exact'
+    return "exact"
   }
 
   if (candidate.score >= 0.75 && candidate.fromCoverage >= 0.7 && candidate.toCoverage >= 0.7) {
-    return 'strong'
+    return "strong"
   }
 
-  return 'low'
+  return "low"
 }
 
 function scoreSharedChunkFallback(fromChunk: AnnotatedChunk, toChunk: AnnotatedChunk) {
@@ -453,10 +458,10 @@ function matchSharedChunks(
       }
 
       split.push({
-        relation: 'split',
+        relation: "split",
         from: fromChunk.fileName,
         to: selected.map((entry) => entry.to).sort((left, right) => left.localeCompare(right)),
-        confidence: coverage >= 0.99 ? 'strong' : 'low',
+        confidence: coverage >= 0.99 ? "strong" : "low",
         evidence: [`fromCoverage:${coverage.toFixed(3)}`],
       })
     }
@@ -502,10 +507,10 @@ function matchSharedChunks(
       }
 
       merge.push({
-        relation: 'merge',
+        relation: "merge",
         from: selected.map((entry) => entry.from).sort((left, right) => left.localeCompare(right)),
         to: toChunk.fileName,
-        confidence: coverage >= 0.99 ? 'strong' : 'low',
+        confidence: coverage >= 0.99 ? "strong" : "low",
         evidence: [`toCoverage:${coverage.toFixed(3)}`],
       })
     }
@@ -525,7 +530,9 @@ function matchSharedChunks(
     }
 
     const best = ranked[0]
-    const toRanked = (byTo.get(best.to) ?? []).slice().sort((left, right) => right.score - left.score)
+    const toRanked = (byTo.get(best.to) ?? [])
+      .slice()
+      .sort((left, right) => right.score - left.score)
     const secondBest = ranked[1]
     const mutualBest = toRanked[0]?.from === fromChunk.fileName
     const clearlyBest = !secondBest || best.score - secondBest.score >= 0.15
@@ -534,7 +541,7 @@ function matchSharedChunks(
       matchedFrom.add(best.from)
       matchedTo.add(best.to)
       same.push({
-        relation: 'same',
+        relation: "same",
         from: best.from,
         to: best.to,
         confidence: classifyConfidence(best),
@@ -588,10 +595,12 @@ function matchSharedChunks(
     }
 
     ambiguous.push({
-      relation: 'ambiguous',
+      relation: "ambiguous",
       from: fromChunk.fileName,
-      to: selected.map((candidate) => candidate.to).sort((left, right) => left.localeCompare(right)),
-      confidence: 'low',
+      to: selected
+        .map((candidate) => candidate.to)
+        .sort((left, right) => left.localeCompare(right)),
+      confidence: "low",
       evidence: compactStrings([
         `bestScore:${best.score.toFixed(3)}`,
         `bestFromCoverage:${best.fromCoverage.toFixed(3)}`,
@@ -627,30 +636,33 @@ function matchSharedChunks(
       .filter((entry) => entry.score)
       .sort((left, right) => right.score!.score - left.score!.score)
 
-    if (reverseCandidates.length !== 1 || reverseCandidates[0].chunk.fileName !== fromChunk.fileName) {
+    if (
+      reverseCandidates.length !== 1 ||
+      reverseCandidates[0].chunk.fileName !== fromChunk.fileName
+    ) {
       continue
     }
 
     matchedFrom.add(fromChunk.fileName)
     matchedTo.add(target.chunk.fileName)
     same.push({
-      relation: 'same',
+      relation: "same",
       from: fromChunk.fileName,
       to: target.chunk.fileName,
-      confidence: 'low',
+      confidence: "low",
       evidence: target.score!.evidence,
     })
   }
 
   for (const chunk of fromChunks) {
     if (!matchedFrom.has(chunk.fileName) && !ambiguousFrom.has(chunk.fileName)) {
-      removed.push({ relation: 'removed', from: chunk.fileName })
+      removed.push({ relation: "removed", from: chunk.fileName })
     }
   }
 
   for (const chunk of toChunks) {
     if (!matchedTo.has(chunk.fileName) && !ambiguousTo.has(chunk.fileName)) {
-      added.push({ relation: 'added', to: chunk.fileName })
+      added.push({ relation: "added", to: chunk.fileName })
     }
   }
 
@@ -682,10 +694,10 @@ function exactAssetKeyMatches(fromAssets: StableIdentityAsset[], toAssets: Stabl
       matchedFrom.add(asset.fileName)
       matchedTo.add(target.fileName)
       same.push({
-        relation: 'same',
+        relation: "same",
         from: asset.fileName,
         to: target.fileName,
-        confidence: 'exact',
+        confidence: "exact",
         evidence: [`source:${asset.sourceKeys.find((key) => target.sourceKeys.includes(key))}`],
       })
     }
@@ -854,11 +866,13 @@ function matchAssets(
       }
 
       split.push({
-        relation: 'split',
+        relation: "split",
         from: fromAsset.fileName,
-        to: selected.map((entry) => entry.asset.fileName).sort((left, right) => left.localeCompare(right)),
-        confidence: 'strong',
-        evidence: ['importerCoverage:1.000'],
+        to: selected
+          .map((entry) => entry.asset.fileName)
+          .sort((left, right) => left.localeCompare(right)),
+        confidence: "strong",
+        evidence: ["importerCoverage:1.000"],
       })
     }
   }
@@ -902,11 +916,13 @@ function matchAssets(
       }
 
       merge.push({
-        relation: 'merge',
-        from: selected.map((entry) => entry.asset.fileName).sort((left, right) => left.localeCompare(right)),
+        relation: "merge",
+        from: selected
+          .map((entry) => entry.asset.fileName)
+          .sort((left, right) => left.localeCompare(right)),
         to: toAsset.fileName,
-        confidence: 'strong',
-        evidence: ['reverseCoverage:1.000'],
+        confidence: "strong",
+        evidence: ["reverseCoverage:1.000"],
       })
     }
   }
@@ -932,10 +948,10 @@ function matchAssets(
       matchedFrom.add(fromAsset.fileName)
       matchedTo.add(best.asset.fileName)
       same.push({
-        relation: 'same',
+        relation: "same",
         from: fromAsset.fileName,
         to: best.asset.fileName,
-        confidence: 'strong',
+        confidence: "strong",
         evidence: best.score!.evidence,
       })
       continue
@@ -950,10 +966,10 @@ function matchAssets(
       matchedFrom.add(fromAsset.fileName)
       matchedTo.add(best.asset.fileName)
       same.push({
-        relation: 'same',
+        relation: "same",
         from: fromAsset.fileName,
         to: best.asset.fileName,
-        confidence: best.score!.score >= 0.9 ? 'exact' : 'strong',
+        confidence: best.score!.score >= 0.9 ? "exact" : "strong",
         evidence: best.score!.evidence,
       })
     }
@@ -961,15 +977,18 @@ function matchAssets(
 
   const removed = fromAssets
     .filter((asset) => !matchedFrom.has(asset.fileName))
-    .map<RemovedRelation>((asset) => ({ relation: 'removed', from: asset.fileName }))
+    .map<RemovedRelation>((asset) => ({ relation: "removed", from: asset.fileName }))
   const added = toAssets
     .filter((asset) => !matchedTo.has(asset.fileName))
-    .map<AddedRelation>((asset) => ({ relation: 'added', to: asset.fileName }))
+    .map<AddedRelation>((asset) => ({ relation: "added", to: asset.fileName }))
 
   return { same, split, merge, removed, added }
 }
 
-function summarizeModules(fromAnalysis: EnvironmentAnalysis, toAnalysis: EnvironmentAnalysis): ModuleSummary {
+function summarizeModules(
+  fromAnalysis: EnvironmentAnalysis,
+  toAnalysis: EnvironmentAnalysis,
+): ModuleSummary {
   const fromModules = new Map<string, number>()
   const toModules = new Map<string, number>()
 

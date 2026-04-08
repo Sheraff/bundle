@@ -6,5 +6,5 @@ export function RouteShell({ caption, title, summary, children }) {
       <p>{summary}</p>
       {children}
     </section>
-  );
+  )
 }

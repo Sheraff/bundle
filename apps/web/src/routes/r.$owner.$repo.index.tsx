@@ -2,58 +2,61 @@ import {
   DEFAULT_LENS_SLUG,
   nonEmptyStringSchema,
   publicRepositoryRouteParamsSchema,
-} from '@workspace/contracts'
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import { Link, createFileRoute } from "@tanstack/react-router"
+import { createServerFn } from "@tanstack/react-start"
+import * as v from "valibot"
 
-import {
-  getRepositoryOverviewPageData,
-} from '../lib/public-read-models.server.js'
+import { getRepositoryOverviewPageData } from "../lib/public-read-models.server.js"
 import {
   formatBytes,
   formatSignedBytes,
   formatSignedPercentage,
   shortSha,
-} from '../lib/formatting.js'
+} from "../lib/formatting.js"
 import {
   describeNeutralDelta,
   describeStatusScenarioDetail,
   formatSeriesLabel,
   formatStateBadge,
-} from '../lib/public-route-presentation.js'
+} from "../lib/public-route-presentation.js"
 
 const repositoryOverviewSearchSchema = v.strictObject({
   branch: v.optional(nonEmptyStringSchema),
   lens: v.optional(nonEmptyStringSchema, DEFAULT_LENS_SLUG),
 })
 
-const getRepositoryOverview = createServerFn({ method: 'GET' })
-  .inputValidator(v.strictObject({
-    params: publicRepositoryRouteParamsSchema,
-    search: repositoryOverviewSearchSchema,
-  }))
-  .handler(({ data, context }) => getRepositoryOverviewPageData(context.env, {
-    owner: data.params.owner,
-    repo: data.params.repo,
-    branch: data.search.branch,
-    lens: data.search.lens,
-  }))
+const getRepositoryOverview = createServerFn({ method: "GET" })
+  .inputValidator(
+    v.strictObject({
+      params: publicRepositoryRouteParamsSchema,
+      search: repositoryOverviewSearchSchema,
+    }),
+  )
+  .handler(({ data, context }) =>
+    getRepositoryOverviewPageData(context.env, {
+      owner: data.params.owner,
+      repo: data.params.repo,
+      branch: data.search.branch,
+      lens: data.search.lens,
+    }),
+  )
 
-export const Route = createFileRoute('/r/$owner/$repo/')({
+export const Route = createFileRoute("/r/$owner/$repo/")({
   validateSearch: repositoryOverviewSearchSchema,
   loaderDeps: ({ search }) => search,
-  loader: ({ params, deps }) => getRepositoryOverview({
-    data: {
-      params,
-      search: deps,
-    },
-  }),
+  loader: ({ params, deps }) =>
+    getRepositoryOverview({
+      data: {
+        params,
+        search: deps,
+      },
+    }),
   component: RepositoryOverviewRouteComponent,
 })
 
 type RepositoryOverviewData = ReturnType<typeof Route.useLoaderData>
-type RepositoryScenarioCatalogRow = RepositoryOverviewData['scenarioCatalog'][number]
+type RepositoryScenarioCatalogRow = RepositoryOverviewData["scenarioCatalog"][number]
 
 function RepositoryOverviewRouteComponent() {
   const data = Route.useLoaderData()
@@ -72,7 +75,7 @@ function RepositoryOverviewRouteComponent() {
 
       <section>
         <h2>Filters</h2>
-        <p>Current branch: {data.branch ?? 'No branch data yet'}</p>
+        <p>Current branch: {data.branch ?? "No branch data yet"}</p>
         <p>Current lens: {data.lens}</p>
         <p>Available branches:</p>
         <ul>
@@ -163,14 +166,14 @@ function RepositoryOverviewRouteComponent() {
         {data.latestImportantCompare ? (
           <>
             <p>Scenario: {data.latestImportantCompare.scenarioSlug}</p>
-             <p>
-               Series: {data.latestImportantCompare.environment} / {data.latestImportantCompare.entrypoint} /{' '}
-               {data.latestImportantCompare.lens}
-             </p>
-             <p>
-              {formatBytes(data.latestImportantCompare.primaryItem.currentValue)} vs{' '}
-              {formatBytes(data.latestImportantCompare.primaryItem.baselineValue)} ({' '}
-              {formatSignedBytes(data.latestImportantCompare.primaryItem.deltaValue)},{' '}
+            <p>
+              Series: {data.latestImportantCompare.environment} /{" "}
+              {data.latestImportantCompare.entrypoint} / {data.latestImportantCompare.lens}
+            </p>
+            <p>
+              {formatBytes(data.latestImportantCompare.primaryItem.currentValue)} vs{" "}
+              {formatBytes(data.latestImportantCompare.primaryItem.baselineValue)} ({" "}
+              {formatSignedBytes(data.latestImportantCompare.primaryItem.deltaValue)},{" "}
               {formatSignedPercentage(data.latestImportantCompare.primaryItem.percentageDelta)})
             </p>
             <p>
@@ -210,7 +213,7 @@ function RepositoryOverviewRouteComponent() {
           <tbody>
             {data.scenarioCatalog.map((row) => (
               <RepositoryScenarioRow
-                key={`${row.kind}:${row.kind === 'known' ? row.scenario.id : row.scenario.scenarioId}`}
+                key={`${row.kind}:${row.kind === "known" ? row.scenario.id : row.scenario.scenarioId}`}
                 owner={data.repository.owner}
                 repo={data.repository.name}
                 branch={data.branch ?? undefined}
@@ -225,17 +228,22 @@ function RepositoryOverviewRouteComponent() {
   )
 }
 
-function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
+function RepositoryScenarioRow({
+  owner,
+  repo,
+  branch,
+  lens,
+  row,
+}: {
   owner: string
   repo: string
   branch?: string
   lens: string
   row: RepositoryScenarioCatalogRow
 }) {
-
-    if (row.kind === 'fresh') {
-      const primarySeries = row.primarySeries
-      const primaryItem = row.primaryItem
+  if (row.kind === "fresh") {
+    const primarySeries = row.primarySeries
+    const primaryItem = row.primaryItem
 
     return (
       <tr>
@@ -245,27 +253,25 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
             params={{ owner, repo, scenario: row.scenario.scenarioSlug }}
             search={{
               branch,
-              env: 'all',
-              entrypoint: 'all',
+              env: "all",
+              entrypoint: "all",
               lens,
             }}
           >
             {row.scenario.scenarioSlug}
           </Link>
         </td>
-        <td>{formatStateBadge(row.scenario.hasNewerFailedRun ? 'warning' : 'fresh')}</td>
-        <td>
-          {primarySeries ? formatSeriesLabel(primarySeries) : 'No active series'}
-        </td>
-        <td>{primarySeries ? describeNeutralDelta(primarySeries, primaryItem) : 'No delta'}</td>
+        <td>{formatStateBadge(row.scenario.hasNewerFailedRun ? "warning" : "fresh")}</td>
+        <td>{primarySeries ? formatSeriesLabel(primarySeries) : "No active series"}</td>
+        <td>{primarySeries ? describeNeutralDelta(primarySeries, primaryItem) : "No delta"}</td>
         <td>
           <Link
             to="/r/$owner/$repo/scenarios/$scenario"
             params={{ owner, repo, scenario: row.scenario.scenarioSlug }}
             search={{
               branch,
-              env: 'all',
-              entrypoint: 'all',
+              env: "all",
+              entrypoint: "all",
               lens,
             }}
           >
@@ -273,7 +279,7 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
           </Link>
           {primarySeries?.selectedBaseCommitSha ? (
             <>
-              {' '}
+              {" "}
               <Link
                 to="/r/$owner/$repo/compare"
                 from={Route.fullPath}
@@ -295,7 +301,7 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
     )
   }
 
-  if (row.kind === 'status') {
+  if (row.kind === "status") {
     return (
       <tr>
         <td>
@@ -304,8 +310,8 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
             params={{ owner, repo, scenario: row.scenario.scenarioSlug }}
             search={{
               branch,
-              env: 'all',
-              entrypoint: 'all',
+              env: "all",
+              entrypoint: "all",
               lens,
             }}
           >
@@ -321,8 +327,8 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
             params={{ owner, repo, scenario: row.scenario.scenarioSlug }}
             search={{
               branch,
-              env: 'all',
-              entrypoint: 'all',
+              env: "all",
+              entrypoint: "all",
               lens,
             }}
           >
@@ -341,15 +347,15 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
           params={{ owner, repo, scenario: row.scenario.slug }}
           search={{
             branch,
-            env: 'all',
-            entrypoint: 'all',
+            env: "all",
+            entrypoint: "all",
             lens,
           }}
         >
           {row.scenario.slug}
         </Link>
       </td>
-      <td>{formatStateBadge('known')}</td>
+      <td>{formatStateBadge("known")}</td>
       <td>No active summary row yet</td>
       <td>Awaiting the first processed branch summary</td>
       <td>
@@ -358,8 +364,8 @@ function RepositoryScenarioRow({ owner, repo, branch, lens, row }: {
           params={{ owner, repo, scenario: row.scenario.slug }}
           search={{
             branch,
-            env: 'all',
-            entrypoint: 'all',
+            env: "all",
+            entrypoint: "all",
             lens,
           }}
         >

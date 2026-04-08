@@ -43,18 +43,10 @@
       "file": "assets/client-Bna4RxeJ.js",
       "isEntry": true,
       "isDynamicEntry": false,
-      "imports": [
-        "_browser-core-DuAyHwF7.js"
-      ],
-      "dynamicImports": [
-        "src/shared/clientDiagnostics.js"
-      ],
-      "css": [
-        "assets/client-Dy2InDUL.css"
-      ],
-      "assets": [
-        "assets/client-badge-DaIo6-rs.svg"
-      ]
+      "imports": ["_browser-core-DuAyHwF7.js"],
+      "dynamicImports": ["src/shared/clientDiagnostics.js"],
+      "css": ["assets/client-Dy2InDUL.css"],
+      "assets": ["assets/client-badge-DaIo6-rs.svg"]
     },
     {
       "key": "src/shared/clientDiagnostics.js",
@@ -63,9 +55,7 @@
       "file": "assets/clientDiagnostics-DdU_IiUS.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_browser-core-DuAyHwF7.js"
-      ],
+      "imports": ["_browser-core-DuAyHwF7.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -90,9 +80,7 @@
           "stableId": "src/shared/clientFrame.js",
           "scope": "app",
           "renderedLength": 574,
-          "renderedExports": [
-            "renderClientFrame"
-          ],
+          "renderedExports": ["renderClientFrame"],
           "removedExports": []
         },
         {
@@ -100,9 +88,7 @@
           "stableId": "src/shared/formatBytes.js",
           "scope": "app",
           "renderedLength": 122,
-          "renderedExports": [
-            "formatBytes"
-          ],
+          "renderedExports": ["formatBytes"],
           "removedExports": []
         },
         {
@@ -110,9 +96,7 @@
           "stableId": "src/shared/renderMetrics.js",
           "scope": "app",
           "renderedLength": 324,
-          "renderedExports": [
-            "renderMetrics"
-          ],
+          "renderedExports": ["renderMetrics"],
           "removedExports": []
         }
       ],
@@ -138,28 +122,18 @@
         "stableId": "src/entry-client.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/browser-core-DuAyHwF7.js"
-      ],
-      "dynamicImports": [
-        "assets/clientDiagnostics-DdU_IiUS.js"
-      ],
+      "imports": ["assets/browser-core-DuAyHwF7.js"],
+      "dynamicImports": ["assets/clientDiagnostics-DdU_IiUS.js"],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/client-Dy2InDUL.css"
-      ],
-      "importedAssets": [
-        "assets/client-badge-DaIo6-rs.svg"
-      ],
+      "importedCss": ["assets/client-Dy2InDUL.css"],
+      "importedAssets": ["assets/client-badge-DaIo6-rs.svg"],
       "modules": [
         {
           "rawId": "src/assets/client-badge.svg",
           "stableId": "src/assets/client-badge.svg",
           "scope": "app",
           "renderedLength": 120,
-          "renderedExports": [
-            "default"
-          ],
+          "renderedExports": ["default"],
           "removedExports": []
         },
         {
@@ -183,9 +157,7 @@
           "stableId": "virtual:vite/preload-helper.js",
           "scope": "virtual",
           "renderedLength": 2104,
-          "renderedExports": [
-            "__vitePreload"
-          ],
+          "renderedExports": ["__vitePreload"],
           "removedExports": []
         }
       ],
@@ -212,9 +184,7 @@
         "stableId": "src/shared/clientDiagnostics.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/browser-core-DuAyHwF7.js"
-      ],
+      "imports": ["assets/browser-core-DuAyHwF7.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -225,15 +195,11 @@
           "stableId": "src/shared/clientDiagnostics.js",
           "scope": "app",
           "renderedLength": 303,
-          "renderedExports": [
-            "renderClientDiagnostics"
-          ],
+          "renderedExports": ["renderClientDiagnostics"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/shared/clientDiagnostics.js"
-      ],
+      "moduleIds": ["src/shared/clientDiagnostics.js"],
       "sizes": {
         "raw": 250,
         "gzip": 215,
@@ -245,12 +211,8 @@
     {
       "fileName": "assets/client-badge-DaIo6-rs.svg",
       "kind": "svg",
-      "names": [
-        "client-badge.svg"
-      ],
-      "originalFileNames": [
-        "src/assets/client-badge.svg"
-      ],
+      "names": ["client-badge.svg"],
+      "originalFileNames": ["src/assets/client-badge.svg"],
       "sourceLength": 256,
       "sizes": {
         "raw": 256,
@@ -261,12 +223,8 @@
     {
       "fileName": "assets/client-Dy2InDUL.css",
       "kind": "css",
-      "names": [
-        "client.css"
-      ],
-      "originalFileNames": [
-        "src/entry-client.js"
-      ],
+      "names": ["client.css"],
+      "originalFileNames": ["src/entry-client.js"],
       "sourceLength": 712,
       "sizes": {
         "raw": 700,

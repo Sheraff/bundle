@@ -18,10 +18,7 @@
     "sharedChunks": [
       {
         "kind": "merge",
-        "from": [
-          "assets/palette-thread-C9j7480P.js",
-          "assets/shell-spine-voifiD_v.js"
-        ],
+        "from": ["assets/palette-thread-C9j7480P.js", "assets/shell-spine-voifiD_v.js"],
         "to": "chunks/fabric-core-CPl6QAmM.js"
       }
     ],
@@ -38,10 +35,7 @@
       },
       {
         "kind": "merge",
-        "from": [
-          "assets/palette-thread-zzV0Z8at.css",
-          "assets/shell-spine-BdxKV6TZ.css"
-        ],
+        "from": ["assets/palette-thread-zzV0Z8at.css", "assets/shell-spine-BdxKV6TZ.css"],
         "to": "styles/fabric-core-CU8xKRkG.css"
       }
     ],

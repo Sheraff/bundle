@@ -1,35 +1,22 @@
-import {
-  introspectWorkflow,
-} from 'cloudflare:test'
-import { env } from 'cloudflare:workers'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { introspectWorkflow } from "cloudflare:test"
+import { env } from "cloudflare:workers"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
-import * as githubApi from '../src/github-api.js'
-import {
-  buildCiContext,
-  buildEnvelope,
-  buildSimpleArtifact,
-  size,
-} from './support/builders.js'
-import { createPipelineHarness } from './support/pipeline-harness.js'
-import {
-  sendUploadRequest,
-  toRequestUrl,
-} from './support/request-helpers.js'
-import {
-  dispatchQueueMessage,
-  TEST_QUEUE_NAMES,
-} from './queue-test-helpers.js'
+import * as githubApi from "../src/github-api.js"
+import { buildCiContext, buildEnvelope, buildSimpleArtifact, size } from "./support/builders.js"
+import { createPipelineHarness } from "./support/pipeline-harness.js"
+import { sendUploadRequest, toRequestUrl } from "./support/request-helpers.js"
+import { dispatchQueueMessage, TEST_QUEUE_NAMES } from "./queue-test-helpers.js"
 
-const baseSha = '0123456789abcdef0123456789abcdef01234567'
-const prHeadSha = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+const baseSha = "0123456789abcdef0123456789abcdef01234567"
+const prHeadSha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
 afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('GitHub publication worker', () => {
-  it('publishes one maintained PR comment and one aggregate check', async () => {
+describe("GitHub publication worker", () => {
+  it("publishes one maintained PR comment and one aggregate check", async () => {
     const harness = createPipelineHarness()
 
     await seedPrComparison(harness)
@@ -38,38 +25,38 @@ describe('GitHub publication worker', () => {
     expect(pullRequest).toBeTruthy()
 
     const createAccessTokenSpy = vi
-      .spyOn(githubApi, 'createGithubInstallationAccessToken')
-      .mockResolvedValue('installation-token')
+      .spyOn(githubApi, "createGithubInstallationAccessToken")
+      .mockResolvedValue("installation-token")
     const requests: Array<{ body: unknown; method: string; url: string }> = []
 
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
       const url = toRequestUrl(input)
-      const method = init?.method ?? 'GET'
-      const bodyText = typeof init?.body === 'string' ? init.body : null
+      const method = init?.method ?? "GET"
+      const bodyText = typeof init?.body === "string" ? init.body : null
       requests.push({
         body: bodyText ? JSON.parse(bodyText) : null,
         method,
         url,
       })
 
-      if (url.endsWith('/issues/42/comments?per_page=100') && method === 'GET') {
+      if (url.endsWith("/issues/42/comments?per_page=100") && method === "GET") {
         return Response.json([])
       }
 
-      if (url.endsWith('/issues/42/comments') && method === 'POST') {
+      if (url.endsWith("/issues/42/comments") && method === "POST") {
         return Response.json({
-          body: JSON.parse(bodyText ?? '{}').body,
-          html_url: 'https://github.com/acme/widget/issues/42#issuecomment-101',
+          body: JSON.parse(bodyText ?? "{}").body,
+          html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
           id: 101,
-          node_id: 'IC_kwDOA',
+          node_id: "IC_kwDOA",
         })
       }
 
-      if (url.endsWith('/check-runs') && method === 'POST') {
+      if (url.endsWith("/check-runs") && method === "POST") {
         return Response.json({
-          html_url: 'https://github.com/acme/widget/runs/202',
+          html_url: "https://github.com/acme/widget/runs/202",
           id: 202,
-          node_id: 'CR_kwDOA',
+          node_id: "CR_kwDOA",
         })
       }
 
@@ -78,48 +65,51 @@ describe('GitHub publication worker', () => {
 
     const result = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:initial:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:initial:v1"),
     )
 
     expect(result).toBeAcknowledged()
     expect(createAccessTokenSpy).toHaveBeenCalledOnce()
     expect(requests).toHaveLength(3)
 
-    const commentRequest = requests.find((request) => request.url.endsWith('/issues/42/comments'))
+    const commentRequest = requests.find((request) => request.url.endsWith("/issues/42/comments"))
     expect(commentRequest).toBeTruthy()
     expect(commentRequest?.body).toEqual(
       expect.objectContaining({
-        body: expect.stringContaining('Bundle review: passing'),
+        body: expect.stringContaining("Bundle review: passing"),
       }),
     )
     expect(commentRequest?.body).toEqual(
       expect.objectContaining({
-        body: expect.stringContaining('1 regression'),
+        body: expect.stringContaining("1 regression"),
       }),
     )
     expect(commentRequest?.body).toEqual(
       expect.objectContaining({
-        body: expect.stringContaining('[Open PR diff](https://bundle.test/r/acme/widget/compare?pr=42&base=0123456789abcdef0123456789abcdef01234567&head=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)'),
+        body: expect.stringContaining(
+          "[Open PR diff](https://bundle.test/r/acme/widget/compare?pr=42&base=0123456789abcdef0123456789abcdef01234567&head=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)",
+        ),
       }),
     )
     expect(commentRequest?.body).toEqual(
       expect.objectContaining({
-        body: expect.stringContaining('scenario-pr  [regression]'),
+        body: expect.stringContaining("scenario-pr  [regression]"),
       }),
     )
     expect(commentRequest?.body).toEqual(
       expect.objectContaining({
-        body: expect.stringContaining('<!-- bundle-review:pr:'),
+        body: expect.stringContaining("<!-- bundle-review:pr:"),
       }),
     )
 
-    const checkRequest = requests.find((request) => request.url.endsWith('/check-runs'))
+    const checkRequest = requests.find((request) => request.url.endsWith("/check-runs"))
     expect(checkRequest?.body).toEqual(
       expect.objectContaining({
-        conclusion: 'success',
-        details_url: 'https://bundle.test/r/acme/widget/compare?pr=42&base=0123456789abcdef0123456789abcdef01234567&head=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        name: 'Bundle Review',
-        status: 'completed',
+        conclusion: "success",
+        details_url:
+          "https://bundle.test/r/acme/widget/compare?pr=42&base=0123456789abcdef0123456789abcdef01234567&head=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        name: "Bundle Review",
+        status: "completed",
       }),
     )
 
@@ -127,20 +117,20 @@ describe('GitHub publication worker', () => {
     expect(publications).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          external_publication_id: '101',
-          status: 'published',
-          surface: 'pr-comment',
+          external_publication_id: "101",
+          status: "published",
+          surface: "pr-comment",
         }),
         expect.objectContaining({
-          external_publication_id: '202',
-          status: 'published',
-          surface: 'pr-check',
+          external_publication_id: "202",
+          status: "published",
+          surface: "pr-check",
         }),
       ]),
     )
   })
 
-  it('updates the maintained comment and check in place after a rerun changes the summary', async () => {
+  it("updates the maintained comment and check in place after a rerun changes the summary", async () => {
     const harness = createPipelineHarness()
 
     await seedPrComparison(harness)
@@ -148,29 +138,31 @@ describe('GitHub publication worker', () => {
     const pullRequest = await getPullRequestRow()
     expect(pullRequest).toBeTruthy()
 
-    vi.spyOn(githubApi, 'createGithubInstallationAccessToken').mockResolvedValue('installation-token')
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    vi.spyOn(githubApi, "createGithubInstallationAccessToken").mockResolvedValue(
+      "installation-token",
+    )
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
 
     fetchSpy.mockImplementationOnce(async () => Response.json([]))
     fetchSpy.mockImplementationOnce(async (input, init) =>
       Response.json({
         body: JSON.parse(String(init?.body)).body,
-        html_url: 'https://github.com/acme/widget/issues/42#issuecomment-101',
+        html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
         id: 101,
-        node_id: 'IC_kwDOA',
+        node_id: "IC_kwDOA",
       }),
     )
     fetchSpy.mockImplementationOnce(async () =>
       Response.json({
-        html_url: 'https://github.com/acme/widget/runs/202',
+        html_url: "https://github.com/acme/widget/runs/202",
         id: 202,
-        node_id: 'CR_kwDOA',
+        node_id: "CR_kwDOA",
       }),
     )
 
     const firstPublish = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:first:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:first:v1"),
     )
     expect(firstPublish).toBeAcknowledged()
 
@@ -179,22 +171,22 @@ describe('GitHub publication worker', () => {
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-pr',
+          scenarioId: "scenario-pr",
           chunkSizes: size(190, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: prHeadSha,
-          branch: 'feature/login',
+          branch: "feature/login",
         },
         pullRequest: {
           number: 42,
           baseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: prHeadSha,
-          headRef: 'feature/login',
+          headRef: "feature/login",
         },
-        ci: buildCiContext('5602'),
+        ci: buildCiContext("5602"),
       }),
     )
     await harness.processUploadPipeline()
@@ -202,27 +194,27 @@ describe('GitHub publication worker', () => {
     const patchRequests: Array<{ body: unknown; method: string; url: string }> = []
     fetchSpy.mockImplementation(async (input, init) => {
       const url = toRequestUrl(input)
-      const method = init?.method ?? 'GET'
+      const method = init?.method ?? "GET"
       patchRequests.push({
         body: init?.body ? JSON.parse(String(init.body)) : null,
         method,
         url,
       })
 
-      if (url.endsWith('/issues/comments/101') && method === 'PATCH') {
+      if (url.endsWith("/issues/comments/101") && method === "PATCH") {
         return Response.json({
           body: JSON.parse(String(init?.body)).body,
-          html_url: 'https://github.com/acme/widget/issues/42#issuecomment-101',
+          html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
           id: 101,
-          node_id: 'IC_kwDOA',
+          node_id: "IC_kwDOA",
         })
       }
 
-      if (url.endsWith('/check-runs/202') && method === 'PATCH') {
+      if (url.endsWith("/check-runs/202") && method === "PATCH") {
         return Response.json({
-          html_url: 'https://github.com/acme/widget/runs/202',
+          html_url: "https://github.com/acme/widget/runs/202",
           id: 202,
-          node_id: 'CR_kwDOA',
+          node_id: "CR_kwDOA",
         })
       }
 
@@ -231,25 +223,25 @@ describe('GitHub publication worker', () => {
 
     const secondPublish = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:second:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:second:v1"),
     )
     expect(secondPublish).toBeAcknowledged()
     expect(patchRequests).toHaveLength(2)
     expect(patchRequests[0]).toEqual(
       expect.objectContaining({
-        method: 'PATCH',
-        url: expect.stringContaining('/issues/comments/101'),
+        method: "PATCH",
+        url: expect.stringContaining("/issues/comments/101"),
       }),
     )
     expect(patchRequests[1]).toEqual(
       expect.objectContaining({
-        method: 'PATCH',
-        url: expect.stringContaining('/check-runs/202'),
+        method: "PATCH",
+        url: expect.stringContaining("/check-runs/202"),
       }),
     )
   })
 
-  it('persists terminal GitHub publication failures', async () => {
+  it("persists terminal GitHub publication failures", async () => {
     const harness = createPipelineHarness()
 
     await seedPrComparison(harness)
@@ -257,19 +249,21 @@ describe('GitHub publication worker', () => {
     const pullRequest = await getPullRequestRow()
     expect(pullRequest).toBeTruthy()
 
-    vi.spyOn(githubApi, 'createGithubInstallationAccessToken').mockResolvedValue('installation-token')
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+    vi.spyOn(githubApi, "createGithubInstallationAccessToken").mockResolvedValue(
+      "installation-token",
+    )
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
       const url = toRequestUrl(input)
-      const method = init?.method ?? 'GET'
+      const method = init?.method ?? "GET"
 
-      if (url.endsWith('/issues/42/comments?per_page=100') && method === 'GET') {
+      if (url.endsWith("/issues/42/comments?per_page=100") && method === "GET") {
         return Response.json([])
       }
 
-      if (url.endsWith('/issues/42/comments') && method === 'POST') {
+      if (url.endsWith("/issues/42/comments") && method === "POST") {
         return Response.json(
           {
-            message: 'Resource not accessible by integration',
+            message: "Resource not accessible by integration",
           },
           {
             status: 403,
@@ -282,7 +276,7 @@ describe('GitHub publication worker', () => {
 
     const result = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:terminal-failure:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:terminal-failure:v1"),
     )
 
     expect(result).toBeAcknowledged()
@@ -291,29 +285,29 @@ describe('GitHub publication worker', () => {
     expect(publications).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          last_error_code: 'github_api_403',
-          status: 'failed',
-          surface: 'pr-comment',
+          last_error_code: "github_api_403",
+          status: "failed",
+          surface: "pr-comment",
         }),
       ]),
     )
   })
 
-  it('publishes an in-progress check while the PR summary is still pending', async () => {
+  it("publishes an in-progress check while the PR summary is still pending", async () => {
     const harness = createPipelineHarness()
 
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-pr',
+          scenarioId: "scenario-pr",
           chunkSizes: size(123, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5800'),
+        ci: buildCiContext("5800"),
       }),
     )
     await harness.processUploadPipeline()
@@ -321,22 +315,22 @@ describe('GitHub publication worker', () => {
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-pr',
+          scenarioId: "scenario-pr",
           chunkSizes: size(150, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: prHeadSha,
-          branch: 'feature/login',
+          branch: "feature/login",
         },
         pullRequest: {
           number: 42,
           baseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: prHeadSha,
-          headRef: 'feature/login',
+          headRef: "feature/login",
         },
-        ci: buildCiContext('5801'),
+        ci: buildCiContext("5801"),
       }),
     )
     await harness.drainRefresh()
@@ -344,37 +338,39 @@ describe('GitHub publication worker', () => {
     const pullRequest = await getPullRequestRow()
     expect(pullRequest).toBeTruthy()
 
-    vi.spyOn(githubApi, 'createGithubInstallationAccessToken').mockResolvedValue('installation-token')
+    vi.spyOn(githubApi, "createGithubInstallationAccessToken").mockResolvedValue(
+      "installation-token",
+    )
     const requests: Array<{ body: unknown; method: string; url: string }> = []
 
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
       const url = toRequestUrl(input)
-      const method = init?.method ?? 'GET'
-      const bodyText = typeof init?.body === 'string' ? init.body : null
+      const method = init?.method ?? "GET"
+      const bodyText = typeof init?.body === "string" ? init.body : null
       requests.push({
         body: bodyText ? JSON.parse(bodyText) : null,
         method,
         url,
       })
 
-      if (url.endsWith('/issues/42/comments?per_page=100') && method === 'GET') {
+      if (url.endsWith("/issues/42/comments?per_page=100") && method === "GET") {
         return Response.json([])
       }
 
-      if (url.endsWith('/issues/42/comments') && method === 'POST') {
+      if (url.endsWith("/issues/42/comments") && method === "POST") {
         return Response.json({
-          body: JSON.parse(bodyText ?? '{}').body,
-          html_url: 'https://github.com/acme/widget/issues/42#issuecomment-101',
+          body: JSON.parse(bodyText ?? "{}").body,
+          html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
           id: 101,
-          node_id: 'IC_kwDOA',
+          node_id: "IC_kwDOA",
         })
       }
 
-      if (url.endsWith('/check-runs') && method === 'POST') {
+      if (url.endsWith("/check-runs") && method === "POST") {
         return Response.json({
-          html_url: 'https://github.com/acme/widget/runs/202',
+          html_url: "https://github.com/acme/widget/runs/202",
           id: 202,
-          node_id: 'CR_kwDOA',
+          node_id: "CR_kwDOA",
         })
       }
 
@@ -383,28 +379,30 @@ describe('GitHub publication worker', () => {
 
     const result = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:pending-summary:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:pending-summary:v1"),
     )
 
     expect(result).toBeAcknowledged()
 
-    const commentRequest = requests.find((request) => request.url.endsWith('/issues/42/comments'))
+    const commentRequest = requests.find((request) => request.url.endsWith("/issues/42/comments"))
     expect(commentRequest?.body).toEqual(
       expect.objectContaining({
-        body: expect.stringContaining('1 pending scenario'),
+        body: expect.stringContaining("1 pending scenario"),
       }),
     )
 
-    const checkRequest = requests.find((request) => request.url.endsWith('/check-runs'))
+    const checkRequest = requests.find((request) => request.url.endsWith("/check-runs"))
     expect(checkRequest?.body).toEqual(
       expect.objectContaining({
-        status: 'in_progress',
+        status: "in_progress",
       }),
     )
-    expect(checkRequest?.body).not.toEqual(expect.objectContaining({ conclusion: expect.anything() }))
+    expect(checkRequest?.body).not.toEqual(
+      expect.objectContaining({ conclusion: expect.anything() }),
+    )
   })
 
-  it('retries when the GitHub App private key cannot be parsed', async () => {
+  it("retries when the GitHub App private key cannot be parsed", async () => {
     const harness = createPipelineHarness()
 
     await seedPrComparison(harness)
@@ -412,20 +410,20 @@ describe('GitHub publication worker', () => {
     const pullRequest = await getPullRequestRow()
     expect(pullRequest).toBeTruthy()
 
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
-      throw new Error('fetch should not be called when app key parsing fails')
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      throw new Error("fetch should not be called when app key parsing fails")
     })
 
     const result = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:invalid-private-key:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:invalid-private-key:v1"),
     )
 
     expect(result).toBeRetried()
     expect(await listGithubPublications()).toEqual([])
   })
 
-  it('does not republish unchanged GitHub surfaces', async () => {
+  it("does not republish unchanged GitHub surfaces", async () => {
     const harness = createPipelineHarness()
 
     await seedPrComparison(harness)
@@ -434,14 +432,14 @@ describe('GitHub publication worker', () => {
     expect(pullRequest).toBeTruthy()
 
     const createAccessTokenSpy = vi
-      .spyOn(githubApi, 'createGithubInstallationAccessToken')
-      .mockResolvedValue('installation-token')
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      .spyOn(githubApi, "createGithubInstallationAccessToken")
+      .mockResolvedValue("installation-token")
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
     mockInitialCreateGithubResponses(fetchSpy)
 
     const firstPublish = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:no-op-first:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:no-op-first:v1"),
     )
     expect(firstPublish).toBeAcknowledged()
 
@@ -450,7 +448,7 @@ describe('GitHub publication worker', () => {
 
     const secondPublish = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:no-op-second:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:no-op-second:v1"),
     )
 
     expect(secondPublish).toBeAcknowledged()
@@ -458,7 +456,7 @@ describe('GitHub publication worker', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
-  it('retries retryable GitHub failures and records failure state', async () => {
+  it("retries retryable GitHub failures and records failure state", async () => {
     const harness = createPipelineHarness()
 
     await seedPrComparison(harness)
@@ -466,19 +464,21 @@ describe('GitHub publication worker', () => {
     const pullRequest = await getPullRequestRow()
     expect(pullRequest).toBeTruthy()
 
-    vi.spyOn(githubApi, 'createGithubInstallationAccessToken').mockResolvedValue('installation-token')
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+    vi.spyOn(githubApi, "createGithubInstallationAccessToken").mockResolvedValue(
+      "installation-token",
+    )
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
       const url = toRequestUrl(input)
-      const method = init?.method ?? 'GET'
+      const method = init?.method ?? "GET"
 
-      if (url.endsWith('/issues/42/comments?per_page=100') && method === 'GET') {
+      if (url.endsWith("/issues/42/comments?per_page=100") && method === "GET") {
         return Response.json([])
       }
 
-      if (url.endsWith('/issues/42/comments') && method === 'POST') {
+      if (url.endsWith("/issues/42/comments") && method === "POST") {
         return Response.json(
           {
-            message: 'GitHub is temporarily unavailable',
+            message: "GitHub is temporarily unavailable",
           },
           {
             status: 503,
@@ -491,7 +491,7 @@ describe('GitHub publication worker', () => {
 
     const result = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:retryable-failure:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:retryable-failure:v1"),
     )
 
     expect(result).toBeRetried()
@@ -500,15 +500,15 @@ describe('GitHub publication worker', () => {
     expect(publications).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          last_error_code: 'github_api_503',
-          status: 'failed',
-          surface: 'pr-comment',
+          last_error_code: "github_api_503",
+          status: "failed",
+          surface: "pr-comment",
         }),
       ]),
     )
   })
 
-  it('recovers a stale comment id by locating the maintained comment marker', async () => {
+  it("recovers a stale comment id by locating the maintained comment marker", async () => {
     const harness = createPipelineHarness()
 
     await seedPrComparison(harness)
@@ -516,13 +516,15 @@ describe('GitHub publication worker', () => {
     const pullRequest = await getPullRequestRow()
     expect(pullRequest).toBeTruthy()
 
-    vi.spyOn(githubApi, 'createGithubInstallationAccessToken').mockResolvedValue('installation-token')
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    vi.spyOn(githubApi, "createGithubInstallationAccessToken").mockResolvedValue(
+      "installation-token",
+    )
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
     mockInitialCreateGithubResponses(fetchSpy)
 
     const firstPublish = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:stale-comment-first:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:stale-comment-first:v1"),
     )
     expect(firstPublish).toBeAcknowledged()
 
@@ -531,37 +533,37 @@ describe('GitHub publication worker', () => {
        SET external_publication_id = ?, payload_hash = ?, updated_at = ?
        WHERE surface = 'pr-comment'`,
     )
-      .bind('999', 'stale-hash', '2026-04-06T12:45:00.000Z')
+      .bind("999", "stale-hash", "2026-04-06T12:45:00.000Z")
       .run()
 
     fetchSpy.mockClear()
     const requests: Array<{ method: string; url: string }> = []
     fetchSpy.mockImplementation(async (input, init) => {
       const url = toRequestUrl(input)
-      const method = init?.method ?? 'GET'
+      const method = init?.method ?? "GET"
       requests.push({ method, url })
 
-      if (url.endsWith('/issues/comments/999') && method === 'PATCH') {
-        return Response.json({ message: 'Not Found' }, { status: 404 })
+      if (url.endsWith("/issues/comments/999") && method === "PATCH") {
+        return Response.json({ message: "Not Found" }, { status: 404 })
       }
 
-      if (url.endsWith('/issues/42/comments?per_page=100') && method === 'GET') {
+      if (url.endsWith("/issues/42/comments?per_page=100") && method === "GET") {
         return Response.json([
           {
             body: `old body\n\n<!-- bundle-review:pr:${pullRequest?.id} -->`,
-            html_url: 'https://github.com/acme/widget/issues/42#issuecomment-101',
+            html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
             id: 101,
-            node_id: 'IC_kwDOA',
+            node_id: "IC_kwDOA",
           },
         ])
       }
 
-      if (url.endsWith('/issues/comments/101') && method === 'PATCH') {
+      if (url.endsWith("/issues/comments/101") && method === "PATCH") {
         return Response.json({
           body: JSON.parse(String(init?.body)).body,
-          html_url: 'https://github.com/acme/widget/issues/42#issuecomment-101',
+          html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
           id: 101,
-          node_id: 'IC_kwDOA',
+          node_id: "IC_kwDOA",
         })
       }
 
@@ -570,22 +572,25 @@ describe('GitHub publication worker', () => {
 
     const secondPublish = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:stale-comment-second:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:stale-comment-second:v1"),
     )
 
     expect(secondPublish).toBeAcknowledged()
     expect(requests).toEqual([
-      { method: 'PATCH', url: 'https://api.github.com/repos/acme/widget/issues/comments/999' },
-      { method: 'GET', url: 'https://api.github.com/repos/acme/widget/issues/42/comments?per_page=100' },
-      { method: 'PATCH', url: 'https://api.github.com/repos/acme/widget/issues/comments/101' },
+      { method: "PATCH", url: "https://api.github.com/repos/acme/widget/issues/comments/999" },
+      {
+        method: "GET",
+        url: "https://api.github.com/repos/acme/widget/issues/42/comments?per_page=100",
+      },
+      { method: "PATCH", url: "https://api.github.com/repos/acme/widget/issues/comments/101" },
     ])
 
-    const commentPublication = await getGithubPublication('pr-comment')
-    expect(commentPublication?.external_publication_id).toBe('101')
-    expect(commentPublication?.status).toBe('published')
+    const commentPublication = await getGithubPublication("pr-comment")
+    expect(commentPublication?.external_publication_id).toBe("101")
+    expect(commentPublication?.status).toBe("published")
   })
 
-  it('recreates a check run when the stored check id is stale', async () => {
+  it("recreates a check run when the stored check id is stale", async () => {
     const harness = createPipelineHarness()
 
     await seedPrComparison(harness)
@@ -593,13 +598,15 @@ describe('GitHub publication worker', () => {
     const pullRequest = await getPullRequestRow()
     expect(pullRequest).toBeTruthy()
 
-    vi.spyOn(githubApi, 'createGithubInstallationAccessToken').mockResolvedValue('installation-token')
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    vi.spyOn(githubApi, "createGithubInstallationAccessToken").mockResolvedValue(
+      "installation-token",
+    )
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
     mockInitialCreateGithubResponses(fetchSpy)
 
     const firstPublish = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:stale-check-first:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:stale-check-first:v1"),
     )
     expect(firstPublish).toBeAcknowledged()
 
@@ -608,25 +615,25 @@ describe('GitHub publication worker', () => {
        SET external_publication_id = ?, payload_hash = ?, updated_at = ?
        WHERE surface = 'pr-check'`,
     )
-      .bind('999', 'stale-hash', '2026-04-06T12:45:00.000Z')
+      .bind("999", "stale-hash", "2026-04-06T12:45:00.000Z")
       .run()
 
     fetchSpy.mockClear()
     const requests: Array<{ method: string; url: string }> = []
     fetchSpy.mockImplementation(async (input, init) => {
       const url = toRequestUrl(input)
-      const method = init?.method ?? 'GET'
+      const method = init?.method ?? "GET"
       requests.push({ method, url })
 
-      if (url.endsWith('/check-runs/999') && method === 'PATCH') {
-        return Response.json({ message: 'Not Found' }, { status: 404 })
+      if (url.endsWith("/check-runs/999") && method === "PATCH") {
+        return Response.json({ message: "Not Found" }, { status: 404 })
       }
 
-      if (url.endsWith('/check-runs') && method === 'POST') {
+      if (url.endsWith("/check-runs") && method === "POST") {
         return Response.json({
-          html_url: 'https://github.com/acme/widget/runs/303',
+          html_url: "https://github.com/acme/widget/runs/303",
           id: 303,
-          node_id: 'CR_kwDOB',
+          node_id: "CR_kwDOB",
         })
       }
 
@@ -635,22 +642,22 @@ describe('GitHub publication worker', () => {
 
     const secondPublish = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.publishGithub,
-      buildPublishGithubMessage(pullRequest, 'publish-github:stale-check-second:v1'),
+      buildPublishGithubMessage(pullRequest, "publish-github:stale-check-second:v1"),
     )
 
     expect(secondPublish).toBeAcknowledged()
     expect(requests).toEqual([
-      { method: 'PATCH', url: 'https://api.github.com/repos/acme/widget/check-runs/999' },
-      { method: 'POST', url: 'https://api.github.com/repos/acme/widget/check-runs' },
+      { method: "PATCH", url: "https://api.github.com/repos/acme/widget/check-runs/999" },
+      { method: "POST", url: "https://api.github.com/repos/acme/widget/check-runs" },
     ])
 
-    const checkPublication = await getGithubPublication('pr-check')
-    expect(checkPublication?.external_publication_id).toBe('303')
-    expect(checkPublication?.status).toBe('published')
+    const checkPublication = await getGithubPublication("pr-check")
+    expect(checkPublication?.external_publication_id).toBe("303")
+    expect(checkPublication?.status).toBe("published")
   })
 
-  it('runs the debounce workflow before enqueueing publish-github', async () => {
-    const publishSendSpy = vi.spyOn(env.PUBLISH_GITHUB_QUEUE, 'send')
+  it("runs the debounce workflow before enqueueing publish-github", async () => {
+    const publishSendSpy = vi.spyOn(env.PUBLISH_GITHUB_QUEUE, "send")
     publishSendSpy.mockClear()
 
     await using introspector = await introspectWorkflow(env.PR_PUBLISH_DEBOUNCE_WORKFLOW)
@@ -663,15 +670,15 @@ describe('GitHub publication worker', () => {
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-pr',
+          scenarioId: "scenario-pr",
           chunkSizes: size(123, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('5700'),
+        ci: buildCiContext("5700"),
       }),
     )
     await harness.processUploadPipeline()
@@ -679,33 +686,33 @@ describe('GitHub publication worker', () => {
     await harness.acceptUpload(
       buildEnvelope({
         artifact: buildSimpleArtifact({
-          scenarioId: 'scenario-pr',
+          scenarioId: "scenario-pr",
           chunkSizes: size(150, 45, 38),
           cssSizes: size(10, 8, 6),
         }),
         git: {
           commitSha: prHeadSha,
-          branch: 'feature/login',
+          branch: "feature/login",
         },
         pullRequest: {
           number: 42,
           baseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: prHeadSha,
-          headRef: 'feature/login',
+          headRef: "feature/login",
         },
-        ci: buildCiContext('5701'),
+        ci: buildCiContext("5701"),
       }),
     )
     await harness.drainRefresh()
 
     const instances = await introspector.get()
     expect(instances).toHaveLength(1)
-    await expect(instances[0]?.waitForStatus('complete')).resolves.not.toThrow()
+    await expect(instances[0]?.waitForStatus("complete")).resolves.not.toThrow()
     expect(publishSendSpy).toHaveBeenCalledTimes(1)
     expect(publishSendSpy.mock.calls[0]?.[0]).toEqual(
       expect.objectContaining({
-        kind: 'publish-github',
+        kind: "publish-github",
         pullRequestId: expect.any(String),
         repositoryId: expect.any(String),
       }),
@@ -717,15 +724,15 @@ async function seedPrComparison(harness: ReturnType<typeof createPipelineHarness
   await harness.acceptUpload(
     buildEnvelope({
       artifact: buildSimpleArtifact({
-        scenarioId: 'scenario-pr',
+        scenarioId: "scenario-pr",
         chunkSizes: size(123, 45, 38),
         cssSizes: size(10, 8, 6),
       }),
       git: {
         commitSha: baseSha,
-        branch: 'main',
+        branch: "main",
       },
-      ci: buildCiContext('5600'),
+      ci: buildCiContext("5600"),
     }),
   )
   await harness.processUploadPipeline()
@@ -733,22 +740,22 @@ async function seedPrComparison(harness: ReturnType<typeof createPipelineHarness
   await harness.acceptUpload(
     buildEnvelope({
       artifact: buildSimpleArtifact({
-        scenarioId: 'scenario-pr',
+        scenarioId: "scenario-pr",
         chunkSizes: size(150, 45, 38),
         cssSizes: size(10, 8, 6),
       }),
       git: {
         commitSha: prHeadSha,
-        branch: 'feature/login',
+        branch: "feature/login",
       },
       pullRequest: {
         number: 42,
         baseSha,
-        baseRef: 'main',
+        baseRef: "main",
         headSha: prHeadSha,
-        headRef: 'feature/login',
+        headRef: "feature/login",
       },
-      ci: buildCiContext('5601'),
+      ci: buildCiContext("5601"),
     }),
   )
   await harness.processUploadPipeline()
@@ -787,11 +794,13 @@ async function getGithubPublication(surface: string) {
      FROM github_publications
      WHERE surface = ?
      LIMIT 1`,
-  ).bind(surface).first<{
-    external_publication_id: string | null
-    status: string
-    surface: string
-  }>()
+  )
+    .bind(surface)
+    .first<{
+      external_publication_id: string | null
+      status: string
+      surface: string
+    }>()
 }
 
 function buildPublishGithubMessage(
@@ -800,9 +809,9 @@ function buildPublishGithubMessage(
 ) {
   return {
     schemaVersion: 1,
-    kind: 'publish-github',
-    repositoryId: pullRequest?.repository_id ?? '',
-    pullRequestId: pullRequest?.id ?? '',
+    kind: "publish-github",
+    repositoryId: pullRequest?.repository_id ?? "",
+    pullRequestId: pullRequest?.id ?? "",
     dedupeKey,
   } as const
 }
@@ -812,16 +821,16 @@ function mockInitialCreateGithubResponses(fetchSpy: ReturnType<typeof vi.spyOn>)
   fetchSpy.mockImplementationOnce(async (_input: Request | string | URL, init?: RequestInit) =>
     Response.json({
       body: JSON.parse(String(init?.body)).body,
-      html_url: 'https://github.com/acme/widget/issues/42#issuecomment-101',
+      html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
       id: 101,
-      node_id: 'IC_kwDOA',
+      node_id: "IC_kwDOA",
     }),
   )
   fetchSpy.mockImplementationOnce(async () =>
     Response.json({
-      html_url: 'https://github.com/acme/widget/runs/202',
+      html_url: "https://github.com/acme/widget/runs/202",
       id: 202,
-      node_id: 'CR_kwDOA',
+      node_id: "CR_kwDOA",
     }),
   )
 }

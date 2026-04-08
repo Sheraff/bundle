@@ -31,9 +31,7 @@
       "file": "chunks/shell-bundle-1WDCm2yq.js",
       "isEntry": false,
       "isDynamicEntry": false,
-      "imports": [
-        "_rolldown-runtime-9zYgfBdx.js"
-      ],
+      "imports": ["_rolldown-runtime-9zYgfBdx.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -45,9 +43,7 @@
       "file": "chunks/vendor-BNQ4Mb4v.js",
       "isEntry": false,
       "isDynamicEntry": false,
-      "imports": [
-        "_rolldown-runtime-9zYgfBdx.js"
-      ],
+      "imports": ["_rolldown-runtime-9zYgfBdx.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -95,21 +91,10 @@
       "file": "entries/main-cIYjOrIa.js",
       "isEntry": true,
       "isDynamicEntry": false,
-      "imports": [
-        "_shell-bundle-1WDCm2yq.js",
-        "_vendor-BNQ4Mb4v.js"
-      ],
-      "dynamicImports": [
-        "src/routes/Reports.jsx",
-        "src/routes/Settings.jsx"
-      ],
-      "css": [
-        "assets/main-CUNOAPfo.css"
-      ],
-      "assets": [
-        "assets/hero-grid-CA9wTTOb.svg",
-        "assets/logo-mark-DziUUHct.svg"
-      ]
+      "imports": ["_shell-bundle-1WDCm2yq.js", "_vendor-BNQ4Mb4v.js"],
+      "dynamicImports": ["src/routes/Reports.jsx", "src/routes/Settings.jsx"],
+      "css": ["assets/main-CUNOAPfo.css"],
+      "assets": ["assets/hero-grid-CA9wTTOb.svg", "assets/logo-mark-DziUUHct.svg"]
     },
     {
       "key": "src/routes/Reports.jsx",
@@ -118,16 +103,10 @@
       "file": "chunks/Reports-CZtKaUhg.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_shell-bundle-1WDCm2yq.js"
-      ],
+      "imports": ["_shell-bundle-1WDCm2yq.js"],
       "dynamicImports": [],
-      "css": [
-        "assets/Reports-B2C9CtQI.css"
-      ],
-      "assets": [
-        "assets/panel-stripe-oJZsKaux.svg"
-      ]
+      "css": ["assets/Reports-B2C9CtQI.css"],
+      "assets": ["assets/panel-stripe-oJZsKaux.svg"]
     },
     {
       "key": "src/routes/Settings.jsx",
@@ -136,13 +115,9 @@
       "file": "chunks/Settings-mhqlgOyL.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_shell-bundle-1WDCm2yq.js"
-      ],
+      "imports": ["_shell-bundle-1WDCm2yq.js"],
       "dynamicImports": [],
-      "css": [
-        "assets/Settings-HvSlcMW7.css"
-      ],
+      "css": ["assets/Settings-HvSlcMW7.css"],
       "assets": []
     }
   ],
@@ -158,17 +133,11 @@
         "stableId": "src/routes/Reports.jsx",
         "scope": "app"
       },
-      "imports": [
-        "chunks/shell-bundle-1WDCm2yq.js"
-      ],
+      "imports": ["chunks/shell-bundle-1WDCm2yq.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/Reports-B2C9CtQI.css"
-      ],
-      "importedAssets": [
-        "assets/panel-stripe-oJZsKaux.svg"
-      ],
+      "importedCss": ["assets/Reports-B2C9CtQI.css"],
+      "importedAssets": ["assets/panel-stripe-oJZsKaux.svg"],
       "modules": [
         {
           "rawId": "src/routes/reports.css",
@@ -183,16 +152,11 @@
           "stableId": "src/routes/Reports.jsx",
           "scope": "app",
           "renderedLength": 935,
-          "renderedExports": [
-            "default"
-          ],
+          "renderedExports": ["default"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/routes/reports.css",
-        "src/routes/Reports.jsx"
-      ],
+      "moduleIds": ["src/routes/reports.css", "src/routes/Reports.jsx"],
       "sizes": {
         "raw": 554,
         "gzip": 349,
@@ -217,15 +181,11 @@
           "stableId": "virtual:rolldown/runtime.js",
           "scope": "virtual",
           "renderedLength": 148,
-          "renderedExports": [
-            "__commonJSMin"
-          ],
+          "renderedExports": ["__commonJSMin"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "virtual:rolldown/runtime.js"
-      ],
+      "moduleIds": ["virtual:rolldown/runtime.js"],
       "sizes": {
         "raw": 77,
         "gzip": 78,
@@ -243,14 +203,10 @@
         "stableId": "src/routes/Settings.jsx",
         "scope": "app"
       },
-      "imports": [
-        "chunks/shell-bundle-1WDCm2yq.js"
-      ],
+      "imports": ["chunks/shell-bundle-1WDCm2yq.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/Settings-HvSlcMW7.css"
-      ],
+      "importedCss": ["assets/Settings-HvSlcMW7.css"],
       "importedAssets": [],
       "modules": [
         {
@@ -266,16 +222,11 @@
           "stableId": "src/routes/Settings.jsx",
           "scope": "app",
           "renderedLength": 934,
-          "renderedExports": [
-            "default"
-          ],
+          "renderedExports": ["default"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/routes/settings.css",
-        "src/routes/Settings.jsx"
-      ],
+      "moduleIds": ["src/routes/settings.css", "src/routes/Settings.jsx"],
       "sizes": {
         "raw": 568,
         "gzip": 362,
@@ -289,9 +240,7 @@
       "isEntry": false,
       "isDynamicEntry": false,
       "facadeModule": null,
-      "imports": [
-        "chunks/rolldown-runtime-9zYgfBdx.js"
-      ],
+      "imports": ["chunks/rolldown-runtime-9zYgfBdx.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -302,10 +251,7 @@
           "stableId": "pkg:react/cjs/react-jsx-runtime.production.js",
           "scope": "package",
           "renderedLength": 872,
-          "renderedExports": [
-            "jsx",
-            "jsxs"
-          ],
+          "renderedExports": ["jsx", "jsxs"],
           "removedExports": []
         },
         {
@@ -313,10 +259,7 @@
           "stableId": "pkg:react/jsx-runtime.js",
           "scope": "package",
           "renderedLength": 247,
-          "renderedExports": [
-            "jsx",
-            "jsxs"
-          ],
+          "renderedExports": ["jsx", "jsxs"],
           "removedExports": []
         },
         {
@@ -324,9 +267,7 @@
           "stableId": "src/shared/formatCurrency.js",
           "scope": "app",
           "renderedLength": 214,
-          "renderedExports": [
-            "formatCurrency"
-          ],
+          "renderedExports": ["formatCurrency"],
           "removedExports": []
         },
         {
@@ -334,9 +275,7 @@
           "stableId": "src/shared/kpiCards.js",
           "scope": "app",
           "renderedLength": 301,
-          "renderedExports": [
-            "buildCards"
-          ],
+          "renderedExports": ["buildCards"],
           "removedExports": []
         },
         {
@@ -344,9 +283,7 @@
           "stableId": "src/shared/routeShell.jsx",
           "scope": "app",
           "renderedLength": 549,
-          "renderedExports": [
-            "RouteShell"
-          ],
+          "renderedExports": ["RouteShell"],
           "removedExports": []
         },
         {
@@ -354,9 +291,7 @@
           "stableId": "src/shared/trendBadge.js",
           "scope": "app",
           "renderedLength": 193,
-          "renderedExports": [
-            "trendBadge"
-          ],
+          "renderedExports": ["trendBadge"],
           "removedExports": []
         }
       ],
@@ -381,9 +316,7 @@
       "isEntry": false,
       "isDynamicEntry": false,
       "facadeModule": null,
-      "imports": [
-        "chunks/rolldown-runtime-9zYgfBdx.js"
-      ],
+      "imports": ["chunks/rolldown-runtime-9zYgfBdx.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -394,9 +327,7 @@
           "stableId": "pkg:react-dom/cjs/react-dom-client.production.js",
           "scope": "package",
           "renderedLength": 452122,
-          "renderedExports": [
-            "createRoot"
-          ],
+          "renderedExports": ["createRoot"],
           "removedExports": []
         },
         {
@@ -427,9 +358,7 @@
           "stableId": "pkg:react-dom/client.js",
           "scope": "package",
           "renderedLength": 537,
-          "renderedExports": [
-            "createRoot"
-          ],
+          "renderedExports": ["createRoot"],
           "removedExports": []
         },
         {
@@ -633,22 +562,11 @@
         "stableId": "src/main.jsx",
         "scope": "app"
       },
-      "imports": [
-        "chunks/shell-bundle-1WDCm2yq.js",
-        "chunks/vendor-BNQ4Mb4v.js"
-      ],
-      "dynamicImports": [
-        "chunks/Reports-CZtKaUhg.js",
-        "chunks/Settings-mhqlgOyL.js"
-      ],
+      "imports": ["chunks/shell-bundle-1WDCm2yq.js", "chunks/vendor-BNQ4Mb4v.js"],
+      "dynamicImports": ["chunks/Reports-CZtKaUhg.js", "chunks/Settings-mhqlgOyL.js"],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/main-CUNOAPfo.css"
-      ],
-      "importedAssets": [
-        "assets/hero-grid-CA9wTTOb.svg",
-        "assets/logo-mark-DziUUHct.svg"
-      ],
+      "importedCss": ["assets/main-CUNOAPfo.css"],
+      "importedAssets": ["assets/hero-grid-CA9wTTOb.svg", "assets/logo-mark-DziUUHct.svg"],
       "modules": [
         {
           "rawId": "src/app.css",
@@ -663,9 +581,7 @@
           "stableId": "src/App.jsx",
           "scope": "app",
           "renderedLength": 2055,
-          "renderedExports": [
-            "App"
-          ],
+          "renderedExports": ["App"],
           "removedExports": []
         },
         {
@@ -673,9 +589,7 @@
           "stableId": "src/assets/logo-mark.svg",
           "scope": "app",
           "renderedLength": 114,
-          "renderedExports": [
-            "default"
-          ],
+          "renderedExports": ["default"],
           "removedExports": []
         },
         {
@@ -691,9 +605,7 @@
           "stableId": "virtual:vite/preload-helper.js",
           "scope": "virtual",
           "renderedLength": 2152,
-          "renderedExports": [
-            "__vitePreload"
-          ],
+          "renderedExports": ["__vitePreload"],
           "removedExports": []
         }
       ],
@@ -715,12 +627,8 @@
     {
       "fileName": "assets/hero-grid-CA9wTTOb.svg",
       "kind": "svg",
-      "names": [
-        "hero-grid.svg"
-      ],
-      "originalFileNames": [
-        "src/assets/hero-grid.svg"
-      ],
+      "names": ["hero-grid.svg"],
+      "originalFileNames": ["src/assets/hero-grid.svg"],
       "sourceLength": 251,
       "sizes": {
         "raw": 251,
@@ -731,12 +639,8 @@
     {
       "fileName": "assets/logo-mark-DziUUHct.svg",
       "kind": "svg",
-      "names": [
-        "logo-mark.svg"
-      ],
-      "originalFileNames": [
-        "src/assets/logo-mark.svg"
-      ],
+      "names": ["logo-mark.svg"],
+      "originalFileNames": ["src/assets/logo-mark.svg"],
       "sourceLength": 305,
       "sizes": {
         "raw": 305,
@@ -747,12 +651,8 @@
     {
       "fileName": "assets/main-CUNOAPfo.css",
       "kind": "css",
-      "names": [
-        "main.css"
-      ],
-      "originalFileNames": [
-        "src/main.jsx"
-      ],
+      "names": ["main.css"],
+      "originalFileNames": ["src/main.jsx"],
       "sourceLength": 887,
       "sizes": {
         "raw": 875,
@@ -763,12 +663,8 @@
     {
       "fileName": "assets/panel-stripe-oJZsKaux.svg",
       "kind": "svg",
-      "names": [
-        "panel-stripe.svg"
-      ],
-      "originalFileNames": [
-        "src/assets/panel-stripe.svg"
-      ],
+      "names": ["panel-stripe.svg"],
+      "originalFileNames": ["src/assets/panel-stripe.svg"],
       "sourceLength": 240,
       "sizes": {
         "raw": 240,
@@ -779,12 +675,8 @@
     {
       "fileName": "assets/Reports-B2C9CtQI.css",
       "kind": "css",
-      "names": [
-        "Reports.css"
-      ],
-      "originalFileNames": [
-        "src/routes/Reports.jsx"
-      ],
+      "names": ["Reports.css"],
+      "originalFileNames": ["src/routes/Reports.jsx"],
       "sourceLength": 646,
       "sizes": {
         "raw": 634,
@@ -795,12 +687,8 @@
     {
       "fileName": "assets/Settings-HvSlcMW7.css",
       "kind": "css",
-      "names": [
-        "Settings.css"
-      ],
-      "originalFileNames": [
-        "src/routes/Settings.jsx"
-      ],
+      "names": ["Settings.css"],
+      "originalFileNames": ["src/routes/Settings.jsx"],
       "sourceLength": 320,
       "sizes": {
         "raw": 308,

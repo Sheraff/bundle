@@ -2,13 +2,13 @@ import {
   SCHEMA_VERSION_V1,
   commitGroupSettlementWorkflowInputSchema,
   prPublishDebounceWorkflowInputSchema,
-} from '@workspace/contracts'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import * as v from "valibot"
 
-import type { AppBindings } from '../env.js'
-import { formatIssues } from '../shared/format-issues.js'
+import type { AppBindings } from "../env.js"
+import { formatIssues } from "../shared/format-issues.js"
 
-import type { CommitGroupRow, PullRequestRow } from './types.js'
+import type { CommitGroupRow, PullRequestRow } from "./types.js"
 
 export async function scheduleCommitGroupSettlementWorkflow(
   env: AppBindings,
@@ -16,7 +16,7 @@ export async function scheduleCommitGroupSettlementWorkflow(
 ) {
   if (
     !env.COMMIT_GROUP_SETTLEMENT_WORKFLOW ||
-    typeof env.COMMIT_GROUP_SETTLEMENT_WORKFLOW.createBatch !== 'function'
+    typeof env.COMMIT_GROUP_SETTLEMENT_WORKFLOW.createBatch !== "function"
   ) {
     return
   }
@@ -28,7 +28,7 @@ export async function scheduleCommitGroupSettlementWorkflow(
 
   const workflowInputResult = v.safeParse(commitGroupSettlementWorkflowInputSchema, {
     schemaVersion: SCHEMA_VERSION_V1,
-    kind: 'CommitGroupSettlementWorkflow',
+    kind: "CommitGroupSettlementWorkflow",
     repositoryId: commitGroup.repositoryId,
     commitGroupId: commitGroup.id,
     orchestrationKey: `latest-upload-${latestUploadTimestamp}`,
@@ -55,7 +55,7 @@ export async function schedulePrPublishDebounceWorkflow(
 ) {
   if (
     !env.PR_PUBLISH_DEBOUNCE_WORKFLOW ||
-    typeof env.PR_PUBLISH_DEBOUNCE_WORKFLOW.createBatch !== 'function'
+    typeof env.PR_PUBLISH_DEBOUNCE_WORKFLOW.createBatch !== "function"
   ) {
     return
   }
@@ -67,7 +67,7 @@ export async function schedulePrPublishDebounceWorkflow(
 
   const workflowInputResult = v.safeParse(prPublishDebounceWorkflowInputSchema, {
     schemaVersion: SCHEMA_VERSION_V1,
-    kind: 'PrPublishDebounceWorkflow',
+    kind: "PrPublishDebounceWorkflow",
     repositoryId: commitGroup.repositoryId,
     pullRequestId: pullRequest.id,
     orchestrationKey: `latest-upload-${latestUploadTimestamp}`,

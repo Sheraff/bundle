@@ -1,24 +1,28 @@
-import { prReviewSummaryV1Schema, type PublishGithubQueueMessage } from '@workspace/contracts'
-import { and, eq } from 'drizzle-orm'
-import * as v from 'valibot'
+import { prReviewSummaryV1Schema, type PublishGithubQueueMessage } from "@workspace/contracts"
+import { and, eq } from "drizzle-orm"
+import * as v from "valibot"
 
-import { getDb, schema } from '../db/index.js'
-import { selectOne } from '../db/select-one.js'
-import type { AppBindings } from '../env.js'
-import * as githubApi from '../github-api.js'
-import { formatIssues } from '../shared/format-issues.js'
+import { getDb, schema } from "../db/index.js"
+import { selectOne } from "../db/select-one.js"
+import type { AppBindings } from "../env.js"
+import * as githubApi from "../github-api.js"
+import { formatIssues } from "../shared/format-issues.js"
 
-import { classifyPublishError, safeParseJson, TerminalPublishGithubError } from './publish-errors.js'
+import {
+  classifyPublishError,
+  safeParseJson,
+  TerminalPublishGithubError,
+} from "./publish-errors.js"
 import {
   selectCheckPublication,
   selectCommentPublication,
   shouldPublishSurface,
   upsertPublicationFailure,
   upsertPublicationSuccess,
-} from './persist-publication.js'
-import { buildCheckRunPublicationPayload } from './render-check-run.js'
-import { buildCommentPublicationPayload } from './render-comment.js'
-import { PR_CHECK_SURFACE, PR_COMMENT_SURFACE } from './types.js'
+} from "./persist-publication.js"
+import { buildCheckRunPublicationPayload } from "./render-check-run.js"
+import { buildCommentPublicationPayload } from "./render-comment.js"
+import { PR_CHECK_SURFACE, PR_COMMENT_SURFACE } from "./types.js"
 
 export async function publishGithubForPullRequest(
   env: AppBindings,
@@ -123,7 +127,10 @@ export async function publishGithubForPullRequest(
     return
   }
 
-  const accessToken = await githubApi.createGithubInstallationAccessToken(env, repository.installationId)
+  const accessToken = await githubApi.createGithubInstallationAccessToken(
+    env,
+    repository.installationId,
+  )
 
   if (shouldPublishComment) {
     try {

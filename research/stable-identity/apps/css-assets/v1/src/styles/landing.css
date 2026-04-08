@@ -1,15 +1,13 @@
 body {
   margin: 0;
   color: #f8fafc;
-  background:
-    radial-gradient(circle at top, rgba(34, 211, 238, 0.22), transparent 38%),
-    #04111d;
+  background: radial-gradient(circle at top, rgba(34, 211, 238, 0.22), transparent 38%), #04111d;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
 .landing-shell {
   min-height: 100vh;
   padding: 28px;
-  background-image: url('../assets/landing-banner.svg');
+  background-image: url("../assets/landing-banner.svg");
   background-size: cover;
 }

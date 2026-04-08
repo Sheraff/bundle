@@ -4,21 +4,21 @@ import {
   scheduleComparisonsQueueMessageSchema,
   type MaterializeComparisonQueueMessage,
   type ScheduleComparisonsQueueMessage,
-} from '@workspace/contracts'
-import { and, desc, eq, lte, ne } from 'drizzle-orm'
-import * as v from 'valibot'
-import { ulid } from 'ulid'
+} from "@workspace/contracts"
+import { and, desc, eq, lte, ne } from "drizzle-orm"
+import * as v from "valibot"
+import { ulid } from "ulid"
 
-import { getDb, schema } from './db/index.js'
-import { selectOne } from './db/select-one.js'
-import type { AppBindings } from './env.js'
-import { getAppLogger, type AppLogger } from './logger.js'
-import { enqueueRefreshSummaries } from './summaries/refresh-queue.js'
-import { formatIssues } from './shared/format-issues.js'
+import { getDb, schema } from "./db/index.js"
+import { selectOne } from "./db/select-one.js"
+import type { AppBindings } from "./env.js"
+import { getAppLogger, type AppLogger } from "./logger.js"
+import { enqueueRefreshSummaries } from "./summaries/refresh-queue.js"
+import { formatIssues } from "./shared/format-issues.js"
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
-type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
-type ComparisonKind = 'branch-previous' | 'pr-base'
+type QueueMessageLike<TBody> = Pick<Message<TBody>, "ack" | "retry" | "body" | "id" | "attempts">
+type ComparisonKind = "branch-previous" | "pr-base"
 
 interface MeasuredSeriesPoint {
   commitGroupId: string
@@ -31,7 +31,7 @@ interface MeasuredSeriesPoint {
   uploadedAt: string
 }
 
-const DEFAULT_BUDGET_STATE = 'not-configured' as const
+const DEFAULT_BUDGET_STATE = "not-configured" as const
 
 export async function handleScheduleComparisonsQueue(
   batch: MessageBatch<unknown>,
@@ -52,7 +52,10 @@ export async function handleScheduleComparisonsMessage(
   const messageResult = v.safeParse(scheduleComparisonsQueueMessageSchema, message.body)
 
   if (!messageResult.success) {
-    logger.error('Dropping invalid schedule-comparisons message', formatIssues(messageResult.issues))
+    logger.error(
+      "Dropping invalid schedule-comparisons message",
+      formatIssues(messageResult.issues),
+    )
     message.ack()
     return
   }
@@ -67,7 +70,7 @@ export async function handleScheduleComparisonsMessage(
       return
     }
 
-    logger.error('Retrying schedule-comparisons message after transient failure', error)
+    logger.error("Retrying schedule-comparisons message after transient failure", error)
     message.retry()
   }
 }
@@ -95,7 +98,7 @@ async function scheduleScenarioRunComparisons(
     )
   }
 
-  if (scenarioRun.status !== 'processed') {
+  if (scenarioRun.status !== "processed") {
     throw new TerminalScheduleError(
       `Scenario run ${scenarioRun.id} is not ready for comparison scheduling.`,
     )
@@ -127,10 +130,10 @@ async function scheduleScenarioRunComparisons(
     .where(eq(schema.seriesPoints.scenarioRunId, scenarioRun.id))
 
   for (const headPoint of headSeriesPoints) {
-    await scheduleComparisonForKind(env, scenarioRun, headPoint, 'branch-previous', null)
+    await scheduleComparisonForKind(env, scenarioRun, headPoint, "branch-previous", null)
 
     if (pullRequest) {
-      await scheduleComparisonForKind(env, scenarioRun, headPoint, 'pr-base', pullRequest)
+      await scheduleComparisonForKind(env, scenarioRun, headPoint, "pr-base", pullRequest)
     }
   }
 
@@ -138,7 +141,7 @@ async function scheduleScenarioRunComparisons(
     env,
     scenarioRun.repositoryId,
     scenarioRun.commitGroupId,
-    'comparisons-scheduled',
+    "comparisons-scheduled",
   )
 }
 
@@ -151,7 +154,7 @@ async function scheduleComparisonForKind(
 ) {
   const db = getDb(env)
   const baselinePoint =
-    kind === 'pr-base'
+    kind === "pr-base"
       ? await findPrBaseBaseline(db, scenarioRun, headPoint, pullRequest)
       : await findPreviousBranchBaseline(db, scenarioRun, headPoint)
   const timestamp = new Date().toISOString()
@@ -198,7 +201,7 @@ async function findPrBaseBaseline(
       .where(
         and(
           eq(schema.seriesPoints.seriesId, headPoint.seriesId),
-          eq(schema.scenarioRuns.status, 'processed'),
+          eq(schema.scenarioRuns.status, "processed"),
           eq(schema.seriesPoints.branch, pullRequest.baseRef),
           lte(schema.scenarioRuns.uploadedAt, scenarioRun.uploadedAt),
           ne(schema.seriesPoints.scenarioRunId, scenarioRun.id),
@@ -231,7 +234,7 @@ async function findPreviousBranchBaseline(
       .where(
         and(
           eq(schema.seriesPoints.seriesId, headPoint.seriesId),
-          eq(schema.scenarioRuns.status, 'processed'),
+          eq(schema.scenarioRuns.status, "processed"),
           eq(schema.seriesPoints.branch, scenarioRun.branch),
           lte(schema.scenarioRuns.uploadedAt, scenarioRun.uploadedAt),
           ne(schema.seriesPoints.commitGroupId, scenarioRun.commitGroupId),
@@ -284,10 +287,11 @@ async function upsertComparison(
     baseCommitGroupId: baselinePoint?.commitGroupId ?? null,
     pullRequestId: scenarioRun.pullRequestId,
     kind,
-    status: baselinePoint ? 'queued' : 'no-baseline',
+    status: baselinePoint ? "queued" : "no-baseline",
     requestedBaseSha:
-      kind === 'pr-base' ? pullRequest?.baseSha ?? null : baselinePoint?.commitSha ?? null,
-    requestedHeadSha: kind === 'pr-base' ? pullRequest?.headSha ?? scenarioRun.commitSha : scenarioRun.commitSha,
+      kind === "pr-base" ? (pullRequest?.baseSha ?? null) : (baselinePoint?.commitSha ?? null),
+    requestedHeadSha:
+      kind === "pr-base" ? (pullRequest?.headSha ?? scenarioRun.commitSha) : scenarioRun.commitSha,
     selectedBaseCommitSha: baselinePoint?.commitSha ?? null,
     selectedHeadCommitSha: scenarioRun.commitSha,
     currentTotalRawBytes: headPoint.totalRawBytes,
@@ -296,7 +300,9 @@ async function upsertComparison(
     baselineTotalRawBytes: baselinePoint?.totalRawBytes ?? null,
     baselineTotalGzipBytes: baselinePoint?.totalGzipBytes ?? null,
     baselineTotalBrotliBytes: baselinePoint?.totalBrotliBytes ?? null,
-    deltaTotalRawBytes: baselinePoint ? headPoint.totalRawBytes - baselinePoint.totalRawBytes : null,
+    deltaTotalRawBytes: baselinePoint
+      ? headPoint.totalRawBytes - baselinePoint.totalRawBytes
+      : null,
     deltaTotalGzipBytes: baselinePoint
       ? headPoint.totalGzipBytes - baselinePoint.totalGzipBytes
       : null,
@@ -355,7 +361,7 @@ async function upsertComparison(
       return concurrentComparison.id
     }
 
-    throw new Error('Could not create the comparison row for this scenario run.')
+    throw new Error("Could not create the comparison row for this scenario run.")
   }
 
   return createdComparisonId
@@ -368,7 +374,7 @@ async function enqueueMaterializeComparison(
 ) {
   const messageResult = v.safeParse(materializeComparisonQueueMessageSchema, {
     schemaVersion: SCHEMA_VERSION_V1,
-    kind: 'materialize-comparison',
+    kind: "materialize-comparison",
     repositoryId,
     comparisonId,
     dedupeKey: `materialize-comparison:${comparisonId}:v1`,
@@ -383,13 +389,13 @@ async function enqueueMaterializeComparison(
   const materializeMessage = messageResult.output as MaterializeComparisonQueueMessage
 
   await env.MATERIALIZE_COMPARISON_QUEUE.send(materializeMessage, {
-    contentType: 'json',
+    contentType: "json",
   })
 }
 
 class TerminalScheduleError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'TerminalScheduleError'
+    this.name = "TerminalScheduleError"
   }
 }

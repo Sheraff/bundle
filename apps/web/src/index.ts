@@ -1,22 +1,22 @@
-import { Hono } from 'hono'
-import startHandler from '@tanstack/react-start/server-entry'
+import { Hono } from "hono"
+import startHandler from "@tanstack/react-start/server-entry"
 
-import { CommitGroupSettlementWorkflow } from './commit-group-settlement-workflow.js'
-import type { AppEnv } from './env.js'
-import { getAppLogger } from './logger.js'
-import { PrPublishDebounceWorkflow } from './pr-publish-debounce-workflow.js'
-import { dispatchMessage } from './queues/dispatch-message.js'
-import { registerUploadRoutes } from './api/uploads.js'
+import { CommitGroupSettlementWorkflow } from "./commit-group-settlement-workflow.js"
+import type { AppEnv } from "./env.js"
+import { getAppLogger } from "./logger.js"
+import { PrPublishDebounceWorkflow } from "./pr-publish-debounce-workflow.js"
+import { dispatchMessage } from "./queues/dispatch-message.js"
+import { registerUploadRoutes } from "./api/uploads.js"
 
 const app = new Hono<AppEnv>()
 
-app.get('/healthz', (c) => {
+app.get("/healthz", (c) => {
   return c.json({ ok: true })
 })
 
 registerUploadRoutes(app)
 
-app.all('*', async (c) => {
+app.all("*", async (c) => {
   return startHandler.fetch(c.req.raw, {
     context: {
       env: c.env,
@@ -26,21 +26,21 @@ app.all('*', async (c) => {
 })
 
 app.onError((error, c) => {
-  getAppLogger().error('Unhandled app error', error)
+  getAppLogger().error("Unhandled app error", error)
 
-  if (c.req.path.startsWith('/api/')) {
+  if (c.req.path.startsWith("/api/")) {
     return c.json(
       {
         error: {
-          code: 'internal_error',
-          message: 'The server could not complete the request.',
+          code: "internal_error",
+          message: "The server could not complete the request.",
         },
       },
       500,
     )
   }
 
-  return c.text('The server could not complete the request.', 500)
+  return c.text("The server could not complete the request.", 500)
 })
 
 export default {

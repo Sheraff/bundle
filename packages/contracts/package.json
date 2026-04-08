@@ -1,23 +1,23 @@
 {
-	"name": "@workspace/contracts",
-	"version": "0.0.0",
-	"private": true,
-	"type": "module",
-	"exports": {
-		".": "./src/index.ts",
-		"./shared": "./src/shared.ts",
-		"./plugin-artifact": "./src/plugin-artifact.ts",
-		"./normalized-snapshot": "./src/normalized-snapshot.ts",
-		"./upload-envelope": "./src/upload-envelope.ts",
-		"./upload-response": "./src/upload-response.ts",
-		"./public-routes": "./src/public-routes.ts",
-		"./summaries": "./src/summaries.ts",
-		"./mutations": "./src/mutations.ts",
-		"./queues": "./src/queue-messages.ts",
-		"./workflows": "./src/workflows.ts"
-	},
-	"scripts": {
-		"test": "vitest run",
-		"typecheck": "tsc --project tsconfig.json"
-	}
+  "name": "@workspace/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./shared": "./src/shared.ts",
+    "./plugin-artifact": "./src/plugin-artifact.ts",
+    "./normalized-snapshot": "./src/normalized-snapshot.ts",
+    "./upload-envelope": "./src/upload-envelope.ts",
+    "./upload-response": "./src/upload-response.ts",
+    "./public-routes": "./src/public-routes.ts",
+    "./summaries": "./src/summaries.ts",
+    "./mutations": "./src/mutations.ts",
+    "./queues": "./src/queue-messages.ts",
+    "./workflows": "./src/workflows.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --project tsconfig.json"
+  }
 }

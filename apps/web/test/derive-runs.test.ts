@@ -1,25 +1,18 @@
-import { env } from 'cloudflare:workers'
-import { describe, expect, it, vi } from 'vitest'
+import { env } from "cloudflare:workers"
+import { describe, expect, it, vi } from "vitest"
 
-import {
-  dispatchQueueMessage,
-  TEST_QUEUE_NAMES,
-} from './queue-test-helpers.js'
-import {
-  buildEnvelope,
-  buildSimpleArtifact,
-  size,
-} from './support/builders.js'
-import { countRows } from './support/db-helpers.js'
-import { sendUploadRequest } from './support/request-helpers.js'
+import { dispatchQueueMessage, TEST_QUEUE_NAMES } from "./queue-test-helpers.js"
+import { buildEnvelope, buildSimpleArtifact, size } from "./support/builders.js"
+import { countRows } from "./support/db-helpers.js"
+import { sendUploadRequest } from "./support/request-helpers.js"
 
-const sha = '0123456789abcdef0123456789abcdef01234567'
-const secondSha = '1111111111111111111111111111111111111111'
+const sha = "0123456789abcdef0123456789abcdef01234567"
+const secondSha = "1111111111111111111111111111111111111111"
 
-describe('derive-run queue handling', () => {
-  it('derives default-lens series points and marks the scenario run as processed', async () => {
-    const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
-    const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
+describe("derive-run queue handling", () => {
+  it("derives default-lens series points and marks the scenario run as processed", async () => {
+    const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
+    const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, "send")
 
     const response = await sendUploadRequest(buildEnvelope())
 
@@ -87,15 +80,15 @@ describe('derive-run queue handling', () => {
     }>()
 
     expect(scenarioRun).toEqual({
-      status: 'processed',
+      status: "processed",
       failure_code: null,
       failure_message: null,
     })
     expect(series).toEqual({
-      environment: 'default',
-      entrypoint_key: 'src/main.ts',
-      entrypoint_kind: 'entry',
-      lens: 'entry-js-direct-css',
+      environment: "default",
+      entrypoint_key: "src/main.ts",
+      entrypoint_kind: "entry",
+      lens: "entry-js-direct-css",
     })
     expect(seriesPoint).toEqual({
       entry_js_raw_bytes: 123,
@@ -107,29 +100,29 @@ describe('derive-run queue handling', () => {
       total_raw_bytes: 133,
       total_gzip_bytes: 53,
       total_brotli_bytes: 44,
-      measured_at: '2026-04-06T12:00:00.000Z',
+      measured_at: "2026-04-06T12:00:00.000Z",
     })
   })
 
-  it('reuses one stable series across hash churn and appends fresh points', async () => {
+  it("reuses one stable series across hash churn and appends fresh points", async () => {
     await processEnvelope(buildEnvelope())
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: secondSha,
-          branch: 'main',
+          branch: "main",
         },
         ci: {
-          provider: 'github-actions',
-          workflowRunId: '1000',
+          provider: "github-actions",
+          workflowRunId: "1000",
           workflowRunAttempt: 1,
-          job: 'build',
-          actionVersion: 'v1',
+          job: "build",
+          actionVersion: "v1",
         },
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-NEW123.js',
-          cssFileName: 'assets/main-NEW123.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-NEW123.js",
+          cssFileName: "assets/main-NEW123.css",
           chunkSizes: {
             raw: 150,
             gzip: 56,
@@ -144,56 +137,56 @@ describe('derive-run queue handling', () => {
       }),
     )
 
-    expect(await countRows('series')).toBe(1)
-    expect(await countRows('series_points')).toBe(2)
+    expect(await countRows("series")).toBe(1)
+    expect(await countRows("series_points")).toBe(2)
 
     const distinctSeriesIds = await env.DB.prepare(
-      'SELECT COUNT(DISTINCT series_id) AS count FROM series_points',
+      "SELECT COUNT(DISTINCT series_id) AS count FROM series_points",
     ).first<{ count: number }>()
     const totals = await env.DB.prepare(
-      'SELECT total_raw_bytes FROM series_points ORDER BY measured_at ASC',
+      "SELECT total_raw_bytes FROM series_points ORDER BY measured_at ASC",
     ).all<{ total_raw_bytes: number }>()
 
     expect(distinctSeriesIds?.count).toBe(1)
     expect(totals.results.map((row) => row.total_raw_bytes)).toEqual([133, 165])
   })
 
-  it('measures manifest-only html entrypoints from their imported js chunk', async () => {
+  it("measures manifest-only html entrypoints from their imported js chunk", async () => {
     await processEnvelope(
       buildEnvelope({
         artifact: {
           ...buildSimpleArtifact(),
           environments: [
             {
-              name: 'default',
+              name: "default",
               build: {
-                outDir: 'dist',
+                outDir: "dist",
               },
               manifest: {
-                'index.html': {
-                  file: 'index.html',
-                  src: 'index.html',
+                "index.html": {
+                  file: "index.html",
+                  src: "index.html",
                   isEntry: true,
-                  imports: ['assets/main.js'],
-                  css: ['assets/main.css'],
-                  assets: ['assets/logo.svg'],
+                  imports: ["assets/main.js"],
+                  css: ["assets/main.css"],
+                  assets: ["assets/logo.svg"],
                 },
               },
               chunks: [
                 {
-                  fileName: 'assets/main.js',
-                  name: 'main',
+                  fileName: "assets/main.js",
+                  name: "main",
                   isEntry: false,
                   isDynamicEntry: false,
-                  facadeModuleId: '/tmp/repo/src/main.ts',
-                  imports: ['assets/shared.js'],
+                  facadeModuleId: "/tmp/repo/src/main.ts",
+                  imports: ["assets/shared.js"],
                   dynamicImports: [],
                   implicitlyLoadedBefore: [],
-                  importedCss: ['assets/main.css'],
-                  importedAssets: ['assets/logo.svg'],
+                  importedCss: ["assets/main.css"],
+                  importedAssets: ["assets/logo.svg"],
                   modules: [
                     {
-                      rawId: '/tmp/repo/src/main.ts',
+                      rawId: "/tmp/repo/src/main.ts",
                       renderedLength: 123,
                       originalLength: 456,
                     },
@@ -201,8 +194,8 @@ describe('derive-run queue handling', () => {
                   sizes: size(123, 45, 38),
                 },
                 {
-                  fileName: 'assets/shared.js',
-                  name: 'shared',
+                  fileName: "assets/shared.js",
+                  name: "shared",
                   isEntry: false,
                   isDynamicEntry: false,
                   facadeModuleId: null,
@@ -213,7 +206,7 @@ describe('derive-run queue handling', () => {
                   importedAssets: [],
                   modules: [
                     {
-                      rawId: '/tmp/repo/src/shared.ts',
+                      rawId: "/tmp/repo/src/shared.ts",
                       renderedLength: 45,
                       originalLength: 60,
                     },
@@ -223,14 +216,14 @@ describe('derive-run queue handling', () => {
               ],
               assets: [
                 {
-                  fileName: 'assets/main.css',
-                  names: ['main.css'],
+                  fileName: "assets/main.css",
+                  names: ["main.css"],
                   needsCodeReference: false,
                   sizes: size(10, 8, 6),
                 },
                 {
-                  fileName: 'assets/logo.svg',
-                  names: ['logo.svg'],
+                  fileName: "assets/logo.svg",
+                  names: ["logo.svg"],
                   needsCodeReference: false,
                   sizes: size(12, 10, 8),
                 },
@@ -263,10 +256,10 @@ describe('derive-run queue handling', () => {
     }>()
 
     expect(series).toEqual({
-      environment: 'default',
-      entrypoint_key: 'index.html',
-      entrypoint_kind: 'entry',
-      lens: 'entry-js-direct-css',
+      environment: "default",
+      entrypoint_key: "index.html",
+      entrypoint_kind: "entry",
+      lens: "entry-js-direct-css",
     })
     expect(seriesPoint).toEqual({
       entry_js_raw_bytes: 123,
@@ -275,9 +268,9 @@ describe('derive-run queue handling', () => {
     })
   })
 
-  it('marks the scenario run as failed when the normalized snapshot becomes invalid', async () => {
-    const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
-    const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
+  it("marks the scenario run as failed when the normalized snapshot becomes invalid", async () => {
+    const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
+    const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, "send")
     const response = await sendUploadRequest(buildEnvelope())
 
     expect(response.status).toBe(202)
@@ -289,15 +282,15 @@ describe('derive-run queue handling', () => {
     expect(normalizeResult).toBeAcknowledged()
 
     const scenarioRun = await env.DB.prepare(
-      'SELECT id, normalized_snapshot_r2_key FROM scenario_runs LIMIT 1',
+      "SELECT id, normalized_snapshot_r2_key FROM scenario_runs LIMIT 1",
     ).first<{
       id: string
       normalized_snapshot_r2_key: string
     }>()
 
-    await env.CACHE_BUCKET.put(scenarioRun!.normalized_snapshot_r2_key, '{}', {
+    await env.CACHE_BUCKET.put(scenarioRun!.normalized_snapshot_r2_key, "{}", {
       httpMetadata: {
-        contentType: 'application/json',
+        contentType: "application/json",
       },
     })
 
@@ -310,33 +303,35 @@ describe('derive-run queue handling', () => {
       `SELECT status, failure_code, failure_message
        FROM scenario_runs
        WHERE id = ?`,
-    ).bind(scenarioRun!.id).first<{
-      failure_code: string | null
-      failure_message: string | null
-       status: string
-     }>()
+    )
+      .bind(scenarioRun!.id)
+      .first<{
+        failure_code: string | null
+        failure_message: string | null
+        status: string
+      }>()
 
     expect(deriveResult).toBeAcknowledged()
-    expect(failedRun?.status).toBe('failed')
-    expect(failedRun?.failure_code).toBe('invalid_normalized_snapshot')
-    expect(failedRun?.failure_message).toContain('failed schema validation')
-    expect(await countRows('series')).toBe(0)
-    expect(await countRows('series_points')).toBe(0)
+    expect(failedRun?.status).toBe("failed")
+    expect(failedRun?.failure_code).toBe("invalid_normalized_snapshot")
+    expect(failedRun?.failure_message).toContain("failed schema validation")
+    expect(await countRows("series")).toBe(0)
+    expect(await countRows("series_points")).toBe(0)
   })
 
-  it('treats an already-processed derive run as idempotent', async () => {
+  it("treats an already-processed derive run as idempotent", async () => {
     const { deriveMessageBody } = await processEnvelope(buildEnvelope())
 
     const deriveResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.deriveRun, deriveMessageBody)
     expect(deriveResult).toBeAcknowledged()
-    expect(await countRows('series')).toBe(1)
-    expect(await countRows('series_points')).toBe(1)
+    expect(await countRows("series")).toBe(1)
+    expect(await countRows("series_points")).toBe(1)
   })
 })
 
 async function processEnvelope(envelope: ReturnType<typeof buildEnvelope>) {
-  const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
-  const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
+  const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
+  const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, "send")
   normalizeSendSpy.mockClear()
   deriveSendSpy.mockClear()
 
@@ -344,7 +339,10 @@ async function processEnvelope(envelope: ReturnType<typeof buildEnvelope>) {
   expect(response.status).toBe(202)
 
   const normalizeMessageBody = normalizeSendSpy.mock.calls.at(-1)?.[0]
-  const normalizeResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.normalizeRun, normalizeMessageBody)
+  const normalizeResult = await dispatchQueueMessage(
+    TEST_QUEUE_NAMES.normalizeRun,
+    normalizeMessageBody,
+  )
   expect(normalizeResult).toBeAcknowledged()
 
   const deriveMessageBody = deriveSendSpy.mock.calls.at(-1)?.[0]

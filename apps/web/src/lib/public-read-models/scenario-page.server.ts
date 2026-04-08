@@ -1,6 +1,6 @@
-import { DEFAULT_LENS_SLUG } from '@workspace/contracts'
+import { DEFAULT_LENS_SLUG } from "@workspace/contracts"
 
-import type { AppBindings } from '../../env.js'
+import type { AppBindings } from "../../env.js"
 
 import {
   buildNeutralCompareRows,
@@ -13,7 +13,7 @@ import {
   loadScenarioHistory,
   requireRepository,
   requireScenario,
-} from './shared.server.js'
+} from "./shared.server.js"
 
 export async function getScenarioPageData(
   env: AppBindings,
@@ -32,8 +32,8 @@ export async function getScenarioPageData(
   const scenario = await requireScenario(env, repository.id, input.scenario)
   const branchOptions = await listRepositoryBranches(env, repository.id)
   const resolvedBranch = input.branch ?? branchOptions[0] ?? null
-  const resolvedEnvironment = input.env ?? 'all'
-  const resolvedEntrypoint = input.entrypoint ?? 'all'
+  const resolvedEnvironment = input.env ?? "all"
+  const resolvedEntrypoint = input.entrypoint ?? "all"
   const environmentOptions = await listScenarioEnvironments(env, scenario.id)
   const entrypointOptions = await listScenarioEntrypoints(env, scenario.id, resolvedEnvironment)
   const lensOptions = await listScenarioLenses(
@@ -47,9 +47,13 @@ export async function getScenarioPageData(
     ? await loadLatestCommitGroupSummaryByBranch(env, repository.id, resolvedBranch)
     : null
   const latestFreshScenario =
-    latestSummary?.freshScenarioGroups.find((scenarioGroup) => scenarioGroup.scenarioSlug === scenario.slug) ?? null
+    latestSummary?.freshScenarioGroups.find(
+      (scenarioGroup) => scenarioGroup.scenarioSlug === scenario.slug,
+    ) ?? null
   const latestStatusScenario =
-    latestSummary?.statusScenarios.find((scenarioGroup) => scenarioGroup.scenarioSlug === scenario.slug) ?? null
+    latestSummary?.statusScenarios.find(
+      (scenarioGroup) => scenarioGroup.scenarioSlug === scenario.slug,
+    ) ?? null
   const history = resolvedBranch
     ? await loadScenarioHistory(
         env,
@@ -63,13 +67,13 @@ export async function getScenarioPageData(
     : []
   const latestRows = latestFreshScenario ? buildNeutralCompareRows([latestFreshScenario]) : []
   const selectedSeries =
-    resolvedEnvironment !== 'all' && resolvedEntrypoint !== 'all'
-      ? latestRows.find(
+    resolvedEnvironment !== "all" && resolvedEntrypoint !== "all"
+      ? (latestRows.find(
           (row) =>
             row.series.environment === resolvedEnvironment &&
             row.series.entrypoint === resolvedEntrypoint &&
             row.series.lens === resolvedLens,
-        ) ?? null
+        ) ?? null)
       : null
 
   return {

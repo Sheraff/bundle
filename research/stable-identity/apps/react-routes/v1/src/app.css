@@ -6,15 +6,13 @@
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at top, rgba(56, 189, 248, 0.2), transparent 40%),
-    #09111f;
+  background: radial-gradient(circle at top, rgba(56, 189, 248, 0.2), transparent 40%), #09111f;
 }
 
 .app-shell {
   min-height: 100vh;
   padding: 32px;
-  background-image: url('./assets/hero-grid.svg');
+  background-image: url("./assets/hero-grid.svg");
   background-size: 180px 180px;
 }
 

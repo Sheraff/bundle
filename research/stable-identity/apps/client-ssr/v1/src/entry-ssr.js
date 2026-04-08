@@ -1,4 +1,4 @@
-import { renderServerDocument } from './shared/serverFrame.js';
+import { renderServerDocument } from "./shared/serverFrame.js"
 
-export const html = renderServerDocument();
-console.log(html.length);
+export const html = renderServerDocument()
+console.log(html.length)

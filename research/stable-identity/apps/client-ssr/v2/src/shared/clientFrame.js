@@ -1,9 +1,9 @@
-import { formatBytes } from './formatBytes.js';
-import { renderMetrics } from './renderMetrics.js';
+import { formatBytes } from "./formatBytes.js"
+import { renderMetrics } from "./renderMetrics.js"
 
 export function renderClientFrame(root, { badgeUrl, title }) {
-  const hero = document.createElement('section');
-  hero.className = 'hero-panel';
+  const hero = document.createElement("section")
+  hero.className = "hero-panel"
   hero.innerHTML = `
     <img alt="Client badge" class="hero-badge" src="${badgeUrl}">
     <div>
@@ -11,11 +11,11 @@ export function renderClientFrame(root, { badgeUrl, title }) {
       <h1>${title}</h1>
       <p>Hydration payload budget: ${formatBytes(20480)}</p>
     </div>
-  `;
-  root.append(hero);
+  `
+  root.append(hero)
   renderMetrics(root, [
-    ['consumer', 'client'],
-    ['stream', 'hydration'],
-    ['payload', formatBytes(20480)],
-  ]);
+    ["consumer", "client"],
+    ["stream", "hydration"],
+    ["payload", formatBytes(20480)],
+  ])
 }

@@ -3,10 +3,7 @@
   padding: 18px;
   border-radius: 24px;
   border: 1px solid rgba(148, 163, 184, 0.18);
-  background:
-    rgba(7, 24, 39, 0.88)
-    url('../media/glow-sheet.svg')
-    right center / cover no-repeat;
+  background: rgba(7, 24, 39, 0.88) url("../media/glow-sheet.svg") right center / cover no-repeat;
 }
 
 .panel div {

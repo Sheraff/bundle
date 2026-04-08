@@ -20,7 +20,7 @@ For v1, keep the plugin contract minimal:
 
 ```ts
 bundleTracker({
-  scenario: 'minimal-react-app',
+  scenario: "minimal-react-app",
 })
 ```
 
@@ -40,10 +40,10 @@ Possible later extension, but not v1:
 
 ```ts
 bundleTracker({
-  scenario: 'minimal-react-app',
+  scenario: "minimal-react-app",
   environments: {
-    client: { classification: 'client' },
-    ssr: { classification: 'server' },
+    client: { classification: "client" },
+    ssr: { classification: "server" },
   },
 })
 ```

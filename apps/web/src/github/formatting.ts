@@ -1,4 +1,4 @@
-import { defaultStringifySearch } from '@tanstack/react-router'
+import { defaultStringifySearch } from "@tanstack/react-router"
 
 export function buildPrCompareUrl(
   origin: string,
@@ -20,15 +20,15 @@ export function formatBytes(value: number) {
 }
 
 export function formatSignedBytes(value: number) {
-  return `${value >= 0 ? '+' : '-'}${formatMagnitude(Math.abs(value))}`
+  return `${value >= 0 ? "+" : "-"}${formatMagnitude(Math.abs(value))}`
 }
 
 export function formatSignedPercentage(value: number) {
-  return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`
+  return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`
 }
 
 export function formatCount(count: number, singular: string) {
-  return `${count} ${singular}${count === 1 ? '' : 's'}`
+  return `${count} ${singular}${count === 1 ? "" : "s"}`
 }
 
 function formatMagnitude(value: number) {

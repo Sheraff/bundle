@@ -2,14 +2,14 @@ import type {
   PullRequestContext,
   RepositoryContext,
   UploadScenarioRunEnvelopeV1,
-} from '@workspace/contracts'
-import { and, eq } from 'drizzle-orm'
-import { ulid } from 'ulid'
+} from "@workspace/contracts"
+import { and, eq } from "drizzle-orm"
+import { ulid } from "ulid"
 
-import { getDb, schema } from '../db/index.js'
-import { selectOne } from '../db/select-one.js'
+import { getDb, schema } from "../db/index.js"
+import { selectOne } from "../db/select-one.js"
 
-import type { StoredUploadTexts } from './raw-upload-storage.js'
+import type { StoredUploadTexts } from "./raw-upload-storage.js"
 
 type AppDb = ReturnType<typeof getDb>
 
@@ -49,7 +49,7 @@ export async function persistScenarioRun(
       pullRequestId: pullRequest?.id ?? null,
       commitSha: options.envelope.git.commitSha,
       branch: options.envelope.git.branch,
-      status: 'queued',
+      status: "queued",
       scenarioSourceKind: options.envelope.scenarioSource.kind,
       artifactScenarioKind: options.envelope.artifact.scenario.kind,
       uploadDedupeKey: options.uploadDedupeKey,
@@ -73,11 +73,7 @@ export async function persistScenarioRun(
     .onConflictDoNothing({ target: schema.scenarioRuns.uploadDedupeKey })
 }
 
-async function upsertRepository(
-  db: AppDb,
-  repository: RepositoryContext,
-  timestamp: string,
-) {
+async function upsertRepository(db: AppDb, repository: RepositoryContext, timestamp: string) {
   const existingRepository = await selectOne(
     db
       .select({ id: schema.repositories.id })
@@ -125,7 +121,7 @@ async function upsertRepository(
       return concurrentRepository
     }
 
-    throw new Error('Could not create the repository row for this upload.')
+    throw new Error("Could not create the repository row for this upload.")
   }
 
   return {
@@ -193,7 +189,7 @@ async function upsertScenario(
       return concurrentScenario
     }
 
-    throw new Error('Could not create the scenario row for this upload.')
+    throw new Error("Could not create the scenario row for this upload.")
   }
 
   return {
@@ -267,7 +263,7 @@ async function upsertPullRequest(
       return concurrentPullRequest
     }
 
-    throw new Error('Could not create the pull request row for this upload.')
+    throw new Error("Could not create the pull request row for this upload.")
   }
 
   return {
@@ -305,7 +301,7 @@ async function upsertCommitGroup(
       .set({
         branch,
         pullRequestId: pullRequestId ?? existingCommitGroup.pullRequestId ?? null,
-        status: 'pending',
+        status: "pending",
         latestUploadAt: timestamp,
         updatedAt: timestamp,
       })
@@ -325,7 +321,7 @@ async function upsertCommitGroup(
       pullRequestId,
       commitSha,
       branch,
-      status: 'pending',
+      status: "pending",
       latestUploadAt: timestamp,
       createdAt: timestamp,
       updatedAt: timestamp,
@@ -348,7 +344,7 @@ async function upsertCommitGroup(
       return concurrentCommitGroup
     }
 
-    throw new Error('Could not create the commit-group row for this upload.')
+    throw new Error("Could not create the commit-group row for this upload.")
   }
 
   return {

@@ -1,11 +1,6 @@
-import * as v from 'valibot'
+import * as v from "valibot"
 
-import {
-  noteSchema,
-  nonEmptyStringSchema,
-  scenarioSlugSchema,
-  ulidSchema,
-} from './shared.js'
+import { noteSchema, nonEmptyStringSchema, scenarioSlugSchema, ulidSchema } from "./shared.js"
 
 export const acknowledgeComparisonItemInputSchema = v.strictObject({
   repositoryId: ulidSchema,

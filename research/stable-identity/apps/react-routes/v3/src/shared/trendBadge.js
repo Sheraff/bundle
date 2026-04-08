@@ -1,11 +1,11 @@
 export function trendBadge(value) {
   if (value >= 130000) {
-    return 'Ahead of budget';
+    return "Ahead of budget"
   }
 
   if (value >= 26000) {
-    return 'Within budget';
+    return "Within budget"
   }
 
-  return 'Watch budget';
+  return "Watch budget"
 }

@@ -2,16 +2,16 @@ import {
   materializeComparisonQueueMessageSchema,
   normalizedSnapshotV1Schema,
   type NormalizedEnvironmentSnapshotV1,
-} from '@workspace/contracts'
-import { eq } from 'drizzle-orm'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import { eq } from "drizzle-orm"
+import * as v from "valibot"
 
-import { getDb, schema } from './db/index.js'
-import { selectOne } from './db/select-one.js'
-import type { AppBindings } from './env.js'
-import { getAppLogger, type AppLogger } from './logger.js'
-import { enqueueRefreshSummaries } from './summaries/refresh-queue.js'
-import { formatIssues } from './shared/format-issues.js'
+import { getDb, schema } from "./db/index.js"
+import { selectOne } from "./db/select-one.js"
+import type { AppBindings } from "./env.js"
+import { getAppLogger, type AppLogger } from "./logger.js"
+import { enqueueRefreshSummaries } from "./summaries/refresh-queue.js"
+import { formatIssues } from "./shared/format-issues.js"
 import {
   matchEnvironmentPair,
   type AmbiguousRelation,
@@ -19,18 +19,18 @@ import {
   type SameRelation,
   type StableIdentityEnvironment,
   type StableIdentityMatchResult,
-} from './stable-identity.js'
+} from "./stable-identity.js"
 
-type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
+type QueueMessageLike<TBody> = Pick<Message<TBody>, "ack" | "retry" | "body" | "id" | "attempts">
 
 interface SelectedEntrypointRelationSummary {
   confidence: RelationConfidence | null
   evidence: string[]
-  relation: 'added' | 'removed' | 'same'
+  relation: "added" | "removed" | "same"
 }
 
 interface BudgetEvaluationResult {
-  budgetState: 'not-configured'
+  budgetState: "not-configured"
 }
 
 export async function handleMaterializeComparisonQueue(
@@ -52,7 +52,10 @@ export async function handleMaterializeComparisonMessage(
   const messageResult = v.safeParse(materializeComparisonQueueMessageSchema, message.body)
 
   if (!messageResult.success) {
-    logger.error('Dropping invalid materialize-comparison message', formatIssues(messageResult.issues))
+    logger.error(
+      "Dropping invalid materialize-comparison message",
+      formatIssues(messageResult.issues),
+    )
     message.ack()
     return
   }
@@ -63,14 +66,19 @@ export async function handleMaterializeComparisonMessage(
   } catch (error) {
     if (error instanceof TerminalMaterializeError) {
       if (error.persistFailure) {
-        await markComparisonFailed(env, messageResult.output.comparisonId, error.code, error.message)
+        await markComparisonFailed(
+          env,
+          messageResult.output.comparisonId,
+          error.code,
+          error.message,
+        )
       }
 
       message.ack()
       return
     }
 
-    logger.error('Retrying materialize-comparison message after transient failure', error)
+    logger.error("Retrying materialize-comparison message after transient failure", error)
     message.retry()
   }
 }
@@ -90,7 +98,7 @@ async function materializeComparison(
 
   if (!comparison) {
     throw new TerminalMaterializeError(
-      'comparison_not_found',
+      "comparison_not_found",
       `Comparison ${message.comparisonId} no longer exists.`,
       false,
     )
@@ -98,16 +106,16 @@ async function materializeComparison(
 
   if (comparison.repositoryId !== message.repositoryId) {
     throw new TerminalMaterializeError(
-      'repository_mismatch',
+      "repository_mismatch",
       `Comparison ${comparison.id} does not belong to repository ${message.repositoryId}.`,
     )
   }
 
-  if (comparison.status === 'materialized') {
+  if (comparison.status === "materialized") {
     return
   }
 
-  if (!comparison.baseScenarioRunId || comparison.status === 'no-baseline') {
+  if (!comparison.baseScenarioRunId || comparison.status === "no-baseline") {
     return
   }
 
@@ -117,7 +125,7 @@ async function materializeComparison(
 
   if (!seriesRow) {
     throw new TerminalMaterializeError(
-      'series_not_found',
+      "series_not_found",
       `Comparison ${comparison.id} references series ${comparison.seriesId}, which no longer exists.`,
     )
   }
@@ -139,14 +147,14 @@ async function materializeComparison(
 
   if (!headRun || !baseRun) {
     throw new TerminalMaterializeError(
-      'scenario_run_missing',
+      "scenario_run_missing",
       `Comparison ${comparison.id} could not load both scenario runs for materialization.`,
     )
   }
 
   if (!headRun.normalizedSnapshotR2Key || !baseRun.normalizedSnapshotR2Key) {
     throw new TerminalMaterializeError(
-      'normalized_snapshot_missing',
+      "normalized_snapshot_missing",
       `Comparison ${comparison.id} is missing a normalized snapshot key on one of its scenario runs.`,
     )
   }
@@ -156,15 +164,15 @@ async function materializeComparison(
       env.CACHE_BUCKET,
       headRun.normalizedSnapshotR2Key,
       normalizedSnapshotV1Schema,
-      'normalized_snapshot_missing',
-      'invalid_normalized_snapshot',
+      "normalized_snapshot_missing",
+      "invalid_normalized_snapshot",
     ),
     readStoredJson(
       env.CACHE_BUCKET,
       baseRun.normalizedSnapshotR2Key,
       normalizedSnapshotV1Schema,
-      'normalized_snapshot_missing',
-      'invalid_normalized_snapshot',
+      "normalized_snapshot_missing",
+      "invalid_normalized_snapshot",
     ),
   ])
 
@@ -177,7 +185,7 @@ async function materializeComparison(
 
   if (!headEnvironment || !baseEnvironment) {
     throw new TerminalMaterializeError(
-      'environment_missing',
+      "environment_missing",
       `Comparison ${comparison.id} could not find environment ${seriesRow.environment} in both snapshots.`,
     )
   }
@@ -201,7 +209,7 @@ async function materializeComparison(
   await db
     .update(schema.comparisons)
     .set({
-      status: 'materialized',
+      status: "materialized",
       selectedEntrypointRelation: selectedEntrypoint?.relation ?? null,
       selectedEntrypointConfidence: selectedEntrypoint?.confidence ?? null,
       selectedEntrypointEvidenceJson: selectedEntrypoint
@@ -220,7 +228,7 @@ async function materializeComparison(
     env,
     comparison.repositoryId,
     comparison.headCommitGroupId,
-    'comparison-materialized',
+    "comparison-materialized",
   )
 }
 
@@ -272,17 +280,19 @@ function summarizeSelectedEntrypointRelation(
   const headEntrypoint = headEnvironment.entrypoints.find(
     (entrypoint) => entrypoint.kind === entrypointKind && entrypoint.key === entrypointKey,
   )
-  const collection = entrypointKind === 'dynamic-entry' ? matchResult.dynamicEntries : matchResult.entries
+  const collection =
+    entrypointKind === "dynamic-entry" ? matchResult.dynamicEntries : matchResult.entries
 
   if (baseEntrypoint && headEntrypoint) {
     const sameRelation = collection.same.find(
       (relation) =>
-        relation.from === baseEntrypoint.chunkFileName && relation.to === headEntrypoint.chunkFileName,
+        relation.from === baseEntrypoint.chunkFileName &&
+        relation.to === headEntrypoint.chunkFileName,
     )
 
     if (sameRelation) {
       return {
-        relation: 'same',
+        relation: "same",
         confidence: sameRelation.confidence,
         evidence: sameRelation.evidence,
       }
@@ -301,16 +311,20 @@ function summarizeSelectedEntrypointRelation(
       )
 
       return {
-        relation: 'same',
-        confidence: 'exact',
-        evidence: [sharedManifestSourceKey ? `identity:${sharedManifestSourceKey}` : `identity:${entrypointKey}`],
+        relation: "same",
+        confidence: "exact",
+        evidence: [
+          sharedManifestSourceKey
+            ? `identity:${sharedManifestSourceKey}`
+            : `identity:${entrypointKey}`,
+        ],
       }
     }
   }
 
   if (!baseEntrypoint && headEntrypoint) {
     return {
-      relation: 'added',
+      relation: "added",
       confidence: null,
       evidence: [],
     }
@@ -318,7 +332,7 @@ function summarizeSelectedEntrypointRelation(
 
   if (baseEntrypoint && !headEntrypoint) {
     return {
-      relation: 'removed',
+      relation: "removed",
       confidence: null,
       evidence: [],
     }
@@ -332,11 +346,11 @@ function buildStableIdentitySummary(
   selectedEntrypoint: SelectedEntrypointRelationSummary | null,
 ) {
   const lowConfidenceShared = matchResult.sharedChunks.same.filter(
-    (relation) => relation.confidence === 'low',
+    (relation) => relation.confidence === "low",
   )
-  const lowConfidenceCss = matchResult.css.same.filter((relation) => relation.confidence === 'low')
+  const lowConfidenceCss = matchResult.css.same.filter((relation) => relation.confidence === "low")
   const lowConfidenceAssets = matchResult.assets.same.filter(
-    (relation) => relation.confidence === 'low',
+    (relation) => relation.confidence === "low",
   )
   const degradedExamples = {
     ambiguousSharedChunks: takeFirst(matchResult.sharedChunks.ambiguous, 5),
@@ -373,7 +387,7 @@ function buildStableIdentitySummary(
   }
 }
 
-function summarizeRootMatches(matches: StableIdentityMatchResult['entries']) {
+function summarizeRootMatches(matches: StableIdentityMatchResult["entries"]) {
   return {
     sameCount: matches.same.length,
     addedCount: matches.added.length,
@@ -381,14 +395,14 @@ function summarizeRootMatches(matches: StableIdentityMatchResult['entries']) {
   }
 }
 
-function summarizeAssetMatches(matches: StableIdentityMatchResult['css']) {
+function summarizeAssetMatches(matches: StableIdentityMatchResult["css"]) {
   return {
     sameCount: matches.same.length,
     splitCount: matches.split.length,
     mergeCount: matches.merge.length,
     addedCount: matches.added.length,
     removedCount: matches.removed.length,
-    lowConfidenceSameCount: matches.same.filter((relation) => relation.confidence === 'low').length,
+    lowConfidenceSameCount: matches.same.filter((relation) => relation.confidence === "low").length,
   }
 }
 
@@ -398,7 +412,7 @@ function takeFirst<T extends SameRelation | AmbiguousRelation>(values: T[], limi
 
 function evaluateBudgetResults(): BudgetEvaluationResult {
   return {
-    budgetState: 'not-configured',
+    budgetState: "not-configured",
   }
 }
 
@@ -456,7 +470,7 @@ async function markComparisonFailed(
   await getDb(env)
     .update(schema.comparisons)
     .set({
-      status: 'failed',
+      status: "failed",
       failureCode,
       failureMessage,
       updatedAt: timestamp,
@@ -468,7 +482,7 @@ async function markComparisonFailed(
       env,
       comparison.repositoryId,
       comparison.headCommitGroupId,
-      'comparison-failed',
+      "comparison-failed",
     )
   }
 }
@@ -480,6 +494,6 @@ class TerminalMaterializeError extends Error {
     readonly persistFailure = true,
   ) {
     super(message)
-    this.name = 'TerminalMaterializeError'
+    this.name = "TerminalMaterializeError"
   }
 }

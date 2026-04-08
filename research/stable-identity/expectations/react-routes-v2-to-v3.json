@@ -35,10 +35,7 @@
       },
       {
         "kind": "merge",
-        "from": [
-          "assets/route-format-AlVtcXM2.js",
-          "assets/route-ui-CHe5M3Mx.js"
-        ],
+        "from": ["assets/route-format-AlVtcXM2.js", "assets/route-ui-CHe5M3Mx.js"],
         "to": "chunks/shell-bundle-1WDCm2yq.js"
       }
     ],

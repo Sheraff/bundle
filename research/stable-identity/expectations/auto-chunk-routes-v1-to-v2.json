@@ -48,12 +48,8 @@
     "sharedChunks": [
       {
         "relation": "same",
-        "from": [
-          "assets/renderPanel-DdfzP8lc.js"
-        ],
-        "to": [
-          "assets/renderPanel-CL1JF_LE.js"
-        ],
+        "from": ["assets/renderPanel-DdfzP8lc.js"],
+        "to": ["assets/renderPanel-CL1JF_LE.js"],
         "stableKeyPrefix": "shared-lineage:"
       }
     ],

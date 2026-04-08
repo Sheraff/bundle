@@ -1,30 +1,24 @@
-import {
-  createExecutionContext,
-  waitOnExecutionContext,
-} from 'cloudflare:test'
-import { env, exports } from 'cloudflare:workers'
-import { describe, expect, it, vi } from 'vitest'
+import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test"
+import { env, exports } from "cloudflare:workers"
+import { describe, expect, it, vi } from "vitest"
 
-import {
-  dispatchQueueMessage,
-  TEST_QUEUE_NAMES,
-} from './queue-test-helpers.js'
+import { dispatchQueueMessage, TEST_QUEUE_NAMES } from "./queue-test-helpers.js"
 
-const baseSha = '0123456789abcdef0123456789abcdef01234567'
-const nextSha = '1111111111111111111111111111111111111111'
-const laterBaseSha = '2222222222222222222222222222222222222222'
-const prHeadSha = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+const baseSha = "0123456789abcdef0123456789abcdef01234567"
+const nextSha = "1111111111111111111111111111111111111111"
+const laterBaseSha = "2222222222222222222222222222222222222222"
+const prHeadSha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
-describe('comparison and budget jobs', () => {
-  it('stores a no-baseline branch comparison for the first processed series', async () => {
+describe("comparison and budget jobs", () => {
+  it("stores a no-baseline branch comparison for the first processed series", async () => {
     const logger = buildLogger()
     const result = await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('1000'),
+        ci: buildCiContext("1000"),
       }),
       logger,
     )
@@ -51,27 +45,27 @@ describe('comparison and budget jobs', () => {
     }>()
 
     expect(comparison).toEqual({
-      kind: 'branch-previous',
-      status: 'no-baseline',
+      kind: "branch-previous",
+      status: "no-baseline",
       requested_head_sha: baseSha,
       selected_head_commit_sha: baseSha,
       selected_base_commit_sha: null,
-      budget_state: 'not-configured',
+      budget_state: "not-configured",
     })
-    expect(await countRows('comparisons')).toBe(1)
-    expect(await countRows('budget_results')).toBe(0)
+    expect(await countRows("comparisons")).toBe(1)
+    expect(await countRows("budget_results")).toBe(0)
   })
 
-  it('materializes branch comparisons with stable-identity summaries and no-op budget state', async () => {
+  it("materializes branch comparisons with stable-identity summaries and no-op budget state", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('1000'),
+        ci: buildCiContext("1000"),
         artifact: buildSplitBaseArtifact(),
       }),
       logger,
@@ -81,9 +75,9 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: nextSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('1001'),
+        ci: buildCiContext("1001"),
         artifact: buildSplitHeadArtifact(),
       }),
       logger,
@@ -102,35 +96,37 @@ describe('comparison and budget jobs', () => {
          budget_state
        FROM comparisons
        WHERE kind = 'branch-previous' AND selected_head_commit_sha = ?`,
-    ).bind(nextSha).first<{
-      baseline_total_raw_bytes: number | null
-      budget_state: string
-      current_total_raw_bytes: number
-      delta_total_raw_bytes: number | null
-      has_degraded_stable_identity: number
-      selected_base_commit_sha: string | null
-      selected_entrypoint_relation: string | null
-      stable_identity_summary_json: string | null
-      status: string
-    }>()
+    )
+      .bind(nextSha)
+      .first<{
+        baseline_total_raw_bytes: number | null
+        budget_state: string
+        current_total_raw_bytes: number
+        delta_total_raw_bytes: number | null
+        has_degraded_stable_identity: number
+        selected_base_commit_sha: string | null
+        selected_entrypoint_relation: string | null
+        stable_identity_summary_json: string | null
+        status: string
+      }>()
 
     const stableIdentitySummary = comparison?.stable_identity_summary_json
       ? JSON.parse(comparison.stable_identity_summary_json)
       : null
 
     expect(comparison).toMatchObject({
-      status: 'materialized',
+      status: "materialized",
       selected_base_commit_sha: baseSha,
       current_total_raw_bytes: 162,
       baseline_total_raw_bytes: 133,
       delta_total_raw_bytes: 29,
-      selected_entrypoint_relation: 'same',
+      selected_entrypoint_relation: "same",
       has_degraded_stable_identity: 0,
-      budget_state: 'not-configured',
+      budget_state: "not-configured",
     })
     expect(stableIdentitySummary).toMatchObject({
       selectedEntrypoint: {
-        relation: 'same',
+        relation: "same",
       },
       entries: {
         sameCount: 1,
@@ -145,21 +141,21 @@ describe('comparison and budget jobs', () => {
         totalCount: 0,
       },
     })
-    expect(await countRows('budget_results')).toBe(0)
+    expect(await countRows("budget_results")).toBe(0)
   })
 
-  it('keeps PR baseline selection anchored to runs available when the head uploaded', async () => {
+  it("keeps PR baseline selection anchored to runs available when the head uploaded", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('2000'),
+        ci: buildCiContext("2000"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:00:00.000Z',
+          generatedAt: "2026-04-06T12:00:00.000Z",
         }),
       }),
       logger,
@@ -169,20 +165,20 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: prHeadSha,
-          branch: 'feature/login',
+          branch: "feature/login",
         },
         pullRequest: {
           number: 42,
           baseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: prHeadSha,
-          headRef: 'feature/login',
+          headRef: "feature/login",
         },
-        ci: buildCiContext('2001'),
+        ci: buildCiContext("2001"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-pr.js',
-          cssFileName: 'assets/main-pr.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-pr.js",
+          cssFileName: "assets/main-pr.css",
           chunkSizes: size(140, 50, 40),
           cssSizes: size(11, 8, 6),
         }),
@@ -194,13 +190,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: laterBaseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('2002'),
+        ci: buildCiContext("2002"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:20:00.000Z',
-          chunkFileName: 'assets/main-late.js',
-          cssFileName: 'assets/main-late.css',
+          generatedAt: "2026-04-06T12:20:00.000Z",
+          chunkFileName: "assets/main-late.js",
+          cssFileName: "assets/main-late.css",
           chunkSizes: size(170, 61, 48),
           cssSizes: size(14, 10, 8),
         }),
@@ -208,7 +204,7 @@ describe('comparison and budget jobs', () => {
       logger,
     )
 
-    const materializeSendSpy = vi.spyOn(env.MATERIALIZE_COMPARISON_QUEUE, 'send')
+    const materializeSendSpy = vi.spyOn(env.MATERIALIZE_COMPARISON_QUEUE, "send")
     materializeSendSpy.mockClear()
 
     for (const scheduleMessageBody of prResult.scheduleMessageBodies) {
@@ -236,56 +232,58 @@ describe('comparison and budget jobs', () => {
          budget_state
        FROM comparisons
        WHERE kind = 'pr-base' AND selected_head_commit_sha = ?`,
-    ).bind(prHeadSha).first<{
-      budget_state: string
-      requested_base_sha: string | null
-      selected_base_commit_sha: string | null
-      selected_head_commit_sha: string
-      status: string
-    }>()
+    )
+      .bind(prHeadSha)
+      .first<{
+        budget_state: string
+        requested_base_sha: string | null
+        selected_base_commit_sha: string | null
+        selected_head_commit_sha: string
+        status: string
+      }>()
 
     expect(comparison).toEqual({
-      status: 'materialized',
+      status: "materialized",
       requested_base_sha: baseSha,
       selected_base_commit_sha: baseSha,
       selected_head_commit_sha: prHeadSha,
-      budget_state: 'not-configured',
+      budget_state: "not-configured",
     })
     expect(comparison?.selected_base_commit_sha).not.toBe(laterBaseSha)
-    expect(await countRows('comparisons')).toBe(4)
-    expect(await countRows('budget_results')).toBe(0)
+    expect(await countRows("comparisons")).toBe(4)
+    expect(await countRows("budget_results")).toBe(0)
   })
 
-  it('acks invalid schedule-comparisons messages instead of retrying them', async () => {
+  it("acks invalid schedule-comparisons messages instead of retrying them", async () => {
     const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.scheduleComparisons, {
       schemaVersion: 1,
-      kind: 'schedule-comparisons',
-      repositoryId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
-      dedupeKey: 'schedule-comparisons:test:v1',
+      kind: "schedule-comparisons",
+      repositoryId: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+      dedupeKey: "schedule-comparisons:test:v1",
     })
     expect(result).toBeAcknowledged()
   })
 
-  it('acks invalid materialize-comparison messages instead of retrying them', async () => {
+  it("acks invalid materialize-comparison messages instead of retrying them", async () => {
     const result = await dispatchQueueMessage(TEST_QUEUE_NAMES.materializeComparison, {
       schemaVersion: 1,
-      kind: 'materialize-comparison',
-      repositoryId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
-      dedupeKey: 'materialize-comparison:test:v1',
+      kind: "materialize-comparison",
+      repositoryId: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+      dedupeKey: "materialize-comparison:test:v1",
     })
     expect(result).toBeAcknowledged()
   })
 
-  it('retries transient schedule-comparisons failures without duplicating comparison rows', async () => {
+  it("retries transient schedule-comparisons failures without duplicating comparison rows", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3000'),
+        ci: buildCiContext("3000"),
       }),
       logger,
     )
@@ -294,13 +292,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: nextSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3001'),
+        ci: buildCiContext("3001"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-next.js',
-          cssFileName: 'assets/main-next.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-next.js",
+          cssFileName: "assets/main-next.css",
           chunkSizes: size(150, 54, 43),
           cssSizes: size(12, 9, 7),
         }),
@@ -313,15 +311,15 @@ describe('comparison and budget jobs', () => {
     )
 
     const sendSpy = vi
-      .spyOn(env.MATERIALIZE_COMPARISON_QUEUE, 'send')
-      .mockRejectedValueOnce(new Error('queue unavailable'))
+      .spyOn(env.MATERIALIZE_COMPARISON_QUEUE, "send")
+      .mockRejectedValueOnce(new Error("queue unavailable"))
 
     const firstResult = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.scheduleComparisons,
       nextResult.scheduleMessageBodies[0],
     )
     expect(firstResult).toBeRetried()
-    expect(await countRows('comparisons')).toBe(2)
+    expect(await countRows("comparisons")).toBe(2)
 
     const secondResult = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.scheduleComparisons,
@@ -329,19 +327,19 @@ describe('comparison and budget jobs', () => {
     )
     expect(secondResult).toBeAcknowledged()
     expect(sendSpy).toHaveBeenCalledTimes(2)
-    expect(await countRows('comparisons')).toBe(2)
+    expect(await countRows("comparisons")).toBe(2)
   })
 
-  it('retries transient materialize-comparison failures and later succeeds', async () => {
+  it("retries transient materialize-comparison failures and later succeeds", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3010'),
+        ci: buildCiContext("3010"),
       }),
       logger,
     )
@@ -350,13 +348,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: nextSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3011'),
+        ci: buildCiContext("3011"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-next.js',
-          cssFileName: 'assets/main-next.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-next.js",
+          cssFileName: "assets/main-next.css",
           chunkSizes: size(150, 54, 43),
           cssSizes: size(12, 9, 7),
         }),
@@ -367,7 +365,9 @@ describe('comparison and budget jobs', () => {
       },
     )
 
-    const getSpy = vi.spyOn(env.CACHE_BUCKET, 'get').mockRejectedValueOnce(new Error('bucket unavailable'))
+    const getSpy = vi
+      .spyOn(env.CACHE_BUCKET, "get")
+      .mockRejectedValueOnce(new Error("bucket unavailable"))
 
     const firstResult = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.materializeComparison,
@@ -379,9 +379,11 @@ describe('comparison and budget jobs', () => {
       `SELECT status
        FROM comparisons
        WHERE kind = 'branch-previous' AND selected_head_commit_sha = ?`,
-    ).bind(nextSha).first<{ status: string }>()
+    )
+      .bind(nextSha)
+      .first<{ status: string }>()
 
-    expect(queuedComparison?.status).toBe('queued')
+    expect(queuedComparison?.status).toBe("queued")
 
     const secondResult = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.materializeComparison,
@@ -394,21 +396,23 @@ describe('comparison and budget jobs', () => {
       `SELECT status
        FROM comparisons
        WHERE kind = 'branch-previous' AND selected_head_commit_sha = ?`,
-    ).bind(nextSha).first<{ status: string }>()
+    )
+      .bind(nextSha)
+      .first<{ status: string }>()
 
-    expect(materializedComparison?.status).toBe('materialized')
+    expect(materializedComparison?.status).toBe("materialized")
   })
 
-  it('keeps schedule-comparisons idempotent when the same message is replayed', async () => {
+  it("keeps schedule-comparisons idempotent when the same message is replayed", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3020'),
+        ci: buildCiContext("3020"),
       }),
       logger,
     )
@@ -417,13 +421,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: nextSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3021'),
+        ci: buildCiContext("3021"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-next.js',
-          cssFileName: 'assets/main-next.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-next.js",
+          cssFileName: "assets/main-next.css",
           chunkSizes: size(150, 54, 43),
           cssSizes: size(12, 9, 7),
         }),
@@ -450,22 +454,24 @@ describe('comparison and budget jobs', () => {
       `SELECT COUNT(*) AS count
        FROM comparisons
        WHERE kind = 'branch-previous' AND selected_head_commit_sha = ?`,
-    ).bind(nextSha).first<{ count: number }>()
+    )
+      .bind(nextSha)
+      .first<{ count: number }>()
 
     expect(count?.count).toBe(1)
-    expect(await countRows('comparisons')).toBe(2)
+    expect(await countRows("comparisons")).toBe(2)
   })
 
-  it('treats an already-materialized comparison as idempotent', async () => {
+  it("treats an already-materialized comparison as idempotent", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3030'),
+        ci: buildCiContext("3030"),
       }),
       logger,
     )
@@ -474,13 +480,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: nextSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3031'),
+        ci: buildCiContext("3031"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-next.js',
-          cssFileName: 'assets/main-next.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-next.js",
+          cssFileName: "assets/main-next.css",
           chunkSizes: size(150, 54, 43),
           cssSizes: size(12, 9, 7),
         }),
@@ -503,10 +509,12 @@ describe('comparison and budget jobs', () => {
       `SELECT status, stable_identity_summary_json
        FROM comparisons
        WHERE kind = 'branch-previous' AND selected_head_commit_sha = ?`,
-    ).bind(nextSha).first<{
-      stable_identity_summary_json: string | null
-      status: string
-    }>()
+    )
+      .bind(nextSha)
+      .first<{
+        stable_identity_summary_json: string | null
+        status: string
+      }>()
 
     const secondResult = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.materializeComparison,
@@ -518,33 +526,35 @@ describe('comparison and budget jobs', () => {
       `SELECT status, stable_identity_summary_json
        FROM comparisons
        WHERE kind = 'branch-previous' AND selected_head_commit_sha = ?`,
-    ).bind(nextSha).first<{
-      stable_identity_summary_json: string | null
-      status: string
-    }>()
+    )
+      .bind(nextSha)
+      .first<{
+        stable_identity_summary_json: string | null
+        status: string
+      }>()
 
     expect(beforeReplay).toEqual(afterReplay)
-    expect(afterReplay?.status).toBe('materialized')
-    expect(await countRows('budget_results')).toBe(0)
+    expect(afterReplay?.status).toBe("materialized")
+    expect(await countRows("budget_results")).toBe(0)
   })
 
-  it('stores a PR comparison with no baseline when no processed base-branch run exists', async () => {
+  it("stores a PR comparison with no baseline when no processed base-branch run exists", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: prHeadSha,
-          branch: 'feature/empty-base',
+          branch: "feature/empty-base",
         },
         pullRequest: {
           number: 7,
           baseSha: baseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: prHeadSha,
-          headRef: 'feature/empty-base',
+          headRef: "feature/empty-base",
         },
-        ci: buildCiContext('3040'),
+        ci: buildCiContext("3040"),
       }),
       logger,
     )
@@ -553,30 +563,32 @@ describe('comparison and budget jobs', () => {
       `SELECT status, selected_base_commit_sha
        FROM comparisons
        WHERE kind = 'pr-base' AND selected_head_commit_sha = ?`,
-    ).bind(prHeadSha).first<{
-      selected_base_commit_sha: string | null
-      status: string
-    }>()
+    )
+      .bind(prHeadSha)
+      .first<{
+        selected_base_commit_sha: string | null
+        status: string
+      }>()
 
     expect(comparison).toEqual({
-      status: 'no-baseline',
+      status: "no-baseline",
       selected_base_commit_sha: null,
     })
   })
 
-  it('selects the latest eligible PR base-branch candidate before the head upload cutoff', async () => {
+  it("selects the latest eligible PR base-branch candidate before the head upload cutoff", async () => {
     const logger = buildLogger()
-    const middleBaseSha = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+    const middleBaseSha = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3050'),
+        ci: buildCiContext("3050"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:00:00.000Z',
+          generatedAt: "2026-04-06T12:00:00.000Z",
         }),
       }),
       logger,
@@ -586,13 +598,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: middleBaseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3051'),
+        ci: buildCiContext("3051"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:05:00.000Z',
-          chunkFileName: 'assets/main-middle.js',
-          cssFileName: 'assets/main-middle.css',
+          generatedAt: "2026-04-06T12:05:00.000Z",
+          chunkFileName: "assets/main-middle.js",
+          cssFileName: "assets/main-middle.css",
           chunkSizes: size(132, 48, 39),
           cssSizes: size(11, 8, 6),
         }),
@@ -604,20 +616,20 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: prHeadSha,
-          branch: 'feature/login',
+          branch: "feature/login",
         },
         pullRequest: {
           number: 42,
           baseSha: middleBaseSha,
-          baseRef: 'main',
+          baseRef: "main",
           headSha: prHeadSha,
-          headRef: 'feature/login',
+          headRef: "feature/login",
         },
-        ci: buildCiContext('3052'),
+        ci: buildCiContext("3052"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-pr.js',
-          cssFileName: 'assets/main-pr.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-pr.js",
+          cssFileName: "assets/main-pr.css",
           chunkSizes: size(140, 50, 40),
           cssSizes: size(11, 8, 6),
         }),
@@ -629,24 +641,26 @@ describe('comparison and budget jobs', () => {
       `SELECT selected_base_commit_sha
        FROM comparisons
        WHERE kind = 'pr-base' AND selected_head_commit_sha = ?`,
-    ).bind(prHeadSha).first<{ selected_base_commit_sha: string | null }>()
+    )
+      .bind(prHeadSha)
+      .first<{ selected_base_commit_sha: string | null }>()
 
     expect(comparison?.selected_base_commit_sha).toBe(middleBaseSha)
   })
 
-  it('skips earlier reruns from the same commit group when selecting a branch baseline', async () => {
+  it("skips earlier reruns from the same commit group when selecting a branch baseline", async () => {
     const logger = buildLogger()
-    const branchHeadSha = 'cccccccccccccccccccccccccccccccccccccccc'
+    const branchHeadSha = "cccccccccccccccccccccccccccccccccccccccc"
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3060'),
+        ci: buildCiContext("3060"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:00:00.000Z',
+          generatedAt: "2026-04-06T12:00:00.000Z",
         }),
       }),
       logger,
@@ -656,13 +670,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: branchHeadSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3061'),
+        ci: buildCiContext("3061"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-first.js',
-          cssFileName: 'assets/main-first.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-first.js",
+          cssFileName: "assets/main-first.css",
           chunkSizes: size(140, 50, 40),
           cssSizes: size(11, 8, 6),
         }),
@@ -674,13 +688,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: branchHeadSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3062'),
+        ci: buildCiContext("3062"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:20:00.000Z',
-          chunkFileName: 'assets/main-rerun.js',
-          cssFileName: 'assets/main-rerun.css',
+          generatedAt: "2026-04-06T12:20:00.000Z",
+          chunkFileName: "assets/main-rerun.js",
+          cssFileName: "assets/main-rerun.css",
           chunkSizes: size(150, 54, 43),
           cssSizes: size(12, 9, 7),
         }),
@@ -688,26 +702,29 @@ describe('comparison and budget jobs', () => {
       logger,
     )
 
-    const rerunScenarioRunId = (rerunResult.scheduleMessageBodies[0] as { scenarioRunId: string }).scenarioRunId
+    const rerunScenarioRunId = (rerunResult.scheduleMessageBodies[0] as { scenarioRunId: string })
+      .scenarioRunId
     const comparison = await env.DB.prepare(
       `SELECT selected_base_commit_sha
        FROM comparisons
        WHERE kind = 'branch-previous' AND head_scenario_run_id = ?`,
-    ).bind(rerunScenarioRunId).first<{ selected_base_commit_sha: string | null }>()
+    )
+      .bind(rerunScenarioRunId)
+      .first<{ selected_base_commit_sha: string | null }>()
 
     expect(comparison?.selected_base_commit_sha).toBe(baseSha)
   })
 
-  it('schedules and materializes one comparison per series for multi-entry runs', async () => {
+  it("schedules and materializes one comparison per series for multi-entry runs", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3070'),
+        ci: buildCiContext("3070"),
         artifact: buildMultiEntrypointArtifact(),
       }),
       logger,
@@ -717,11 +734,11 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: nextSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3071'),
+        ci: buildCiContext("3071"),
         artifact: buildMultiEntrypointArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
+          generatedAt: "2026-04-06T12:10:00.000Z",
           mainChunkSizes: size(135, 49, 39),
           adminChunkSizes: size(102, 37, 30),
         }),
@@ -733,22 +750,24 @@ describe('comparison and budget jobs', () => {
       `SELECT COUNT(*) AS count
        FROM comparisons
        WHERE kind = 'branch-previous' AND selected_head_commit_sha = ? AND status = 'materialized'`,
-    ).bind(nextSha).first<{ count: number }>()
+    )
+      .bind(nextSha)
+      .first<{ count: number }>()
 
     expect(comparisonCount?.count).toBe(2)
   })
 
-  it('persists merge stable-identity summaries', async () => {
+  it("persists merge stable-identity summaries", async () => {
     const logger = buildLogger()
-    const mergeHeadSha = 'dddddddddddddddddddddddddddddddddddddddd'
+    const mergeHeadSha = "dddddddddddddddddddddddddddddddddddddddd"
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3080'),
+        ci: buildCiContext("3080"),
         artifact: buildMergeBaseArtifact(),
       }),
       logger,
@@ -758,9 +777,9 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: mergeHeadSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3081'),
+        ci: buildCiContext("3081"),
         artifact: buildMergeHeadArtifact(),
       }),
       logger,
@@ -770,10 +789,12 @@ describe('comparison and budget jobs', () => {
       `SELECT stable_identity_summary_json, has_degraded_stable_identity
        FROM comparisons
        WHERE kind = 'branch-previous' AND selected_head_commit_sha = ?`,
-    ).bind(mergeHeadSha).first<{
-      has_degraded_stable_identity: number
-      stable_identity_summary_json: string | null
-    }>()
+    )
+      .bind(mergeHeadSha)
+      .first<{
+        has_degraded_stable_identity: number
+        stable_identity_summary_json: string | null
+      }>()
 
     const summary = comparison?.stable_identity_summary_json
       ? JSON.parse(comparison.stable_identity_summary_json)
@@ -790,17 +811,17 @@ describe('comparison and budget jobs', () => {
     expect(comparison?.has_degraded_stable_identity).toBe(0)
   })
 
-  it('persists low-confidence stable-identity matches as degraded results', async () => {
+  it("persists low-confidence stable-identity matches as degraded results", async () => {
     const logger = buildLogger()
-    const lowConfidenceHeadSha = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+    const lowConfidenceHeadSha = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3090'),
+        ci: buildCiContext("3090"),
         artifact: buildLowConfidenceBaseArtifact(),
       }),
       logger,
@@ -810,9 +831,9 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: lowConfidenceHeadSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3091'),
+        ci: buildCiContext("3091"),
         artifact: buildLowConfidenceHeadArtifact(),
       }),
       logger,
@@ -822,10 +843,12 @@ describe('comparison and budget jobs', () => {
       `SELECT stable_identity_summary_json, has_degraded_stable_identity
        FROM comparisons
        WHERE kind = 'branch-previous' AND selected_head_commit_sha = ?`,
-    ).bind(lowConfidenceHeadSha).first<{
-      has_degraded_stable_identity: number
-      stable_identity_summary_json: string | null
-    }>()
+    )
+      .bind(lowConfidenceHeadSha)
+      .first<{
+        has_degraded_stable_identity: number
+        stable_identity_summary_json: string | null
+      }>()
 
     const summary = comparison?.stable_identity_summary_json
       ? JSON.parse(comparison.stable_identity_summary_json)
@@ -842,17 +865,17 @@ describe('comparison and budget jobs', () => {
     expect(comparison?.has_degraded_stable_identity).toBe(1)
   })
 
-  it('persists ambiguous stable-identity matches as degraded results', async () => {
+  it("persists ambiguous stable-identity matches as degraded results", async () => {
     const logger = buildLogger()
-    const ambiguousHeadSha = 'ffffffffffffffffffffffffffffffffffffffff'
+    const ambiguousHeadSha = "ffffffffffffffffffffffffffffffffffffffff"
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3100'),
+        ci: buildCiContext("3100"),
         artifact: buildAmbiguousBaseArtifact(),
       }),
       logger,
@@ -862,9 +885,9 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: ambiguousHeadSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3101'),
+        ci: buildCiContext("3101"),
         artifact: buildAmbiguousHeadArtifact(),
       }),
       logger,
@@ -874,10 +897,12 @@ describe('comparison and budget jobs', () => {
       `SELECT stable_identity_summary_json, has_degraded_stable_identity
        FROM comparisons
        WHERE kind = 'branch-previous' AND selected_head_commit_sha = ?`,
-    ).bind(ambiguousHeadSha).first<{
-      has_degraded_stable_identity: number
-      stable_identity_summary_json: string | null
-    }>()
+    )
+      .bind(ambiguousHeadSha)
+      .first<{
+        has_degraded_stable_identity: number
+        stable_identity_summary_json: string | null
+      }>()
 
     const summary = comparison?.stable_identity_summary_json
       ? JSON.parse(comparison.stable_identity_summary_json)
@@ -894,16 +919,16 @@ describe('comparison and budget jobs', () => {
     expect(comparison?.has_degraded_stable_identity).toBe(1)
   })
 
-  it('marks the comparison as failed when the selected environment is missing from a snapshot', async () => {
+  it("marks the comparison as failed when the selected environment is missing from a snapshot", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3110'),
+        ci: buildCiContext("3110"),
       }),
       logger,
     )
@@ -912,13 +937,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: nextSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3111'),
+        ci: buildCiContext("3111"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-next.js',
-          cssFileName: 'assets/main-next.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-next.js",
+          cssFileName: "assets/main-next.css",
           chunkSizes: size(150, 54, 43),
           cssSizes: size(12, 9, 7),
         }),
@@ -934,21 +959,27 @@ describe('comparison and budget jobs', () => {
        FROM comparisons c
        JOIN scenario_runs sr ON sr.id = c.base_scenario_run_id
        WHERE c.kind = 'branch-previous' AND c.selected_head_commit_sha = ?`,
-    ).bind(nextSha).first<{
-      base_snapshot_key: string
-      id: string
-    }>()
+    )
+      .bind(nextSha)
+      .first<{
+        base_snapshot_key: string
+        id: string
+      }>()
 
     const snapshotObject = await env.CACHE_BUCKET.get(comparisonMeta!.base_snapshot_key)
     const snapshot = JSON.parse(await snapshotObject!.text()) as {
       environments: Array<{ name: string }>
     }
-    snapshot.environments[0]!.name = 'server'
-    await env.CACHE_BUCKET.put(comparisonMeta!.base_snapshot_key, `${JSON.stringify(snapshot, null, 2)}\n`, {
-      httpMetadata: {
-        contentType: 'application/json',
+    snapshot.environments[0]!.name = "server"
+    await env.CACHE_BUCKET.put(
+      comparisonMeta!.base_snapshot_key,
+      `${JSON.stringify(snapshot, null, 2)}\n`,
+      {
+        httpMetadata: {
+          contentType: "application/json",
+        },
       },
-    })
+    )
 
     const result = await dispatchQueueMessage(
       TEST_QUEUE_NAMES.materializeComparison,
@@ -959,28 +990,30 @@ describe('comparison and budget jobs', () => {
       `SELECT status, failure_code
        FROM comparisons
        WHERE id = ?`,
-    ).bind(comparisonMeta!.id).first<{
-       failure_code: string | null
-       status: string
-     }>()
+    )
+      .bind(comparisonMeta!.id)
+      .first<{
+        failure_code: string | null
+        status: string
+      }>()
 
     expect(result).toBeAcknowledged()
     expect(failedComparison).toEqual({
-      status: 'failed',
-      failure_code: 'environment_missing',
+      status: "failed",
+      failure_code: "environment_missing",
     })
   })
 
-  it('marks the comparison as failed when a normalized snapshot object is missing', async () => {
+  it("marks the comparison as failed when a normalized snapshot object is missing", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3120'),
+        ci: buildCiContext("3120"),
       }),
       logger,
     )
@@ -989,13 +1022,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: nextSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3121'),
+        ci: buildCiContext("3121"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-next.js',
-          cssFileName: 'assets/main-next.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-next.js",
+          cssFileName: "assets/main-next.css",
           chunkSizes: size(150, 54, 43),
           cssSizes: size(12, 9, 7),
         }),
@@ -1011,10 +1044,12 @@ describe('comparison and budget jobs', () => {
        FROM comparisons c
        JOIN scenario_runs sr ON sr.id = c.base_scenario_run_id
        WHERE c.kind = 'branch-previous' AND c.selected_head_commit_sha = ?`,
-    ).bind(nextSha).first<{
-      base_snapshot_key: string
-      id: string
-    }>()
+    )
+      .bind(nextSha)
+      .first<{
+        base_snapshot_key: string
+        id: string
+      }>()
 
     await env.CACHE_BUCKET.delete(comparisonMeta!.base_snapshot_key)
 
@@ -1028,27 +1063,29 @@ describe('comparison and budget jobs', () => {
       `SELECT status, failure_code
        FROM comparisons
        WHERE id = ?`,
-    ).bind(comparisonMeta!.id).first<{
-      failure_code: string | null
-      status: string
-    }>()
+    )
+      .bind(comparisonMeta!.id)
+      .first<{
+        failure_code: string | null
+        status: string
+      }>()
 
     expect(failedComparison).toEqual({
-      status: 'failed',
-      failure_code: 'normalized_snapshot_missing',
+      status: "failed",
+      failure_code: "normalized_snapshot_missing",
     })
   })
 
-  it('marks the comparison as failed when a normalized snapshot object becomes invalid JSON data', async () => {
+  it("marks the comparison as failed when a normalized snapshot object becomes invalid JSON data", async () => {
     const logger = buildLogger()
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3130'),
+        ci: buildCiContext("3130"),
       }),
       logger,
     )
@@ -1057,13 +1094,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: nextSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3131'),
+        ci: buildCiContext("3131"),
         artifact: buildSimpleArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          chunkFileName: 'assets/main-next.js',
-          cssFileName: 'assets/main-next.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          chunkFileName: "assets/main-next.js",
+          cssFileName: "assets/main-next.css",
           chunkSizes: size(150, 54, 43),
           cssSizes: size(12, 9, 7),
         }),
@@ -1079,14 +1116,16 @@ describe('comparison and budget jobs', () => {
        FROM comparisons c
        JOIN scenario_runs sr ON sr.id = c.base_scenario_run_id
        WHERE c.kind = 'branch-previous' AND c.selected_head_commit_sha = ?`,
-    ).bind(nextSha).first<{
-      base_snapshot_key: string
-      id: string
-    }>()
+    )
+      .bind(nextSha)
+      .first<{
+        base_snapshot_key: string
+        id: string
+      }>()
 
-    await env.CACHE_BUCKET.put(comparisonMeta!.base_snapshot_key, '{}', {
+    await env.CACHE_BUCKET.put(comparisonMeta!.base_snapshot_key, "{}", {
       httpMetadata: {
-        contentType: 'application/json',
+        contentType: "application/json",
       },
     })
 
@@ -1100,28 +1139,30 @@ describe('comparison and budget jobs', () => {
       `SELECT status, failure_code
        FROM comparisons
        WHERE id = ?`,
-    ).bind(comparisonMeta!.id).first<{
-      failure_code: string | null
-      status: string
-    }>()
+    )
+      .bind(comparisonMeta!.id)
+      .first<{
+        failure_code: string | null
+        status: string
+      }>()
 
     expect(failedComparison).toEqual({
-      status: 'failed',
-      failure_code: 'invalid_normalized_snapshot',
+      status: "failed",
+      failure_code: "invalid_normalized_snapshot",
     })
   })
 
-  it('keeps dynamic-entry continuity in Step 7 comparisons', async () => {
+  it("keeps dynamic-entry continuity in Step 7 comparisons", async () => {
     const logger = buildLogger()
-    const dynamicHeadSha = '9999999999999999999999999999999999999999'
+    const dynamicHeadSha = "9999999999999999999999999999999999999999"
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3140'),
+        ci: buildCiContext("3140"),
         artifact: buildDynamicEntrypointArtifact(),
       }),
       logger,
@@ -1131,13 +1172,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: dynamicHeadSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3141'),
+        ci: buildCiContext("3141"),
         artifact: buildDynamicEntrypointArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          lazyFileName: 'chunks/lazy-new.js',
-          lazyCssFileName: 'assets/lazy-new.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          lazyFileName: "chunks/lazy-new.js",
+          lazyCssFileName: "assets/lazy-new.css",
         }),
       }),
       logger,
@@ -1150,16 +1191,18 @@ describe('comparison and budget jobs', () => {
        WHERE c.kind = 'branch-previous'
          AND c.selected_head_commit_sha = ?
          AND s.entrypoint_kind = 'dynamic-entry'`,
-    ).bind(dynamicHeadSha).first<{
-      selected_entrypoint_relation: string | null
-      stable_identity_summary_json: string | null
-    }>()
+    )
+      .bind(dynamicHeadSha)
+      .first<{
+        selected_entrypoint_relation: string | null
+        stable_identity_summary_json: string | null
+      }>()
 
     const summary = comparison?.stable_identity_summary_json
       ? JSON.parse(comparison.stable_identity_summary_json)
       : null
 
-    expect(comparison?.selected_entrypoint_relation).toBe('same')
+    expect(comparison?.selected_entrypoint_relation).toBe("same")
     expect(summary).toMatchObject({
       dynamicEntries: {
         sameCount: 1,
@@ -1167,17 +1210,17 @@ describe('comparison and budget jobs', () => {
     })
   })
 
-  it('keeps manifest-only HTML entrypoint continuity in Step 7 comparisons', async () => {
+  it("keeps manifest-only HTML entrypoint continuity in Step 7 comparisons", async () => {
     const logger = buildLogger()
-    const htmlHeadSha = '8888888888888888888888888888888888888888'
+    const htmlHeadSha = "8888888888888888888888888888888888888888"
 
     await processEnvelope(
       buildEnvelope({
         git: {
           commitSha: baseSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3150'),
+        ci: buildCiContext("3150"),
         artifact: buildManifestOnlyHtmlArtifact(),
       }),
       logger,
@@ -1187,13 +1230,13 @@ describe('comparison and budget jobs', () => {
       buildEnvelope({
         git: {
           commitSha: htmlHeadSha,
-          branch: 'main',
+          branch: "main",
         },
-        ci: buildCiContext('3151'),
+        ci: buildCiContext("3151"),
         artifact: buildManifestOnlyHtmlArtifact({
-          generatedAt: '2026-04-06T12:10:00.000Z',
-          jsFileName: 'assets/main-new.js',
-          cssFileName: 'assets/main-new.css',
+          generatedAt: "2026-04-06T12:10:00.000Z",
+          jsFileName: "assets/main-new.js",
+          cssFileName: "assets/main-new.css",
         }),
       }),
       logger,
@@ -1206,13 +1249,15 @@ describe('comparison and budget jobs', () => {
        WHERE c.kind = 'branch-previous'
          AND c.selected_head_commit_sha = ?
          AND s.entrypoint_key = 'index.html'`,
-    ).bind(htmlHeadSha).first<{
-      selected_entrypoint_evidence_json: string | null
-      selected_entrypoint_relation: string | null
-    }>()
+    )
+      .bind(htmlHeadSha)
+      .first<{
+        selected_entrypoint_evidence_json: string | null
+        selected_entrypoint_relation: string | null
+      }>()
 
-    expect(comparison?.selected_entrypoint_relation).toBe('same')
-    expect(comparison?.selected_entrypoint_evidence_json).toContain('identity:index.html')
+    expect(comparison?.selected_entrypoint_relation).toBe("same")
+    expect(comparison?.selected_entrypoint_evidence_json).toContain("identity:index.html")
   })
 })
 
@@ -1227,10 +1272,10 @@ async function processEnvelope(
     runSchedule?: boolean
   } = {},
 ) {
-  const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, 'send')
-  const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, 'send')
-  const scheduleSendSpy = vi.spyOn(env.SCHEDULE_COMPARISONS_QUEUE, 'send')
-  const materializeSendSpy = vi.spyOn(env.MATERIALIZE_COMPARISON_QUEUE, 'send')
+  const normalizeSendSpy = vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send")
+  const deriveSendSpy = vi.spyOn(env.DERIVE_RUN_QUEUE, "send")
+  const scheduleSendSpy = vi.spyOn(env.SCHEDULE_COMPARISONS_QUEUE, "send")
+  const materializeSendSpy = vi.spyOn(env.MATERIALIZE_COMPARISON_QUEUE, "send")
   normalizeSendSpy.mockClear()
   deriveSendSpy.mockClear()
   scheduleSendSpy.mockClear()
@@ -1240,7 +1285,10 @@ async function processEnvelope(
   expect(response.status).toBe(202)
 
   const normalizeMessageBody = normalizeSendSpy.mock.calls.at(-1)?.[0]
-  const normalizeResult = await dispatchQueueMessage(TEST_QUEUE_NAMES.normalizeRun, normalizeMessageBody)
+  const normalizeResult = await dispatchQueueMessage(
+    TEST_QUEUE_NAMES.normalizeRun,
+    normalizeMessageBody,
+  )
   expect(normalizeResult).toBeAcknowledged()
 
   const deriveMessageBody = deriveSendSpy.mock.calls.at(-1)?.[0]
@@ -1289,18 +1337,20 @@ async function sendUploadRequest(
   token: string = env.BUNDLE_UPLOAD_TOKEN,
 ) {
   const executionContext = createExecutionContext()
-  const worker = (exports as unknown as {
-    default: {
-      fetch: (request: Request, env: Cloudflare.Env, ctx: ExecutionContext) => Promise<Response>
+  const worker = (
+    exports as unknown as {
+      default: {
+        fetch: (request: Request, env: Cloudflare.Env, ctx: ExecutionContext) => Promise<Response>
+      }
     }
-  }).default
+  ).default
 
   const response = await worker.fetch(
-    new Request('https://bundle.test/api/v1/uploads/scenario-runs', {
-      method: 'POST',
+    new Request("https://bundle.test/api/v1/uploads/scenario-runs", {
+      method: "POST",
       headers: {
         authorization: `Bearer ${token}`,
-        'content-type': 'application/json',
+        "content-type": "application/json",
       },
       body: JSON.stringify(envelope),
     }),
@@ -1327,36 +1377,36 @@ function buildEnvelope(overrides: Record<string, unknown> = {}) {
     artifact: buildSimpleArtifact(),
     repository: {
       githubRepoId: 123,
-      owner: 'acme',
-      name: 'widget',
+      owner: "acme",
+      name: "widget",
       installationId: 456,
     },
     git: {
       commitSha: baseSha,
-      branch: 'main',
+      branch: "main",
     },
     scenarioSource: {
-      kind: 'fixture-app',
+      kind: "fixture-app",
     },
-    ci: buildCiContext('999'),
+    ci: buildCiContext("999"),
     ...overrides,
   }
 }
 
 function buildCiContext(workflowRunId: string) {
   return {
-    provider: 'github-actions',
+    provider: "github-actions",
     workflowRunId,
     workflowRunAttempt: 1,
-    job: 'build',
-    actionVersion: 'v1',
+    job: "build",
+    actionVersion: "v1",
   }
 }
 
 function buildSimpleArtifact({
-  generatedAt = '2026-04-06T12:00:00.000Z',
-  chunkFileName = 'assets/main.js',
-  cssFileName = 'assets/main.css',
+  generatedAt = "2026-04-06T12:00:00.000Z",
+  chunkFileName = "assets/main.js",
+  cssFileName = "assets/main.css",
   chunkSizes = size(123, 45, 38),
   cssSizes = size(10, 8, 6),
 }: {
@@ -1368,27 +1418,27 @@ function buildSimpleArtifact({
 } = {}) {
   return {
     schemaVersion: 1,
-    pluginVersion: '0.1.0',
+    pluginVersion: "0.1.0",
     generatedAt,
     scenario: {
-      id: 'fixture-app-cost',
-      kind: 'fixture-app',
+      id: "fixture-app-cost",
+      kind: "fixture-app",
     },
     build: {
-      bundler: 'vite',
-      bundlerVersion: '8.0.4',
-      rootDir: '/tmp/repo',
+      bundler: "vite",
+      bundlerVersion: "8.0.4",
+      rootDir: "/tmp/repo",
     },
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
+          "src/main.ts": {
             file: chunkFileName,
-            src: 'src/main.ts',
+            src: "src/main.ts",
             isEntry: true,
             css: [cssFileName],
           },
@@ -1396,10 +1446,10 @@ function buildSimpleArtifact({
         chunks: [
           {
             fileName: chunkFileName,
-            name: 'main',
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
+            facadeModuleId: "/tmp/repo/src/main.ts",
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
@@ -1407,7 +1457,7 @@ function buildSimpleArtifact({
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: chunkSizes.raw,
                 originalLength: 456,
               },
@@ -1418,7 +1468,7 @@ function buildSimpleArtifact({
         assets: [
           {
             fileName: cssFileName,
-            names: ['main.css'],
+            names: ["main.css"],
             needsCodeReference: false,
             sizes: cssSizes,
           },
@@ -1430,7 +1480,7 @@ function buildSimpleArtifact({
 }
 
 function buildArtifactWithEnvironments({
-  generatedAt = '2026-04-06T12:00:00.000Z',
+  generatedAt = "2026-04-06T12:00:00.000Z",
   environments,
 }: {
   environments: Array<Record<string, unknown>>
@@ -1438,23 +1488,23 @@ function buildArtifactWithEnvironments({
 }) {
   return {
     schemaVersion: 1,
-    pluginVersion: '0.1.0',
+    pluginVersion: "0.1.0",
     generatedAt,
     scenario: {
-      id: 'fixture-app-cost',
-      kind: 'fixture-app',
+      id: "fixture-app-cost",
+      kind: "fixture-app",
     },
     build: {
-      bundler: 'vite',
-      bundlerVersion: '8.0.4',
-      rootDir: '/tmp/repo',
+      bundler: "vite",
+      bundlerVersion: "8.0.4",
+      rootDir: "/tmp/repo",
     },
     environments,
   }
 }
 
 function buildMultiEntrypointArtifact({
-  generatedAt = '2026-04-06T12:00:00.000Z',
+  generatedAt = "2026-04-06T12:00:00.000Z",
   mainChunkSizes = size(123, 45, 38),
   adminChunkSizes = size(90, 33, 27),
 }: {
@@ -1466,39 +1516,39 @@ function buildMultiEntrypointArtifact({
     generatedAt,
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/admin.ts': {
-            file: 'assets/admin.js',
-            src: 'src/admin.ts',
+          "src/admin.ts": {
+            file: "assets/admin.js",
+            src: "src/admin.ts",
             isEntry: true,
-            css: ['assets/admin.css'],
+            css: ["assets/admin.css"],
           },
-          'src/main.ts': {
-            file: 'assets/main.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main.js",
+            src: "src/main.ts",
             isEntry: true,
-            css: ['assets/main.css'],
+            css: ["assets/main.css"],
           },
         },
         chunks: [
           {
-            fileName: 'assets/main.js',
-            name: 'main',
+            fileName: "assets/main.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
+            facadeModuleId: "/tmp/repo/src/main.ts",
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main.css'],
+            importedCss: ["assets/main.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: mainChunkSizes.raw,
                 originalLength: 456,
               },
@@ -1506,19 +1556,19 @@ function buildMultiEntrypointArtifact({
             sizes: mainChunkSizes,
           },
           {
-            fileName: 'assets/admin.js',
-            name: 'admin',
+            fileName: "assets/admin.js",
+            name: "admin",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/admin.ts',
+            facadeModuleId: "/tmp/repo/src/admin.ts",
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/admin.css'],
+            importedCss: ["assets/admin.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/admin.ts',
+                rawId: "/tmp/repo/src/admin.ts",
                 renderedLength: adminChunkSizes.raw,
                 originalLength: 320,
               },
@@ -1528,14 +1578,14 @@ function buildMultiEntrypointArtifact({
         ],
         assets: [
           {
-            fileName: 'assets/main.css',
-            names: ['main.css'],
+            fileName: "assets/main.css",
+            names: ["main.css"],
             needsCodeReference: false,
             sizes: size(10, 8, 6),
           },
           {
-            fileName: 'assets/admin.css',
-            names: ['admin.css'],
+            fileName: "assets/admin.css",
+            names: ["admin.css"],
             needsCodeReference: false,
             sizes: size(8, 6, 5),
           },
@@ -1550,34 +1600,34 @@ function buildMergeBaseArtifact() {
   return buildArtifactWithEnvironments({
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
-            file: 'assets/main-old.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main-old.js",
+            src: "src/main.ts",
             isEntry: true,
-            imports: ['chunks/format-old.js', 'chunks/ui-old.js'],
-            css: ['assets/main-old.css'],
+            imports: ["chunks/format-old.js", "chunks/ui-old.js"],
+            css: ["assets/main-old.css"],
           },
         },
         chunks: [
           {
-            fileName: 'assets/main-old.js',
-            name: 'main',
+            fileName: "assets/main-old.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: ['chunks/format-old.js', 'chunks/ui-old.js'],
+            facadeModuleId: "/tmp/repo/src/main.ts",
+            imports: ["chunks/format-old.js", "chunks/ui-old.js"],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main-old.css'],
+            importedCss: ["assets/main-old.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -1585,8 +1635,8 @@ function buildMergeBaseArtifact() {
             sizes: size(123, 45, 38),
           },
           {
-            fileName: 'chunks/format-old.js',
-            name: 'format-old',
+            fileName: "chunks/format-old.js",
+            name: "format-old",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
@@ -1597,7 +1647,7 @@ function buildMergeBaseArtifact() {
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/format.ts',
+                rawId: "/tmp/repo/src/shared/format.ts",
                 renderedLength: 55,
                 originalLength: 70,
               },
@@ -1605,8 +1655,8 @@ function buildMergeBaseArtifact() {
             sizes: size(55, 21, 16),
           },
           {
-            fileName: 'chunks/ui-old.js',
-            name: 'ui-old',
+            fileName: "chunks/ui-old.js",
+            name: "ui-old",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
@@ -1617,7 +1667,7 @@ function buildMergeBaseArtifact() {
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/view.ts',
+                rawId: "/tmp/repo/src/shared/view.ts",
                 renderedLength: 45,
                 originalLength: 55,
               },
@@ -1627,8 +1677,8 @@ function buildMergeBaseArtifact() {
         ],
         assets: [
           {
-            fileName: 'assets/main-old.css',
-            names: ['main-old.css'],
+            fileName: "assets/main-old.css",
+            names: ["main-old.css"],
             needsCodeReference: false,
             sizes: size(10, 8, 6),
           },
@@ -1641,37 +1691,37 @@ function buildMergeBaseArtifact() {
 
 function buildMergeHeadArtifact() {
   return buildArtifactWithEnvironments({
-    generatedAt: '2026-04-06T12:10:00.000Z',
+    generatedAt: "2026-04-06T12:10:00.000Z",
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
-            file: 'assets/main-new.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main-new.js",
+            src: "src/main.ts",
             isEntry: true,
-            imports: ['chunks/shared-new.js'],
-            css: ['assets/main-new.css'],
+            imports: ["chunks/shared-new.js"],
+            css: ["assets/main-new.css"],
           },
         },
         chunks: [
           {
-            fileName: 'assets/main-new.js',
-            name: 'main',
+            fileName: "assets/main-new.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: ['chunks/shared-new.js'],
+            facadeModuleId: "/tmp/repo/src/main.ts",
+            imports: ["chunks/shared-new.js"],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main-new.css'],
+            importedCss: ["assets/main-new.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -1679,8 +1729,8 @@ function buildMergeHeadArtifact() {
             sizes: size(123, 45, 38),
           },
           {
-            fileName: 'chunks/shared-new.js',
-            name: 'shared-new',
+            fileName: "chunks/shared-new.js",
+            name: "shared-new",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
@@ -1691,12 +1741,12 @@ function buildMergeHeadArtifact() {
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/format.ts',
+                rawId: "/tmp/repo/src/shared/format.ts",
                 renderedLength: 55,
                 originalLength: 70,
               },
               {
-                rawId: '/tmp/repo/src/shared/view.ts',
+                rawId: "/tmp/repo/src/shared/view.ts",
                 renderedLength: 45,
                 originalLength: 55,
               },
@@ -1706,8 +1756,8 @@ function buildMergeHeadArtifact() {
         ],
         assets: [
           {
-            fileName: 'assets/main-new.css',
-            names: ['main-new.css'],
+            fileName: "assets/main-new.css",
+            names: ["main-new.css"],
             needsCodeReference: false,
             sizes: size(10, 8, 6),
           },
@@ -1722,34 +1772,34 @@ function buildLowConfidenceBaseArtifact() {
   return buildArtifactWithEnvironments({
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
-            file: 'assets/main-old.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main-old.js",
+            src: "src/main.ts",
             isEntry: true,
-            imports: ['chunks/shared-aaaaaa.js'],
-            css: ['assets/main-old.css'],
+            imports: ["chunks/shared-aaaaaa.js"],
+            css: ["assets/main-old.css"],
           },
         },
         chunks: [
           {
-            fileName: 'assets/main-old.js',
-            name: 'main',
+            fileName: "assets/main-old.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: ['chunks/shared-aaaaaa.js'],
+            facadeModuleId: "/tmp/repo/src/main.ts",
+            imports: ["chunks/shared-aaaaaa.js"],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main-old.css'],
+            importedCss: ["assets/main-old.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -1757,8 +1807,8 @@ function buildLowConfidenceBaseArtifact() {
             sizes: size(123, 45, 38),
           },
           {
-            fileName: 'chunks/shared-aaaaaa.js',
-            name: 'shared-old',
+            fileName: "chunks/shared-aaaaaa.js",
+            name: "shared-old",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
@@ -1769,12 +1819,12 @@ function buildLowConfidenceBaseArtifact() {
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/alpha.ts',
+                rawId: "/tmp/repo/src/shared/alpha.ts",
                 renderedLength: 55,
                 originalLength: 60,
               },
               {
-                rawId: '/tmp/repo/src/shared/beta.ts',
+                rawId: "/tmp/repo/src/shared/beta.ts",
                 renderedLength: 45,
                 originalLength: 50,
               },
@@ -1784,8 +1834,8 @@ function buildLowConfidenceBaseArtifact() {
         ],
         assets: [
           {
-            fileName: 'assets/main-old.css',
-            names: ['main-old.css'],
+            fileName: "assets/main-old.css",
+            names: ["main-old.css"],
             needsCodeReference: false,
             sizes: size(10, 8, 6),
           },
@@ -1798,37 +1848,37 @@ function buildLowConfidenceBaseArtifact() {
 
 function buildLowConfidenceHeadArtifact() {
   return buildArtifactWithEnvironments({
-    generatedAt: '2026-04-06T12:10:00.000Z',
+    generatedAt: "2026-04-06T12:10:00.000Z",
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
-            file: 'assets/main-new.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main-new.js",
+            src: "src/main.ts",
             isEntry: true,
-            imports: ['chunks/shared-bbbbbb.js'],
-            css: ['assets/main-new.css'],
+            imports: ["chunks/shared-bbbbbb.js"],
+            css: ["assets/main-new.css"],
           },
         },
         chunks: [
           {
-            fileName: 'assets/main-new.js',
-            name: 'main',
+            fileName: "assets/main-new.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: ['chunks/shared-bbbbbb.js'],
+            facadeModuleId: "/tmp/repo/src/main.ts",
+            imports: ["chunks/shared-bbbbbb.js"],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main-new.css'],
+            importedCss: ["assets/main-new.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -1836,8 +1886,8 @@ function buildLowConfidenceHeadArtifact() {
             sizes: size(123, 45, 38),
           },
           {
-            fileName: 'chunks/shared-bbbbbb.js',
-            name: 'shared-new',
+            fileName: "chunks/shared-bbbbbb.js",
+            name: "shared-new",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
@@ -1848,12 +1898,12 @@ function buildLowConfidenceHeadArtifact() {
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/gamma.ts',
+                rawId: "/tmp/repo/src/shared/gamma.ts",
                 renderedLength: 52,
                 originalLength: 58,
               },
               {
-                rawId: '/tmp/repo/src/shared/delta.ts',
+                rawId: "/tmp/repo/src/shared/delta.ts",
                 renderedLength: 48,
                 originalLength: 54,
               },
@@ -1863,8 +1913,8 @@ function buildLowConfidenceHeadArtifact() {
         ],
         assets: [
           {
-            fileName: 'assets/main-new.css',
-            names: ['main-new.css'],
+            fileName: "assets/main-new.css",
+            names: ["main-new.css"],
             needsCodeReference: false,
             sizes: size(10, 8, 6),
           },
@@ -1879,34 +1929,34 @@ function buildAmbiguousBaseArtifact() {
   return buildArtifactWithEnvironments({
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
-            file: 'assets/main-old.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main-old.js",
+            src: "src/main.ts",
             isEntry: true,
-            imports: ['chunks/shared-old.js'],
-            css: ['assets/main-old.css'],
+            imports: ["chunks/shared-old.js"],
+            css: ["assets/main-old.css"],
           },
         },
         chunks: [
           {
-            fileName: 'assets/main-old.js',
-            name: 'main',
+            fileName: "assets/main-old.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: ['chunks/shared-old.js'],
+            facadeModuleId: "/tmp/repo/src/main.ts",
+            imports: ["chunks/shared-old.js"],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main-old.css'],
+            importedCss: ["assets/main-old.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -1914,8 +1964,8 @@ function buildAmbiguousBaseArtifact() {
             sizes: size(123, 45, 38),
           },
           {
-            fileName: 'chunks/shared-old.js',
-            name: 'shared-old',
+            fileName: "chunks/shared-old.js",
+            name: "shared-old",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
@@ -1926,12 +1976,12 @@ function buildAmbiguousBaseArtifact() {
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/alpha.ts',
+                rawId: "/tmp/repo/src/shared/alpha.ts",
                 renderedLength: 60,
                 originalLength: 68,
               },
               {
-                rawId: '/tmp/repo/src/shared/beta.ts',
+                rawId: "/tmp/repo/src/shared/beta.ts",
                 renderedLength: 40,
                 originalLength: 48,
               },
@@ -1941,8 +1991,8 @@ function buildAmbiguousBaseArtifact() {
         ],
         assets: [
           {
-            fileName: 'assets/main-old.css',
-            names: ['main-old.css'],
+            fileName: "assets/main-old.css",
+            names: ["main-old.css"],
             needsCodeReference: false,
             sizes: size(10, 8, 6),
           },
@@ -1955,37 +2005,37 @@ function buildAmbiguousBaseArtifact() {
 
 function buildAmbiguousHeadArtifact() {
   return buildArtifactWithEnvironments({
-    generatedAt: '2026-04-06T12:10:00.000Z',
+    generatedAt: "2026-04-06T12:10:00.000Z",
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
-            file: 'assets/main-new.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main-new.js",
+            src: "src/main.ts",
             isEntry: true,
-            imports: ['chunks/alpha-ish.js', 'chunks/beta-ish.js'],
-            css: ['assets/main-new.css'],
+            imports: ["chunks/alpha-ish.js", "chunks/beta-ish.js"],
+            css: ["assets/main-new.css"],
           },
         },
         chunks: [
           {
-            fileName: 'assets/main-new.js',
-            name: 'main',
+            fileName: "assets/main-new.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: ['chunks/alpha-ish.js', 'chunks/beta-ish.js'],
+            facadeModuleId: "/tmp/repo/src/main.ts",
+            imports: ["chunks/alpha-ish.js", "chunks/beta-ish.js"],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main-new.css'],
+            importedCss: ["assets/main-new.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -1993,8 +2043,8 @@ function buildAmbiguousHeadArtifact() {
             sizes: size(123, 45, 38),
           },
           {
-            fileName: 'chunks/alpha-ish.js',
-            name: 'alpha-ish',
+            fileName: "chunks/alpha-ish.js",
+            name: "alpha-ish",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
@@ -2005,12 +2055,12 @@ function buildAmbiguousHeadArtifact() {
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/alpha.ts',
+                rawId: "/tmp/repo/src/shared/alpha.ts",
                 renderedLength: 35,
                 originalLength: 42,
               },
               {
-                rawId: '/tmp/repo/src/shared/gamma.ts',
+                rawId: "/tmp/repo/src/shared/gamma.ts",
                 renderedLength: 20,
                 originalLength: 28,
               },
@@ -2018,8 +2068,8 @@ function buildAmbiguousHeadArtifact() {
             sizes: size(55, 22, 17),
           },
           {
-            fileName: 'chunks/beta-ish.js',
-            name: 'beta-ish',
+            fileName: "chunks/beta-ish.js",
+            name: "beta-ish",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
@@ -2030,12 +2080,12 @@ function buildAmbiguousHeadArtifact() {
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/beta.ts',
+                rawId: "/tmp/repo/src/shared/beta.ts",
                 renderedLength: 25,
                 originalLength: 30,
               },
               {
-                rawId: '/tmp/repo/src/shared/delta.ts',
+                rawId: "/tmp/repo/src/shared/delta.ts",
                 renderedLength: 15,
                 originalLength: 20,
               },
@@ -2045,8 +2095,8 @@ function buildAmbiguousHeadArtifact() {
         ],
         assets: [
           {
-            fileName: 'assets/main-new.css',
-            names: ['main-new.css'],
+            fileName: "assets/main-new.css",
+            names: ["main-new.css"],
             needsCodeReference: false,
             sizes: size(10, 8, 6),
           },
@@ -2058,9 +2108,9 @@ function buildAmbiguousHeadArtifact() {
 }
 
 function buildDynamicEntrypointArtifact({
-  generatedAt = '2026-04-06T12:00:00.000Z',
-  lazyFileName = 'chunks/lazy-old.js',
-  lazyCssFileName = 'assets/lazy-old.css',
+  generatedAt = "2026-04-06T12:00:00.000Z",
+  lazyFileName = "chunks/lazy-old.js",
+  lazyCssFileName = "assets/lazy-old.css",
 }: {
   generatedAt?: string
   lazyCssFileName?: string
@@ -2070,40 +2120,40 @@ function buildDynamicEntrypointArtifact({
     generatedAt,
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/lazy.ts': {
+          "src/lazy.ts": {
             file: lazyFileName,
-            src: 'src/lazy.ts',
+            src: "src/lazy.ts",
             isDynamicEntry: true,
             css: [lazyCssFileName],
           },
-          'src/main.ts': {
-            file: 'assets/main.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main.js",
+            src: "src/main.ts",
             isEntry: true,
             dynamicImports: [lazyFileName],
-            css: ['assets/main.css'],
+            css: ["assets/main.css"],
           },
         },
         chunks: [
           {
-            fileName: 'assets/main.js',
-            name: 'main',
+            fileName: "assets/main.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
+            facadeModuleId: "/tmp/repo/src/main.ts",
             imports: [],
             dynamicImports: [lazyFileName],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main.css'],
+            importedCss: ["assets/main.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -2112,10 +2162,10 @@ function buildDynamicEntrypointArtifact({
           },
           {
             fileName: lazyFileName,
-            name: 'lazy',
+            name: "lazy",
             isEntry: false,
             isDynamicEntry: true,
-            facadeModuleId: '/tmp/repo/src/lazy.ts',
+            facadeModuleId: "/tmp/repo/src/lazy.ts",
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
@@ -2123,7 +2173,7 @@ function buildDynamicEntrypointArtifact({
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/lazy.ts',
+                rawId: "/tmp/repo/src/lazy.ts",
                 renderedLength: 70,
                 originalLength: 90,
               },
@@ -2133,14 +2183,14 @@ function buildDynamicEntrypointArtifact({
         ],
         assets: [
           {
-            fileName: 'assets/main.css',
-            names: ['main.css'],
+            fileName: "assets/main.css",
+            names: ["main.css"],
             needsCodeReference: false,
             sizes: size(10, 8, 6),
           },
           {
             fileName: lazyCssFileName,
-            names: ['lazy.css'],
+            names: ["lazy.css"],
             needsCodeReference: false,
             sizes: size(9, 7, 5),
           },
@@ -2152,9 +2202,9 @@ function buildDynamicEntrypointArtifact({
 }
 
 function buildManifestOnlyHtmlArtifact({
-  generatedAt = '2026-04-06T12:00:00.000Z',
-  jsFileName = 'assets/main-old.js',
-  cssFileName = 'assets/main-old.css',
+  generatedAt = "2026-04-06T12:00:00.000Z",
+  jsFileName = "assets/main-old.js",
+  cssFileName = "assets/main-old.css",
 }: {
   cssFileName?: string
   generatedAt?: string
@@ -2164,14 +2214,14 @@ function buildManifestOnlyHtmlArtifact({
     generatedAt,
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'index.html': {
-            file: 'index.html',
-            src: 'index.html',
+          "index.html": {
+            file: "index.html",
+            src: "index.html",
             isEntry: true,
             imports: [jsFileName],
             css: [cssFileName],
@@ -2180,10 +2230,10 @@ function buildManifestOnlyHtmlArtifact({
         chunks: [
           {
             fileName: jsFileName,
-            name: 'main',
+            name: "main",
             isEntry: false,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
+            facadeModuleId: "/tmp/repo/src/main.ts",
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
@@ -2191,7 +2241,7 @@ function buildManifestOnlyHtmlArtifact({
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -2202,7 +2252,7 @@ function buildManifestOnlyHtmlArtifact({
         assets: [
           {
             fileName: cssFileName,
-            names: ['main.css'],
+            names: ["main.css"],
             needsCodeReference: false,
             sizes: size(10, 8, 6),
           },
@@ -2216,51 +2266,51 @@ function buildManifestOnlyHtmlArtifact({
 function buildSplitBaseArtifact() {
   return {
     schemaVersion: 1,
-    pluginVersion: '0.1.0',
-    generatedAt: '2026-04-06T12:00:00.000Z',
+    pluginVersion: "0.1.0",
+    generatedAt: "2026-04-06T12:00:00.000Z",
     scenario: {
-      id: 'fixture-app-cost',
-      kind: 'fixture-app',
+      id: "fixture-app-cost",
+      kind: "fixture-app",
     },
     build: {
-      bundler: 'vite',
-      bundlerVersion: '8.0.4',
-      rootDir: '/tmp/repo',
+      bundler: "vite",
+      bundlerVersion: "8.0.4",
+      rootDir: "/tmp/repo",
     },
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
-            file: 'assets/main-old.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main-old.js",
+            src: "src/main.ts",
             isEntry: true,
-            imports: ['chunks/shared-old.js'],
-            css: ['assets/main-old.css'],
+            imports: ["chunks/shared-old.js"],
+            css: ["assets/main-old.css"],
           },
-          'chunks/shared-old.js': {
-            file: 'chunks/shared-old.js',
-            css: ['assets/shared-old.css'],
+          "chunks/shared-old.js": {
+            file: "chunks/shared-old.js",
+            css: ["assets/shared-old.css"],
           },
         },
         chunks: [
           {
-            fileName: 'assets/main-old.js',
-            name: 'main',
+            fileName: "assets/main-old.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: ['chunks/shared-old.js'],
+            facadeModuleId: "/tmp/repo/src/main.ts",
+            imports: ["chunks/shared-old.js"],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main-old.css'],
+            importedCss: ["assets/main-old.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 123,
                 originalLength: 456,
               },
@@ -2268,24 +2318,24 @@ function buildSplitBaseArtifact() {
             sizes: size(123, 45, 38),
           },
           {
-            fileName: 'chunks/shared-old.js',
-            name: 'shared',
+            fileName: "chunks/shared-old.js",
+            name: "shared",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/shared-old.css'],
+            importedCss: ["assets/shared-old.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/format.ts',
+                rawId: "/tmp/repo/src/shared/format.ts",
                 renderedLength: 60,
                 originalLength: 70,
               },
               {
-                rawId: '/tmp/repo/src/shared/view.ts',
+                rawId: "/tmp/repo/src/shared/view.ts",
                 renderedLength: 40,
                 originalLength: 50,
               },
@@ -2295,14 +2345,14 @@ function buildSplitBaseArtifact() {
         ],
         assets: [
           {
-            fileName: 'assets/main-old.css',
-            names: ['main-old.css'],
+            fileName: "assets/main-old.css",
+            names: ["main-old.css"],
             needsCodeReference: false,
             sizes: size(10, 8, 6),
           },
           {
-            fileName: 'assets/shared-old.css',
-            names: ['shared-old.css'],
+            fileName: "assets/shared-old.css",
+            names: ["shared-old.css"],
             needsCodeReference: false,
             sizes: size(30, 10, 8),
           },
@@ -2316,55 +2366,55 @@ function buildSplitBaseArtifact() {
 function buildSplitHeadArtifact() {
   return {
     schemaVersion: 1,
-    pluginVersion: '0.1.0',
-    generatedAt: '2026-04-06T12:10:00.000Z',
+    pluginVersion: "0.1.0",
+    generatedAt: "2026-04-06T12:10:00.000Z",
     scenario: {
-      id: 'fixture-app-cost',
-      kind: 'fixture-app',
+      id: "fixture-app-cost",
+      kind: "fixture-app",
     },
     build: {
-      bundler: 'vite',
-      bundlerVersion: '8.0.4',
-      rootDir: '/tmp/repo',
+      bundler: "vite",
+      bundlerVersion: "8.0.4",
+      rootDir: "/tmp/repo",
     },
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
-            file: 'assets/main-new.js',
-            src: 'src/main.ts',
+          "src/main.ts": {
+            file: "assets/main-new.js",
+            src: "src/main.ts",
             isEntry: true,
-            imports: ['chunks/route-format.js', 'chunks/route-ui.js'],
-            css: ['assets/main-new.css'],
+            imports: ["chunks/route-format.js", "chunks/route-ui.js"],
+            css: ["assets/main-new.css"],
           },
-          'chunks/route-format.js': {
-            file: 'chunks/route-format.js',
-            css: ['assets/route-format.css'],
+          "chunks/route-format.js": {
+            file: "chunks/route-format.js",
+            css: ["assets/route-format.css"],
           },
-          'chunks/route-ui.js': {
-            file: 'chunks/route-ui.js',
-            css: ['assets/route-ui.css'],
+          "chunks/route-ui.js": {
+            file: "chunks/route-ui.js",
+            css: ["assets/route-ui.css"],
           },
         },
         chunks: [
           {
-            fileName: 'assets/main-new.js',
-            name: 'main',
+            fileName: "assets/main-new.js",
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
-            imports: ['chunks/route-format.js', 'chunks/route-ui.js'],
+            facadeModuleId: "/tmp/repo/src/main.ts",
+            imports: ["chunks/route-format.js", "chunks/route-ui.js"],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/main-new.css'],
+            importedCss: ["assets/main-new.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: 150,
                 originalLength: 470,
               },
@@ -2372,19 +2422,19 @@ function buildSplitHeadArtifact() {
             sizes: size(150, 56, 46),
           },
           {
-            fileName: 'chunks/route-format.js',
-            name: 'route-format',
+            fileName: "chunks/route-format.js",
+            name: "route-format",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/route-format.css'],
+            importedCss: ["assets/route-format.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/format.ts',
+                rawId: "/tmp/repo/src/shared/format.ts",
                 renderedLength: 60,
                 originalLength: 70,
               },
@@ -2392,19 +2442,19 @@ function buildSplitHeadArtifact() {
             sizes: size(60, 24, 18),
           },
           {
-            fileName: 'chunks/route-ui.js',
-            name: 'route-ui',
+            fileName: "chunks/route-ui.js",
+            name: "route-ui",
             isEntry: false,
             isDynamicEntry: false,
             facadeModuleId: null,
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
-            importedCss: ['assets/route-ui.css'],
+            importedCss: ["assets/route-ui.css"],
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/shared/view.ts',
+                rawId: "/tmp/repo/src/shared/view.ts",
                 renderedLength: 40,
                 originalLength: 50,
               },
@@ -2414,20 +2464,20 @@ function buildSplitHeadArtifact() {
         ],
         assets: [
           {
-            fileName: 'assets/main-new.css',
-            names: ['main-new.css'],
+            fileName: "assets/main-new.css",
+            names: ["main-new.css"],
             needsCodeReference: false,
             sizes: size(12, 9, 7),
           },
           {
-            fileName: 'assets/route-format.css',
-            names: ['route-format.css'],
+            fileName: "assets/route-format.css",
+            names: ["route-format.css"],
             needsCodeReference: false,
             sizes: size(18, 7, 5),
           },
           {
-            fileName: 'assets/route-ui.css',
-            names: ['route-ui.css'],
+            fileName: "assets/route-ui.css",
+            names: ["route-ui.css"],
             needsCodeReference: false,
             sizes: size(12, 5, 4),
           },

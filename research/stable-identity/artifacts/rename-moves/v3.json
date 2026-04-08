@@ -21,12 +21,8 @@
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
-      "css": [
-        "static/renderCard-DCVaos3G.css"
-      ],
-      "assets": [
-        "static/glow-sheet-C1qW_FfC.svg"
-      ]
+      "css": ["static/renderCard-DCVaos3G.css"],
+      "assets": ["static/glow-sheet-C1qW_FfC.svg"]
     },
     {
       "key": "_renderCard-DCVaos3G.css",
@@ -48,13 +44,8 @@
       "isEntry": true,
       "isDynamicEntry": false,
       "imports": [],
-      "dynamicImports": [
-        "src/routes/insights.js",
-        "src/routes/preferences.js"
-      ],
-      "css": [
-        "static/main-EU6jixvg.css"
-      ],
+      "dynamicImports": ["src/routes/insights.js", "src/routes/preferences.js"],
+      "css": ["static/main-EU6jixvg.css"],
       "assets": []
     },
     {
@@ -76,9 +67,7 @@
       "file": "chunks/insights-C7nAt1nA.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_renderCard-CVaYYwpy.js"
-      ],
+      "imports": ["_renderCard-CVaYYwpy.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -90,9 +79,7 @@
       "file": "chunks/preferences-BRNWaoAD.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_renderCard-CVaYYwpy.js"
-      ],
+      "imports": ["_renderCard-CVaYYwpy.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -110,9 +97,7 @@
         "stableId": "src/routes/insights.js",
         "scope": "app"
       },
-      "imports": [
-        "chunks/renderCard-CVaYYwpy.js"
-      ],
+      "imports": ["chunks/renderCard-CVaYYwpy.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -123,15 +108,11 @@
           "stableId": "src/routes/insights.js",
           "scope": "app",
           "renderedLength": 163,
-          "renderedExports": [
-            "renderInsights"
-          ],
+          "renderedExports": ["renderInsights"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/routes/insights.js"
-      ],
+      "moduleIds": ["src/routes/insights.js"],
       "sizes": {
         "raw": 158,
         "gzip": 145,
@@ -149,9 +130,7 @@
         "stableId": "src/routes/preferences.js",
         "scope": "app"
       },
-      "imports": [
-        "chunks/renderCard-CVaYYwpy.js"
-      ],
+      "imports": ["chunks/renderCard-CVaYYwpy.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -162,15 +141,11 @@
           "stableId": "src/routes/preferences.js",
           "scope": "app",
           "renderedLength": 175,
-          "renderedExports": [
-            "renderPreferences"
-          ],
+          "renderedExports": ["renderPreferences"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/routes/preferences.js"
-      ],
+      "moduleIds": ["src/routes/preferences.js"],
       "sizes": {
         "raw": 167,
         "gzip": 145,
@@ -187,12 +162,8 @@
       "imports": [],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "static/renderCard-DCVaos3G.css"
-      ],
-      "importedAssets": [
-        "static/glow-sheet-C1qW_FfC.svg"
-      ],
+      "importedCss": ["static/renderCard-DCVaos3G.css"],
+      "importedAssets": ["static/glow-sheet-C1qW_FfC.svg"],
       "modules": [
         {
           "rawId": "src/ui/card.css",
@@ -207,16 +178,11 @@
           "stableId": "src/ui/renderCard.js",
           "scope": "app",
           "renderedLength": 323,
-          "renderedExports": [
-            "renderCard"
-          ],
+          "renderedExports": ["renderCard"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/ui/card.css",
-        "src/ui/renderCard.js"
-      ],
+      "moduleIds": ["src/ui/card.css", "src/ui/renderCard.js"],
       "sizes": {
         "raw": 207,
         "gzip": 177,
@@ -235,14 +201,9 @@
         "scope": "app"
       },
       "imports": [],
-      "dynamicImports": [
-        "chunks/insights-C7nAt1nA.js",
-        "chunks/preferences-BRNWaoAD.js"
-      ],
+      "dynamicImports": ["chunks/insights-C7nAt1nA.js", "chunks/preferences-BRNWaoAD.js"],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "static/main-EU6jixvg.css"
-      ],
+      "importedCss": ["static/main-EU6jixvg.css"],
       "importedAssets": [],
       "modules": [
         {
@@ -266,17 +227,11 @@
           "stableId": "virtual:vite/preload-helper.js",
           "scope": "virtual",
           "renderedLength": 2104,
-          "renderedExports": [
-            "__vitePreload"
-          ],
+          "renderedExports": ["__vitePreload"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/main.js",
-        "src/ui/app.css",
-        "virtual:vite/preload-helper.js"
-      ],
+      "moduleIds": ["src/main.js", "src/ui/app.css", "virtual:vite/preload-helper.js"],
       "sizes": {
         "raw": 1771,
         "gzip": 944,
@@ -288,12 +243,8 @@
     {
       "fileName": "static/glow-sheet-C1qW_FfC.svg",
       "kind": "svg",
-      "names": [
-        "glow-sheet.svg"
-      ],
-      "originalFileNames": [
-        "src/media/glow-sheet.svg"
-      ],
+      "names": ["glow-sheet.svg"],
+      "originalFileNames": ["src/media/glow-sheet.svg"],
       "sourceLength": 259,
       "sizes": {
         "raw": 259,
@@ -304,12 +255,8 @@
     {
       "fileName": "static/main-EU6jixvg.css",
       "kind": "css",
-      "names": [
-        "main.css"
-      ],
-      "originalFileNames": [
-        "src/main.js"
-      ],
+      "names": ["main.css"],
+      "originalFileNames": ["src/main.js"],
       "sourceLength": 208,
       "sizes": {
         "raw": 196,
@@ -320,9 +267,7 @@
     {
       "fileName": "static/renderCard-DCVaos3G.css",
       "kind": "css",
-      "names": [
-        "renderCard.css"
-      ],
+      "names": ["renderCard.css"],
       "originalFileNames": [],
       "sourceLength": 243,
       "sizes": {

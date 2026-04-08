@@ -2,62 +2,62 @@ import {
   DEFAULT_LENS_SLUG,
   nonEmptyStringSchema,
   publicScenarioRouteParamsSchema,
-} from '@workspace/contracts'
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import { Link, createFileRoute } from "@tanstack/react-router"
+import { createServerFn } from "@tanstack/react-start"
+import * as v from "valibot"
 
-import {
-  getScenarioPageData,
-} from '../lib/public-read-models.server.js'
-import {
-  formatBytes,
-  shortSha,
-} from '../lib/formatting.js'
+import { getScenarioPageData } from "../lib/public-read-models.server.js"
+import { formatBytes, shortSha } from "../lib/formatting.js"
 import {
   describeNeutralDelta,
   describeStatusScenarioDetail,
   formatSeriesLabel,
-} from '../lib/public-route-presentation.js'
+} from "../lib/public-route-presentation.js"
 
 const scenarioPageSearchSchema = v.strictObject({
   branch: v.optional(nonEmptyStringSchema),
-  env: v.optional(nonEmptyStringSchema, 'all'),
-  entrypoint: v.optional(nonEmptyStringSchema, 'all'),
+  env: v.optional(nonEmptyStringSchema, "all"),
+  entrypoint: v.optional(nonEmptyStringSchema, "all"),
   lens: v.optional(nonEmptyStringSchema, DEFAULT_LENS_SLUG),
   tab: v.optional(nonEmptyStringSchema),
 })
 
-const getScenarioPage = createServerFn({ method: 'GET' })
-  .inputValidator(v.strictObject({
-    params: publicScenarioRouteParamsSchema,
-    search: scenarioPageSearchSchema,
-  }))
-  .handler(({ data, context }) => getScenarioPageData(context.env, {
-    owner: data.params.owner,
-    repo: data.params.repo,
-    scenario: data.params.scenario,
-    branch: data.search.branch,
-    env: data.search.env,
-    entrypoint: data.search.entrypoint,
-    lens: data.search.lens,
-    tab: data.search.tab,
-  }))
+const getScenarioPage = createServerFn({ method: "GET" })
+  .inputValidator(
+    v.strictObject({
+      params: publicScenarioRouteParamsSchema,
+      search: scenarioPageSearchSchema,
+    }),
+  )
+  .handler(({ data, context }) =>
+    getScenarioPageData(context.env, {
+      owner: data.params.owner,
+      repo: data.params.repo,
+      scenario: data.params.scenario,
+      branch: data.search.branch,
+      env: data.search.env,
+      entrypoint: data.search.entrypoint,
+      lens: data.search.lens,
+      tab: data.search.tab,
+    }),
+  )
 
-export const Route = createFileRoute('/r/$owner/$repo/scenarios/$scenario')({
+export const Route = createFileRoute("/r/$owner/$repo/scenarios/$scenario")({
   validateSearch: scenarioPageSearchSchema,
   loaderDeps: ({ search }) => search,
-  loader: ({ params, deps }) => getScenarioPage({
-    data: {
-      params,
-      search: deps,
-    },
-  }),
+  loader: ({ params, deps }) =>
+    getScenarioPage({
+      data: {
+        params,
+        search: deps,
+      },
+    }),
   component: ScenarioPageRouteComponent,
 })
 
 type ScenarioPageData = ReturnType<typeof Route.useLoaderData>
-type ScenarioHistorySeries = ScenarioPageData['history'][number]
+type ScenarioHistorySeries = ScenarioPageData["history"][number]
 
 function ScenarioPageRouteComponent() {
   const data = Route.useLoaderData()
@@ -83,7 +83,7 @@ function ScenarioPageRouteComponent() {
 
       <section>
         <h2>Filters</h2>
-        <p>Branch: {data.branch ?? 'No branch data yet'}</p>
+        <p>Branch: {data.branch ?? "No branch data yet"}</p>
         <p>Environment: {data.env}</p>
         <p>Entrypoint: {data.entrypoint}</p>
         <p>Lens: {data.lens}</p>
@@ -115,8 +115,8 @@ function ScenarioPageRouteComponent() {
               from={Route.fullPath}
               search={{
                 branch: data.branch,
-                env: 'all',
-                entrypoint: 'all',
+                env: "all",
+                entrypoint: "all",
                 lens: data.lens,
                 tab: data.tab,
               }}
@@ -132,7 +132,7 @@ function ScenarioPageRouteComponent() {
                 search={{
                   branch: data.branch,
                   env: environment,
-                  entrypoint: 'all',
+                  entrypoint: "all",
                   lens: data.lens,
                   tab: data.tab,
                 }}
@@ -151,7 +151,7 @@ function ScenarioPageRouteComponent() {
               search={{
                 branch: data.branch,
                 env: data.env,
-                entrypoint: 'all',
+                entrypoint: "all",
                 lens: data.lens,
                 tab: data.tab,
               }}
@@ -187,7 +187,7 @@ function ScenarioPageRouteComponent() {
             <p>Uploaded at: {data.latestFreshScenario.activeUploadedAt}</p>
             <p>Processed runs: {data.latestFreshScenario.processedRunCount}</p>
             <p>Failed runs: {data.latestFreshScenario.failedRunCount}</p>
-            <p>Newer failed rerun: {data.latestFreshScenario.hasNewerFailedRun ? 'yes' : 'no'}</p>
+            <p>Newer failed rerun: {data.latestFreshScenario.hasNewerFailedRun ? "yes" : "no"}</p>
           </>
         ) : data.latestStatusScenario ? (
           <>
@@ -226,7 +226,9 @@ function ScenarioPageRouteComponent() {
         {data.history.length === 0 ? (
           <p>No history points match the selected scenario filters yet.</p>
         ) : (
-          data.history.map((series) => <ScenarioHistoryTable key={series.seriesId} series={series} />)
+          data.history.map((series) => (
+            <ScenarioHistoryTable key={series.seriesId} series={series} />
+          ))
         )}
       </section>
 
@@ -234,10 +236,15 @@ function ScenarioPageRouteComponent() {
         <h2>Selected Series</h2>
         {data.selectedSeries ? (
           <>
+            <p>{formatSeriesLabel(data.selectedSeries.series)}</p>
             <p>
-              {formatSeriesLabel(data.selectedSeries.series)}
+              {describeNeutralDelta(data.selectedSeries.series, data.selectedSeries.primaryItem, {
+                detailed: true,
+                noBaselineText: "No baseline is available for this series yet.",
+                failedPrefix: "Comparison failed",
+                unchangedPrefix: "Brotli total unchanged at",
+              })}
             </p>
-            <p>{describeNeutralDelta(data.selectedSeries.series, data.selectedSeries.primaryItem, { detailed: true, noBaselineText: 'No baseline is available for this series yet.', failedPrefix: 'Comparison failed', unchangedPrefix: 'Brotli total unchanged at' })}</p>
           </>
         ) : (
           <p>Select a full series context (`env + entrypoint + lens`) to unlock the detail area.</p>
@@ -246,7 +253,7 @@ function ScenarioPageRouteComponent() {
 
       <section>
         <h2>Tabs</h2>
-        <p>Current tab: {data.tab ?? 'history'}</p>
+        <p>Current tab: {data.tab ?? "history"}</p>
         <p>Additional detail tabs are not available yet.</p>
       </section>
     </main>
@@ -256,9 +263,7 @@ function ScenarioPageRouteComponent() {
 function ScenarioHistoryTable(props: { series: ScenarioHistorySeries }) {
   return (
     <article>
-      <h3>
-        {formatSeriesLabel(props.series)}
-      </h3>
+      <h3>{formatSeriesLabel(props.series)}</h3>
       <table>
         <thead>
           <tr>
@@ -270,7 +275,7 @@ function ScenarioHistoryTable(props: { series: ScenarioHistorySeries }) {
           </tr>
         </thead>
         <tbody>
-          {props.series.points.map((point: ScenarioHistorySeries['points'][number]) => (
+          {props.series.points.map((point: ScenarioHistorySeries["points"][number]) => (
             <tr key={`${props.series.seriesId}:${point.commitSha}:${point.measuredAt}`}>
               <td>{shortSha(point.commitSha)}</td>
               <td>{point.measuredAt}</td>

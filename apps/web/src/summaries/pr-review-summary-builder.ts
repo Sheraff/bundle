@@ -11,19 +11,15 @@ import {
   type ReviewedComparisonItemSummaryV1,
   type ReviewedComparisonSeriesSummaryV1,
   type ReviewedScenarioSummaryV1,
-} from '@workspace/contracts'
-import { and, eq, inArray } from 'drizzle-orm'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import { and, eq, inArray } from "drizzle-orm"
+import * as v from "valibot"
 
-import { getDb, schema } from '../db/index.js'
-import type { AppBindings } from '../env.js'
-import { formatIssues } from '../shared/format-issues.js'
+import { getDb, schema } from "../db/index.js"
+import type { AppBindings } from "../env.js"
+import { formatIssues } from "../shared/format-issues.js"
 
-import type {
-  AcknowledgementOverlayRow,
-  CommitGroupRow,
-  PullRequestRow,
-} from './types.js'
+import type { AcknowledgementOverlayRow, CommitGroupRow, PullRequestRow } from "./types.js"
 
 const SERIES_REVIEW_PRIORITY: Record<ReviewSeriesState, number> = {
   blocking: 0,
@@ -39,7 +35,7 @@ const ITEM_REVIEW_PRIORITY: Record<ReviewItemState, number> = {
   acknowledged: 2,
   improvement: 3,
 }
-const BLOCKING_BUDGET_STATES = new Set(['blocking', 'failing', 'failed'])
+const BLOCKING_BUDGET_STATES = new Set(["blocking", "failing", "failed"])
 
 export async function buildPrReviewSummary(
   env: AppBindings,
@@ -48,10 +44,11 @@ export async function buildPrReviewSummary(
   commitGroupSummary: CommitGroupSummaryV1,
 ) {
   const db = getDb(env)
-  const materializedComparisonIds = commitGroupSummary.freshScenarioGroups.flatMap((scenarioGroup) =>
-    scenarioGroup.series
-      .filter((seriesSummary) => seriesSummary.status === 'materialized')
-      .map((seriesSummary) => seriesSummary.comparisonId),
+  const materializedComparisonIds = commitGroupSummary.freshScenarioGroups.flatMap(
+    (scenarioGroup) =>
+      scenarioGroup.series
+        .filter((seriesSummary) => seriesSummary.status === "materialized")
+        .map((seriesSummary) => seriesSummary.comparisonId),
   )
   const acknowledgements = materializedComparisonIds.length
     ? await db
@@ -87,8 +84,8 @@ export async function buildPrReviewSummary(
       scenarioGroup.series.reduce(
         (groupTotal, seriesSummary) =>
           groupTotal +
-          (seriesSummary.status === 'materialized'
-            ? seriesSummary.items.filter((item) => item.reviewState === 'blocking').length
+          (seriesSummary.status === "materialized"
+            ? seriesSummary.items.filter((item) => item.reviewState === "blocking").length
             : 0),
         0,
       ),
@@ -100,8 +97,8 @@ export async function buildPrReviewSummary(
       scenarioGroup.series.reduce(
         (groupTotal, seriesSummary) =>
           groupTotal +
-          (seriesSummary.status === 'materialized'
-            ? seriesSummary.items.filter((item) => item.reviewState === 'regression').length
+          (seriesSummary.status === "materialized"
+            ? seriesSummary.items.filter((item) => item.reviewState === "regression").length
             : 0),
         0,
       ),
@@ -113,8 +110,8 @@ export async function buildPrReviewSummary(
       scenarioGroup.series.reduce(
         (groupTotal, seriesSummary) =>
           groupTotal +
-          (seriesSummary.status === 'materialized'
-            ? seriesSummary.items.filter((item) => item.reviewState === 'acknowledged').length
+          (seriesSummary.status === "materialized"
+            ? seriesSummary.items.filter((item) => item.reviewState === "acknowledged").length
             : 0),
         0,
       ),
@@ -126,8 +123,8 @@ export async function buildPrReviewSummary(
       scenarioGroup.series.reduce(
         (groupTotal, seriesSummary) =>
           groupTotal +
-          (seriesSummary.status === 'materialized'
-            ? seriesSummary.items.filter((item) => item.reviewState === 'improvement').length
+          (seriesSummary.status === "materialized"
+            ? seriesSummary.items.filter((item) => item.reviewState === "improvement").length
             : 0),
         0,
       ),
@@ -148,11 +145,11 @@ export async function buildPrReviewSummary(
     headRef: pullRequest.headRef,
     status: commitGroupSummary.status,
     overallState:
-      commitGroupSummary.status === 'pending'
-        ? 'pending'
+      commitGroupSummary.status === "pending"
+        ? "pending"
         : blockingRegressionCount > 0
-          ? 'failing'
-          : 'passing',
+          ? "failing"
+          : "passing",
     settledAt: commitGroupSummary.settledAt,
     counts: {
       blockingRegressionCount,
@@ -188,15 +185,15 @@ function buildReviewedScenarioSummary(
     buildReviewedSeriesSummary(seriesSummary, acknowledgementsByKey),
   )
   const visibleSeries = reviewedSeries
-    .filter((seriesSummary) => seriesSummary.reviewState !== 'neutral')
+    .filter((seriesSummary) => seriesSummary.reviewState !== "neutral")
     .sort(compareReviewedSeriesSummaries)[0]
   const changedSeriesCount = reviewedSeries.filter(
-    (seriesSummary) => seriesSummary.reviewState !== 'neutral',
+    (seriesSummary) => seriesSummary.reviewState !== "neutral",
   ).length
   const acknowledgedItemCount = reviewedSeries.reduce(
     (total, seriesSummary) =>
       total +
-      (seriesSummary.status === 'materialized'
+      (seriesSummary.status === "materialized"
         ? seriesSummary.items.filter((item) => item.acknowledged).length
         : 0),
     0,
@@ -223,7 +220,7 @@ function buildReviewedSeriesSummary(
   seriesSummary: NeutralComparisonSeriesSummaryV1,
   acknowledgementsByKey: Map<string, AcknowledgementOverlayRow>,
 ): ReviewedComparisonSeriesSummaryV1 {
-  if (seriesSummary.status === 'materialized') {
+  if (seriesSummary.status === "materialized") {
     const reviewedItems = seriesSummary.items.map((item) =>
       buildReviewedItemSummary(
         seriesSummary.comparisonId,
@@ -236,16 +233,16 @@ function buildReviewedSeriesSummary(
 
     return {
       ...seriesSummary,
-      reviewState: primaryItem?.reviewState ?? 'neutral',
+      reviewState: primaryItem?.reviewState ?? "neutral",
       items: reviewedItems,
       primaryItemKey: primaryItem?.itemKey ?? null,
     }
   }
 
-  if (seriesSummary.status === 'no-baseline') {
+  if (seriesSummary.status === "no-baseline") {
     return {
       ...seriesSummary,
-      reviewState: 'warning',
+      reviewState: "warning",
       items: [],
       primaryItemKey: null,
     }
@@ -253,7 +250,7 @@ function buildReviewedSeriesSummary(
 
   return {
     ...seriesSummary,
-    reviewState: 'warning',
+    reviewState: "warning",
     items: [],
     primaryItemKey: null,
   }
@@ -286,15 +283,15 @@ function selectReviewItemState(
   acknowledged: boolean,
   budgetState: string,
 ): ReviewItemState {
-  if (item.direction === 'improvement') {
-    return 'improvement'
+  if (item.direction === "improvement") {
+    return "improvement"
   }
 
   if (acknowledged) {
-    return 'acknowledged'
+    return "acknowledged"
   }
 
-  return BLOCKING_BUDGET_STATES.has(budgetState) ? 'blocking' : 'regression'
+  return BLOCKING_BUDGET_STATES.has(budgetState) ? "blocking" : "regression"
 }
 
 function selectPrimaryReviewedItem(items: ReviewedComparisonItemSummaryV1[]) {
@@ -306,26 +303,26 @@ function selectScenarioReviewState(
   hasNewerFailedRun: boolean,
 ): ReviewSeriesState {
   const seriesReviewState =
-    [...seriesSummaries].sort(compareReviewedSeriesSummaries).at(0)?.reviewState ?? 'neutral'
+    [...seriesSummaries].sort(compareReviewedSeriesSummaries).at(0)?.reviewState ?? "neutral"
 
   if (!hasNewerFailedRun) {
     return seriesReviewState
   }
 
-  return seriesReviewState === 'neutral' || seriesReviewState === 'improvement'
-    ? 'warning'
+  return seriesReviewState === "neutral" || seriesReviewState === "improvement"
+    ? "warning"
     : seriesReviewState
 }
 
 function isReviewedScenarioImpacted(scenarioGroup: ReviewedScenarioSummaryV1) {
-  return scenarioGroup.series.some((seriesSummary) => seriesSummary.reviewState !== 'neutral')
+  return scenarioGroup.series.some((seriesSummary) => seriesSummary.reviewState !== "neutral")
 }
 
 function isReviewedScenarioUnchanged(scenarioGroup: ReviewedScenarioSummaryV1) {
   return (
     !scenarioGroup.hasNewerFailedRun &&
     scenarioGroup.series.length > 0 &&
-    scenarioGroup.series.every((seriesSummary) => seriesSummary.reviewState === 'neutral')
+    scenarioGroup.series.every((seriesSummary) => seriesSummary.reviewState === "neutral")
   )
 }
 
@@ -371,7 +368,7 @@ function reviewedScenarioMagnitude(scenarioGroup: ReviewedScenarioSummaryV1) {
 }
 
 function seriesSummaryMagnitude(seriesSummary: ReviewedComparisonSeriesSummaryV1) {
-  if (seriesSummary.status !== 'materialized') {
+  if (seriesSummary.status !== "materialized") {
     return Math.abs(seriesSummary.deltaTotals?.raw ?? 0)
   }
 

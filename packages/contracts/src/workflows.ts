@@ -1,11 +1,11 @@
-import * as v from 'valibot'
+import * as v from "valibot"
 
 import {
   WORKFLOW_KINDS,
   nonEmptyStringSchema,
   schemaVersionV1Schema,
   ulidSchema,
-} from './shared.js'
+} from "./shared.js"
 
 function createWorkflowInputSchema<
   TKind extends (typeof WORKFLOW_KINDS)[number],
@@ -21,27 +21,27 @@ function createWorkflowInputSchema<
 }
 
 export const commitGroupSettlementWorkflowInputSchema = createWorkflowInputSchema(
-  'CommitGroupSettlementWorkflow',
+  "CommitGroupSettlementWorkflow",
   {
     commitGroupId: ulidSchema,
   },
 )
 
 export const prPublishDebounceWorkflowInputSchema = createWorkflowInputSchema(
-  'PrPublishDebounceWorkflow',
+  "PrPublishDebounceWorkflow",
   {
     pullRequestId: ulidSchema,
   },
 )
 
 export const repositoryBackfillWorkflowInputSchema = createWorkflowInputSchema(
-  'RepositoryBackfillWorkflow',
+  "RepositoryBackfillWorkflow",
   {
     backfillScope: nonEmptyStringSchema,
   },
 )
 
-export const workflowInputSchema = v.variant('kind', [
+export const workflowInputSchema = v.variant("kind", [
   commitGroupSettlementWorkflowInputSchema,
   prPublishDebounceWorkflowInputSchema,
   repositoryBackfillWorkflowInputSchema,

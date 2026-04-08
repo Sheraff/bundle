@@ -1,4 +1,4 @@
-import * as v from 'valibot'
+import * as v from "valibot"
 
 import {
   githubOwnerSchema,
@@ -7,16 +7,14 @@ import {
   nonEmptyStringSchema,
   positiveIntegerSchema,
   scenarioSlugSchema,
-} from './shared.js'
+} from "./shared.js"
 
 const publicRepositoryRouteParamEntries = {
   owner: githubOwnerSchema,
   repo: githubRepoNameSchema,
 } as const
 
-export const publicRepositoryRouteParamsSchema = v.strictObject(
-  publicRepositoryRouteParamEntries,
-)
+export const publicRepositoryRouteParamsSchema = v.strictObject(publicRepositoryRouteParamEntries)
 
 export const publicScenarioRouteParamsSchema = v.strictObject({
   ...publicRepositoryRouteParamEntries,
@@ -55,21 +53,13 @@ export const comparePageSearchParamsSchema = v.strictObject({
   tab: v.optional(nonEmptyStringSchema),
 })
 
-export type PublicRepositoryRouteParams = v.InferOutput<
-  typeof publicRepositoryRouteParamsSchema
->
-export type PublicScenarioRouteParams = v.InferOutput<
-  typeof publicScenarioRouteParamsSchema
->
+export type PublicRepositoryRouteParams = v.InferOutput<typeof publicRepositoryRouteParamsSchema>
+export type PublicScenarioRouteParams = v.InferOutput<typeof publicScenarioRouteParamsSchema>
 export type RepositoryOverviewSearchParams = v.InferOutput<
   typeof repositoryOverviewSearchParamsSchema
 >
 export type RepositoryHistorySearchParams = v.InferOutput<
   typeof repositoryHistorySearchParamsSchema
 >
-export type ScenarioPageSearchParams = v.InferOutput<
-  typeof scenarioPageSearchParamsSchema
->
-export type ComparePageSearchParams = v.InferOutput<
-  typeof comparePageSearchParamsSchema
->
+export type ScenarioPageSearchParams = v.InferOutput<typeof scenarioPageSearchParamsSchema>
+export type ComparePageSearchParams = v.InferOutput<typeof comparePageSearchParamsSchema>

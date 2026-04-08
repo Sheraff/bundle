@@ -1,6 +1,6 @@
-import * as v from 'valibot'
+import * as v from "valibot"
 
-import { SCENARIO_RUN_STATUSES, schemaVersionV1Schema, ulidSchema } from './shared.js'
+import { SCENARIO_RUN_STATUSES, schemaVersionV1Schema, ulidSchema } from "./shared.js"
 
 export const uploadScenarioRunAcceptedResponseV1Schema = v.strictObject({
   schemaVersion: schemaVersionV1Schema,

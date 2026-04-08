@@ -1,7 +1,7 @@
-import type { UploadScenarioRunEnvelopeV1 } from '@workspace/contracts'
+import type { UploadScenarioRunEnvelopeV1 } from "@workspace/contracts"
 
-import type { AppBindings } from '../env.js'
-import { sha256Hex } from '../shared/sha256-hex.js'
+import type { AppBindings } from "../env.js"
+import { sha256Hex } from "../shared/sha256-hex.js"
 
 const textEncoder = new TextEncoder()
 
@@ -77,7 +77,7 @@ async function putRawUploadObject(
 ) {
   await env.RAW_UPLOADS_BUCKET.put(key, value, {
     httpMetadata: {
-      contentType: 'application/json',
+      contentType: "application/json",
     },
     customMetadata: {
       schemaVersion: String(schemaVersion),
@@ -87,5 +87,5 @@ async function putRawUploadObject(
 }
 
 function ensureTrailingNewline(value: string) {
-  return value.endsWith('\n') ? value : `${value}\n`
+  return value.endsWith("\n") ? value : `${value}\n`
 }

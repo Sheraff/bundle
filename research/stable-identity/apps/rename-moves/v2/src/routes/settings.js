@@ -1,8 +1,8 @@
-import { renderPanel } from '../ui/renderPanel.js';
+import { renderPanel } from "../ui/renderPanel.js"
 
 export function renderSettings() {
-  return renderPanel('Settings', [
-    ['surface', 'moved-file'],
-    ['route', 'settings'],
-  ]);
+  return renderPanel("Settings", [
+    ["surface", "moved-file"],
+    ["route", "settings"],
+  ])
 }

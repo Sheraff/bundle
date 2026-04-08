@@ -12,14 +12,14 @@ import {
   type ReviewedComparisonItemSummaryV1,
   type ReviewedComparisonSeriesSummaryV1,
   type ReviewedScenarioSummaryV1,
-} from '@workspace/contracts'
-import { and, asc, desc, eq, isNull, sql } from 'drizzle-orm'
-import * as v from 'valibot'
+} from "@workspace/contracts"
+import { and, asc, desc, eq, isNull, sql } from "drizzle-orm"
+import * as v from "valibot"
 
-import { getDb, schema } from '../../db/index.js'
-import { selectOne } from '../../db/select-one.js'
-import type { AppBindings } from '../../env.js'
-import { formatIssues } from '../../shared/format-issues.js'
+import { getDb, schema } from "../../db/index.js"
+import { selectOne } from "../../db/select-one.js"
+import type { AppBindings } from "../../env.js"
+import { formatIssues } from "../../shared/format-issues.js"
 
 export interface RepositoryReference {
   id: string
@@ -110,7 +110,11 @@ export async function requireRepository(
   return repository
 }
 
-export async function requireScenario(env: AppBindings, repositoryId: string, scenarioSlug: string) {
+export async function requireScenario(
+  env: AppBindings,
+  repositoryId: string,
+  scenarioSlug: string,
+) {
   const scenario = await selectOne(
     getDb(env)
       .select({
@@ -139,7 +143,12 @@ export async function listRepositoryBranches(env: AppBindings, repositoryId: str
   const rows = await getDb(env)
     .selectDistinct({ branch: schema.commitGroups.branch })
     .from(schema.commitGroups)
-    .where(and(eq(schema.commitGroups.repositoryId, repositoryId), isNull(schema.commitGroups.pullRequestId)))
+    .where(
+      and(
+        eq(schema.commitGroups.repositoryId, repositoryId),
+        isNull(schema.commitGroups.pullRequestId),
+      ),
+    )
     .orderBy(asc(schema.commitGroups.branch))
 
   return rows.map((row) => row.branch)
@@ -172,7 +181,7 @@ export async function listScenarioEntrypoints(
 ) {
   const filters = [eq(schema.series.scenarioId, scenarioId)]
 
-  if (environment !== 'all') {
+  if (environment !== "all") {
     filters.push(eq(schema.series.environment, environment))
   }
 
@@ -193,11 +202,11 @@ export async function listScenarioLenses(
 ) {
   const filters = [eq(schema.series.scenarioId, scenarioId)]
 
-  if (environment !== 'all') {
+  if (environment !== "all") {
     filters.push(eq(schema.series.environment, environment))
   }
 
-  if (entrypoint !== 'all') {
+  if (entrypoint !== "all") {
     filters.push(eq(schema.series.entrypointKey, entrypoint))
   }
 
@@ -230,7 +239,9 @@ export async function loadLatestCommitGroupSummaryByBranch(
       .limit(1),
   )
 
-  return row ? parseStoredJson(commitGroupSummaryV1Schema, row.summaryJson, 'commit-group summary') : null
+  return row
+    ? parseStoredJson(commitGroupSummaryV1Schema, row.summaryJson, "commit-group summary")
+    : null
 }
 
 export async function loadCommitGroupSummaryByHeadSha(
@@ -252,7 +263,9 @@ export async function loadCommitGroupSummaryByHeadSha(
       .limit(1),
   )
 
-  return row ? parseStoredJson(commitGroupSummaryV1Schema, row.summaryJson, 'commit-group summary') : null
+  return row
+    ? parseStoredJson(commitGroupSummaryV1Schema, row.summaryJson, "commit-group summary")
+    : null
 }
 
 export async function loadPrReviewSummaryByPullRequestNumber(
@@ -279,7 +292,7 @@ export async function loadPrReviewSummaryByPullRequestNumber(
       .limit(1),
   )
 
-  return row ? parseStoredJson(prReviewSummaryV1Schema, row.summaryJson, 'pr review summary') : null
+  return row ? parseStoredJson(prReviewSummaryV1Schema, row.summaryJson, "pr review summary") : null
 }
 
 export async function loadKnownScenarios(env: AppBindings, repositoryId: string) {
@@ -294,7 +307,7 @@ export async function loadKnownScenarios(env: AppBindings, repositoryId: string)
     .orderBy(asc(schema.scenarios.slug))
 
   return rows.map((scenario) => ({
-    kind: 'known' as const,
+    kind: "known" as const,
     scenario,
   }))
 }
@@ -346,11 +359,11 @@ export async function loadScenarioHistory(
     eq(schema.series.lens, lens),
   ]
 
-  if (environment !== 'all') {
+  if (environment !== "all") {
     filters.push(eq(schema.series.environment, environment))
   }
 
-  if (entrypoint !== 'all') {
+  if (entrypoint !== "all") {
     filters.push(eq(schema.series.entrypointKey, entrypoint))
   }
 
@@ -435,11 +448,17 @@ export function buildReviewedCompareRows(
   )
 }
 
-export function filterNeutralRows(rows: NeutralScenarioCompareRow[], search: ComparePageSearchParams) {
+export function filterNeutralRows(
+  rows: NeutralScenarioCompareRow[],
+  search: ComparePageSearchParams,
+) {
   return rows.filter((row) => matchesCompareSeriesFilters(row.scenarioSlug, row.series, search))
 }
 
-export function filterReviewedRows(rows: ReviewedScenarioCompareRow[], search: ComparePageSearchParams) {
+export function filterReviewedRows(
+  rows: ReviewedScenarioCompareRow[],
+  search: ComparePageSearchParams,
+) {
   return rows.filter((row) => matchesCompareSeriesFilters(row.scenarioSlug, row.series, search))
 }
 
@@ -476,7 +495,7 @@ export function buildScenarioCompareShortcut(
   const selectedSeries =
     primarySeries?.selectedBaseCommitSha !== null
       ? primarySeries
-      : latestFreshScenario.series.find((series) => series.selectedBaseCommitSha !== null) ?? null
+      : (latestFreshScenario.series.find((series) => series.selectedBaseCommitSha !== null) ?? null)
 
   if (!selectedSeries || !selectedSeries.selectedBaseCommitSha) {
     return null
@@ -492,7 +511,10 @@ export function buildScenarioCompareShortcut(
   }
 }
 
-export function selectNeutralRow(rows: NeutralScenarioCompareRow[], search: ComparePageSearchParams) {
+export function selectNeutralRow(
+  rows: NeutralScenarioCompareRow[],
+  search: ComparePageSearchParams,
+) {
   if (!search.scenario || !search.env || !search.entrypoint || !search.lens) {
     return null
   }
@@ -508,7 +530,10 @@ export function selectNeutralRow(rows: NeutralScenarioCompareRow[], search: Comp
   )
 }
 
-export function selectReviewedRow(rows: ReviewedScenarioCompareRow[], search: ComparePageSearchParams) {
+export function selectReviewedRow(
+  rows: ReviewedScenarioCompareRow[],
+  search: ComparePageSearchParams,
+) {
   if (!search.scenario || !search.env || !search.entrypoint || !search.lens) {
     return null
   }
@@ -540,7 +565,7 @@ export function selectPrimaryNeutralSeries(series: NeutralComparisonSeriesSummar
 }
 
 export function selectPrimaryNeutralItem(series: NeutralComparisonSeriesSummaryV1 | null) {
-  if (!series || series.status !== 'materialized' || series.items.length === 0) {
+  if (!series || series.status !== "materialized" || series.items.length === 0) {
     return null
   }
 
@@ -548,12 +573,14 @@ export function selectPrimaryNeutralItem(series: NeutralComparisonSeriesSummaryV
 }
 
 export function selectPrimaryReviewedItem(series: ReviewedComparisonSeriesSummaryV1) {
-  if (series.status !== 'materialized' || series.items.length === 0) {
+  if (series.status !== "materialized" || series.items.length === 0) {
     return null
   }
 
   if (series.primaryItemKey) {
-    return series.items.find((item) => item.itemKey === series.primaryItemKey) ?? series.items[0] ?? null
+    return (
+      series.items.find((item) => item.itemKey === series.primaryItemKey) ?? series.items[0] ?? null
+    )
   }
 
   return series.items[0] ?? null
@@ -577,7 +604,7 @@ function toScenarioHistoryPoint(row: {
 
 function matchesCompareSeriesFilters(
   scenarioSlug: string,
-  series: Pick<NeutralComparisonSeriesSummaryV1, 'environment' | 'entrypoint' | 'lens'>,
+  series: Pick<NeutralComparisonSeriesSummaryV1, "environment" | "entrypoint" | "lens">,
   search: ComparePageSearchParams,
 ) {
   if (search.scenario && scenarioSlug !== search.scenario) {
@@ -600,8 +627,8 @@ function matchesCompareSeriesFilters(
 }
 
 function compareNeutralRows(left: NeutralScenarioCompareRow, right: NeutralScenarioCompareRow) {
-  const leftDirection = left.primaryItem?.direction === 'regression' ? 0 : 1
-  const rightDirection = right.primaryItem?.direction === 'regression' ? 0 : 1
+  const leftDirection = left.primaryItem?.direction === "regression" ? 0 : 1
+  const rightDirection = right.primaryItem?.direction === "regression" ? 0 : 1
 
   if (leftDirection !== rightDirection) {
     return leftDirection - rightDirection
@@ -611,16 +638,16 @@ function compareNeutralRows(left: NeutralScenarioCompareRow, right: NeutralScena
 }
 
 function selectNeutralSeriesPriority(series: NeutralComparisonSeriesSummaryV1) {
-  if (series.status === 'materialized' && series.items.length > 0) {
+  if (series.status === "materialized" && series.items.length > 0) {
     const primaryItem = selectPrimaryNeutralItem(series)
-    return primaryItem?.direction === 'regression' ? 0 : 1
+    return primaryItem?.direction === "regression" ? 0 : 1
   }
 
-  if (series.status === 'materialized') {
+  if (series.status === "materialized") {
     return 2
   }
 
-  if (series.status === 'failed') {
+  if (series.status === "failed") {
     return 3
   }
 

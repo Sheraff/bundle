@@ -1,8 +1,8 @@
-import './app.css';
-import markUrl from './assets/mark.svg';
+import "./app.css"
+import markUrl from "./assets/mark.svg"
 
-const root = document.createElement('main');
-root.className = 'auto-shell';
+const root = document.createElement("main")
+root.className = "auto-shell"
 root.innerHTML = `
   <header class="hero">
     <img alt="Auto chunk" src="${markUrl}">
@@ -11,13 +11,13 @@ root.innerHTML = `
       <h1>Natural chunking v1</h1>
     </div>
   </header>
-`;
-document.body.append(root);
+`
+document.body.append(root)
 
 Promise.all([
-  import('./routes/overview.js').then((module) => module.renderOverview),
-  import('./routes/alerts.js').then((module) => module.renderAlerts),
+  import("./routes/overview.js").then((module) => module.renderOverview),
+  import("./routes/alerts.js").then((module) => module.renderAlerts),
 ]).then(([renderOverview, renderAlerts]) => {
-  root.append(renderOverview());
-  root.append(renderAlerts());
-});
+  root.append(renderOverview())
+  root.append(renderAlerts())
+})

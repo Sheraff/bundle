@@ -31,9 +31,7 @@
       "file": "chunks/browser-shell-Dr01GPC6.js",
       "isEntry": false,
       "isDynamicEntry": false,
-      "imports": [
-        "_browser-format-DiMMf8jb.js"
-      ],
+      "imports": ["_browser-format-DiMMf8jb.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -57,18 +55,10 @@
       "file": "entries/client-6hT1IKn6.js",
       "isEntry": true,
       "isDynamicEntry": false,
-      "imports": [
-        "_browser-shell-Dr01GPC6.js"
-      ],
-      "dynamicImports": [
-        "src/shared/clientDiagnostics.js"
-      ],
-      "css": [
-        "static/client-Cu-TP_O1.css"
-      ],
-      "assets": [
-        "static/client-badge-B5lFep22.svg"
-      ]
+      "imports": ["_browser-shell-Dr01GPC6.js"],
+      "dynamicImports": ["src/shared/clientDiagnostics.js"],
+      "css": ["static/client-Cu-TP_O1.css"],
+      "assets": ["static/client-badge-B5lFep22.svg"]
     },
     {
       "key": "src/shared/clientDiagnostics.js",
@@ -77,9 +67,7 @@
       "file": "chunks/clientDiagnostics-C5MufBA0.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_browser-format-DiMMf8jb.js"
-      ],
+      "imports": ["_browser-format-DiMMf8jb.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -104,15 +92,11 @@
           "stableId": "src/shared/formatBytes.js",
           "scope": "app",
           "renderedLength": 122,
-          "renderedExports": [
-            "formatBytes"
-          ],
+          "renderedExports": ["formatBytes"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/shared/formatBytes.js"
-      ],
+      "moduleIds": ["src/shared/formatBytes.js"],
       "sizes": {
         "raw": 61,
         "gzip": 81,
@@ -126,9 +110,7 @@
       "isEntry": false,
       "isDynamicEntry": false,
       "facadeModule": null,
-      "imports": [
-        "chunks/browser-format-DiMMf8jb.js"
-      ],
+      "imports": ["chunks/browser-format-DiMMf8jb.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -139,9 +121,7 @@
           "stableId": "src/shared/clientFrame.js",
           "scope": "app",
           "renderedLength": 574,
-          "renderedExports": [
-            "renderClientFrame"
-          ],
+          "renderedExports": ["renderClientFrame"],
           "removedExports": []
         },
         {
@@ -149,16 +129,11 @@
           "stableId": "src/shared/renderMetrics.js",
           "scope": "app",
           "renderedLength": 324,
-          "renderedExports": [
-            "renderMetrics"
-          ],
+          "renderedExports": ["renderMetrics"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/shared/clientFrame.js",
-        "src/shared/renderMetrics.js"
-      ],
+      "moduleIds": ["src/shared/clientFrame.js", "src/shared/renderMetrics.js"],
       "sizes": {
         "raw": 657,
         "gzip": 416,
@@ -176,9 +151,7 @@
         "stableId": "src/shared/clientDiagnostics.js",
         "scope": "app"
       },
-      "imports": [
-        "chunks/browser-format-DiMMf8jb.js"
-      ],
+      "imports": ["chunks/browser-format-DiMMf8jb.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -189,15 +162,11 @@
           "stableId": "src/shared/clientDiagnostics.js",
           "scope": "app",
           "renderedLength": 303,
-          "renderedExports": [
-            "renderClientDiagnostics"
-          ],
+          "renderedExports": ["renderClientDiagnostics"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/shared/clientDiagnostics.js"
-      ],
+      "moduleIds": ["src/shared/clientDiagnostics.js"],
       "sizes": {
         "raw": 252,
         "gzip": 212,
@@ -215,28 +184,18 @@
         "stableId": "src/entry-client.js",
         "scope": "app"
       },
-      "imports": [
-        "chunks/browser-shell-Dr01GPC6.js"
-      ],
-      "dynamicImports": [
-        "chunks/clientDiagnostics-C5MufBA0.js"
-      ],
+      "imports": ["chunks/browser-shell-Dr01GPC6.js"],
+      "dynamicImports": ["chunks/clientDiagnostics-C5MufBA0.js"],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "static/client-Cu-TP_O1.css"
-      ],
-      "importedAssets": [
-        "static/client-badge-B5lFep22.svg"
-      ],
+      "importedCss": ["static/client-Cu-TP_O1.css"],
+      "importedAssets": ["static/client-badge-B5lFep22.svg"],
       "modules": [
         {
           "rawId": "src/assets/client-badge.svg",
           "stableId": "src/assets/client-badge.svg",
           "scope": "app",
           "renderedLength": 120,
-          "renderedExports": [
-            "default"
-          ],
+          "renderedExports": ["default"],
           "removedExports": []
         },
         {
@@ -260,9 +219,7 @@
           "stableId": "virtual:vite/preload-helper.js",
           "scope": "virtual",
           "renderedLength": 2104,
-          "renderedExports": [
-            "__vitePreload"
-          ],
+          "renderedExports": ["__vitePreload"],
           "removedExports": []
         }
       ],
@@ -283,12 +240,8 @@
     {
       "fileName": "static/client-badge-B5lFep22.svg",
       "kind": "svg",
-      "names": [
-        "client-badge.svg"
-      ],
-      "originalFileNames": [
-        "src/assets/client-badge.svg"
-      ],
+      "names": ["client-badge.svg"],
+      "originalFileNames": ["src/assets/client-badge.svg"],
       "sourceLength": 256,
       "sizes": {
         "raw": 256,
@@ -299,12 +252,8 @@
     {
       "fileName": "static/client-Cu-TP_O1.css",
       "kind": "css",
-      "names": [
-        "client.css"
-      ],
-      "originalFileNames": [
-        "src/entry-client.js"
-      ],
+      "names": ["client.css"],
+      "originalFileNames": ["src/entry-client.js"],
       "sourceLength": 712,
       "sizes": {
         "raw": 700,

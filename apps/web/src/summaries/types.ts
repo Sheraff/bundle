@@ -1,11 +1,11 @@
-import type { CommitGroupSummaryV1 } from '@workspace/contracts'
+import type { CommitGroupSummaryV1 } from "@workspace/contracts"
 
-import { getDb, schema } from '../db/index.js'
+import { getDb, schema } from "../db/index.js"
 
 export type DbClient = ReturnType<typeof getDb>
 export type CommitGroupRow = typeof schema.commitGroups.$inferSelect
 export type PullRequestRow = typeof schema.pullRequests.$inferSelect
-export type SummaryComparisonKind = CommitGroupSummaryV1['comparisonKind']
+export type SummaryComparisonKind = CommitGroupSummaryV1["comparisonKind"]
 
 export interface ScenarioCatalogRow {
   id: string

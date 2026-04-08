@@ -2,23 +2,22 @@ import type {
   ReviewedComparisonItemSummaryV1,
   ReviewedComparisonSeriesSummaryV1,
   ReviewedScenarioSummaryV1,
-} from '@workspace/contracts'
+} from "@workspace/contracts"
 
-import {
-  formatSignedBytes,
-  formatSignedPercentage,
-} from './formatting.js'
+import { formatSignedBytes, formatSignedPercentage } from "./formatting.js"
 
 export function selectVisibleSeries(scenarioGroup: ReviewedScenarioSummaryV1) {
   return (
-    scenarioGroup.series.find((seriesSummary) => seriesSummary.seriesId === scenarioGroup.visibleSeriesId) ??
-    scenarioGroup.series.find((seriesSummary) => seriesSummary.reviewState !== 'neutral') ??
+    scenarioGroup.series.find(
+      (seriesSummary) => seriesSummary.seriesId === scenarioGroup.visibleSeriesId,
+    ) ??
+    scenarioGroup.series.find((seriesSummary) => seriesSummary.reviewState !== "neutral") ??
     null
   )
 }
 
 export function selectPrimaryItem(seriesSummary: ReviewedComparisonSeriesSummaryV1) {
-  if (seriesSummary.status !== 'materialized') {
+  if (seriesSummary.status !== "materialized") {
     return null
   }
 
@@ -29,20 +28,20 @@ export function selectPrimaryItem(seriesSummary: ReviewedComparisonSeriesSummary
   )
 }
 
-export function formatScenarioBadge(reviewState: ReviewedScenarioSummaryV1['reviewState']) {
+export function formatScenarioBadge(reviewState: ReviewedScenarioSummaryV1["reviewState"]) {
   switch (reviewState) {
-    case 'blocking':
-      return 'blocking'
-    case 'acknowledged':
-      return 'acknowledged'
-    case 'improvement':
-      return 'improved'
-    case 'warning':
-      return 'warning'
-    case 'regression':
-      return 'regression'
+    case "blocking":
+      return "blocking"
+    case "acknowledged":
+      return "acknowledged"
+    case "improvement":
+      return "improved"
+    case "warning":
+      return "warning"
+    case "regression":
+      return "regression"
     default:
-      return 'neutral'
+      return "neutral"
   }
 }
 
@@ -50,7 +49,7 @@ export function describeScenarioHighlight(scenarioGroup: ReviewedScenarioSummary
   const visibleSeries = selectVisibleSeries(scenarioGroup)
 
   if (!visibleSeries) {
-    return `${scenarioGroup.scenarioSlug}: latest rerun failed${scenarioGroup.latestFailureMessage ? ` (${scenarioGroup.latestFailureMessage})` : ''}`
+    return `${scenarioGroup.scenarioSlug}: latest rerun failed${scenarioGroup.latestFailureMessage ? ` (${scenarioGroup.latestFailureMessage})` : ""}`
   }
 
   const subject = `${scenarioGroup.scenarioSlug}: ${visibleSeries.environment} / ${visibleSeries.entrypoint} / ${visibleSeries.lens}`
@@ -60,7 +59,7 @@ export function describeScenarioHighlight(scenarioGroup: ReviewedScenarioSummary
     return `${subject} [${primaryItem.metricKey}] ${formatSignedBytes(primaryItem.deltaValue)} (${formatSignedPercentage(primaryItem.percentageDelta)})`
   }
 
-  if (visibleSeries.status === 'no-baseline') {
+  if (visibleSeries.status === "no-baseline") {
     return `${subject} (no baseline)`
   }
 

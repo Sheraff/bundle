@@ -1,8 +1,8 @@
-import type { AppBindings } from './env.js'
+import type { AppBindings } from "./env.js"
 
-const GITHUB_API_ORIGIN = 'https://api.github.com'
-const GITHUB_API_VERSION = '2022-11-28'
-const GITHUB_USER_AGENT = 'bundle-web'
+const GITHUB_API_ORIGIN = "https://api.github.com"
+const GITHUB_API_VERSION = "2022-11-28"
+const GITHUB_USER_AGENT = "bundle-web"
 const textEncoder = new TextEncoder()
 
 interface GithubIssueCommentResponse {
@@ -59,7 +59,7 @@ export interface UpsertGithubPullRequestCommentOptions {
 
 export interface UpsertGithubCheckRunOptions {
   accessToken: string
-  conclusion?: 'failure' | 'success'
+  conclusion?: "failure" | "success"
   detailsUrl: string
   externalId: string
   headSha: string
@@ -68,7 +68,7 @@ export interface UpsertGithubCheckRunOptions {
   owner: string
   publicationId: string | null
   repository: string
-  status: 'completed' | 'in_progress'
+  status: "completed" | "in_progress"
 }
 
 export class GithubApiError extends Error {
@@ -78,7 +78,7 @@ export class GithubApiError extends Error {
 
   constructor(code: string, message: string, status: number, retryable: boolean) {
     super(message)
-    this.name = 'GithubApiError'
+    this.name = "GithubApiError"
     this.code = code
     this.retryable = retryable
     this.status = status
@@ -89,13 +89,13 @@ let cachedPrivateKeyPromise: Promise<CryptoKey> | null = null
 let cachedPrivateKeyValue: string | null = null
 
 export async function createGithubInstallationAccessToken(
-  env: Pick<AppBindings, 'GITHUB_APP_ID' | 'GITHUB_APP_PRIVATE_KEY'>,
+  env: Pick<AppBindings, "GITHUB_APP_ID" | "GITHUB_APP_PRIVATE_KEY">,
   installationId: number,
 ) {
   const appJwt = await createGithubAppJwt(env)
   const response = await requestGithub<GithubAccessTokenResponse>({
-    body: '{}',
-    method: 'POST',
+    body: "{}",
+    method: "POST",
     url: `${GITHUB_API_ORIGIN}/app/installations/${installationId}/access_tokens`,
     accessToken: appJwt,
   })
@@ -110,7 +110,7 @@ export async function upsertGithubPullRequestComment(
     const response = await requestGithub<GithubIssueCommentResponse>({
       accessToken: options.accessToken,
       body: JSON.stringify({ body: options.body }),
-      method: 'PATCH',
+      method: "PATCH",
       url: `${GITHUB_API_ORIGIN}/repos/${options.owner}/${options.repository}/issues/comments/${commentId}`,
     })
 
@@ -133,7 +133,7 @@ export async function upsertGithubPullRequestComment(
 
   const comments = await requestGithub<GithubIssueCommentResponse[]>({
     accessToken: options.accessToken,
-    method: 'GET',
+    method: "GET",
     url: `${GITHUB_API_ORIGIN}/repos/${options.owner}/${options.repository}/issues/${options.pullRequestNumber}/comments?per_page=100`,
   })
   const markedComment = comments.find((comment) => comment.body.includes(options.marker))
@@ -145,7 +145,7 @@ export async function upsertGithubPullRequestComment(
   const createdComment = await requestGithub<GithubIssueCommentResponse>({
     accessToken: options.accessToken,
     body: JSON.stringify({ body: options.body }),
-    method: 'POST',
+    method: "POST",
     url: `${GITHUB_API_ORIGIN}/repos/${options.owner}/${options.repository}/issues/${options.pullRequestNumber}/comments`,
   })
 
@@ -164,14 +164,14 @@ export async function upsertGithubCheckRun(
     external_id: options.externalId,
     output: options.output,
     status: options.status,
-    ...(options.status === 'completed' ? { conclusion: options.conclusion ?? 'success' } : {}),
+    ...(options.status === "completed" ? { conclusion: options.conclusion ?? "success" } : {}),
   }
 
   const updateExistingCheckRun = async (checkRunId: string) => {
     const response = await requestGithub<GithubCheckRunResponse>({
       accessToken: options.accessToken,
       body: JSON.stringify(requestBody),
-      method: 'PATCH',
+      method: "PATCH",
       url: `${GITHUB_API_ORIGIN}/repos/${options.owner}/${options.repository}/check-runs/${checkRunId}`,
     })
 
@@ -199,7 +199,7 @@ export async function upsertGithubCheckRun(
       head_sha: options.headSha,
       name: options.name,
     }),
-    method: 'POST',
+    method: "POST",
     url: `${GITHUB_API_ORIGIN}/repos/${options.owner}/${options.repository}/check-runs`,
   })
 
@@ -210,15 +210,20 @@ export async function upsertGithubCheckRun(
   }
 }
 
-async function requestGithub<T>({ accessToken, body, method, url }: GithubRequestOptions): Promise<T> {
+async function requestGithub<T>({
+  accessToken,
+  body,
+  method,
+  url,
+}: GithubRequestOptions): Promise<T> {
   const response = await fetch(url, {
     method,
     headers: {
-      accept: 'application/vnd.github+json',
+      accept: "application/vnd.github+json",
       ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
-      ...(body ? { 'content-type': 'application/json' } : {}),
-      'user-agent': GITHUB_USER_AGENT,
-      'x-github-api-version': GITHUB_API_VERSION,
+      ...(body ? { "content-type": "application/json" } : {}),
+      "user-agent": GITHUB_USER_AGENT,
+      "x-github-api-version": GITHUB_API_VERSION,
     },
     ...(body ? { body } : {}),
   })
@@ -238,7 +243,7 @@ async function requestGithub<T>({ accessToken, body, method, url }: GithubReques
 
   if (responseJson === null) {
     throw new GithubApiError(
-      'github_empty_response',
+      "github_empty_response",
       `GitHub returned an empty response for ${method} ${url}.`,
       response.status,
       false,
@@ -249,10 +254,10 @@ async function requestGithub<T>({ accessToken, body, method, url }: GithubReques
 }
 
 async function createGithubAppJwt(
-  env: Pick<AppBindings, 'GITHUB_APP_ID' | 'GITHUB_APP_PRIVATE_KEY'>,
+  env: Pick<AppBindings, "GITHUB_APP_ID" | "GITHUB_APP_PRIVATE_KEY">,
 ) {
   const now = Math.floor(Date.now() / 1000)
-  const header = base64UrlEncodeJson({ alg: 'RS256', typ: 'JWT' })
+  const header = base64UrlEncodeJson({ alg: "RS256", typ: "JWT" })
   const payload = base64UrlEncodeJson({
     exp: now + 9 * 60,
     iat: now - 60,
@@ -261,7 +266,7 @@ async function createGithubAppJwt(
   const signingInput = `${header}.${payload}`
   const privateKey = await importGithubAppPrivateKey(env.GITHUB_APP_PRIVATE_KEY)
   const signature = await crypto.subtle.sign(
-    'RSASSA-PKCS1-v1_5',
+    "RSASSA-PKCS1-v1_5",
     privateKey,
     textEncoder.encode(signingInput),
   )
@@ -276,14 +281,14 @@ async function importGithubAppPrivateKey(privateKeyPem: string) {
 
   cachedPrivateKeyValue = privateKeyPem
   cachedPrivateKeyPromise = crypto.subtle.importKey(
-    'pkcs8',
+    "pkcs8",
     decodeGithubPem(privateKeyPem),
     {
-      hash: 'SHA-256',
-      name: 'RSASSA-PKCS1-v1_5',
+      hash: "SHA-256",
+      name: "RSASSA-PKCS1-v1_5",
     },
     false,
-    ['sign'],
+    ["sign"],
   )
 
   return cachedPrivateKeyPromise
@@ -291,9 +296,9 @@ async function importGithubAppPrivateKey(privateKeyPem: string) {
 
 function decodeGithubPem(pem: string) {
   const base64 = pem
-    .replace('-----BEGIN PRIVATE KEY-----', '')
-    .replace('-----END PRIVATE KEY-----', '')
-    .replaceAll(/\s+/g, '')
+    .replace("-----BEGIN PRIVATE KEY-----", "")
+    .replace("-----END PRIVATE KEY-----", "")
+    .replaceAll(/\s+/g, "")
 
   return Uint8Array.from(atob(base64), (character) => character.charCodeAt(0))
 }
@@ -304,15 +309,15 @@ function base64UrlEncodeJson(value: unknown) {
 
 function base64UrlEncodeBytes(bytes: Uint8Array) {
   const base64 = btoa(String.fromCharCode(...bytes))
-  return base64.replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/g, '')
+  return base64.replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/g, "")
 }
 
 function extractGithubErrorMessage(response: Response, responseJson: unknown) {
   if (
-    typeof responseJson === 'object' &&
+    typeof responseJson === "object" &&
     responseJson !== null &&
-    'message' in responseJson &&
-    typeof responseJson.message === 'string'
+    "message" in responseJson &&
+    typeof responseJson.message === "string"
   ) {
     return responseJson.message
   }
@@ -325,8 +330,11 @@ function isRetryableGithubResponse(response: Response) {
     return true
   }
 
-  return response.status === 403 && Boolean(
-    response.headers.get('retry-after') || response.headers.get('x-ratelimit-remaining') === '0',
+  return (
+    response.status === 403 &&
+    Boolean(
+      response.headers.get("retry-after") || response.headers.get("x-ratelimit-remaining") === "0",
+    )
   )
 }
 

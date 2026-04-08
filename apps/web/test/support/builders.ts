@@ -6,22 +6,22 @@ import type {
   ScenarioSource,
   SyntheticDefinition,
   UploadScenarioRunEnvelopeV1,
-} from '@workspace/contracts'
+} from "@workspace/contracts"
 
-const DEFAULT_SHA = '0123456789abcdef0123456789abcdef01234567'
-const DEFAULT_GENERATED_AT = '2026-04-06T12:00:00.000Z'
+const DEFAULT_SHA = "0123456789abcdef0123456789abcdef01234567"
+const DEFAULT_GENERATED_AT = "2026-04-06T12:00:00.000Z"
 
-type CiContext = UploadScenarioRunEnvelopeV1['ci']
-type FixtureScenarioSource = Extract<ScenarioSource, { kind: 'fixture-app' }>
+type CiContext = UploadScenarioRunEnvelopeV1["ci"]
+type FixtureScenarioSource = Extract<ScenarioSource, { kind: "fixture-app" }>
 type SyntheticScenarioSource = Exclude<ScenarioSource, FixtureScenarioSource>
 
 export type BuildArtifactOverrides = {
-  build?: PluginArtifactV1['build']
-  environments?: PluginArtifactV1['environments']
-  generatedAt?: PluginArtifactV1['generatedAt']
-  pluginVersion?: PluginArtifactV1['pluginVersion']
-  scenario?: PluginArtifactV1['scenario']
-  schemaVersion?: PluginArtifactV1['schemaVersion']
+  build?: PluginArtifactV1["build"]
+  environments?: PluginArtifactV1["environments"]
+  generatedAt?: PluginArtifactV1["generatedAt"]
+  pluginVersion?: PluginArtifactV1["pluginVersion"]
+  scenario?: PluginArtifactV1["scenario"]
+  schemaVersion?: PluginArtifactV1["schemaVersion"]
 }
 
 type BuildEnvelopeBaseOverrides = {
@@ -30,7 +30,7 @@ type BuildEnvelopeBaseOverrides = {
   git?: GitContext
   pullRequest?: PullRequestContext
   repository?: RepositoryContext
-  schemaVersion?: UploadScenarioRunEnvelopeV1['schemaVersion']
+  schemaVersion?: UploadScenarioRunEnvelopeV1["schemaVersion"]
 }
 
 export type BuildFixtureEnvelopeOverrides = BuildEnvelopeBaseOverrides & {
@@ -42,11 +42,9 @@ export type BuildSyntheticEnvelopeOverrides = BuildEnvelopeBaseOverrides & {
   syntheticDefinition: SyntheticDefinition
 }
 
-export type BuildEnvelopeOverrides =
-  | BuildFixtureEnvelopeOverrides
-  | BuildSyntheticEnvelopeOverrides
+export type BuildEnvelopeOverrides = BuildFixtureEnvelopeOverrides | BuildSyntheticEnvelopeOverrides
 
-const DEFAULT_FIXTURE_SCENARIO_SOURCE = { kind: 'fixture-app' } satisfies FixtureScenarioSource
+const DEFAULT_FIXTURE_SCENARIO_SOURCE = { kind: "fixture-app" } satisfies FixtureScenarioSource
 
 export function size(raw: number, gzip: number, brotli: number) {
   return { raw, gzip, brotli }
@@ -57,11 +55,11 @@ export function buildCiContext(
   overrides: Partial<CiContext> = {},
 ): CiContext {
   return {
-    provider: 'github-actions',
+    provider: "github-actions",
     workflowRunId,
     workflowRunAttempt: 1,
-    job: 'build',
-    actionVersion: 'v1',
+    job: "build",
+    actionVersion: "v1",
     ...overrides,
   }
 }
@@ -73,24 +71,25 @@ export function buildArtifact(overrides: BuildArtifactOverrides = {}): PluginArt
   }
 }
 
-export function buildEnvelope(
-  overrides: BuildEnvelopeOverrides = {},
-): UploadScenarioRunEnvelopeV1 {
-  const baseEnvelope: Extract<UploadScenarioRunEnvelopeV1, { scenarioSource: FixtureScenarioSource }> = {
+export function buildEnvelope(overrides: BuildEnvelopeOverrides = {}): UploadScenarioRunEnvelopeV1 {
+  const baseEnvelope: Extract<
+    UploadScenarioRunEnvelopeV1,
+    { scenarioSource: FixtureScenarioSource }
+  > = {
     schemaVersion: 1,
     artifact: buildSimpleArtifact(),
     repository: {
       githubRepoId: 123,
-      owner: 'acme',
-      name: 'widget',
+      owner: "acme",
+      name: "widget",
       installationId: 456,
     },
     git: {
       commitSha: DEFAULT_SHA,
-      branch: 'main',
+      branch: "main",
     },
     scenarioSource: DEFAULT_FIXTURE_SCENARIO_SOURCE,
-    ci: buildCiContext('999'),
+    ci: buildCiContext("999"),
   }
 
   if (isSyntheticEnvelopeOverrides(overrides)) {
@@ -112,10 +111,10 @@ export function buildEnvelope(
 }
 
 export function buildSimpleArtifact({
-  scenarioId = 'fixture-app-cost',
+  scenarioId = "fixture-app-cost",
   generatedAt = DEFAULT_GENERATED_AT,
-  chunkFileName = 'assets/main.js',
-  cssFileName = 'assets/main.css',
+  chunkFileName = "assets/main.js",
+  cssFileName = "assets/main.css",
   chunkSizes = size(123, 45, 38),
   cssSizes = size(10, 8, 6),
 }: {
@@ -128,27 +127,27 @@ export function buildSimpleArtifact({
 } = {}): PluginArtifactV1 {
   return {
     schemaVersion: 1,
-    pluginVersion: '0.1.0',
+    pluginVersion: "0.1.0",
     generatedAt,
     scenario: {
       id: scenarioId,
-      kind: 'fixture-app',
+      kind: "fixture-app",
     },
     build: {
-      bundler: 'vite',
-      bundlerVersion: '8.0.4',
-      rootDir: '/tmp/repo',
+      bundler: "vite",
+      bundlerVersion: "8.0.4",
+      rootDir: "/tmp/repo",
     },
     environments: [
       {
-        name: 'default',
+        name: "default",
         build: {
-          outDir: 'dist',
+          outDir: "dist",
         },
         manifest: {
-          'src/main.ts': {
+          "src/main.ts": {
             file: chunkFileName,
-            src: 'src/main.ts',
+            src: "src/main.ts",
             isEntry: true,
             css: [cssFileName],
           },
@@ -156,10 +155,10 @@ export function buildSimpleArtifact({
         chunks: [
           {
             fileName: chunkFileName,
-            name: 'main',
+            name: "main",
             isEntry: true,
             isDynamicEntry: false,
-            facadeModuleId: '/tmp/repo/src/main.ts',
+            facadeModuleId: "/tmp/repo/src/main.ts",
             imports: [],
             dynamicImports: [],
             implicitlyLoadedBefore: [],
@@ -167,7 +166,7 @@ export function buildSimpleArtifact({
             importedAssets: [],
             modules: [
               {
-                rawId: '/tmp/repo/src/main.ts',
+                rawId: "/tmp/repo/src/main.ts",
                 renderedLength: chunkSizes.raw,
                 originalLength: 456,
               },
@@ -178,7 +177,7 @@ export function buildSimpleArtifact({
         assets: [
           {
             fileName: cssFileName,
-            names: ['main.css'],
+            names: ["main.css"],
             needsCodeReference: false,
             sizes: cssSizes,
           },
@@ -193,5 +192,5 @@ function isSyntheticEnvelopeOverrides(
   overrides: BuildEnvelopeOverrides,
 ): overrides is BuildSyntheticEnvelopeOverrides {
   const kind = overrides.scenarioSource?.kind
-  return kind === 'repo-synthetic' || kind === 'hosted-synthetic'
+  return kind === "repo-synthetic" || kind === "hosted-synthetic"
 }

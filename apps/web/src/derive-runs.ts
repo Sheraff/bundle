@@ -10,17 +10,17 @@ import {
   type NormalizedEntrypointV1,
   type NormalizedSnapshotV1,
   type ScheduleComparisonsQueueMessage,
-} from '@workspace/contracts'
-import { and, eq } from 'drizzle-orm'
-import * as v from 'valibot'
-import { ulid } from 'ulid'
+} from "@workspace/contracts"
+import { and, eq } from "drizzle-orm"
+import * as v from "valibot"
+import { ulid } from "ulid"
 
-import { getDb, schema } from './db/index.js'
-import { selectOne } from './db/select-one.js'
-import type { AppBindings } from './env.js'
-import { getAppLogger, type AppLogger } from './logger.js'
-import { enqueueRefreshSummaries } from './summaries/refresh-queue.js'
-import { formatIssues } from './shared/format-issues.js'
+import { getDb, schema } from "./db/index.js"
+import { selectOne } from "./db/select-one.js"
+import type { AppBindings } from "./env.js"
+import { getAppLogger, type AppLogger } from "./logger.js"
+import { enqueueRefreshSummaries } from "./summaries/refresh-queue.js"
+import { formatIssues } from "./shared/format-issues.js"
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
 
@@ -33,14 +33,14 @@ interface SizeBreakdown {
 interface DerivedMeasurement {
   environment: string
   entrypointKey: string
-  entrypointKind: NormalizedEntrypointV1['kind']
+  entrypointKind: NormalizedEntrypointV1["kind"]
   lens: typeof DEFAULT_LENS_SLUG
   entryJs: SizeBreakdown
   directCss: SizeBreakdown
   total: SizeBreakdown
 }
 
-type QueueMessageLike<TBody> = Pick<Message<TBody>, 'ack' | 'retry' | 'body' | 'id' | 'attempts'>
+type QueueMessageLike<TBody> = Pick<Message<TBody>, "ack" | "retry" | "body" | "id" | "attempts">
 
 export async function handleDeriveRunQueue(
   batch: MessageBatch<unknown>,
@@ -61,7 +61,7 @@ export async function handleDeriveRunMessage(
   const messageResult = v.safeParse(deriveRunQueueMessageSchema, message.body)
 
   if (!messageResult.success) {
-    logger.error('Dropping invalid derive-run message', formatIssues(messageResult.issues))
+    logger.error("Dropping invalid derive-run message", formatIssues(messageResult.issues))
     message.ack()
     return
   }
@@ -81,7 +81,7 @@ export async function handleDeriveRunMessage(
       return
     }
 
-    logger.error('Retrying derive-run message after transient failure', error)
+    logger.error("Retrying derive-run message after transient failure", error)
     message.retry()
   }
 }
@@ -98,7 +98,7 @@ async function deriveScenarioRun(env: AppBindings, message: DeriveRunQueueMessag
 
   if (!scenarioRun) {
     throw new TerminalDeriveError(
-      'scenario_run_not_found',
+      "scenario_run_not_found",
       `Scenario run ${message.scenarioRunId} no longer exists.`,
       false,
     )
@@ -106,25 +106,25 @@ async function deriveScenarioRun(env: AppBindings, message: DeriveRunQueueMessag
 
   if (scenarioRun.repositoryId !== message.repositoryId) {
     throw new TerminalDeriveError(
-      'repository_mismatch',
+      "repository_mismatch",
       `Scenario run ${message.scenarioRunId} does not belong to repository ${message.repositoryId}.`,
     )
   }
 
-  if (scenarioRun.status === 'processed') {
+  if (scenarioRun.status === "processed") {
     await enqueueScheduleComparisons(env, scenarioRun.repositoryId, scenarioRun.id)
     await enqueueRefreshSummaries(
       env,
       scenarioRun.repositoryId,
       scenarioRun.commitGroupId,
-      'derive-replay',
+      "derive-replay",
     )
     return
   }
 
   if (!scenarioRun.normalizedSnapshotR2Key) {
     throw new TerminalDeriveError(
-      'normalized_snapshot_missing',
+      "normalized_snapshot_missing",
       `Scenario run ${scenarioRun.id} does not have a normalized snapshot key.`,
     )
   }
@@ -133,13 +133,16 @@ async function deriveScenarioRun(env: AppBindings, message: DeriveRunQueueMessag
     env.CACHE_BUCKET,
     scenarioRun.normalizedSnapshotR2Key,
     normalizedSnapshotV1Schema,
-    'normalized_snapshot_missing',
-    'invalid_normalized_snapshot',
+    "normalized_snapshot_missing",
+    "invalid_normalized_snapshot",
   )
 
-  if (snapshot.scenarioRunId !== scenarioRun.id || snapshot.repositoryId !== scenarioRun.repositoryId) {
+  if (
+    snapshot.scenarioRunId !== scenarioRun.id ||
+    snapshot.repositoryId !== scenarioRun.repositoryId
+  ) {
     throw new TerminalDeriveError(
-      'normalized_snapshot_mismatch',
+      "normalized_snapshot_mismatch",
       `Normalized snapshot ${scenarioRun.normalizedSnapshotR2Key} does not match scenario run ${scenarioRun.id}.`,
     )
   }
@@ -149,13 +152,20 @@ async function deriveScenarioRun(env: AppBindings, message: DeriveRunQueueMessag
 
   for (const measurement of measurements) {
     const seriesId = await upsertSeries(db, scenarioRun, measurement, timestamp)
-    await upsertSeriesPoint(db, scenarioRun, seriesId, measurement, snapshot.build.generatedAt, timestamp)
+    await upsertSeriesPoint(
+      db,
+      scenarioRun,
+      seriesId,
+      measurement,
+      snapshot.build.generatedAt,
+      timestamp,
+    )
   }
 
   await db
     .update(schema.scenarioRuns)
     .set({
-      status: 'processed',
+      status: "processed",
       failureCode: null,
       failureMessage: null,
       updatedAt: timestamp,
@@ -163,7 +173,7 @@ async function deriveScenarioRun(env: AppBindings, message: DeriveRunQueueMessag
     .where(eq(schema.scenarioRuns.id, scenarioRun.id))
 
   await enqueueScheduleComparisons(env, scenarioRun.repositoryId, scenarioRun.id)
-  await enqueueRefreshSummaries(env, scenarioRun.repositoryId, scenarioRun.commitGroupId, 'derived')
+  await enqueueRefreshSummaries(env, scenarioRun.repositoryId, scenarioRun.commitGroupId, "derived")
 }
 
 function buildSeriesMeasurements(snapshot: NormalizedSnapshotV1): DerivedMeasurement[] {
@@ -172,8 +182,11 @@ function buildSeriesMeasurements(snapshot: NormalizedSnapshotV1): DerivedMeasure
     const assetByFile = new Map(environment.assets.map((asset) => [asset.fileName, asset] as const))
 
     return environment.entrypoints.map((entrypoint) => {
-      const entryJs = sumChunkSizes(getEntrypointJavaScriptFiles(entrypoint, chunkByFile), chunkByFile)
-      const directCss = sumAssetSizes(entrypoint.importedCss, assetByFile, 'css')
+      const entryJs = sumChunkSizes(
+        getEntrypointJavaScriptFiles(entrypoint, chunkByFile),
+        chunkByFile,
+      )
+      const directCss = sumAssetSizes(entrypoint.importedCss, assetByFile, "css")
 
       return {
         environment: environment.name,
@@ -252,7 +265,7 @@ function emptySizeBreakdown(): SizeBreakdown {
 }
 
 function isJavaScriptFile(fileName: string) {
-  return ['.js', '.mjs', '.cjs'].some((extension) => fileName.endsWith(extension))
+  return [".js", ".mjs", ".cjs"].some((extension) => fileName.endsWith(extension))
 }
 
 async function upsertSeries(
@@ -324,7 +337,7 @@ async function upsertSeries(
       return concurrentSeries.id
     }
 
-    throw new Error('Could not create the series row for this scenario run.')
+    throw new Error("Could not create the series row for this scenario run.")
   }
 
   return createdSeriesId
@@ -412,7 +425,7 @@ async function upsertSeriesPoint(
       return concurrentSeriesPoint.id
     }
 
-    throw new Error('Could not create the series point row for this scenario run.')
+    throw new Error("Could not create the series point row for this scenario run.")
   }
 
   return createdSeriesPointId
@@ -472,7 +485,7 @@ async function markScenarioRunFailed(
   await getDb(env)
     .update(schema.scenarioRuns)
     .set({
-      status: 'failed',
+      status: "failed",
       failureCode,
       failureMessage,
       updatedAt: timestamp,
@@ -484,7 +497,7 @@ async function markScenarioRunFailed(
       env,
       failedScenarioRun.repositoryId,
       failedScenarioRun.commitGroupId,
-      'derive-failed',
+      "derive-failed",
     )
   }
 }
@@ -496,7 +509,7 @@ async function enqueueScheduleComparisons(
 ) {
   const messageResult = v.safeParse(scheduleComparisonsQueueMessageSchema, {
     schemaVersion: SCHEMA_VERSION_V1,
-    kind: 'schedule-comparisons',
+    kind: "schedule-comparisons",
     repositoryId,
     scenarioRunId,
     dedupeKey: `schedule-comparisons:${scenarioRunId}:v1`,
@@ -511,7 +524,7 @@ async function enqueueScheduleComparisons(
   const scheduleComparisonsMessage = messageResult.output as ScheduleComparisonsQueueMessage
 
   await env.SCHEDULE_COMPARISONS_QUEUE.send(scheduleComparisonsMessage, {
-    contentType: 'json',
+    contentType: "json",
   })
 }
 
@@ -526,6 +539,6 @@ class TerminalDeriveError extends Error {
     readonly persistFailure = true,
   ) {
     super(message)
-    this.name = 'TerminalDeriveError'
+    this.name = "TerminalDeriveError"
   }
 }

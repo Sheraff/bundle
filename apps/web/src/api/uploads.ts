@@ -1,38 +1,30 @@
-import { uploadScenarioRunEnvelopeV1Schema } from '@workspace/contracts'
-import type { Context, Hono } from 'hono'
-import * as v from 'valibot'
+import { uploadScenarioRunEnvelopeV1Schema } from "@workspace/contracts"
+import type { Context, Hono } from "hono"
+import * as v from "valibot"
 
-import type { AppEnv } from '../env.js'
-import { formatIssues } from '../shared/format-issues.js'
-import { acceptUpload } from '../uploads/accept-upload.js'
+import type { AppEnv } from "../env.js"
+import { formatIssues } from "../shared/format-issues.js"
+import { acceptUpload } from "../uploads/accept-upload.js"
 
 export function registerUploadRoutes(app: Hono<AppEnv>) {
-  app.post('/api/v1/uploads/scenario-runs', async (c) => {
-    const uploadToken = readBearerToken(c.req.header('authorization'))
+  app.post("/api/v1/uploads/scenario-runs", async (c) => {
+    const uploadToken = readBearerToken(c.req.header("authorization"))
 
     if (!uploadToken || uploadToken !== c.env.BUNDLE_UPLOAD_TOKEN) {
-      return jsonError(c, 401, 'unauthorized', 'The upload token is missing or invalid.')
+      return jsonError(c, 401, "unauthorized", "The upload token is missing or invalid.")
     }
 
     const rawRequestBody = await c.req.text()
     const parsedRequestBody = parseJsonBody(rawRequestBody)
 
     if (!parsedRequestBody.success) {
-      return jsonError(c, 400, 'invalid_json', 'The upload body must be valid JSON.')
+      return jsonError(c, 400, "invalid_json", "The upload body must be valid JSON.")
     }
 
-    const envelopeResult = v.safeParse(
-      uploadScenarioRunEnvelopeV1Schema,
-      parsedRequestBody.output,
-    )
+    const envelopeResult = v.safeParse(uploadScenarioRunEnvelopeV1Schema, parsedRequestBody.output)
 
     if (!envelopeResult.success) {
-      return jsonError(
-        c,
-        400,
-        'invalid_upload_envelope',
-        formatIssues(envelopeResult.issues),
-      )
+      return jsonError(c, 400, "invalid_upload_envelope", formatIssues(envelopeResult.issues))
     }
 
     const result = await acceptUpload(c.env, envelopeResult.output, rawRequestBody)
@@ -65,7 +57,7 @@ export function readBearerToken(authorizationHeader?: string) {
 
   const [scheme, token] = authorizationHeader.trim().split(/\s+/, 2)
 
-  if (scheme?.toLowerCase() !== 'bearer' || !token) {
+  if (scheme?.toLowerCase() !== "bearer" || !token) {
     return null
   }
 

@@ -1,4 +1,4 @@
-import type { ScenarioRunSummaryRow } from './types.js'
+import type { ScenarioRunSummaryRow } from "./types.js"
 
 export function groupScenarioRunsByScenarioId(scenarioRuns: ScenarioRunSummaryRow[]) {
   const runsByScenarioId = new Map<string, ScenarioRunSummaryRow[]>()
@@ -12,7 +12,9 @@ export function groupScenarioRunsByScenarioId(scenarioRuns: ScenarioRunSummaryRo
   return runsByScenarioId
 }
 
-export function selectActiveRunsByScenarioId(runsByScenarioId: Map<string, ScenarioRunSummaryRow[]>) {
+export function selectActiveRunsByScenarioId(
+  runsByScenarioId: Map<string, ScenarioRunSummaryRow[]>,
+) {
   const activeRunsByScenarioId = new Map<string, ScenarioRunSummaryRow>()
 
   for (const [scenarioId, runs] of runsByScenarioId.entries()) {
@@ -27,16 +29,16 @@ export function selectActiveRunsByScenarioId(runsByScenarioId: Map<string, Scena
 }
 
 export function selectActiveRun(scenarioRuns: ScenarioRunSummaryRow[]) {
-  return scenarioRuns.find((scenarioRun) => scenarioRun.status === 'processed') ?? null
+  return scenarioRuns.find((scenarioRun) => scenarioRun.status === "processed") ?? null
 }
 
 export function selectLatestFailedRun(scenarioRuns: ScenarioRunSummaryRow[]) {
-  return scenarioRuns.find((scenarioRun) => scenarioRun.status === 'failed') ?? null
+  return scenarioRuns.find((scenarioRun) => scenarioRun.status === "failed") ?? null
 }
 
 export function hasInFlightRun(scenarioRuns: ScenarioRunSummaryRow[]) {
   return scenarioRuns.some(
-    (scenarioRun) => scenarioRun.status === 'queued' || scenarioRun.status === 'processing',
+    (scenarioRun) => scenarioRun.status === "queued" || scenarioRun.status === "processing",
   )
 }
 

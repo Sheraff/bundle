@@ -237,7 +237,7 @@ type UploadScenarioRunEnvelopeV1 = {
     headRef: string
   }
   scenarioSource: {
-    kind: 'fixture-app' | 'repo-synthetic' | 'hosted-synthetic'
+    kind: "fixture-app" | "repo-synthetic" | "hosted-synthetic"
     hostedScenarioId?: string
   }
   syntheticDefinition?: {
@@ -245,7 +245,7 @@ type UploadScenarioRunEnvelopeV1 = {
     source: string
   }
   ci: {
-    provider: 'github-actions'
+    provider: "github-actions"
     workflowRunId: string
     workflowRunAttempt?: number
     job?: string

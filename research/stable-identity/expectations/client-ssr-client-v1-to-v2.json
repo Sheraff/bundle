@@ -21,10 +21,7 @@
       {
         "kind": "split",
         "from": "assets/browser-core-DuAyHwF7.js",
-        "to": [
-          "chunks/browser-format-DiMMf8jb.js",
-          "chunks/browser-shell-Dr01GPC6.js"
-        ]
+        "to": ["chunks/browser-format-DiMMf8jb.js", "chunks/browser-shell-Dr01GPC6.js"]
       }
     ],
     "css": [

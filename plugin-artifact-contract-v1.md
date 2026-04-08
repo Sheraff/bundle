@@ -134,10 +134,10 @@ interface PluginArtifactV1 {
   generatedAt: string
   scenario: {
     id: string
-    kind: 'fixture-app' | 'synthetic-import'
+    kind: "fixture-app" | "synthetic-import"
   }
   build: {
-    bundler: 'vite'
+    bundler: "vite"
     bundlerVersion: string
     rootDir: string
   }

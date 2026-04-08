@@ -1,8 +1,8 @@
-import { applyD1Migrations } from 'cloudflare:test'
-import { env } from 'cloudflare:workers'
-import { afterEach, beforeEach, expect, vi } from 'vitest'
+import { applyD1Migrations } from "cloudflare:test"
+import { env } from "cloudflare:workers"
+import { afterEach, beforeEach, expect, vi } from "vitest"
 
-import { noopLogger, setAppLoggerForTesting } from '../src/logger.js'
+import { noopLogger, setAppLoggerForTesting } from "../src/logger.js"
 
 interface QueueResultLike {
   ackAll: boolean
@@ -18,7 +18,7 @@ interface QueueResultLike {
 }
 
 expect.extend({
-  toBeAcknowledged(this: { isNot: boolean }, received: QueueResultLike, messageId = 'message-1') {
+  toBeAcknowledged(this: { isNot: boolean }, received: QueueResultLike, messageId = "message-1") {
     const pass =
       received.ackAll === false &&
       received.retryBatch.retry === false &&
@@ -29,10 +29,10 @@ expect.extend({
     return {
       pass,
       message: () =>
-        `Expected queue result ${this.isNot ? 'not ' : ''}to acknowledge message ${messageId}.\nReceived: ${JSON.stringify(received)}`,
+        `Expected queue result ${this.isNot ? "not " : ""}to acknowledge message ${messageId}.\nReceived: ${JSON.stringify(received)}`,
     }
   },
-  toBeRetried(this: { isNot: boolean }, received: QueueResultLike, messageId = 'message-1') {
+  toBeRetried(this: { isNot: boolean }, received: QueueResultLike, messageId = "message-1") {
     const pass =
       received.ackAll === false &&
       received.retryBatch.retry === false &&
@@ -43,7 +43,7 @@ expect.extend({
     return {
       pass,
       message: () =>
-        `Expected queue result ${this.isNot ? 'not ' : ''}to retry message ${messageId}.\nReceived: ${JSON.stringify(received)}`,
+        `Expected queue result ${this.isNot ? "not " : ""}to retry message ${messageId}.\nReceived: ${JSON.stringify(received)}`,
     }
   },
 })
@@ -54,19 +54,19 @@ beforeEach(async () => {
   await applyD1Migrations(env.DB, env.TEST_MIGRATIONS)
 
   for (const statement of [
-    'DELETE FROM github_publications',
-    'DELETE FROM pr_review_summaries',
-    'DELETE FROM commit_group_summaries',
-    'DELETE FROM acknowledgements',
-    'DELETE FROM budget_results',
-    'DELETE FROM comparisons',
-    'DELETE FROM series_points',
-    'DELETE FROM series',
-    'DELETE FROM scenario_runs',
-    'DELETE FROM commit_groups',
-    'DELETE FROM pull_requests',
-    'DELETE FROM scenarios',
-    'DELETE FROM repositories',
+    "DELETE FROM github_publications",
+    "DELETE FROM pr_review_summaries",
+    "DELETE FROM commit_group_summaries",
+    "DELETE FROM acknowledgements",
+    "DELETE FROM budget_results",
+    "DELETE FROM comparisons",
+    "DELETE FROM series_points",
+    "DELETE FROM series",
+    "DELETE FROM scenario_runs",
+    "DELETE FROM commit_groups",
+    "DELETE FROM pull_requests",
+    "DELETE FROM scenarios",
+    "DELETE FROM repositories",
   ]) {
     await env.DB.prepare(statement).run()
   }

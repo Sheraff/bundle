@@ -1,6 +1,6 @@
-import type { ComparePageSearchParams } from '@workspace/contracts'
+import type { ComparePageSearchParams } from "@workspace/contracts"
 
-import type { AppBindings } from '../../env.js'
+import type { AppBindings } from "../../env.js"
 
 import {
   buildNeutralCompareRows,
@@ -8,7 +8,7 @@ import {
   loadCommitGroupSummaryByHeadSha,
   requireRepository,
   selectNeutralRow,
-} from './shared.server.js'
+} from "./shared.server.js"
 
 export async function getNeutralComparePageData(
   env: AppBindings,
@@ -24,14 +24,15 @@ export async function getNeutralComparePageData(
   const contextMatchedRows = allRows.filter(
     (row) =>
       row.series.selectedHeadCommitSha === input.search.head &&
-      (row.series.selectedBaseCommitSha === input.search.base || row.series.requestedBaseSha === input.search.base),
+      (row.series.selectedBaseCommitSha === input.search.base ||
+        row.series.requestedBaseSha === input.search.base),
   )
   const neutralRows = filterNeutralRows(contextMatchedRows, input.search)
   const selectedNeutralRow = selectNeutralRow(neutralRows, input.search)
 
   return {
     repository,
-    mode: 'neutral' as const,
+    mode: "neutral" as const,
     contextMatched: contextMatchedRows.length > 0,
     latestSummary,
     latestReviewSummary: null,

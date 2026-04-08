@@ -1,18 +1,18 @@
-import { lazy, Suspense, useState } from 'react';
-import logoMark from './assets/logo-mark.svg';
+import { lazy, Suspense, useState } from "react"
+import logoMark from "./assets/logo-mark.svg"
 
-const Reports = lazy(() => import('./routes/Reports.jsx'));
-const Settings = lazy(() => import('./routes/Settings.jsx'));
+const Reports = lazy(() => import("./routes/Reports.jsx"))
+const Settings = lazy(() => import("./routes/Settings.jsx"))
 
 const routes = {
   reports: Reports,
   settings: Settings,
-};
+}
 
 export function App() {
-  const [route, setRoute] = useState('reports');
-  const CurrentRoute = routes[route];
-  const headline = route === 'reports' ? 'Release metrics' : 'Workspace defaults';
+  const [route, setRoute] = useState("reports")
+  const CurrentRoute = routes[route]
+  const headline = route === "reports" ? "Release metrics" : "Workspace defaults"
 
   return (
     <div className="app-shell">
@@ -28,10 +28,10 @@ export function App() {
       </header>
 
       <nav className="route-tabs" aria-label="Fixture routes">
-        <button onClick={() => setRoute('reports')} type="button">
+        <button onClick={() => setRoute("reports")} type="button">
           Reports
         </button>
-        <button onClick={() => setRoute('settings')} type="button">
+        <button onClick={() => setRoute("settings")} type="button">
           Settings
         </button>
       </nav>
@@ -40,5 +40,5 @@ export function App() {
         <CurrentRoute />
       </Suspense>
     </div>
-  );
+  )
 }

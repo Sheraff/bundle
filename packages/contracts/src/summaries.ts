@@ -1,4 +1,4 @@
-import * as v from 'valibot'
+import * as v from "valibot"
 
 import {
   gitShaSchema,
@@ -9,35 +9,28 @@ import {
   scenarioSlugSchema,
   schemaVersionV1Schema,
   ulidSchema,
-} from './shared.js'
+} from "./shared.js"
 
 const integerSchema = v.pipe(v.number(), v.integer())
 
-export const summaryComparisonKinds = ['branch-previous', 'pr-base'] as const
-export const summaryStatuses = ['pending', 'settled'] as const
+export const summaryComparisonKinds = ["branch-previous", "pr-base"] as const
+export const summaryStatuses = ["pending", "settled"] as const
 export const comparisonMetricKeys = [
-  'total-raw-bytes',
-  'total-gzip-bytes',
-  'total-brotli-bytes',
+  "total-raw-bytes",
+  "total-gzip-bytes",
+  "total-brotli-bytes",
 ] as const
-export const reviewItemStates = [
-  'blocking',
-  'regression',
-  'acknowledged',
-  'improvement',
-] as const
+export const reviewItemStates = ["blocking", "regression", "acknowledged", "improvement"] as const
 export const reviewSeriesStates = [
-  'blocking',
-  'regression',
-  'acknowledged',
-  'improvement',
-  'warning',
-  'neutral',
+  "blocking",
+  "regression",
+  "acknowledged",
+  "improvement",
+  "warning",
+  "neutral",
 ] as const
 
-const summaryComparisonKindSchema = v.union(
-  summaryComparisonKinds.map((kind) => v.literal(kind)),
-)
+const summaryComparisonKindSchema = v.union(summaryComparisonKinds.map((kind) => v.literal(kind)))
 const summaryStatusSchema = v.union(summaryStatuses.map((status) => v.literal(status)))
 const comparisonMetricKeySchema = v.union(
   comparisonMetricKeys.map((metricKey) => v.literal(metricKey)),
@@ -66,7 +59,7 @@ export const neutralComparisonItemSummaryV1Schema = v.strictObject({
   baselineValue: nonNegativeIntegerSchema,
   deltaValue: integerSchema,
   percentageDelta: v.number(),
-  direction: v.union([v.literal('regression'), v.literal('improvement')]),
+  direction: v.union([v.literal("regression"), v.literal("improvement")]),
 })
 
 const neutralComparisonSeriesBaseEntries = {
@@ -88,20 +81,20 @@ const neutralComparisonSeriesBaseEntries = {
   selectedEntrypointRelation: v.nullable(nonEmptyStringSchema),
 } as const
 
-export const neutralComparisonSeriesSummaryV1Schema = v.variant('status', [
+export const neutralComparisonSeriesSummaryV1Schema = v.variant("status", [
   v.strictObject({
     ...neutralComparisonSeriesBaseEntries,
-    status: v.literal('materialized'),
+    status: v.literal("materialized"),
     items: v.array(neutralComparisonItemSummaryV1Schema),
   }),
   v.strictObject({
     ...neutralComparisonSeriesBaseEntries,
-    status: v.literal('no-baseline'),
+    status: v.literal("no-baseline"),
     items: v.array(neutralComparisonItemSummaryV1Schema),
   }),
   v.strictObject({
     ...neutralComparisonSeriesBaseEntries,
-    status: v.literal('failed'),
+    status: v.literal("failed"),
     items: v.array(neutralComparisonItemSummaryV1Schema),
     failureCode: nonEmptyStringSchema,
     failureMessage: nonEmptyStringSchema,
@@ -119,17 +112,17 @@ export const freshCommitGroupScenarioSummaryV1Schema = v.strictObject({
   processedRunCount: nonNegativeIntegerSchema,
   failedRunCount: nonNegativeIntegerSchema,
   hasMultipleProcessedRuns: v.boolean(),
-   hasNewerFailedRun: v.boolean(),
-   latestFailedScenarioRunId: v.nullable(ulidSchema),
-   latestFailedAt: v.nullable(isoTimestampSchema),
-   latestFailureCode: v.nullable(nonEmptyStringSchema),
-   latestFailureMessage: v.nullable(nonEmptyStringSchema),
-   series: v.array(neutralComparisonSeriesSummaryV1Schema),
+  hasNewerFailedRun: v.boolean(),
+  latestFailedScenarioRunId: v.nullable(ulidSchema),
+  latestFailedAt: v.nullable(isoTimestampSchema),
+  latestFailureCode: v.nullable(nonEmptyStringSchema),
+  latestFailureMessage: v.nullable(nonEmptyStringSchema),
+  series: v.array(neutralComparisonSeriesSummaryV1Schema),
 })
 
-export const commitGroupStatusScenarioSummaryV1Schema = v.variant('state', [
+export const commitGroupStatusScenarioSummaryV1Schema = v.variant("state", [
   v.strictObject({
-    state: v.literal('inherited'),
+    state: v.literal("inherited"),
     scenarioId: ulidSchema,
     scenarioSlug: scenarioSlugSchema,
     sourceKind: nonEmptyStringSchema,
@@ -140,14 +133,14 @@ export const commitGroupStatusScenarioSummaryV1Schema = v.variant('state', [
     sourceUploadedAt: isoTimestampSchema,
   }),
   v.strictObject({
-    state: v.literal('missing'),
+    state: v.literal("missing"),
     scenarioId: ulidSchema,
     scenarioSlug: scenarioSlugSchema,
     sourceKind: nonEmptyStringSchema,
     reason: nonEmptyStringSchema,
   }),
   v.strictObject({
-    state: v.literal('failed'),
+    state: v.literal("failed"),
     scenarioId: ulidSchema,
     scenarioSlug: scenarioSlugSchema,
     sourceKind: nonEmptyStringSchema,
@@ -223,22 +216,22 @@ const reviewedComparisonSeriesBaseEntries = {
   reviewState: reviewSeriesStateSchema,
 } as const
 
-export const reviewedComparisonSeriesSummaryV1Schema = v.variant('status', [
+export const reviewedComparisonSeriesSummaryV1Schema = v.variant("status", [
   v.strictObject({
     ...reviewedComparisonSeriesBaseEntries,
-    status: v.literal('materialized'),
+    status: v.literal("materialized"),
     items: v.array(reviewedComparisonItemSummaryV1Schema),
     primaryItemKey: v.nullable(nonEmptyStringSchema),
   }),
   v.strictObject({
     ...reviewedComparisonSeriesBaseEntries,
-    status: v.literal('no-baseline'),
+    status: v.literal("no-baseline"),
     items: v.array(reviewedComparisonItemSummaryV1Schema),
     primaryItemKey: v.nullable(nonEmptyStringSchema),
   }),
   v.strictObject({
     ...reviewedComparisonSeriesBaseEntries,
-    status: v.literal('failed'),
+    status: v.literal("failed"),
     items: v.array(reviewedComparisonItemSummaryV1Schema),
     primaryItemKey: v.nullable(nonEmptyStringSchema),
     failureCode: nonEmptyStringSchema,
@@ -251,11 +244,11 @@ export const reviewedScenarioSummaryV1Schema = v.strictObject({
   scenarioSlug: scenarioSlugSchema,
   sourceKind: nonEmptyStringSchema,
   reviewState: reviewSeriesStateSchema,
-   hasNewerFailedRun: v.boolean(),
-   latestFailedScenarioRunId: v.nullable(ulidSchema),
-   latestFailedAt: v.nullable(isoTimestampSchema),
-   latestFailureCode: v.nullable(nonEmptyStringSchema),
-   latestFailureMessage: v.nullable(nonEmptyStringSchema),
+  hasNewerFailedRun: v.boolean(),
+  latestFailedScenarioRunId: v.nullable(ulidSchema),
+  latestFailedAt: v.nullable(isoTimestampSchema),
+  latestFailureCode: v.nullable(nonEmptyStringSchema),
+  latestFailureMessage: v.nullable(nonEmptyStringSchema),
   visibleSeriesId: v.nullable(ulidSchema),
   additionalChangedSeriesCount: nonNegativeIntegerSchema,
   acknowledgedItemCount: nonNegativeIntegerSchema,
@@ -290,11 +283,7 @@ export const prReviewSummaryV1Schema = v.strictObject({
   headSha: gitShaSchema,
   headRef: nonEmptyStringSchema,
   status: summaryStatusSchema,
-  overallState: v.union([
-    v.literal('pending'),
-    v.literal('failing'),
-    v.literal('passing'),
-  ]),
+  overallState: v.union([v.literal("pending"), v.literal("failing"), v.literal("passing")]),
   settledAt: v.nullable(isoTimestampSchema),
   counts: prReviewSummaryCountsV1Schema,
   scenarioGroups: v.array(reviewedScenarioSummaryV1Schema),
@@ -316,9 +305,7 @@ export type FreshCommitGroupScenarioSummaryV1 = v.InferOutput<
 export type CommitGroupStatusScenarioSummaryV1 = v.InferOutput<
   typeof commitGroupStatusScenarioSummaryV1Schema
 >
-export type CommitGroupSummaryCountsV1 = v.InferOutput<
-  typeof commitGroupSummaryCountsV1Schema
->
+export type CommitGroupSummaryCountsV1 = v.InferOutput<typeof commitGroupSummaryCountsV1Schema>
 export type CommitGroupSummaryV1 = v.InferOutput<typeof commitGroupSummaryV1Schema>
 export type ReviewedComparisonItemSummaryV1 = v.InferOutput<
   typeof reviewedComparisonItemSummaryV1Schema
@@ -326,8 +313,6 @@ export type ReviewedComparisonItemSummaryV1 = v.InferOutput<
 export type ReviewedComparisonSeriesSummaryV1 = v.InferOutput<
   typeof reviewedComparisonSeriesSummaryV1Schema
 >
-export type ReviewedScenarioSummaryV1 = v.InferOutput<
-  typeof reviewedScenarioSummaryV1Schema
->
+export type ReviewedScenarioSummaryV1 = v.InferOutput<typeof reviewedScenarioSummaryV1Schema>
 export type PrReviewSummaryCountsV1 = v.InferOutput<typeof prReviewSummaryCountsV1Schema>
 export type PrReviewSummaryV1 = v.InferOutput<typeof prReviewSummaryV1Schema>

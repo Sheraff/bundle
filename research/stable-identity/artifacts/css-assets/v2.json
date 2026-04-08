@@ -21,12 +21,8 @@
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
-      "css": [
-        "assets/palette-thread-zzV0Z8at.css"
-      ],
-      "assets": [
-        "assets/token-ring-MHHz0bBR.svg"
-      ]
+      "css": ["assets/palette-thread-zzV0Z8at.css"],
+      "assets": ["assets/token-ring-MHHz0bBR.svg"]
     },
     {
       "key": "_palette-thread-zzV0Z8at.css",
@@ -61,12 +57,8 @@
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
-      "css": [
-        "assets/shell-spine-BdxKV6TZ.css"
-      ],
-      "assets": [
-        "assets/shared-wave-jJ2Aq7t_.svg"
-      ]
+      "css": ["assets/shell-spine-BdxKV6TZ.css"],
+      "assets": ["assets/shared-wave-jJ2Aq7t_.svg"]
     },
     {
       "key": "src/assets/landing-banner.svg",
@@ -123,17 +115,10 @@
       "file": "assets/landing-ocOD1LKg.js",
       "isEntry": true,
       "isDynamicEntry": false,
-      "imports": [
-        "_palette-thread-C9j7480P.js",
-        "_shell-spine-voifiD_v.js"
-      ],
+      "imports": ["_palette-thread-C9j7480P.js", "_shell-spine-voifiD_v.js"],
       "dynamicImports": [],
-      "css": [
-        "assets/landing-BpXjN4nX.css"
-      ],
-      "assets": [
-        "assets/landing-banner-CajZ_G8P.svg"
-      ]
+      "css": ["assets/landing-BpXjN4nX.css"],
+      "assets": ["assets/landing-banner-CajZ_G8P.svg"]
     },
     {
       "key": "src/workbench.js",
@@ -142,17 +127,10 @@
       "file": "assets/workbench-Brrhnb8U.js",
       "isEntry": true,
       "isDynamicEntry": false,
-      "imports": [
-        "_palette-thread-C9j7480P.js",
-        "_shell-spine-voifiD_v.js"
-      ],
+      "imports": ["_palette-thread-C9j7480P.js", "_shell-spine-voifiD_v.js"],
       "dynamicImports": [],
-      "css": [
-        "assets/workbench-Btka3oE3.css"
-      ],
-      "assets": [
-        "assets/workbench-grid-ltRY96Ld.svg"
-      ]
+      "css": ["assets/workbench-Btka3oE3.css"],
+      "assets": ["assets/workbench-grid-ltRY96Ld.svg"]
     }
   ],
   "chunks": [
@@ -167,18 +145,11 @@
         "stableId": "src/landing.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/palette-thread-C9j7480P.js",
-        "assets/shell-spine-voifiD_v.js"
-      ],
+      "imports": ["assets/palette-thread-C9j7480P.js", "assets/shell-spine-voifiD_v.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/landing-BpXjN4nX.css"
-      ],
-      "importedAssets": [
-        "assets/landing-banner-CajZ_G8P.svg"
-      ],
+      "importedCss": ["assets/landing-BpXjN4nX.css"],
+      "importedAssets": ["assets/landing-banner-CajZ_G8P.svg"],
       "modules": [
         {
           "rawId": "src/landing.js",
@@ -197,10 +168,7 @@
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/landing.js",
-        "src/styles/landing.css"
-      ],
+      "moduleIds": ["src/landing.js", "src/styles/landing.css"],
       "sizes": {
         "raw": 488,
         "gzip": 344,
@@ -217,21 +185,15 @@
       "imports": [],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/palette-thread-zzV0Z8at.css"
-      ],
-      "importedAssets": [
-        "assets/token-ring-MHHz0bBR.svg"
-      ],
+      "importedCss": ["assets/palette-thread-zzV0Z8at.css"],
+      "importedAssets": ["assets/token-ring-MHHz0bBR.svg"],
       "modules": [
         {
           "rawId": "src/shared/mountTokens.js",
           "stableId": "src/shared/mountTokens.js",
           "scope": "app",
           "renderedLength": 256,
-          "renderedExports": [
-            "mountTokens"
-          ],
+          "renderedExports": ["mountTokens"],
           "removedExports": []
         },
         {
@@ -243,10 +205,7 @@
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/shared/mountTokens.js",
-        "src/styles/token-strip.css"
-      ],
+      "moduleIds": ["src/shared/mountTokens.js", "src/styles/token-strip.css"],
       "sizes": {
         "raw": 151,
         "gzip": 149,
@@ -263,21 +222,15 @@
       "imports": [],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/shell-spine-BdxKV6TZ.css"
-      ],
-      "importedAssets": [
-        "assets/shared-wave-jJ2Aq7t_.svg"
-      ],
+      "importedCss": ["assets/shell-spine-BdxKV6TZ.css"],
+      "importedAssets": ["assets/shared-wave-jJ2Aq7t_.svg"],
       "modules": [
         {
           "rawId": "src/shared/applyChrome.js",
           "stableId": "src/shared/applyChrome.js",
           "scope": "app",
           "renderedLength": 323,
-          "renderedExports": [
-            "applyChrome"
-          ],
+          "renderedExports": ["applyChrome"],
           "removedExports": []
         },
         {
@@ -285,9 +238,7 @@
           "stableId": "src/shared/renderShowcase.js",
           "scope": "app",
           "renderedLength": 319,
-          "renderedExports": [
-            "renderShowcase"
-          ],
+          "renderedExports": ["renderShowcase"],
           "removedExports": []
         },
         {
@@ -321,18 +272,11 @@
         "stableId": "src/workbench.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/palette-thread-C9j7480P.js",
-        "assets/shell-spine-voifiD_v.js"
-      ],
+      "imports": ["assets/palette-thread-C9j7480P.js", "assets/shell-spine-voifiD_v.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/workbench-Btka3oE3.css"
-      ],
-      "importedAssets": [
-        "assets/workbench-grid-ltRY96Ld.svg"
-      ],
+      "importedCss": ["assets/workbench-Btka3oE3.css"],
+      "importedAssets": ["assets/workbench-grid-ltRY96Ld.svg"],
       "modules": [
         {
           "rawId": "src/styles/workbench.css",
@@ -351,10 +295,7 @@
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/styles/workbench.css",
-        "src/workbench.js"
-      ],
+      "moduleIds": ["src/styles/workbench.css", "src/workbench.js"],
       "sizes": {
         "raw": 490,
         "gzip": 345,
@@ -366,12 +307,8 @@
     {
       "fileName": "assets/landing-banner-CajZ_G8P.svg",
       "kind": "svg",
-      "names": [
-        "landing-banner.svg"
-      ],
-      "originalFileNames": [
-        "src/assets/landing-banner.svg"
-      ],
+      "names": ["landing-banner.svg"],
+      "originalFileNames": ["src/assets/landing-banner.svg"],
       "sourceLength": 259,
       "sizes": {
         "raw": 259,
@@ -382,12 +319,8 @@
     {
       "fileName": "assets/landing-BpXjN4nX.css",
       "kind": "css",
-      "names": [
-        "landing.css"
-      ],
-      "originalFileNames": [
-        "src/landing.js"
-      ],
+      "names": ["landing.css"],
+      "originalFileNames": ["src/landing.js"],
       "sourceLength": 289,
       "sizes": {
         "raw": 277,
@@ -398,9 +331,7 @@
     {
       "fileName": "assets/palette-thread-zzV0Z8at.css",
       "kind": "css",
-      "names": [
-        "palette-thread.css"
-      ],
+      "names": ["palette-thread.css"],
       "originalFileNames": [],
       "sourceLength": 271,
       "sizes": {
@@ -412,12 +343,8 @@
     {
       "fileName": "assets/shared-wave-jJ2Aq7t_.svg",
       "kind": "svg",
-      "names": [
-        "shared-wave.svg"
-      ],
-      "originalFileNames": [
-        "src/assets/shared-wave.svg"
-      ],
+      "names": ["shared-wave.svg"],
+      "originalFileNames": ["src/assets/shared-wave.svg"],
       "sourceLength": 260,
       "sizes": {
         "raw": 260,
@@ -428,9 +355,7 @@
     {
       "fileName": "assets/shell-spine-BdxKV6TZ.css",
       "kind": "css",
-      "names": [
-        "shell-spine.css"
-      ],
+      "names": ["shell-spine.css"],
       "originalFileNames": [],
       "sourceLength": 713,
       "sizes": {
@@ -442,12 +367,8 @@
     {
       "fileName": "assets/token-ring-MHHz0bBR.svg",
       "kind": "svg",
-      "names": [
-        "token-ring.svg"
-      ],
-      "originalFileNames": [
-        "src/assets/token-ring.svg"
-      ],
+      "names": ["token-ring.svg"],
+      "originalFileNames": ["src/assets/token-ring.svg"],
       "sourceLength": 233,
       "sizes": {
         "raw": 233,
@@ -458,12 +379,8 @@
     {
       "fileName": "assets/workbench-Btka3oE3.css",
       "kind": "css",
-      "names": [
-        "workbench.css"
-      ],
-      "originalFileNames": [
-        "src/workbench.js"
-      ],
+      "names": ["workbench.css"],
+      "originalFileNames": ["src/workbench.js"],
       "sourceLength": 140,
       "sizes": {
         "raw": 128,
@@ -474,12 +391,8 @@
     {
       "fileName": "assets/workbench-grid-ltRY96Ld.svg",
       "kind": "svg",
-      "names": [
-        "workbench-grid.svg"
-      ],
-      "originalFileNames": [
-        "src/assets/workbench-grid.svg"
-      ],
+      "names": ["workbench-grid.svg"],
+      "originalFileNames": ["src/assets/workbench-grid.svg"],
       "sourceLength": 262,
       "sizes": {
         "raw": 262,

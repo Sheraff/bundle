@@ -21,12 +21,8 @@
       "isDynamicEntry": false,
       "imports": [],
       "dynamicImports": [],
-      "css": [
-        "assets/renderPanel-cTbAGsbM.css"
-      ],
-      "assets": [
-        "assets/surface-wave-BoMSz6Ws.svg"
-      ]
+      "css": ["assets/renderPanel-cTbAGsbM.css"],
+      "assets": ["assets/surface-wave-BoMSz6Ws.svg"]
     },
     {
       "key": "_renderPanel-cTbAGsbM.css",
@@ -48,13 +44,8 @@
       "isEntry": true,
       "isDynamicEntry": false,
       "imports": [],
-      "dynamicImports": [
-        "src/routes/insights.js",
-        "src/routes/settings.js"
-      ],
-      "css": [
-        "assets/main-DAnOSseC.css"
-      ],
+      "dynamicImports": ["src/routes/insights.js", "src/routes/settings.js"],
+      "css": ["assets/main-DAnOSseC.css"],
       "assets": []
     },
     {
@@ -76,9 +67,7 @@
       "file": "assets/insights-D5Kx50d7.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_renderPanel-CA7h9wpH.js"
-      ],
+      "imports": ["_renderPanel-CA7h9wpH.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -90,9 +79,7 @@
       "file": "assets/settings-C5VcZ79O.js",
       "isEntry": false,
       "isDynamicEntry": true,
-      "imports": [
-        "_renderPanel-CA7h9wpH.js"
-      ],
+      "imports": ["_renderPanel-CA7h9wpH.js"],
       "dynamicImports": [],
       "css": [],
       "assets": []
@@ -110,9 +97,7 @@
         "stableId": "src/routes/insights.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/renderPanel-CA7h9wpH.js"
-      ],
+      "imports": ["assets/renderPanel-CA7h9wpH.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -123,15 +108,11 @@
           "stableId": "src/routes/insights.js",
           "scope": "app",
           "renderedLength": 161,
-          "renderedExports": [
-            "renderInsights"
-          ],
+          "renderedExports": ["renderInsights"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/routes/insights.js"
-      ],
+      "moduleIds": ["src/routes/insights.js"],
       "sizes": {
         "raw": 156,
         "gzip": 145,
@@ -150,14 +131,9 @@
         "scope": "app"
       },
       "imports": [],
-      "dynamicImports": [
-        "assets/insights-D5Kx50d7.js",
-        "assets/settings-C5VcZ79O.js"
-      ],
+      "dynamicImports": ["assets/insights-D5Kx50d7.js", "assets/settings-C5VcZ79O.js"],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/main-DAnOSseC.css"
-      ],
+      "importedCss": ["assets/main-DAnOSseC.css"],
       "importedAssets": [],
       "modules": [
         {
@@ -181,17 +157,11 @@
           "stableId": "virtual:vite/preload-helper.js",
           "scope": "virtual",
           "renderedLength": 2104,
-          "renderedExports": [
-            "__vitePreload"
-          ],
+          "renderedExports": ["__vitePreload"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/main.js",
-        "src/ui/app.css",
-        "virtual:vite/preload-helper.js"
-      ],
+      "moduleIds": ["src/main.js", "src/ui/app.css", "virtual:vite/preload-helper.js"],
       "sizes": {
         "raw": 1748,
         "gzip": 937,
@@ -208,12 +178,8 @@
       "imports": [],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
-      "importedCss": [
-        "assets/renderPanel-cTbAGsbM.css"
-      ],
-      "importedAssets": [
-        "assets/surface-wave-BoMSz6Ws.svg"
-      ],
+      "importedCss": ["assets/renderPanel-cTbAGsbM.css"],
+      "importedAssets": ["assets/surface-wave-BoMSz6Ws.svg"],
       "modules": [
         {
           "rawId": "src/ui/panel.css",
@@ -228,16 +194,11 @@
           "stableId": "src/ui/renderPanel.js",
           "scope": "app",
           "renderedLength": 325,
-          "renderedExports": [
-            "renderPanel"
-          ],
+          "renderedExports": ["renderPanel"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/ui/panel.css",
-        "src/ui/renderPanel.js"
-      ],
+      "moduleIds": ["src/ui/panel.css", "src/ui/renderPanel.js"],
       "sizes": {
         "raw": 207,
         "gzip": 177,
@@ -255,9 +216,7 @@
         "stableId": "src/routes/settings.js",
         "scope": "app"
       },
-      "imports": [
-        "assets/renderPanel-CA7h9wpH.js"
-      ],
+      "imports": ["assets/renderPanel-CA7h9wpH.js"],
       "dynamicImports": [],
       "implicitlyLoadedBefore": [],
       "importedCss": [],
@@ -268,15 +227,11 @@
           "stableId": "src/routes/settings.js",
           "scope": "app",
           "renderedLength": 161,
-          "renderedExports": [
-            "renderSettings"
-          ],
+          "renderedExports": ["renderSettings"],
           "removedExports": []
         }
       ],
-      "moduleIds": [
-        "src/routes/settings.js"
-      ],
+      "moduleIds": ["src/routes/settings.js"],
       "sizes": {
         "raw": 156,
         "gzip": 145,
@@ -288,12 +243,8 @@
     {
       "fileName": "assets/main-DAnOSseC.css",
       "kind": "css",
-      "names": [
-        "main.css"
-      ],
-      "originalFileNames": [
-        "src/main.js"
-      ],
+      "names": ["main.css"],
+      "originalFileNames": ["src/main.js"],
       "sourceLength": 208,
       "sizes": {
         "raw": 196,
@@ -304,9 +255,7 @@
     {
       "fileName": "assets/renderPanel-cTbAGsbM.css",
       "kind": "css",
-      "names": [
-        "renderPanel.css"
-      ],
+      "names": ["renderPanel.css"],
       "originalFileNames": [],
       "sourceLength": 245,
       "sizes": {
@@ -318,12 +267,8 @@
     {
       "fileName": "assets/surface-wave-BoMSz6Ws.svg",
       "kind": "svg",
-      "names": [
-        "surface-wave.svg"
-      ],
-      "originalFileNames": [
-        "src/media/surface-wave.svg"
-      ],
+      "names": ["surface-wave.svg"],
+      "originalFileNames": ["src/media/surface-wave.svg"],
       "sourceLength": 259,
       "sizes": {
         "raw": 259,

@@ -7,7 +7,7 @@ import type {
   PublishGithubQueueMessage,
   RefreshSummariesQueueMessage,
   ScheduleComparisonsQueueMessage,
-} from '@workspace/contracts'
+} from "@workspace/contracts"
 
 export interface AppBindings {
   BUNDLE_UPLOAD_TOKEN: string
