@@ -9,7 +9,7 @@ import {
   getScenarioPageData,
 } from "../src/lib/public-read-models.server.js"
 import { buildCiContext, buildEnvelope, buildSimpleArtifact, size } from "./support/builders.js"
-import { insertRepository, insertScenario } from "./support/db-helpers.js"
+import { insertRepository } from "./support/db-helpers.js"
 import { dispatchQueueMessage, TEST_QUEUE_NAMES } from "./queue-test-helpers.js"
 import { createPipelineHarness } from "./support/pipeline-harness.js"
 

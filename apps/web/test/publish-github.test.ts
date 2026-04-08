@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import * as githubApi from "../src/github-api.js"
 import { buildCiContext, buildEnvelope, buildSimpleArtifact, size } from "./support/builders.js"
 import { createPipelineHarness } from "./support/pipeline-harness.js"
-import { sendUploadRequest, toRequestUrl } from "./support/request-helpers.js"
+import { toRequestUrl } from "./support/request-helpers.js"
 import { dispatchQueueMessage, TEST_QUEUE_NAMES } from "./queue-test-helpers.js"
 
 const baseSha = "0123456789abcdef0123456789abcdef01234567"
@@ -146,7 +146,7 @@ describe("GitHub publication worker", () => {
     fetchSpy.mockImplementationOnce(async () => Response.json([]))
     fetchSpy.mockImplementationOnce(async (input, init) =>
       Response.json({
-        body: JSON.parse(String(init?.body)).body,
+        body: parseJsonRequestBody(init).body,
         html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
         id: 101,
         node_id: "IC_kwDOA",
@@ -196,14 +196,14 @@ describe("GitHub publication worker", () => {
       const url = toRequestUrl(input)
       const method = init?.method ?? "GET"
       patchRequests.push({
-        body: init?.body ? JSON.parse(String(init.body)) : null,
+        body: init?.body ? parseJsonRequestBody(init) : null,
         method,
         url,
       })
 
       if (url.endsWith("/issues/comments/101") && method === "PATCH") {
         return Response.json({
-          body: JSON.parse(String(init?.body)).body,
+          body: parseJsonRequestBody(init).body,
           html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
           id: 101,
           node_id: "IC_kwDOA",
@@ -560,7 +560,7 @@ describe("GitHub publication worker", () => {
 
       if (url.endsWith("/issues/comments/101") && method === "PATCH") {
         return Response.json({
-          body: JSON.parse(String(init?.body)).body,
+          body: parseJsonRequestBody(init).body,
           html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
           id: 101,
           node_id: "IC_kwDOA",
@@ -577,12 +577,18 @@ describe("GitHub publication worker", () => {
 
     expect(secondPublish).toBeAcknowledged()
     expect(requests).toEqual([
-      { method: "PATCH", url: "https://api.github.com/repos/acme/widget/issues/comments/999" },
+      {
+        method: "PATCH",
+        url: "https://api.github.com/repos/acme/widget/issues/comments/999",
+      },
       {
         method: "GET",
         url: "https://api.github.com/repos/acme/widget/issues/42/comments?per_page=100",
       },
-      { method: "PATCH", url: "https://api.github.com/repos/acme/widget/issues/comments/101" },
+      {
+        method: "PATCH",
+        url: "https://api.github.com/repos/acme/widget/issues/comments/101",
+      },
     ])
 
     const commentPublication = await getGithubPublication("pr-comment")
@@ -647,8 +653,14 @@ describe("GitHub publication worker", () => {
 
     expect(secondPublish).toBeAcknowledged()
     expect(requests).toEqual([
-      { method: "PATCH", url: "https://api.github.com/repos/acme/widget/check-runs/999" },
-      { method: "POST", url: "https://api.github.com/repos/acme/widget/check-runs" },
+      {
+        method: "PATCH",
+        url: "https://api.github.com/repos/acme/widget/check-runs/999",
+      },
+      {
+        method: "POST",
+        url: "https://api.github.com/repos/acme/widget/check-runs",
+      },
     ])
 
     const checkPublication = await getGithubPublication("pr-check")
@@ -706,7 +718,7 @@ describe("GitHub publication worker", () => {
     )
     await harness.drainRefresh()
 
-    const instances = await introspector.get()
+    const instances = introspector.get()
     expect(instances).toHaveLength(1)
     await expect(instances[0]?.waitForStatus("complete")).resolves.not.toThrow()
     expect(publishSendSpy).toHaveBeenCalledTimes(1)
@@ -820,7 +832,7 @@ function mockInitialCreateGithubResponses(fetchSpy: ReturnType<typeof vi.spyOn>)
   fetchSpy.mockImplementationOnce(async () => Response.json([]))
   fetchSpy.mockImplementationOnce(async (_input: Request | string | URL, init?: RequestInit) =>
     Response.json({
-      body: JSON.parse(String(init?.body)).body,
+      body: parseJsonRequestBody(init).body,
       html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
       id: 101,
       node_id: "IC_kwDOA",
@@ -833,4 +845,12 @@ function mockInitialCreateGithubResponses(fetchSpy: ReturnType<typeof vi.spyOn>)
       node_id: "CR_kwDOA",
     }),
   )
+}
+
+function parseJsonRequestBody(init?: RequestInit) {
+  if (typeof init?.body !== "string") {
+    throw new Error("Expected a JSON string request body")
+  }
+
+  return JSON.parse(init.body) as { body?: unknown }
 }

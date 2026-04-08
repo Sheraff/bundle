@@ -5,7 +5,6 @@ import {
   type FreshCommitGroupScenarioSummaryV1,
   type NeutralComparisonItemSummaryV1,
   type NeutralComparisonSeriesSummaryV1,
-  type PrReviewSummaryV1,
   type ReviewItemState,
   type ReviewSeriesState,
   type ReviewedComparisonItemSummaryV1,

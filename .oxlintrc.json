@@ -1,11 +1,15 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "options": {
+    "typeAware": true
+  },
   "categories": {
     "correctness": "error"
   },
   "ignorePatterns": [
     "apps/web/drizzle/meta/**",
     "**/routeTree.gen.ts",
-    "**/worker-configuration.d.ts"
+    "**/worker-configuration.d.ts",
+    "research/**"
   ]
 }

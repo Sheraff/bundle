@@ -6,7 +6,6 @@ import { buildEnvelope, buildSimpleArtifact, size } from "./support/builders.js"
 import { countRows } from "./support/db-helpers.js"
 import { sendUploadRequest } from "./support/request-helpers.js"
 
-const sha = "0123456789abcdef0123456789abcdef01234567"
 const secondSha = "1111111111111111111111111111111111111111"
 
 describe("derive-run queue handling", () => {

@@ -6,7 +6,7 @@ import {
   type FreshCommitGroupScenarioSummaryV1,
   type NeutralComparisonSeriesSummaryV1,
 } from "@workspace/contracts"
-import { and, asc, desc, eq } from "drizzle-orm"
+import { asc, desc, eq } from "drizzle-orm"
 import * as v from "valibot"
 
 import { getDb, schema } from "../db/index.js"

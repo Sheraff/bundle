@@ -45,8 +45,8 @@ describe("runAction", () => {
 
     let uploadedBody = ""
     const fetchMock = vi.fn<typeof fetch>(async (input, init) => {
-      uploadedBody = String(init?.body ?? "")
-      expect(String(input)).toBe("https://bundle.example.com/api/v1/uploads/scenario-runs")
+      uploadedBody = requireRequestBodyText(init)
+      expect(toRequestUrl(input)).toBe("https://bundle.example.com/api/v1/uploads/scenario-runs")
       return new Response('{"ok":true}', { status: 202 })
     })
 
@@ -158,7 +158,7 @@ describe("runAction", () => {
 
     let uploadedBody = ""
     const fetchMock = vi.fn<typeof fetch>(async (_, init) => {
-      uploadedBody = String(init?.body ?? "")
+      uploadedBody = requireRequestBodyText(init)
       return new Response('{"ok":true}', { status: 202 })
     })
 
@@ -218,6 +218,22 @@ async function writeFiles(rootDirectory: string, files: Record<string, string>) 
       await fs.writeFile(filePath, contents)
     }),
   )
+}
+
+function toRequestUrl(input: Parameters<typeof fetch>[0]) {
+  if (typeof input === "string") {
+    return input
+  }
+
+  return input instanceof URL ? input.toString() : input.url
+}
+
+function requireRequestBodyText(init?: RequestInit) {
+  if (typeof init?.body !== "string") {
+    throw new Error("Expected a string request body")
+  }
+
+  return init.body
 }
 
 async function createActionEnvironment(workingDirectory: string) {

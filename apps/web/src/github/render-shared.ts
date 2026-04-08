@@ -1,5 +1,4 @@
 import type {
-  ReviewedComparisonItemSummaryV1,
   ReviewedComparisonSeriesSummaryV1,
   ReviewedScenarioSummaryV1,
 } from "@workspace/contracts"
