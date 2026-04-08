@@ -1,0 +1,6 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "sortPackageJson": false,
+  "semi": false,
+  "ignorePatterns": ["apps/web/drizzle/meta", "routeTree.gen.ts", "worker-configuration.d.ts"]
+}
