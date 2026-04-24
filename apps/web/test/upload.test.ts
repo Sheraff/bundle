@@ -588,12 +588,11 @@ describe("POST /api/v1/uploads/scenario-runs", () => {
     const prepareSpy = vi.spyOn(env.DB, "prepare").mockImplementation((query) => {
       prepareCallCount += 1
 
-      if (prepareCallCount > 2 && typeof query === "string") {
-        // if (
-        //   prepareCallCount > 1 &&
-        //   typeof query === "string" &&
-        //   !query.toLowerCase().includes('delete from "scenario_runs"')
-        // ) {
+      if (
+        prepareCallCount > 2 &&
+        typeof query === "string" &&
+        !query.toLowerCase().includes('delete from "scenario_runs"')
+      ) {
         throw new Error("d1 unavailable")
       }
 
