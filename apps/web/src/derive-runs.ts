@@ -9,7 +9,6 @@ import {
   type NormalizedChunkV1,
   type NormalizedEntrypointV1,
   type NormalizedSnapshotV1,
-  type ScheduleComparisonsQueueMessage,
 } from "@workspace/contracts"
 import { and, eq } from "drizzle-orm"
 import * as v from "valibot"
@@ -21,6 +20,7 @@ import type { AppBindings } from "./env.js"
 import { getAppLogger, type AppLogger } from "./logger.js"
 import { enqueueRefreshSummaries } from "./summaries/refresh-queue.js"
 import { formatIssues } from "./shared/format-issues.js"
+import { recoverConcurrentInsert } from "./shared/recover-concurrent-insert.js"
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
 
@@ -303,44 +303,41 @@ async function upsertSeries(
   }
 
   const createdSeriesId = ulid()
+  const result = await recoverConcurrentInsert({
+    create: () =>
+      db.insert(schema.series).values({
+        id: createdSeriesId,
+        repositoryId: scenarioRun.repositoryId,
+        scenarioId: scenarioRun.scenarioId,
+        environment: measurement.environment,
+        entrypointKey: measurement.entrypointKey,
+        entrypointKind: measurement.entrypointKind,
+        lens: measurement.lens,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      }),
+    recover: () =>
+      selectOne(
+        db
+          .select({ id: schema.series.id })
+          .from(schema.series)
+          .where(
+            and(
+              eq(schema.series.repositoryId, scenarioRun.repositoryId),
+              eq(schema.series.scenarioId, scenarioRun.scenarioId),
+              eq(schema.series.environment, measurement.environment),
+              eq(schema.series.entrypointKey, measurement.entrypointKey),
+              eq(schema.series.lens, measurement.lens),
+            ),
+          )
+          .limit(1),
+      ),
+    createErrorMessage: "Could not create the series row for this scenario run.",
+    recoverErrorMessage:
+      "Could not recover the series row for this scenario run after insert failure.",
+  })
 
-  try {
-    await db.insert(schema.series).values({
-      id: createdSeriesId,
-      repositoryId: scenarioRun.repositoryId,
-      scenarioId: scenarioRun.scenarioId,
-      environment: measurement.environment,
-      entrypointKey: measurement.entrypointKey,
-      entrypointKind: measurement.entrypointKind,
-      lens: measurement.lens,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    })
-  } catch {
-    const concurrentSeries = await selectOne(
-      db
-        .select({ id: schema.series.id })
-        .from(schema.series)
-        .where(
-          and(
-            eq(schema.series.repositoryId, scenarioRun.repositoryId),
-            eq(schema.series.scenarioId, scenarioRun.scenarioId),
-            eq(schema.series.environment, measurement.environment),
-            eq(schema.series.entrypointKey, measurement.entrypointKey),
-            eq(schema.series.lens, measurement.lens),
-          ),
-        )
-        .limit(1),
-    )
-
-    if (concurrentSeries) {
-      return concurrentSeries.id
-    }
-
-    throw new Error("Could not create the series row for this scenario run.")
-  }
-
-  return createdSeriesId
+  return result.status === "created" ? createdSeriesId : result.value.id
 }
 
 async function upsertSeriesPoint(
@@ -395,40 +392,40 @@ async function upsertSeriesPoint(
   }
 
   const createdSeriesPointId = ulid()
-
-  try {
-    await db.insert(schema.seriesPoints).values({
-      id: createdSeriesPointId,
-      ...values,
-      createdAt: timestamp,
-    })
-  } catch {
-    const concurrentSeriesPoint = await selectOne(
-      db
-        .select({ id: schema.seriesPoints.id })
-        .from(schema.seriesPoints)
-        .where(
-          and(
-            eq(schema.seriesPoints.seriesId, seriesId),
-            eq(schema.seriesPoints.scenarioRunId, scenarioRun.id),
-          ),
-        )
-        .limit(1),
-    )
-
-    if (concurrentSeriesPoint) {
+  const result = await recoverConcurrentInsert({
+    create: () =>
+      db.insert(schema.seriesPoints).values({
+        id: createdSeriesPointId,
+        ...values,
+        createdAt: timestamp,
+      }),
+    recover: () =>
+      selectOne(
+        db
+          .select({ id: schema.seriesPoints.id })
+          .from(schema.seriesPoints)
+          .where(
+            and(
+              eq(schema.seriesPoints.seriesId, seriesId),
+              eq(schema.seriesPoints.scenarioRunId, scenarioRun.id),
+            ),
+          )
+          .limit(1),
+      ),
+    onRecovered: async (concurrentSeriesPoint) => {
       await db
         .update(schema.seriesPoints)
         .set(values)
         .where(eq(schema.seriesPoints.id, concurrentSeriesPoint.id))
+    },
+    createErrorMessage: "Could not create the series point row for this scenario run.",
+    recoverErrorMessage:
+      "Could not recover the series point row for this scenario run after insert failure.",
+    reconcileErrorMessage:
+      "Could not reconcile the recovered series point row for this scenario run.",
+  })
 
-      return concurrentSeriesPoint.id
-    }
-
-    throw new Error("Could not create the series point row for this scenario run.")
-  }
-
-  return createdSeriesPointId
+  return result.status === "created" ? createdSeriesPointId : result.value.id
 }
 
 async function readStoredJson<TSchema extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(
@@ -449,8 +446,10 @@ async function readStoredJson<TSchema extends v.BaseSchema<unknown, unknown, v.B
 
   try {
     parsedValue = JSON.parse(storedText)
-  } catch {
-    throw new TerminalDeriveError(invalidCode, `${key} did not contain valid JSON.`)
+  } catch (error) {
+    throw new TerminalDeriveError(invalidCode, `${key} did not contain valid JSON.`, true, {
+      cause: error,
+    })
   }
 
   const result = v.safeParse(dataSchema, parsedValue)
@@ -521,9 +520,7 @@ async function enqueueScheduleComparisons(
     )
   }
 
-  const scheduleComparisonsMessage = messageResult.output as ScheduleComparisonsQueueMessage
-
-  await env.SCHEDULE_COMPARISONS_QUEUE.send(scheduleComparisonsMessage, {
+  await env.SCHEDULE_COMPARISONS_QUEUE.send(messageResult.output, {
     contentType: "json",
   })
 }
@@ -537,8 +534,9 @@ class TerminalDeriveError extends Error {
     readonly code: string,
     message: string,
     readonly persistFailure = true,
+    options?: ErrorOptions,
   ) {
-    super(message)
+    super(message, options)
     this.name = "TerminalDeriveError"
   }
 }

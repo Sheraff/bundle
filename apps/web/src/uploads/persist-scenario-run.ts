@@ -8,6 +8,7 @@ import { ulid } from "ulid"
 
 import { getDb, schema } from "../db/index.js"
 import { selectOne } from "../db/select-one.js"
+import { recoverConcurrentInsert } from "../shared/recover-concurrent-insert.js"
 
 import type { StoredUploadTexts } from "./raw-upload-storage.js"
 
@@ -97,36 +98,31 @@ async function upsertRepository(db: AppDb, repository: RepositoryContext, timest
   }
 
   const createdRepositoryId = ulid()
+  const result = await recoverConcurrentInsert({
+    create: () =>
+      db.insert(schema.repositories).values({
+        id: createdRepositoryId,
+        githubRepoId: repository.githubRepoId,
+        owner: repository.owner,
+        name: repository.name,
+        installationId: repository.installationId,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      }),
+    recover: () =>
+      selectOne(
+        db
+          .select({ id: schema.repositories.id })
+          .from(schema.repositories)
+          .where(eq(schema.repositories.githubRepoId, repository.githubRepoId))
+          .limit(1),
+      ),
+    createErrorMessage: "Could not create the repository row for this upload.",
+    recoverErrorMessage:
+      "Could not recover the repository row for this upload after insert failure.",
+  })
 
-  try {
-    await db.insert(schema.repositories).values({
-      id: createdRepositoryId,
-      githubRepoId: repository.githubRepoId,
-      owner: repository.owner,
-      name: repository.name,
-      installationId: repository.installationId,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    })
-  } catch {
-    const concurrentRepository = await selectOne(
-      db
-        .select({ id: schema.repositories.id })
-        .from(schema.repositories)
-        .where(eq(schema.repositories.githubRepoId, repository.githubRepoId))
-        .limit(1),
-    )
-
-    if (concurrentRepository) {
-      return concurrentRepository
-    }
-
-    throw new Error("Could not create the repository row for this upload.")
-  }
-
-  return {
-    id: createdRepositoryId,
-  }
+  return result.status === "created" ? { id: createdRepositoryId } : result.value
 }
 
 async function upsertScenario(
@@ -161,40 +157,34 @@ async function upsertScenario(
   }
 
   const createdScenarioId = ulid()
+  const result = await recoverConcurrentInsert({
+    create: () =>
+      db.insert(schema.scenarios).values({
+        id: createdScenarioId,
+        repositoryId,
+        slug: envelope.artifact.scenario.id,
+        sourceKind: envelope.scenarioSource.kind,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      }),
+    recover: () =>
+      selectOne(
+        db
+          .select({ id: schema.scenarios.id })
+          .from(schema.scenarios)
+          .where(
+            and(
+              eq(schema.scenarios.repositoryId, repositoryId),
+              eq(schema.scenarios.slug, envelope.artifact.scenario.id),
+            ),
+          )
+          .limit(1),
+      ),
+    createErrorMessage: "Could not create the scenario row for this upload.",
+    recoverErrorMessage: "Could not recover the scenario row for this upload after insert failure.",
+  })
 
-  try {
-    await db.insert(schema.scenarios).values({
-      id: createdScenarioId,
-      repositoryId,
-      slug: envelope.artifact.scenario.id,
-      sourceKind: envelope.scenarioSource.kind,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    })
-  } catch {
-    const concurrentScenario = await selectOne(
-      db
-        .select({ id: schema.scenarios.id })
-        .from(schema.scenarios)
-        .where(
-          and(
-            eq(schema.scenarios.repositoryId, repositoryId),
-            eq(schema.scenarios.slug, envelope.artifact.scenario.id),
-          ),
-        )
-        .limit(1),
-    )
-
-    if (concurrentScenario) {
-      return concurrentScenario
-    }
-
-    throw new Error("Could not create the scenario row for this upload.")
-  }
-
-  return {
-    id: createdScenarioId,
-  }
+  return result.status === "created" ? { id: createdScenarioId } : result.value
 }
 
 async function upsertPullRequest(
@@ -232,43 +222,38 @@ async function upsertPullRequest(
   }
 
   const createdPullRequestId = ulid()
+  const result = await recoverConcurrentInsert({
+    create: () =>
+      db.insert(schema.pullRequests).values({
+        id: createdPullRequestId,
+        repositoryId,
+        prNumber: pullRequest.number,
+        baseSha: pullRequest.baseSha,
+        baseRef: pullRequest.baseRef,
+        headSha: pullRequest.headSha,
+        headRef: pullRequest.headRef,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      }),
+    recover: () =>
+      selectOne(
+        db
+          .select({ id: schema.pullRequests.id })
+          .from(schema.pullRequests)
+          .where(
+            and(
+              eq(schema.pullRequests.repositoryId, repositoryId),
+              eq(schema.pullRequests.prNumber, pullRequest.number),
+            ),
+          )
+          .limit(1),
+      ),
+    createErrorMessage: "Could not create the pull request row for this upload.",
+    recoverErrorMessage:
+      "Could not recover the pull request row for this upload after insert failure.",
+  })
 
-  try {
-    await db.insert(schema.pullRequests).values({
-      id: createdPullRequestId,
-      repositoryId,
-      prNumber: pullRequest.number,
-      baseSha: pullRequest.baseSha,
-      baseRef: pullRequest.baseRef,
-      headSha: pullRequest.headSha,
-      headRef: pullRequest.headRef,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    })
-  } catch {
-    const concurrentPullRequest = await selectOne(
-      db
-        .select({ id: schema.pullRequests.id })
-        .from(schema.pullRequests)
-        .where(
-          and(
-            eq(schema.pullRequests.repositoryId, repositoryId),
-            eq(schema.pullRequests.prNumber, pullRequest.number),
-          ),
-        )
-        .limit(1),
-    )
-
-    if (concurrentPullRequest) {
-      return concurrentPullRequest
-    }
-
-    throw new Error("Could not create the pull request row for this upload.")
-  }
-
-  return {
-    id: createdPullRequestId,
-  }
+  return result.status === "created" ? { id: createdPullRequestId } : result.value
 }
 
 async function upsertCommitGroup(
@@ -313,41 +298,36 @@ async function upsertCommitGroup(
   }
 
   const createdCommitGroupId = ulid()
+  const result = await recoverConcurrentInsert({
+    create: () =>
+      db.insert(schema.commitGroups).values({
+        id: createdCommitGroupId,
+        repositoryId,
+        pullRequestId,
+        commitSha,
+        branch,
+        status: "pending",
+        latestUploadAt: timestamp,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      }),
+    recover: () =>
+      selectOne(
+        db
+          .select({ id: schema.commitGroups.id })
+          .from(schema.commitGroups)
+          .where(
+            and(
+              eq(schema.commitGroups.repositoryId, repositoryId),
+              eq(schema.commitGroups.commitSha, commitSha),
+            ),
+          )
+          .limit(1),
+      ),
+    createErrorMessage: "Could not create the commit-group row for this upload.",
+    recoverErrorMessage:
+      "Could not recover the commit-group row for this upload after insert failure.",
+  })
 
-  try {
-    await db.insert(schema.commitGroups).values({
-      id: createdCommitGroupId,
-      repositoryId,
-      pullRequestId,
-      commitSha,
-      branch,
-      status: "pending",
-      latestUploadAt: timestamp,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    })
-  } catch {
-    const concurrentCommitGroup = await selectOne(
-      db
-        .select({ id: schema.commitGroups.id })
-        .from(schema.commitGroups)
-        .where(
-          and(
-            eq(schema.commitGroups.repositoryId, repositoryId),
-            eq(schema.commitGroups.commitSha, commitSha),
-          ),
-        )
-        .limit(1),
-    )
-
-    if (concurrentCommitGroup) {
-      return concurrentCommitGroup
-    }
-
-    throw new Error("Could not create the commit-group row for this upload.")
-  }
-
-  return {
-    id: createdCommitGroupId,
-  }
+  return result.status === "created" ? { id: createdCommitGroupId } : result.value
 }

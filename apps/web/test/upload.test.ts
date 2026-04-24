@@ -7,6 +7,7 @@ import {
 import { describe, expect, it, vi } from "vitest"
 import * as v from "valibot"
 
+import { setAppLoggerForTesting, type AppLogger } from "../src/logger.js"
 import {
   buildArtifact,
   buildCiContext,
@@ -248,7 +249,8 @@ describe("POST /api/v1/uploads/scenario-runs", () => {
   })
 
   it("rolls back the scenario run when queue send fails so retries can enqueue again", async () => {
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    const logger = buildLogger()
+    setAppLoggerForTesting(logger)
     const sendSpy = vi
       .spyOn(env.NORMALIZE_RUN_QUEUE, "send")
       .mockRejectedValueOnce(new Error("queue unavailable"))
@@ -261,7 +263,19 @@ describe("POST /api/v1/uploads/scenario-runs", () => {
     expect(firstResponse.status).toBe(503)
     expect(firstResponseBody.error?.code).toBe("normalize_queue_unavailable")
     expect(await countRows("scenario_runs")).toBe(0)
-    expect(consoleErrorSpy).not.toHaveBeenCalled()
+    expect(logger.error).toHaveBeenCalledTimes(1)
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to schedule follow-up upload processing",
+      expect.objectContaining({
+        commitGroupId: expect.any(String),
+        rawArtifactR2Key: expect.stringContaining(`/scenario-runs/`),
+        rawEnvelopeR2Key: expect.stringContaining(`/scenario-runs/`),
+        repositoryId: expect.any(String),
+        scenarioRunId: expect.any(String),
+        uploadDedupeKey: expect.any(String),
+      }),
+      expect.any(Error),
+    )
 
     const secondResponse = await sendUploadRequest(buildEnvelope())
     const secondBodyResult = v.safeParse(
@@ -525,7 +539,8 @@ describe("POST /api/v1/uploads/scenario-runs", () => {
   })
 
   it("cleans up raw uploads and returns a handled error when the second R2 write fails", async () => {
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    const logger = buildLogger()
+    setAppLoggerForTesting(logger)
     const originalPut = env.RAW_UPLOADS_BUCKET.put.bind(env.RAW_UPLOADS_BUCKET)
     let putCallCount = 0
 
@@ -549,13 +564,24 @@ describe("POST /api/v1/uploads/scenario-runs", () => {
     expect(responseBody.error?.code).toBe("raw_upload_storage_unavailable")
     expect(await countRows("scenario_runs")).toBe(0)
     expect(listedObjects.objects).toHaveLength(0)
-    expect(consoleErrorSpy).not.toHaveBeenCalled()
+    expect(logger.error).toHaveBeenCalledTimes(1)
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to persist raw upload objects",
+      expect.objectContaining({
+        rawArtifactR2Key: expect.stringContaining(`/scenario-runs/`),
+        rawEnvelopeR2Key: expect.stringContaining(`/scenario-runs/`),
+        scenarioRunId: expect.any(String),
+        uploadDedupeKey: expect.any(String),
+      }),
+      expect.any(Error),
+    )
   })
 
   it("cleans up raw uploads and returns a handled error when D1 fails after raw persistence", async () => {
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
     const envelope = buildEnvelope()
     const token = await createTestUploadToken(envelope)
+    const logger = buildLogger()
+    setAppLoggerForTesting(logger)
     const originalPrepare = env.DB.prepare.bind(env.DB)
     let prepareCallCount = 0
 
@@ -563,6 +589,11 @@ describe("POST /api/v1/uploads/scenario-runs", () => {
       prepareCallCount += 1
 
       if (prepareCallCount > 2 && typeof query === "string") {
+        // if (
+        //   prepareCallCount > 1 &&
+        //   typeof query === "string" &&
+        //   !query.toLowerCase().includes('delete from "scenario_runs"')
+        // ) {
         throw new Error("d1 unavailable")
       }
 
@@ -582,7 +613,65 @@ describe("POST /api/v1/uploads/scenario-runs", () => {
     expect(responseBody.error?.code).toBe("upload_persistence_failed")
     expect(await countRows("scenario_runs")).toBe(0)
     expect(listedObjects.objects).toHaveLength(0)
-    expect(consoleErrorSpy).not.toHaveBeenCalled()
+    expect(logger.error).toHaveBeenCalledTimes(1)
+    expect(logger.error).toHaveBeenCalledWith(
+      "Failed to persist upload metadata",
+      expect.objectContaining({
+        rawArtifactR2Key: expect.stringContaining(`/scenario-runs/`),
+        rawEnvelopeR2Key: expect.stringContaining(`/scenario-runs/`),
+        scenarioRunId: expect.any(String),
+        uploadDedupeKey: expect.any(String),
+      }),
+      expect.any(Error),
+    )
+  })
+
+  it("logs cleanup failures when rollback cannot delete the scenario run row", async () => {
+    const logger = buildLogger()
+    setAppLoggerForTesting(logger)
+    const originalPrepare = env.DB.prepare.bind(env.DB)
+
+    vi.spyOn(env.NORMALIZE_RUN_QUEUE, "send").mockRejectedValueOnce(new Error("queue unavailable"))
+    vi.spyOn(env.DB, "prepare").mockImplementation((query) => {
+      if (
+        typeof query === "string" &&
+        query.toLowerCase().includes('delete from "scenario_runs"')
+      ) {
+        throw new Error("delete unavailable")
+      }
+
+      return originalPrepare(query)
+    })
+
+    const response = await sendUploadRequest(buildEnvelope())
+    const responseBody = (await response.json()) as {
+      error?: { code?: string }
+    }
+
+    expect(response.status).toBe(503)
+    expect(responseBody.error?.code).toBe("normalize_queue_unavailable")
+    expect(logger.error).toHaveBeenCalledTimes(2)
+    expect(logger.error).toHaveBeenNthCalledWith(
+      1,
+      "Failed to roll back accepted upload state",
+      expect.objectContaining({
+        operation: "delete_scenario_run",
+        rawArtifactR2Key: expect.stringContaining(`/scenario-runs/`),
+        rawEnvelopeR2Key: expect.stringContaining(`/scenario-runs/`),
+        repositoryId: expect.any(String),
+        scenarioRunId: expect.any(String),
+      }),
+      expect.any(Error),
+    )
+    expect(logger.error).toHaveBeenNthCalledWith(
+      2,
+      "Failed to schedule follow-up upload processing",
+      expect.objectContaining({
+        commitGroupId: expect.any(String),
+        repositoryId: expect.any(String),
+      }),
+      expect.any(Error),
+    )
   })
 
   it("reuses one scenario run and does not leak extra raw objects under a concurrent duplicate upload race", async () => {
@@ -687,4 +776,14 @@ function buildReorderedEnvelopeBody(envelope: ReturnType<typeof buildEnvelope>) 
     null,
     2,
   )
+}
+
+function buildLogger(): AppLogger & {
+  error: ReturnType<typeof vi.fn<(...args: unknown[]) => void>>
+  warn: ReturnType<typeof vi.fn<(...args: unknown[]) => void>>
+} {
+  return {
+    error: vi.fn<(...args: unknown[]) => void>(),
+    warn: vi.fn<(...args: unknown[]) => void>(),
+  }
 }

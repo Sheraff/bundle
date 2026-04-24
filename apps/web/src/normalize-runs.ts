@@ -6,7 +6,6 @@ import {
   pluginArtifactV1Schema,
   uploadScenarioRunEnvelopeV1Schema,
   type ArtifactWarningV1,
-  type DeriveRunQueueMessage,
   type NormalizeRunQueueMessage,
   type NormalizedAssetRelationV1,
   type NormalizedAssetV1,
@@ -81,7 +80,7 @@ export async function handleNormalizeRunMessage(
     return
   }
 
-  const normalizeRunMessage = message.body as NormalizeRunQueueMessage
+  const normalizeRunMessage = messageResult.output
 
   try {
     await normalizeScenarioRun(env, normalizeRunMessage)
@@ -967,9 +966,7 @@ async function enqueueDeriveRun(env: AppBindings, repositoryId: string, scenario
     )
   }
 
-  const deriveRunMessage = messageResult.output as DeriveRunQueueMessage
-
-  await env.DERIVE_RUN_QUEUE.send(deriveRunMessage, {
+  await env.DERIVE_RUN_QUEUE.send(messageResult.output, {
     contentType: "json",
   })
 }
@@ -992,8 +989,10 @@ async function readStoredJson<TSchema extends v.BaseSchema<unknown, unknown, v.B
 
   try {
     parsedValue = JSON.parse(storedText)
-  } catch {
-    throw new TerminalNormalizeError(invalidCode, `${key} did not contain valid JSON.`)
+  } catch (error) {
+    throw new TerminalNormalizeError(invalidCode, `${key} did not contain valid JSON.`, true, {
+      cause: error,
+    })
   }
 
   const result = v.safeParse(dataSchema, parsedValue)
@@ -1050,8 +1049,9 @@ class TerminalNormalizeError extends Error {
     readonly code: string,
     message: string,
     readonly persistFailure = true,
+    options?: ErrorOptions,
   ) {
-    super(message)
+    super(message, options)
     this.name = "TerminalNormalizeError"
   }
 }

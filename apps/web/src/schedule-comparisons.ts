@@ -2,7 +2,6 @@ import {
   SCHEMA_VERSION_V1,
   materializeComparisonQueueMessageSchema,
   scheduleComparisonsQueueMessageSchema,
-  type MaterializeComparisonQueueMessage,
   type ScheduleComparisonsQueueMessage,
 } from "@workspace/contracts"
 import { and, desc, eq, lte, ne } from "drizzle-orm"
@@ -15,6 +14,7 @@ import type { AppBindings } from "./env.js"
 import { getAppLogger, type AppLogger } from "./logger.js"
 import { enqueueRefreshSummaries } from "./summaries/refresh-queue.js"
 import { formatIssues } from "./shared/format-issues.js"
+import { recoverConcurrentInsert } from "./shared/recover-concurrent-insert.js"
 
 type ScenarioRunRow = typeof schema.scenarioRuns.$inferSelect
 type QueueMessageLike<TBody> = Pick<Message<TBody>, "ack" | "retry" | "body" | "id" | "attempts">
@@ -330,41 +330,41 @@ async function upsertComparison(
   }
 
   const createdComparisonId = ulid()
-
-  try {
-    await db.insert(schema.comparisons).values({
-      id: createdComparisonId,
-      ...values,
-      createdAt: timestamp,
-    })
-  } catch {
-    const concurrentComparison = await selectOne(
-      db
-        .select({ id: schema.comparisons.id })
-        .from(schema.comparisons)
-        .where(
-          and(
-            eq(schema.comparisons.kind, kind),
-            eq(schema.comparisons.seriesId, headPoint.seriesId),
-            eq(schema.comparisons.headScenarioRunId, scenarioRun.id),
-          ),
-        )
-        .limit(1),
-    )
-
-    if (concurrentComparison) {
+  const result = await recoverConcurrentInsert({
+    create: () =>
+      db.insert(schema.comparisons).values({
+        id: createdComparisonId,
+        ...values,
+        createdAt: timestamp,
+      }),
+    recover: () =>
+      selectOne(
+        db
+          .select({ id: schema.comparisons.id })
+          .from(schema.comparisons)
+          .where(
+            and(
+              eq(schema.comparisons.kind, kind),
+              eq(schema.comparisons.seriesId, headPoint.seriesId),
+              eq(schema.comparisons.headScenarioRunId, scenarioRun.id),
+            ),
+          )
+          .limit(1),
+      ),
+    onRecovered: async (concurrentComparison) => {
       await db
         .update(schema.comparisons)
         .set(values)
         .where(eq(schema.comparisons.id, concurrentComparison.id))
+    },
+    createErrorMessage: "Could not create the comparison row for this scenario run.",
+    recoverErrorMessage:
+      "Could not recover the comparison row for this scenario run after insert failure.",
+    reconcileErrorMessage:
+      "Could not reconcile the recovered comparison row for this scenario run.",
+  })
 
-      return concurrentComparison.id
-    }
-
-    throw new Error("Could not create the comparison row for this scenario run.")
-  }
-
-  return createdComparisonId
+  return result.status === "created" ? createdComparisonId : result.value.id
 }
 
 async function enqueueMaterializeComparison(
@@ -386,9 +386,7 @@ async function enqueueMaterializeComparison(
     )
   }
 
-  const materializeMessage = messageResult.output as MaterializeComparisonQueueMessage
-
-  await env.MATERIALIZE_COMPARISON_QUEUE.send(materializeMessage, {
+  await env.MATERIALIZE_COMPARISON_QUEUE.send(messageResult.output, {
     contentType: "json",
   })
 }

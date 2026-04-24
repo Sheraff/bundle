@@ -143,6 +143,37 @@ interface EnvironmentAnalysis {
   chunkByFile: Map<string, AnnotatedChunk>
 }
 
+interface SharedChunkCandidate {
+  from: string
+  fromCoverage: number
+  ownerScore: number
+  score: number
+  to: string
+  toCoverage: number
+}
+
+interface SharedChunkMatchState {
+  ambiguous: AmbiguousRelation[]
+  ambiguousFrom: Set<string>
+  ambiguousTo: Set<string>
+  matchedFrom: Set<string>
+  matchedTo: Set<string>
+  merge: MergeRelation[]
+  same: SameRelation[]
+  split: SplitRelation[]
+}
+
+interface SharedChunkMatcherContext {
+  byFrom: Map<string, SharedChunkCandidate[]>
+  byTo: Map<string, SharedChunkCandidate[]>
+  fromByFile: Map<string, AnnotatedChunk>
+  fromChunks: AnnotatedChunk[]
+  minimumLineageCoverage: number
+  state: SharedChunkMatchState
+  toByFile: Map<string, AnnotatedChunk>
+  toChunks: AnnotatedChunk[]
+}
+
 export function matchEnvironmentPair(
   fromEnvironment: StableIdentityEnvironment,
   toEnvironment: StableIdentityEnvironment,
@@ -382,12 +413,11 @@ function scoreSharedChunkFallback(fromChunk: AnnotatedChunk, toChunk: AnnotatedC
   }
 }
 
-function matchSharedChunks(
+function collectSharedChunkCandidates(
   fromChunks: AnnotatedChunk[],
   toChunks: AnnotatedChunk[],
-): SharedChunkMatchCollection {
-  const minimumLineageCoverage = 0.08
-  const candidates = []
+): SharedChunkCandidate[] {
+  const candidates: SharedChunkCandidate[] = []
 
   for (const fromChunk of fromChunks) {
     for (const toChunk of toChunks) {
@@ -398,8 +428,12 @@ function matchSharedChunks(
     }
   }
 
-  const byFrom = new Map<string, typeof candidates>()
-  const byTo = new Map<string, typeof candidates>()
+  return candidates
+}
+
+function indexSharedChunkCandidates(candidates: SharedChunkCandidate[]) {
+  const byFrom = new Map<string, SharedChunkCandidate[]>()
+  const byTo = new Map<string, SharedChunkCandidate[]>()
 
   for (const candidate of candidates) {
     const fromCandidates = byFrom.get(candidate.from) ?? []
@@ -411,18 +445,41 @@ function matchSharedChunks(
     byTo.set(candidate.to, toCandidates)
   }
 
-  const same: SameRelation[] = []
-  const split: SplitRelation[] = []
-  const merge: MergeRelation[] = []
-  const ambiguous: AmbiguousRelation[] = []
-  const removed: RemovedRelation[] = []
-  const added: AddedRelation[] = []
-  const matchedFrom = new Set<string>()
-  const matchedTo = new Set<string>()
-  const ambiguousFrom = new Set<string>()
-  const ambiguousTo = new Set<string>()
+  return { byFrom, byTo }
+}
 
-  for (const fromChunk of fromChunks) {
+function createSharedChunkMatcherContext(
+  fromChunks: AnnotatedChunk[],
+  toChunks: AnnotatedChunk[],
+): SharedChunkMatcherContext {
+  const candidates = collectSharedChunkCandidates(fromChunks, toChunks)
+  const { byFrom, byTo } = indexSharedChunkCandidates(candidates)
+
+  return {
+    byFrom,
+    byTo,
+    fromByFile: new Map(fromChunks.map((chunk) => [chunk.fileName, chunk] as const)),
+    fromChunks,
+    minimumLineageCoverage: 0.08,
+    state: {
+      ambiguous: [],
+      ambiguousFrom: new Set<string>(),
+      ambiguousTo: new Set<string>(),
+      matchedFrom: new Set<string>(),
+      matchedTo: new Set<string>(),
+      merge: [],
+      same: [],
+      split: [],
+    },
+    toByFile: new Map(toChunks.map((chunk) => [chunk.fileName, chunk] as const)),
+    toChunks,
+  }
+}
+
+function matchSharedChunkSplits(context: SharedChunkMatcherContext) {
+  const { byFrom, minimumLineageCoverage, state, toByFile } = context
+
+  for (const fromChunk of context.fromChunks) {
     const ranked = (byFrom.get(fromChunk.fileName) ?? [])
       .filter((candidate) => candidate.fromCoverage >= minimumLineageCoverage)
       .sort((left, right) => right.fromCoverage - left.fromCoverage)
@@ -431,19 +488,16 @@ function matchSharedChunks(
       continue
     }
 
-    const selected = []
+    const selected: SharedChunkCandidate[] = []
     let coverage = 0
 
     for (const candidate of ranked) {
-      if (matchedTo.has(candidate.to)) {
+      if (state.matchedTo.has(candidate.to)) {
         continue
       }
 
       selected.push(candidate)
-      const targetWeights = selected.map((entry) => {
-        const targetChunk = toChunks.find((chunk) => chunk.fileName === entry.to)
-        return targetChunk?.moduleWeights ?? {}
-      })
+      const targetWeights = selected.map((entry) => toByFile.get(entry.to)?.moduleWeights ?? {})
       coverage = weightedCoverage(fromChunk.moduleWeights, targetWeights)
 
       if (coverage >= 0.95) {
@@ -452,12 +506,12 @@ function matchSharedChunks(
     }
 
     if (selected.length >= 2 && coverage >= 0.95) {
-      matchedFrom.add(fromChunk.fileName)
+      state.matchedFrom.add(fromChunk.fileName)
       for (const candidate of selected) {
-        matchedTo.add(candidate.to)
+        state.matchedTo.add(candidate.to)
       }
 
-      split.push({
+      state.split.push({
         relation: "split",
         from: fromChunk.fileName,
         to: selected.map((entry) => entry.to).sort((left, right) => left.localeCompare(right)),
@@ -466,9 +520,13 @@ function matchSharedChunks(
       })
     }
   }
+}
 
-  for (const toChunk of toChunks) {
-    if (matchedTo.has(toChunk.fileName)) {
+function matchSharedChunkMerges(context: SharedChunkMatcherContext) {
+  const { byTo, fromByFile, minimumLineageCoverage, state } = context
+
+  for (const toChunk of context.toChunks) {
+    if (state.matchedTo.has(toChunk.fileName)) {
       continue
     }
 
@@ -480,19 +538,18 @@ function matchSharedChunks(
       continue
     }
 
-    const selected = []
+    const selected: SharedChunkCandidate[] = []
     let coverage = 0
 
     for (const candidate of ranked) {
-      if (matchedFrom.has(candidate.from)) {
+      if (state.matchedFrom.has(candidate.from)) {
         continue
       }
 
       selected.push(candidate)
-      const sourceWeights = selected.map((entry) => {
-        const sourceChunk = fromChunks.find((chunk) => chunk.fileName === entry.from)
-        return sourceChunk?.moduleWeights ?? {}
-      })
+      const sourceWeights = selected.map(
+        (entry) => fromByFile.get(entry.from)?.moduleWeights ?? {},
+      )
       coverage = weightedCoverage(toChunk.moduleWeights, sourceWeights)
 
       if (coverage >= 0.95) {
@@ -501,12 +558,12 @@ function matchSharedChunks(
     }
 
     if (selected.length >= 2 && coverage >= 0.95) {
-      matchedTo.add(toChunk.fileName)
+      state.matchedTo.add(toChunk.fileName)
       for (const candidate of selected) {
-        matchedFrom.add(candidate.from)
+        state.matchedFrom.add(candidate.from)
       }
 
-      merge.push({
+      state.merge.push({
         relation: "merge",
         from: selected.map((entry) => entry.from).sort((left, right) => left.localeCompare(right)),
         to: toChunk.fileName,
@@ -515,9 +572,13 @@ function matchSharedChunks(
       })
     }
   }
+}
 
-  for (const fromChunk of fromChunks) {
-    if (matchedFrom.has(fromChunk.fileName)) {
+function matchSharedChunkMutualBestSame(context: SharedChunkMatcherContext) {
+  const { byFrom, byTo, state } = context
+
+  for (const fromChunk of context.fromChunks) {
+    if (state.matchedFrom.has(fromChunk.fileName)) {
       continue
     }
 
@@ -530,17 +591,15 @@ function matchSharedChunks(
     }
 
     const best = ranked[0]
-    const toRanked = (byTo.get(best.to) ?? [])
-      .slice()
-      .sort((left, right) => right.score - left.score)
+    const toRanked = (byTo.get(best.to) ?? []).slice().sort((left, right) => right.score - left.score)
     const secondBest = ranked[1]
     const mutualBest = toRanked[0]?.from === fromChunk.fileName
     const clearlyBest = !secondBest || best.score - secondBest.score >= 0.15
 
     if (mutualBest && clearlyBest && best.score >= 0.75) {
-      matchedFrom.add(best.from)
-      matchedTo.add(best.to)
-      same.push({
+      state.matchedFrom.add(best.from)
+      state.matchedTo.add(best.to)
+      state.same.push({
         relation: "same",
         from: best.from,
         to: best.to,
@@ -554,14 +613,18 @@ function matchSharedChunks(
       })
     }
   }
+}
 
-  for (const fromChunk of fromChunks) {
-    if (matchedFrom.has(fromChunk.fileName)) {
+function matchSharedChunkAmbiguous(context: SharedChunkMatcherContext) {
+  const { byFrom, state, toByFile } = context
+
+  for (const fromChunk of context.fromChunks) {
+    if (state.matchedFrom.has(fromChunk.fileName)) {
       continue
     }
 
     const ranked = (byFrom.get(fromChunk.fileName) ?? [])
-      .filter((candidate) => !matchedTo.has(candidate.to))
+      .filter((candidate) => !state.matchedTo.has(candidate.to))
       .sort((left, right) => right.score - left.score)
 
     if (ranked.length === 0) {
@@ -581,10 +644,7 @@ function matchSharedChunks(
     const selected = plausible.slice(0, 2)
     const combinedCoverage = weightedCoverage(
       fromChunk.moduleWeights,
-      selected.map((candidate) => {
-        const targetChunk = toChunks.find((chunk) => chunk.fileName === candidate.to)
-        return targetChunk?.moduleWeights ?? {}
-      }),
+      selected.map((candidate) => toByFile.get(candidate.to)?.moduleWeights ?? {}),
     )
     const closeRunnerUp = second ? best.score - second.score < 0.15 : false
     const lowConfidenceBest = best.score < 0.75 && best.fromCoverage >= 0.25
@@ -594,12 +654,10 @@ function matchSharedChunks(
       continue
     }
 
-    ambiguous.push({
+    state.ambiguous.push({
       relation: "ambiguous",
       from: fromChunk.fileName,
-      to: selected
-        .map((candidate) => candidate.to)
-        .sort((left, right) => left.localeCompare(right)),
+      to: selected.map((candidate) => candidate.to).sort((left, right) => left.localeCompare(right)),
       confidence: "low",
       evidence: compactStrings([
         `bestScore:${best.score.toFixed(3)}`,
@@ -608,19 +666,23 @@ function matchSharedChunks(
         `combinedCoverage:${combinedCoverage.toFixed(3)}`,
       ]),
     })
-    ambiguousFrom.add(fromChunk.fileName)
+    state.ambiguousFrom.add(fromChunk.fileName)
     for (const candidate of selected) {
-      ambiguousTo.add(candidate.to)
+      state.ambiguousTo.add(candidate.to)
     }
   }
+}
+
+function matchSharedChunkFallbackSame(context: SharedChunkMatcherContext) {
+  const { fromChunks, state, toChunks } = context
 
   for (const fromChunk of fromChunks) {
-    if (matchedFrom.has(fromChunk.fileName) || ambiguousFrom.has(fromChunk.fileName)) {
+    if (state.matchedFrom.has(fromChunk.fileName) || state.ambiguousFrom.has(fromChunk.fileName)) {
       continue
     }
 
     const fallbackCandidates = toChunks
-      .filter((chunk) => !matchedTo.has(chunk.fileName) && !ambiguousTo.has(chunk.fileName))
+      .filter((chunk) => !state.matchedTo.has(chunk.fileName) && !state.ambiguousTo.has(chunk.fileName))
       .map((chunk) => ({ chunk, score: scoreSharedChunkFallback(fromChunk, chunk) }))
       .filter((entry) => entry.score)
       .sort((left, right) => right.score!.score - left.score!.score)
@@ -631,7 +693,9 @@ function matchSharedChunks(
 
     const target = fallbackCandidates[0]
     const reverseCandidates = fromChunks
-      .filter((chunk) => !matchedFrom.has(chunk.fileName) && !ambiguousFrom.has(chunk.fileName))
+      .filter(
+        (chunk) => !state.matchedFrom.has(chunk.fileName) && !state.ambiguousFrom.has(chunk.fileName),
+      )
       .map((chunk) => ({ chunk, score: scoreSharedChunkFallback(chunk, target.chunk) }))
       .filter((entry) => entry.score)
       .sort((left, right) => right.score!.score - left.score!.score)
@@ -643,9 +707,9 @@ function matchSharedChunks(
       continue
     }
 
-    matchedFrom.add(fromChunk.fileName)
-    matchedTo.add(target.chunk.fileName)
-    same.push({
+    state.matchedFrom.add(fromChunk.fileName)
+    state.matchedTo.add(target.chunk.fileName)
+    state.same.push({
       relation: "same",
       from: fromChunk.fileName,
       to: target.chunk.fileName,
@@ -653,20 +717,49 @@ function matchSharedChunks(
       evidence: target.score!.evidence,
     })
   }
+}
 
-  for (const chunk of fromChunks) {
-    if (!matchedFrom.has(chunk.fileName) && !ambiguousFrom.has(chunk.fileName)) {
+function finalizeSharedChunkAddedRemoved(context: SharedChunkMatcherContext) {
+  const added: AddedRelation[] = []
+  const removed: RemovedRelation[] = []
+
+  for (const chunk of context.fromChunks) {
+    if (!context.state.matchedFrom.has(chunk.fileName) && !context.state.ambiguousFrom.has(chunk.fileName)) {
       removed.push({ relation: "removed", from: chunk.fileName })
     }
   }
 
-  for (const chunk of toChunks) {
-    if (!matchedTo.has(chunk.fileName) && !ambiguousTo.has(chunk.fileName)) {
+  for (const chunk of context.toChunks) {
+    if (!context.state.matchedTo.has(chunk.fileName) && !context.state.ambiguousTo.has(chunk.fileName)) {
       added.push({ relation: "added", to: chunk.fileName })
     }
   }
 
-  return { same, split, merge, ambiguous, added, removed }
+  return { added, removed }
+}
+
+function matchSharedChunks(
+  fromChunks: AnnotatedChunk[],
+  toChunks: AnnotatedChunk[],
+): SharedChunkMatchCollection {
+  const context = createSharedChunkMatcherContext(fromChunks, toChunks)
+
+  matchSharedChunkSplits(context)
+  matchSharedChunkMerges(context)
+  matchSharedChunkMutualBestSame(context)
+  matchSharedChunkAmbiguous(context)
+  matchSharedChunkFallbackSame(context)
+
+  const { added, removed } = finalizeSharedChunkAddedRemoved(context)
+
+  return {
+    same: context.state.same,
+    split: context.state.split,
+    merge: context.state.merge,
+    ambiguous: context.state.ambiguous,
+    added,
+    removed,
+  }
 }
 
 function exactAssetKeyMatches(fromAssets: StableIdentityAsset[], toAssets: StableIdentityAsset[]) {

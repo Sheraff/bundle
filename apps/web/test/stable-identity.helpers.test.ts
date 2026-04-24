@@ -253,6 +253,8 @@ describe("stable identity matcher", () => {
         confidence: "low",
       }),
     ])
+    expect(result.sharedChunks.removed).toEqual([])
+    expect(result.sharedChunks.added).toEqual([])
   })
 
   it("matches generated css assets from importer lineage without source keys", () => {

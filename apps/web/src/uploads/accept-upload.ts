@@ -11,6 +11,7 @@ import { ulid } from "ulid"
 import { getDb, schema } from "../db/index.js"
 import { selectOne } from "../db/select-one.js"
 import type { AppBindings } from "../env.js"
+import { getAppLogger } from "../logger.js"
 import { enqueueRefreshSummaries } from "../summaries/refresh-queue.js"
 import { formatIssues } from "../shared/format-issues.js"
 import { sha256Hex } from "../shared/sha256-hex.js"
@@ -45,6 +46,7 @@ export async function acceptUpload(
   rawRequestBody: string,
 ): Promise<AcceptUploadResult> {
   const db = getDb(env)
+  const logger = getAppLogger()
   const uploadDedupeKey = await sha256Hex(stableStringify(envelope))
   const existingScenarioRun = await getScenarioRunByDedupeKey(db, uploadDedupeKey)
 
@@ -70,8 +72,18 @@ export async function acceptUpload(
       rawEnvelopeR2Key,
       storedTexts,
     })
-  } catch {
+  } catch (error) {
     await deleteRawUploadObjects(env, rawArtifactR2Key, rawEnvelopeR2Key)
+    logger.error(
+      "Failed to persist raw upload objects",
+      {
+        rawArtifactR2Key,
+        rawEnvelopeR2Key,
+        scenarioRunId,
+        uploadDedupeKey,
+      },
+      error,
+    )
 
     return {
       ok: false,
@@ -91,8 +103,28 @@ export async function acceptUpload(
       uploadDedupeKey,
     })
     persistedScenarioRun = await getScenarioRunByDedupeKey(db, uploadDedupeKey)
-  } catch {
-    await rollbackScenarioRunInsert(db, env, scenarioRunId, rawArtifactR2Key, rawEnvelopeR2Key)
+  } catch (error) {
+    await rollbackScenarioRunInsert(
+      db,
+      env,
+      logger,
+      {
+        rawArtifactR2Key,
+        rawEnvelopeR2Key,
+        scenarioRunId,
+        uploadDedupeKey,
+      },
+    )
+    logger.error(
+      "Failed to persist upload metadata",
+      {
+        rawArtifactR2Key,
+        rawEnvelopeR2Key,
+        scenarioRunId,
+        uploadDedupeKey,
+      },
+      error,
+    )
 
     return {
       ok: false,
@@ -102,7 +134,28 @@ export async function acceptUpload(
   }
 
   if (!persistedScenarioRun) {
-    await rollbackScenarioRunInsert(db, env, scenarioRunId, rawArtifactR2Key, rawEnvelopeR2Key)
+    const error = new Error("Upload metadata persisted without a recoverable scenario run row.")
+    await rollbackScenarioRunInsert(
+      db,
+      env,
+      logger,
+      {
+        rawArtifactR2Key,
+        rawEnvelopeR2Key,
+        scenarioRunId,
+        uploadDedupeKey,
+      },
+    )
+    logger.error(
+      "Failed to persist upload metadata",
+      {
+        rawArtifactR2Key,
+        rawEnvelopeR2Key,
+        scenarioRunId,
+        uploadDedupeKey,
+      },
+      error,
+    )
 
     return {
       ok: false,
@@ -128,8 +181,32 @@ export async function acceptUpload(
       persistedScenarioRun.commitGroupId,
       "upload-accepted",
     )
-  } catch {
-    await rollbackScenarioRunInsert(db, env, scenarioRunId, rawArtifactR2Key, rawEnvelopeR2Key)
+  } catch (error) {
+    await rollbackScenarioRunInsert(
+      db,
+      env,
+      logger,
+      {
+        commitGroupId: persistedScenarioRun.commitGroupId,
+        rawArtifactR2Key,
+        rawEnvelopeR2Key,
+        repositoryId: persistedScenarioRun.repositoryId,
+        scenarioRunId,
+        uploadDedupeKey,
+      },
+    )
+    logger.error(
+      "Failed to schedule follow-up upload processing",
+      {
+        commitGroupId: persistedScenarioRun.commitGroupId,
+        rawArtifactR2Key,
+        rawEnvelopeR2Key,
+        repositoryId: persistedScenarioRun.repositoryId,
+        scenarioRunId,
+        uploadDedupeKey,
+      },
+      error,
+    )
 
     return {
       ok: false,
@@ -183,14 +260,34 @@ async function getScenarioRunByDedupeKey(db: AppDb, uploadDedupeKey: string) {
 async function rollbackScenarioRunInsert(
   db: AppDb,
   env: AppBindings,
-  scenarioRunId: string,
-  rawArtifactR2Key: string,
-  rawEnvelopeR2Key: string,
+  logger: ReturnType<typeof getAppLogger>,
+  context: {
+    commitGroupId?: string
+    rawArtifactR2Key: string
+    rawEnvelopeR2Key: string
+    repositoryId?: string
+    scenarioRunId: string
+    uploadDedupeKey: string
+  },
 ) {
-  await Promise.allSettled([
-    db.delete(schema.scenarioRuns).where(eq(schema.scenarioRuns.id, scenarioRunId)),
-    deleteRawUploadObjects(env, rawArtifactR2Key, rawEnvelopeR2Key),
+  const results = await Promise.allSettled([
+    db.delete(schema.scenarioRuns).where(eq(schema.scenarioRuns.id, context.scenarioRunId)),
+    deleteRawUploadObjects(env, context.rawArtifactR2Key, context.rawEnvelopeR2Key),
   ])
+  const operations = ["delete_scenario_run", "delete_raw_upload_objects"] as const
+
+  for (const [index, result] of results.entries()) {
+    if (result.status === "rejected") {
+      logger.error(
+        "Failed to roll back accepted upload state",
+        {
+          ...context,
+          operation: operations[index],
+        },
+        result.reason,
+      )
+    }
+  }
 }
 
 export function stableStringify(value: unknown): string {

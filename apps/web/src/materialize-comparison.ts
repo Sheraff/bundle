@@ -434,8 +434,10 @@ async function readStoredJson<TSchema extends v.BaseSchema<unknown, unknown, v.B
 
   try {
     parsedValue = JSON.parse(storedText)
-  } catch {
-    throw new TerminalMaterializeError(invalidCode, `${key} did not contain valid JSON.`)
+  } catch (error) {
+    throw new TerminalMaterializeError(invalidCode, `${key} did not contain valid JSON.`, true, {
+      cause: error,
+    })
   }
 
   const result = v.safeParse(dataSchema, parsedValue)
@@ -492,8 +494,9 @@ class TerminalMaterializeError extends Error {
     readonly code: string,
     message: string,
     readonly persistFailure = true,
+    options?: ErrorOptions,
   ) {
-    super(message)
+    super(message, options)
     this.name = "TerminalMaterializeError"
   }
 }
