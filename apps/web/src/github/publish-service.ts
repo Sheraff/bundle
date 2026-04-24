@@ -1,5 +1,5 @@
 import { prReviewSummaryV1Schema, type PublishGithubQueueMessage } from "@workspace/contracts"
-import { and, eq } from "drizzle-orm"
+import { and, desc, eq } from "drizzle-orm"
 import * as v from "valibot"
 
 import { getDb, schema } from "../db/index.js"
@@ -47,7 +47,7 @@ export async function publishGithubForPullRequest(
     )
   }
 
-  const [repository, summaryRow] = await Promise.all([
+  const [repository, exactSummaryRow] = await Promise.all([
     selectOne(
       db
         .select()
@@ -71,6 +71,18 @@ export async function publishGithubForPullRequest(
         .limit(1),
     ),
   ])
+
+  const summaryRow = exactSummaryRow ?? (await selectOne(
+    db
+      .select({
+        commitGroupId: schema.prReviewSummaries.commitGroupId,
+        summaryJson: schema.prReviewSummaries.summaryJson,
+      })
+      .from(schema.prReviewSummaries)
+      .where(eq(schema.prReviewSummaries.pullRequestId, pullRequest.id))
+      .orderBy(desc(schema.prReviewSummaries.latestUploadAt))
+      .limit(1),
+  ))
 
   if (!repository) {
     throw new TerminalPublishGithubError(`Repository ${pullRequest.repositoryId} no longer exists.`)
