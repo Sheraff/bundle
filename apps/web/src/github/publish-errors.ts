@@ -10,7 +10,7 @@ export function classifyPublishError(error: unknown) {
 
 export function safeParseJson(text: string) {
   try {
-    return JSON.parse(text) as unknown
+    return JSON.parse(text)
   } catch {
     return null
   }

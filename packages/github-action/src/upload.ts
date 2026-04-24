@@ -1,24 +1,34 @@
-import { nonEmptyStringSchema, positiveIntegerSchema } from "@workspace/contracts/shared"
+import { githubActionsUploadTokenResponseV1Schema } from "@workspace/contracts/upload-auth"
+import { nonEmptyStringSchema } from "@workspace/contracts/shared"
 import { type UploadScenarioRunEnvelopeV1 } from "@workspace/contracts/upload-envelope"
+import * as core from "@actions/core"
 import * as v from "valibot"
 
 import { formatIssues, normalizeTrimmedInput } from "./parsing.js"
 
 const uploadEnvironmentSchema = v.strictObject({
   BUNDLE_API_ORIGIN: nonEmptyStringSchema,
-  BUNDLE_INSTALLATION_ID: nonEmptyStringSchema,
-  BUNDLE_UPLOAD_TOKEN: nonEmptyStringSchema,
+  BUNDLE_OIDC_AUDIENCE: v.optional(nonEmptyStringSchema),
 })
 
 export interface UploadRuntimeConfig {
   apiOrigin: string
-  installationId: number
+  oidcAudience: string
+}
+
+export interface ScenarioRunUploadConfig {
+  apiOrigin: string
   uploadToken: string
+}
+
+export interface UploadRuntimeCredentials {
+  installationId: number
+  token: string
 }
 
 export async function uploadScenarioRunEnvelope(
   envelope: UploadScenarioRunEnvelopeV1,
-  config: UploadRuntimeConfig,
+  config: ScenarioRunUploadConfig,
   fetchImplementation: typeof fetch = fetch,
 ) {
   const uploadUrl = new URL(
@@ -46,11 +56,48 @@ export async function uploadScenarioRunEnvelope(
   }
 }
 
+export async function fetchUploadRuntimeCredentials(
+  config: UploadRuntimeConfig,
+  fetchImplementation: typeof fetch = fetch,
+): Promise<UploadRuntimeCredentials> {
+  const oidcToken = await core.getIDToken(config.oidcAudience)
+  const exchangeUrl = new URL(
+    "/api/v1/uploads/github-actions/token",
+    ensureTrailingSlash(config.apiOrigin),
+  ).toString()
+  const response = await fetchImplementation(exchangeUrl, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ token: oidcToken }),
+  })
+
+  if (!response.ok) {
+    const responseBody = await response.text()
+    const responseSuffix = responseBody ? `: ${truncate(responseBody)}` : ""
+    throw new Error(`Upload token exchange failed with status ${response.status}${responseSuffix}`)
+  }
+
+  const responseBody = await response.json()
+  const responseResult = v.safeParse(githubActionsUploadTokenResponseV1Schema, responseBody)
+
+  if (!responseResult.success) {
+    throw new Error(
+      `Invalid upload token exchange response: ${formatIssues(responseResult.issues)}`,
+    )
+  }
+
+  return {
+    installationId: responseResult.output.installationId,
+    token: responseResult.output.token,
+  }
+}
+
 export function parseUploadRuntimeConfig(env: NodeJS.ProcessEnv): UploadRuntimeConfig {
   const result = v.safeParse(uploadEnvironmentSchema, {
     BUNDLE_API_ORIGIN: normalizeTrimmedInput(env.BUNDLE_API_ORIGIN),
-    BUNDLE_INSTALLATION_ID: normalizeTrimmedInput(env.BUNDLE_INSTALLATION_ID),
-    BUNDLE_UPLOAD_TOKEN: normalizeTrimmedInput(env.BUNDLE_UPLOAD_TOKEN),
+    BUNDLE_OIDC_AUDIENCE: normalizeTrimmedInput(env.BUNDLE_OIDC_AUDIENCE),
   })
 
   if (!result.success) {
@@ -67,24 +114,18 @@ export function parseUploadRuntimeConfig(env: NodeJS.ProcessEnv): UploadRuntimeC
     })
   }
 
-  const installationIdResult = v.safeParse(
-    positiveIntegerSchema,
-    Number.parseInt(result.output.BUNDLE_INSTALLATION_ID, 10),
-  )
-
-  if (!installationIdResult.success) {
-    throw new Error(`Invalid BUNDLE_INSTALLATION_ID: ${formatIssues(installationIdResult.issues)}`)
-  }
-
   return {
     apiOrigin,
-    installationId: installationIdResult.output,
-    uploadToken: result.output.BUNDLE_UPLOAD_TOKEN,
+    oidcAudience: result.output.BUNDLE_OIDC_AUDIENCE ?? removeTrailingSlash(apiOrigin),
   }
 }
 
 function ensureTrailingSlash(value: string) {
   return value.endsWith("/") ? value : `${value}/`
+}
+
+function removeTrailingSlash(value: string) {
+  return value.endsWith("/") ? value.slice(0, -1) : value
 }
 
 function truncate(value: string) {

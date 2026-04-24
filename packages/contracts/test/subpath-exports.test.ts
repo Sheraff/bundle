@@ -7,6 +7,7 @@ import { pluginArtifactV1Schema } from "@workspace/contracts/plugin-artifact"
 import { normalizedSnapshotV1Schema } from "@workspace/contracts/normalized-snapshot"
 import { uploadScenarioRunEnvelopeV1Schema } from "@workspace/contracts/upload-envelope"
 import { uploadScenarioRunAcceptedResponseV1Schema } from "@workspace/contracts/upload-response"
+import { githubActionsUploadTokenResponseV1Schema } from "@workspace/contracts/upload-auth"
 import { comparePageSearchParamsSchema } from "@workspace/contracts/public-routes"
 import { prReviewSummaryV1Schema } from "@workspace/contracts/summaries"
 import { acknowledgeComparisonItemInputSchema } from "@workspace/contracts/mutations"
@@ -23,6 +24,7 @@ describe("contracts subpath exports", () => {
     expect(normalizedSnapshotV1Schema).toBeDefined()
     expect(uploadScenarioRunEnvelopeV1Schema).toBeDefined()
     expect(uploadScenarioRunAcceptedResponseV1Schema).toBeDefined()
+    expect(githubActionsUploadTokenResponseV1Schema).toBeDefined()
     expect(comparePageSearchParamsSchema).toBeDefined()
     expect(prReviewSummaryV1Schema).toBeDefined()
     expect(acknowledgeComparisonItemInputSchema).toBeDefined()

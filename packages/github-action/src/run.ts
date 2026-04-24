@@ -7,7 +7,11 @@ import { buildUploadEnvelope } from "./envelope-builder.js"
 import { collectGithubContext } from "./github-context.js"
 import { parseActionInputs, type RawActionInputs } from "./inputs.js"
 import { runFixtureAppScenario, runRepoSyntheticScenario } from "./scenario-execution.js"
-import { parseUploadRuntimeConfig, uploadScenarioRunEnvelope } from "./upload.js"
+import {
+  fetchUploadRuntimeCredentials,
+  parseUploadRuntimeConfig,
+  uploadScenarioRunEnvelope,
+} from "./upload.js"
 
 export interface ActionRunOptions {
   cwd?: string
@@ -30,7 +34,6 @@ export async function runAction(
   const parsedInputs = parseActionInputs(rawInputs, options.cwd ?? process.cwd())
   const runtimeEnvironment = options.env ?? process.env
   const uploadConfig = parseUploadRuntimeConfig(runtimeEnvironment)
-  const githubContext = await collectGithubContext(runtimeEnvironment, uploadConfig.installationId)
   const artifactPath = path.join(parsedInputs.workingDirectory, DEFAULT_ARTIFACT_RELATIVE_PATH)
 
   const artifact =
@@ -48,10 +51,21 @@ export async function runAction(
           artifactPath,
         )
 
+  const uploadCredentials = await fetchUploadRuntimeCredentials(
+    uploadConfig,
+    options.fetch ?? fetch,
+  )
+  const githubContext = await collectGithubContext(
+    runtimeEnvironment,
+    uploadCredentials.installationId,
+  )
   const envelope = buildUploadEnvelope(parsedInputs, artifact, githubContext)
   const uploadResult = await uploadScenarioRunEnvelope(
     envelope,
-    uploadConfig,
+    {
+      apiOrigin: uploadConfig.apiOrigin,
+      uploadToken: uploadCredentials.token,
+    },
     options.fetch ?? fetch,
   )
 

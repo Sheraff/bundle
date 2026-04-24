@@ -2,7 +2,10 @@ import { Hono } from "hono"
 import startHandler from "@tanstack/react-start/server-entry"
 
 import { CommitGroupSettlementWorkflow } from "./commit-group-settlement-workflow.js"
+import { registerAuthRoutes } from "./api/auth.js"
+import { registerUploadAuthRoutes } from "./api/upload-auth.js"
 import type { AppEnv } from "./env.js"
+import { registerGithubWebhookRoutes } from "./github/webhook.js"
 import { getAppLogger } from "./logger.js"
 import { PrPublishDebounceWorkflow } from "./pr-publish-debounce-workflow.js"
 import { dispatchMessage } from "./queues/dispatch-message.js"
@@ -15,6 +18,9 @@ app.get("/healthz", (c) => {
 })
 
 registerUploadRoutes(app)
+registerUploadAuthRoutes(app)
+registerAuthRoutes(app)
+registerGithubWebhookRoutes(app)
 
 app.all("*", async (c) => {
   return startHandler.fetch(c.req.raw, {

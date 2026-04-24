@@ -10,7 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root.js'
 import { Route as IndexRouteImport } from './routes/index.js'
+import { Route as AppIndexRouteImport } from './routes/app.index.js'
+import { Route as AppInstallationsInstallationIdRouteImport } from './routes/app.installations.$installationId.js'
 import { Route as ROwnerRepoIndexRouteImport } from './routes/r.$owner.$repo.index.js'
+import { Route as ROwnerRepoSettingsRouteImport } from './routes/r.$owner.$repo.settings.js'
 import { Route as ROwnerRepoCompareRouteImport } from './routes/r.$owner.$repo.compare.js'
 import { Route as ROwnerRepoScenariosScenarioRouteImport } from './routes/r.$owner.$repo.scenarios.$scenario.js'
 
@@ -19,9 +22,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/app/',
+  path: '/app/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppInstallationsInstallationIdRoute =
+  AppInstallationsInstallationIdRouteImport.update({
+    id: '/app/installations/$installationId',
+    path: '/app/installations/$installationId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ROwnerRepoIndexRoute = ROwnerRepoIndexRouteImport.update({
   id: '/r/$owner/$repo/',
   path: '/r/$owner/$repo/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ROwnerRepoSettingsRoute = ROwnerRepoSettingsRouteImport.update({
+  id: '/r/$owner/$repo/settings',
+  path: '/r/$owner/$repo/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ROwnerRepoCompareRoute = ROwnerRepoCompareRouteImport.update({
@@ -38,20 +57,29 @@ const ROwnerRepoScenariosScenarioRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app/': typeof AppIndexRoute
+  '/app/installations/$installationId': typeof AppInstallationsInstallationIdRoute
   '/r/$owner/$repo/compare': typeof ROwnerRepoCompareRoute
+  '/r/$owner/$repo/settings': typeof ROwnerRepoSettingsRoute
   '/r/$owner/$repo/': typeof ROwnerRepoIndexRoute
   '/r/$owner/$repo/scenarios/$scenario': typeof ROwnerRepoScenariosScenarioRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app': typeof AppIndexRoute
+  '/app/installations/$installationId': typeof AppInstallationsInstallationIdRoute
   '/r/$owner/$repo/compare': typeof ROwnerRepoCompareRoute
+  '/r/$owner/$repo/settings': typeof ROwnerRepoSettingsRoute
   '/r/$owner/$repo': typeof ROwnerRepoIndexRoute
   '/r/$owner/$repo/scenarios/$scenario': typeof ROwnerRepoScenariosScenarioRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app/': typeof AppIndexRoute
+  '/app/installations/$installationId': typeof AppInstallationsInstallationIdRoute
   '/r/$owner/$repo/compare': typeof ROwnerRepoCompareRoute
+  '/r/$owner/$repo/settings': typeof ROwnerRepoSettingsRoute
   '/r/$owner/$repo/': typeof ROwnerRepoIndexRoute
   '/r/$owner/$repo/scenarios/$scenario': typeof ROwnerRepoScenariosScenarioRoute
 }
@@ -59,26 +87,38 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app/'
+    | '/app/installations/$installationId'
     | '/r/$owner/$repo/compare'
+    | '/r/$owner/$repo/settings'
     | '/r/$owner/$repo/'
     | '/r/$owner/$repo/scenarios/$scenario'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app'
+    | '/app/installations/$installationId'
     | '/r/$owner/$repo/compare'
+    | '/r/$owner/$repo/settings'
     | '/r/$owner/$repo'
     | '/r/$owner/$repo/scenarios/$scenario'
   id:
     | '__root__'
     | '/'
+    | '/app/'
+    | '/app/installations/$installationId'
     | '/r/$owner/$repo/compare'
+    | '/r/$owner/$repo/settings'
     | '/r/$owner/$repo/'
     | '/r/$owner/$repo/scenarios/$scenario'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppInstallationsInstallationIdRoute: typeof AppInstallationsInstallationIdRoute
   ROwnerRepoCompareRoute: typeof ROwnerRepoCompareRoute
+  ROwnerRepoSettingsRoute: typeof ROwnerRepoSettingsRoute
   ROwnerRepoIndexRoute: typeof ROwnerRepoIndexRoute
   ROwnerRepoScenariosScenarioRoute: typeof ROwnerRepoScenariosScenarioRoute
 }
@@ -92,11 +132,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/app'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/installations/$installationId': {
+      id: '/app/installations/$installationId'
+      path: '/app/installations/$installationId'
+      fullPath: '/app/installations/$installationId'
+      preLoaderRoute: typeof AppInstallationsInstallationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/r/$owner/$repo/': {
       id: '/r/$owner/$repo/'
       path: '/r/$owner/$repo'
       fullPath: '/r/$owner/$repo/'
       preLoaderRoute: typeof ROwnerRepoIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/r/$owner/$repo/settings': {
+      id: '/r/$owner/$repo/settings'
+      path: '/r/$owner/$repo/settings'
+      fullPath: '/r/$owner/$repo/settings'
+      preLoaderRoute: typeof ROwnerRepoSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/r/$owner/$repo/compare': {
@@ -118,7 +179,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppIndexRoute: AppIndexRoute,
+  AppInstallationsInstallationIdRoute: AppInstallationsInstallationIdRoute,
   ROwnerRepoCompareRoute: ROwnerRepoCompareRoute,
+  ROwnerRepoSettingsRoute: ROwnerRepoSettingsRoute,
   ROwnerRepoIndexRoute: ROwnerRepoIndexRoute,
   ROwnerRepoScenariosScenarioRoute: ROwnerRepoScenariosScenarioRoute,
 }

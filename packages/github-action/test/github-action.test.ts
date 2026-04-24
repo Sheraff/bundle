@@ -10,6 +10,15 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { parseActionInputs, runAction } from "../src/index.js"
 
+const coreMock = vi.hoisted(() => ({
+  getIDToken: vi.fn(),
+  getInput: vi.fn(),
+  setFailed: vi.fn(),
+  setOutput: vi.fn(),
+}))
+
+vi.mock("@actions/core", () => coreMock)
+
 const tempDirectories = new Set<string>()
 const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const sha = "0123456789abcdef0123456789abcdef01234567"
@@ -22,6 +31,8 @@ afterEach(async () => {
   )
 
   tempDirectories.clear()
+  coreMock.getIDToken.mockReset()
+  vi.restoreAllMocks()
 })
 
 describe("parseActionInputs", () => {
@@ -44,9 +55,25 @@ describe("runAction", () => {
     })
 
     let uploadedBody = ""
+    coreMock.getIDToken.mockResolvedValue("oidc-token")
     const fetchMock = vi.fn<typeof fetch>(async (input, init) => {
+      const url = toRequestUrl(input)
+
+      if (url === "https://bundle.example.com/api/v1/uploads/github-actions/token") {
+        expect(JSON.parse(requireRequestBodyText(init))).toEqual({ token: "oidc-token" })
+        return Response.json({
+          expiresAt: "2026-04-06T12:10:00.000Z",
+          installationId: 456,
+          repositoryId: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+          token: "scoped-upload-token",
+        })
+      }
+
       uploadedBody = requireRequestBodyText(init)
-      expect(toRequestUrl(input)).toBe("https://bundle.example.com/api/v1/uploads/scenario-runs")
+      expect(url).toBe("https://bundle.example.com/api/v1/uploads/scenario-runs")
+      expect(init?.headers).toMatchObject({
+        authorization: "Bearer scoped-upload-token",
+      })
       return new Response('{"ok":true}', { status: 202 })
     })
 
@@ -79,6 +106,8 @@ describe("runAction", () => {
     expect(uploadedEnvelope.repository.installationId).toBe(456)
     expect(uploadedEnvelope.git.branch).toBe("main")
     expect(uploadedEnvelope.ci.workflowRunAttempt).toBe(2)
+    expect(coreMock.getIDToken).toHaveBeenCalledWith("https://bundle.example.com")
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it("runs a fixture-app command and uploads the plugin artifact", async () => {
@@ -157,7 +186,19 @@ describe("runAction", () => {
     })
 
     let uploadedBody = ""
-    const fetchMock = vi.fn<typeof fetch>(async (_, init) => {
+    coreMock.getIDToken.mockResolvedValue("oidc-token")
+    const fetchMock = vi.fn<typeof fetch>(async (input, init) => {
+      const url = toRequestUrl(input)
+
+      if (url === "https://bundle.example.com/api/v1/uploads/github-actions/token") {
+        return Response.json({
+          expiresAt: "2026-04-06T12:10:00.000Z",
+          installationId: 456,
+          repositoryId: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+          token: "scoped-upload-token",
+        })
+      }
+
       uploadedBody = requireRequestBodyText(init)
       return new Response('{"ok":true}', { status: 202 })
     })
@@ -260,8 +301,6 @@ async function createActionEnvironment(workingDirectory: string) {
 
   return {
     BUNDLE_API_ORIGIN: "https://bundle.example.com",
-    BUNDLE_INSTALLATION_ID: "456",
-    BUNDLE_UPLOAD_TOKEN: "test-token",
     GITHUB_ACTION_REF: "v1",
     GITHUB_EVENT_NAME: "push",
     GITHUB_EVENT_PATH: eventPath,

@@ -67,6 +67,11 @@ beforeEach(async () => {
     "DELETE FROM pull_requests",
     "DELETE FROM scenarios",
     "DELETE FROM repositories",
+    "DELETE FROM github_installation_repositories",
+    "DELETE FROM github_app_installations",
+    "DELETE FROM github_user_tokens",
+    "DELETE FROM users",
+    "DELETE FROM github_accounts",
   ]) {
     await env.DB.prepare(statement).run()
   }

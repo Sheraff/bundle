@@ -5,9 +5,11 @@
   "compatibility_date": "2026-04-06",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
-    "BUNDLE_UPLOAD_TOKEN": "test-upload-token",
     "PUBLIC_APP_ORIGIN": "https://bundle.example.com",
     "GITHUB_APP_ID": "1",
+    "GITHUB_APP_CLIENT_ID": "client-id",
+    "GITHUB_APP_SLUG": "bundle",
+    "GITHUB_OIDC_AUDIENCE": "https://bundle.example.com",
   },
   "d1_databases": [
     {

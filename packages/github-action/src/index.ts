@@ -9,8 +9,11 @@ export {
 export { collectGithubContext, type GithubActionContext } from "./github-context.js"
 
 export {
+  fetchUploadRuntimeCredentials,
   parseUploadRuntimeConfig,
   uploadScenarioRunEnvelope,
+  type ScenarioRunUploadConfig,
+  type UploadRuntimeCredentials,
   type UploadRuntimeConfig,
 } from "./upload.js"
 

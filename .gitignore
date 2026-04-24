@@ -1,5 +1,8 @@
 node_modules/
 **/node_modules/
 **/dist/
+!packages/github-action/dist/
+packages/github-action/dist/*
+!packages/github-action/dist/index.js
 **/.wrangler/
 **/.tanstack/

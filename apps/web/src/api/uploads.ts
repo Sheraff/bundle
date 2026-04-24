@@ -5,13 +5,14 @@ import * as v from "valibot"
 import type { AppEnv } from "../env.js"
 import { formatIssues } from "../shared/format-issues.js"
 import { acceptUpload } from "../uploads/accept-upload.js"
+import { verifyUploadTokenForEnvelope } from "../uploads/upload-token.js"
 
 export function registerUploadRoutes(app: Hono<AppEnv>) {
   app.post("/api/v1/uploads/scenario-runs", async (c) => {
     const uploadToken = readBearerToken(c.req.header("authorization"))
 
-    if (!uploadToken || uploadToken !== c.env.BUNDLE_UPLOAD_TOKEN) {
-      return jsonError(c, 401, "unauthorized", "The upload token is missing or invalid.")
+    if (!uploadToken) {
+      return jsonError(c, 401, "unauthorized", "The upload token is missing.")
     }
 
     const rawRequestBody = await c.req.text()
@@ -25,6 +26,16 @@ export function registerUploadRoutes(app: Hono<AppEnv>) {
 
     if (!envelopeResult.success) {
       return jsonError(c, 400, "invalid_upload_envelope", formatIssues(envelopeResult.issues))
+    }
+
+    const uploadTokenResult = await verifyUploadTokenForEnvelope(
+      c.env,
+      uploadToken,
+      envelopeResult.output,
+    )
+
+    if (!uploadTokenResult.ok) {
+      return jsonError(c, 401, uploadTokenResult.code, uploadTokenResult.message)
     }
 
     const result = await acceptUpload(c.env, envelopeResult.output, rawRequestBody)
@@ -41,7 +52,7 @@ function parseJsonBody(rawRequestBody: string) {
   try {
     return {
       success: true as const,
-      output: JSON.parse(rawRequestBody) as unknown,
+      output: JSON.parse(rawRequestBody),
     }
   } catch {
     return {

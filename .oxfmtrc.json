@@ -4,6 +4,7 @@
   "semi": false,
   "ignorePatterns": [
     "apps/web/drizzle/meta",
+    "packages/github-action/dist",
     "routeTree.gen.ts",
     "worker-configuration.d.ts",
     "research"

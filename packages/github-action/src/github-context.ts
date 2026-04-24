@@ -48,29 +48,40 @@ const pullRequestContextSchema = v.strictObject({
   headSha: gitShaSchema,
   headRef: nonEmptyStringSchema,
 })
+const githubEventPayloadSchema = v.object({
+  pull_request: v.optional(
+    v.object({
+      base: v.optional(
+        v.object({
+          ref: v.optional(v.unknown()),
+          sha: v.optional(v.unknown()),
+        }),
+      ),
+      head: v.optional(
+        v.object({
+          ref: v.optional(v.unknown()),
+          sha: v.optional(v.unknown()),
+        }),
+      ),
+      number: v.optional(v.unknown()),
+    }),
+  ),
+  ref: v.optional(v.unknown()),
+  repository: v.optional(
+    v.object({
+      full_name: v.optional(v.unknown()),
+      id: v.optional(v.unknown()),
+      name: v.optional(v.unknown()),
+      owner: v.optional(
+        v.object({
+          login: v.optional(v.unknown()),
+        }),
+      ),
+    }),
+  ),
+})
 
-interface GithubEventPayload {
-  pull_request?: {
-    base?: {
-      ref?: unknown
-      sha?: unknown
-    }
-    head?: {
-      ref?: unknown
-      sha?: unknown
-    }
-    number?: unknown
-  }
-  ref?: unknown
-  repository?: {
-    full_name?: unknown
-    id?: unknown
-    name?: unknown
-    owner?: {
-      login?: unknown
-    }
-  }
-}
+type GithubEventPayload = v.InferOutput<typeof githubEventPayloadSchema>
 
 interface GithubCiContext {
   actionVersion?: string
@@ -170,11 +181,15 @@ async function readGithubEventPayload(eventPath: string): Promise<GithubEventPay
     throw new Error(`Could not parse the GitHub event payload at ${eventPath}`, { cause: error })
   }
 
-  if (!parsedPayload || typeof parsedPayload !== "object" || Array.isArray(parsedPayload)) {
-    throw new Error(`The GitHub event payload at ${eventPath} is not a JSON object`)
+  const payloadResult = v.safeParse(githubEventPayloadSchema, parsedPayload)
+
+  if (!payloadResult.success) {
+    throw new Error(
+      `Invalid GitHub event payload at ${eventPath}: ${formatIssues(payloadResult.issues)}`,
+    )
   }
 
-  return parsedPayload as GithubEventPayload
+  return payloadResult.output
 }
 
 function normalizeEnvironment(env: NodeJS.ProcessEnv) {

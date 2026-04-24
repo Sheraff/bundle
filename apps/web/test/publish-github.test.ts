@@ -508,6 +508,40 @@ describe("GitHub publication worker", () => {
     )
   })
 
+  it("retries GitHub network failures and records failure state", async () => {
+    const harness = createPipelineHarness()
+
+    await seedPrComparison(harness)
+
+    const pullRequest = await getPullRequestRow()
+    expect(pullRequest).toBeTruthy()
+
+    vi.spyOn(githubApi, "createGithubInstallationAccessToken").mockResolvedValue(
+      "installation-token",
+    )
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      throw new Error("GitHub fetch failed")
+    })
+
+    const result = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.publishGithub,
+      buildPublishGithubMessage(pullRequest, "publish-github:network-failure:v1"),
+    )
+
+    expect(result).toBeRetried()
+
+    const publications = await listGithubPublications()
+    expect(publications).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          last_error_code: "github_api_500",
+          status: "failed",
+          surface: "pr-comment",
+        }),
+      ]),
+    )
+  })
+
   it("recovers a stale comment id by locating the maintained comment marker", async () => {
     const harness = createPipelineHarness()
 

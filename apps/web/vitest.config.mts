@@ -18,6 +18,7 @@ export default defineConfig({
         },
         miniflare: {
           bindings: {
+            GITHUB_APP_CLIENT_SECRET: "test-client-secret",
             GITHUB_APP_PRIVATE_KEY: "test-private-key",
             TEST_MIGRATIONS: migrations,
           },

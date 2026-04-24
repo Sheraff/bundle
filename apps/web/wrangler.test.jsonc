@@ -5,9 +5,16 @@
   "compatibility_date": "2026-04-06",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
-    "BUNDLE_UPLOAD_TOKEN": "test-upload-token",
     "PUBLIC_APP_ORIGIN": "https://bundle.test",
     "GITHUB_APP_ID": "1",
+    "GITHUB_APP_CLIENT_ID": "client-id",
+    "GITHUB_APP_CLIENT_SECRET": "client-secret",
+    "GITHUB_APP_SLUG": "bundle",
+    "GITHUB_OIDC_AUDIENCE": "https://bundle.test",
+    "GITHUB_WEBHOOK_SECRET": "test-webhook-secret",
+    "SESSION_SIGNING_SECRET": "test-session-signing-secret",
+    "AUTH_ENCRYPTION_KEY": "test-auth-encryption-key",
+    "UPLOAD_TOKEN_SIGNING_SECRET": "test-upload-token-signing-secret",
   },
   "d1_databases": [
     {

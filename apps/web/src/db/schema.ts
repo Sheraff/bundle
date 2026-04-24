@@ -1,13 +1,102 @@
 import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core"
 
+export const githubAccounts = sqliteTable(
+  "github_accounts",
+  {
+    id: text("id").primaryKey(),
+    githubAccountId: integer("github_account_id").notNull(),
+    login: text("login").notNull(),
+    accountType: text("account_type").notNull(),
+    avatarUrl: text("avatar_url"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [uniqueIndex("github_accounts_github_account_id_unique").on(table.githubAccountId)],
+)
+
+export const users = sqliteTable(
+  "users",
+  {
+    id: text("id").primaryKey(),
+    githubUserId: integer("github_user_id").notNull(),
+    login: text("login").notNull(),
+    avatarUrl: text("avatar_url"),
+    name: text("name"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [uniqueIndex("users_github_user_id_unique").on(table.githubUserId)],
+)
+
+export const githubUserTokens = sqliteTable("github_user_tokens", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => users.id),
+  encryptedAccessToken: text("encrypted_access_token").notNull(),
+  encryptedRefreshToken: text("encrypted_refresh_token"),
+  accessTokenExpiresAt: text("access_token_expires_at"),
+  refreshTokenExpiresAt: text("refresh_token_expires_at"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+})
+
+export const githubAppInstallations = sqliteTable(
+  "github_app_installations",
+  {
+    id: text("id").primaryKey(),
+    installationId: integer("installation_id").notNull(),
+    accountId: text("account_id")
+      .notNull()
+      .references(() => githubAccounts.id),
+    targetType: text("target_type").notNull(),
+    permissionsJson: text("permissions_json").notNull(),
+    suspendedAt: text("suspended_at"),
+    deletedAt: text("deleted_at"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("github_app_installations_installation_id_unique").on(table.installationId),
+    index("github_app_installations_account_id_idx").on(table.accountId),
+  ],
+)
+
+export const githubInstallationRepositories = sqliteTable(
+  "github_installation_repositories",
+  {
+    id: text("id").primaryKey(),
+    installationId: integer("installation_id").notNull(),
+    githubRepoId: integer("github_repo_id").notNull(),
+    owner: text("owner").notNull(),
+    name: text("name").notNull(),
+    private: integer("private").notNull(),
+    accessStatus: text("access_status").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("github_installation_repositories_installation_repo_unique").on(
+      table.installationId,
+      table.githubRepoId,
+    ),
+    index("github_installation_repositories_github_repo_id_idx").on(table.githubRepoId),
+    index("github_installation_repositories_owner_name_idx").on(table.owner, table.name),
+  ],
+)
+
 export const repositories = sqliteTable(
   "repositories",
   {
     id: text("id").primaryKey(),
     githubRepoId: integer("github_repo_id").notNull(),
+    accountId: text("account_id").references(() => githubAccounts.id),
     owner: text("owner").notNull(),
     name: text("name").notNull(),
     installationId: integer("installation_id").notNull(),
+    enabled: integer("enabled").notNull().default(0),
+    visibility: text("visibility").notNull().default("public"),
+    disabledAt: text("disabled_at"),
+    deletedAt: text("deleted_at"),
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),
   },

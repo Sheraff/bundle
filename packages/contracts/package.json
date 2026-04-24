@@ -8,6 +8,7 @@
     "./shared": "./src/shared.ts",
     "./plugin-artifact": "./src/plugin-artifact.ts",
     "./normalized-snapshot": "./src/normalized-snapshot.ts",
+    "./upload-auth": "./src/upload-auth.ts",
     "./upload-envelope": "./src/upload-envelope.ts",
     "./upload-response": "./src/upload-response.ts",
     "./public-routes": "./src/public-routes.ts",

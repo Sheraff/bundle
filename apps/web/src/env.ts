@@ -10,10 +10,18 @@ import type {
 } from "@workspace/contracts"
 
 export interface AppBindings {
-  BUNDLE_UPLOAD_TOKEN: string
+  BUNDLE_UPLOAD_TOKEN?: string
   PUBLIC_APP_ORIGIN: string
   GITHUB_APP_ID: string
+  GITHUB_APP_CLIENT_ID?: string
+  GITHUB_APP_CLIENT_SECRET?: string
+  GITHUB_APP_SLUG?: string
   GITHUB_APP_PRIVATE_KEY: string
+  GITHUB_WEBHOOK_SECRET?: string
+  GITHUB_OIDC_AUDIENCE?: string
+  SESSION_SIGNING_SECRET?: string
+  AUTH_ENCRYPTION_KEY?: string
+  UPLOAD_TOKEN_SIGNING_SECRET?: string
   DB: D1Database
   RAW_UPLOADS_BUCKET: R2Bucket
   CACHE_BUCKET: R2Bucket

@@ -8,6 +8,20 @@
       "when": 1775580919790,
       "tag": "0000_fine_professor_monster",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1776973308218,
+      "tag": "0002_first_tempest",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1777049112823,
+      "tag": "0003_bored_thena",
+      "breakpoints": true
     }
   ]
 }

@@ -14,7 +14,11 @@ import {
   buildEnvelope as buildBaseEnvelope,
 } from "./support/builders.js"
 import { countRows } from "./support/db-helpers.js"
-import { sendRawRequest, sendUploadRequest } from "./support/request-helpers.js"
+import {
+  createTestUploadToken,
+  sendRawRequest,
+  sendUploadRequest,
+} from "./support/request-helpers.js"
 
 const sha = "0123456789abcdef0123456789abcdef01234567"
 
@@ -149,6 +153,24 @@ describe("POST /api/v1/uploads/scenario-runs", () => {
     const response = await sendUploadRequest(buildEnvelope(), "wrong-token")
 
     expect(response.status).toBe(401)
+    expect(await countRows("scenario_runs")).toBe(0)
+  })
+
+  it("rejects scoped tokens when repository metadata changed after exchange", async () => {
+    const envelope = buildEnvelope()
+    const token = await createTestUploadToken(envelope)
+
+    await env.DB.prepare("UPDATE repositories SET owner = 'renamed-owner' WHERE github_repo_id = ?")
+      .bind(envelope.repository.githubRepoId)
+      .run()
+
+    const response = await sendUploadRequest(envelope, token)
+    const responseBody = (await response.json()) as {
+      error?: { code?: string }
+    }
+
+    expect(response.status).toBe(401)
+    expect(responseBody.error?.code).toBe("repository_not_enabled")
     expect(await countRows("scenario_runs")).toBe(0)
   })
 
@@ -532,20 +554,22 @@ describe("POST /api/v1/uploads/scenario-runs", () => {
 
   it("cleans up raw uploads and returns a handled error when D1 fails after raw persistence", async () => {
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+    const envelope = buildEnvelope()
+    const token = await createTestUploadToken(envelope)
     const originalPrepare = env.DB.prepare.bind(env.DB)
     let prepareCallCount = 0
 
     const prepareSpy = vi.spyOn(env.DB, "prepare").mockImplementation((query) => {
       prepareCallCount += 1
 
-      if (prepareCallCount > 1 && typeof query === "string") {
+      if (prepareCallCount > 2 && typeof query === "string") {
         throw new Error("d1 unavailable")
       }
 
       return originalPrepare(query)
     })
 
-    const response = await sendUploadRequest(buildEnvelope())
+    const response = await sendUploadRequest(envelope, token)
     const responseBody = (await response.json()) as {
       error?: { code?: string }
     }

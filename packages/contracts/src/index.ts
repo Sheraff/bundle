@@ -66,6 +66,13 @@ export {
 } from "./upload-response.js"
 
 export {
+  githubActionsUploadTokenRequestV1Schema,
+  githubActionsUploadTokenResponseV1Schema,
+  type GithubActionsUploadTokenRequestV1,
+  type GithubActionsUploadTokenResponseV1,
+} from "./upload-auth.js"
+
+export {
   comparePageSearchParamsSchema,
   publicRepositoryRouteParamsSchema,
   publicScenarioRouteParamsSchema,

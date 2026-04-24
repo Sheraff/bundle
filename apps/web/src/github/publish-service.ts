@@ -76,6 +76,34 @@ export async function publishGithubForPullRequest(
     throw new TerminalPublishGithubError(`Repository ${pullRequest.repositoryId} no longer exists.`)
   }
 
+  if (
+    repository.enabled !== 1 ||
+    repository.disabledAt ||
+    repository.deletedAt ||
+    repository.visibility !== "public"
+  ) {
+    throw new TerminalPublishGithubError(
+      `Repository ${repository.owner}/${repository.name} is not enabled.`,
+    )
+  }
+
+  const installation = await selectOne(
+    db
+      .select({
+        deletedAt: schema.githubAppInstallations.deletedAt,
+        suspendedAt: schema.githubAppInstallations.suspendedAt,
+      })
+      .from(schema.githubAppInstallations)
+      .where(eq(schema.githubAppInstallations.installationId, repository.installationId))
+      .limit(1),
+  )
+
+  if (installation?.deletedAt || installation?.suspendedAt) {
+    throw new TerminalPublishGithubError(
+      `GitHub App installation ${repository.installationId} is not active.`,
+    )
+  }
+
   if (!summaryRow) {
     throw new Error(
       `PR review summary for pull request ${pullRequest.id} at head ${pullRequest.headSha} is not ready.`,

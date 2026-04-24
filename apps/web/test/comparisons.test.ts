@@ -1,7 +1,9 @@
 import { createExecutionContext, waitOnExecutionContext } from "cloudflare:test"
 import { env, exports } from "cloudflare:workers"
+import { ulid } from "ulid"
 import { describe, expect, it, vi } from "vitest"
 
+import { createUploadToken } from "../src/uploads/upload-token.js"
 import { dispatchQueueMessage, TEST_QUEUE_NAMES } from "./queue-test-helpers.js"
 
 const baseSha = "0123456789abcdef0123456789abcdef01234567"
@@ -1332,10 +1334,8 @@ function buildLogger() {
   }
 }
 
-async function sendUploadRequest(
-  envelope: ReturnType<typeof buildEnvelope>,
-  token: string = env.BUNDLE_UPLOAD_TOKEN,
-) {
+async function sendUploadRequest(envelope: ReturnType<typeof buildEnvelope>, token?: string) {
+  const uploadToken = token ?? (await createTestUploadToken(envelope))
   const executionContext = createExecutionContext()
   const worker = (
     exports as unknown as {
@@ -1349,7 +1349,7 @@ async function sendUploadRequest(
     new Request("https://bundle.test/api/v1/uploads/scenario-runs", {
       method: "POST",
       headers: {
-        authorization: `Bearer ${token}`,
+        authorization: `Bearer ${uploadToken}`,
         "content-type": "application/json",
       },
       body: JSON.stringify(envelope),
@@ -1361,6 +1361,65 @@ async function sendUploadRequest(
   await waitOnExecutionContext(executionContext)
 
   return response
+}
+
+async function createTestUploadToken(envelope: ReturnType<typeof buildEnvelope>) {
+  const timestamp = new Date().toISOString()
+
+  await env.DB.prepare(
+    `INSERT INTO repositories (
+      id,
+      github_repo_id,
+      owner,
+      name,
+      installation_id,
+      enabled,
+      visibility,
+      created_at,
+      updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, 1, 'public', ?, ?)
+    ON CONFLICT(github_repo_id) DO UPDATE SET
+      owner = excluded.owner,
+      name = excluded.name,
+      installation_id = excluded.installation_id,
+      enabled = 1,
+      visibility = 'public',
+      disabled_at = NULL,
+      deleted_at = NULL,
+      updated_at = excluded.updated_at`,
+  )
+    .bind(
+      ulid(),
+      envelope.repository.githubRepoId,
+      envelope.repository.owner,
+      envelope.repository.name,
+      envelope.repository.installationId,
+      timestamp,
+      timestamp,
+    )
+    .run()
+
+  const repository = await env.DB.prepare(
+    "SELECT id FROM repositories WHERE github_repo_id = ? LIMIT 1",
+  )
+    .bind(envelope.repository.githubRepoId)
+    .first<{ id: string }>()
+
+  if (!repository) {
+    throw new Error("Could not prepare repository for upload test.")
+  }
+
+  return createUploadToken(env, {
+    commitSha: envelope.git.commitSha,
+    githubRepoId: envelope.repository.githubRepoId,
+    installationId: envelope.repository.installationId,
+    owner: envelope.repository.owner,
+    repositoryId: repository.id,
+    repositoryName: envelope.repository.name,
+    runAttempt: envelope.ci.workflowRunAttempt,
+    runId: envelope.ci.workflowRunId,
+  })
 }
 
 async function countRows(tableName: string) {
