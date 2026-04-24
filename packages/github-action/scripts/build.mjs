@@ -11,7 +11,7 @@ await fs.rm(path.join(packageDir, "dist"), { recursive: true, force: true })
 await build({
   absWorkingDir: packageDir,
   banner: {
-    js: 'import { createRequire } from "node:module"; const require = createRequire(import.meta.url);',
+    js: 'import { createRequire as __bundleCreateRequire } from "node:module"; const require = __bundleCreateRequire(import.meta.url);',
   },
   bundle: true,
   entryPoints: ["src/main.ts"],
