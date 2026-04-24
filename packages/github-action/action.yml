@@ -22,4 +22,4 @@ outputs:
     description: The scenario id for the uploaded run
 runs:
   using: node20
-  main: dist/index.cjs
+  main: dist/index.js

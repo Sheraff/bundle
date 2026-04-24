@@ -10,11 +10,14 @@ await fs.rm(path.join(packageDir, "dist"), { recursive: true, force: true })
 
 await build({
   absWorkingDir: packageDir,
+  banner: {
+    js: 'import { createRequire } from "node:module"; const require = createRequire(import.meta.url);',
+  },
   bundle: true,
   entryPoints: ["src/main.ts"],
   external: ["fsevents"],
-  format: "cjs",
-  outfile: "dist/index.cjs",
+  format: "esm",
+  outfile: "dist/index.js",
   platform: "node",
   target: "node20",
 })
