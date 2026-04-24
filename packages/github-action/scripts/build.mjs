@@ -15,7 +15,7 @@ await build({
   },
   bundle: true,
   entryPoints: ["src/main.ts"],
-  external: ["fsevents"],
+  external: ["fsevents", "vite"],
   format: "esm",
   outfile: "dist/index.js",
   platform: "node",

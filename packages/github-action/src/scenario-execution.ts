@@ -2,9 +2,7 @@ import { spawn } from "node:child_process"
 import path from "node:path"
 
 import { BUNDLE_ARTIFACT_OUTPUT_ENV_VAR } from "@workspace/contracts/shared"
-import { bundleTracker } from "@workspace/vite-plugin"
 import { type PluginArtifactV1 } from "@workspace/contracts/plugin-artifact"
-import { build } from "vite"
 
 import { loadArtifact, resetArtifactFile } from "./artifact-loading.js"
 import { materializeSyntheticSource } from "./synthetic-source.js"
@@ -41,6 +39,10 @@ export async function runRepoSyntheticScenario(
   await resetArtifactFile(artifactPath)
 
   const syntheticSource = await materializeSyntheticSource(workingDirectory, scenario, source)
+  const [{ build }, { bundleTracker }] = await Promise.all([
+    import("vite"),
+    import("@workspace/vite-plugin"),
+  ])
 
   try {
     await build({
