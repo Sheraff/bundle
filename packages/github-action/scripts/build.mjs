@@ -13,8 +13,8 @@ await build({
   bundle: true,
   entryPoints: ["src/main.ts"],
   external: ["fsevents"],
-  format: "esm",
-  outfile: "dist/index.js",
+  format: "cjs",
+  outfile: "dist/index.cjs",
   platform: "node",
   target: "node20",
 })

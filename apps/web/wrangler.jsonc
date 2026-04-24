@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "bundle-web",
+  "name": "chunk-scope-web",
   "main": "src/index.ts",
   "compatibility_date": "2026-04-06",
   "compatibility_flags": ["nodejs_compat"],
@@ -16,6 +16,7 @@
       "binding": "DB",
       "database_name": "bundle-web",
       "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "drizzle",
     },
   ],
   "r2_buckets": [
@@ -99,5 +100,108 @@
         "max_batch_timeout": 5,
       },
     ],
+  },
+  "env": {
+    "staging": {
+      "workers_dev": true,
+      "preview_urls": true,
+      "vars": {
+        "PUBLIC_APP_ORIGIN": "https://chunk-scope-web-staging.me-b16.workers.dev",
+        "GITHUB_APP_ID": "3493213",
+        "GITHUB_APP_CLIENT_ID": "Iv23lirKcS95J5JtEhFS",
+        "GITHUB_APP_SLUG": "chunk-scope-staging",
+        "GITHUB_OIDC_AUDIENCE": "https://chunk-scope-web-staging.me-b16.workers.dev",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "chunk-scope-staging",
+          "database_id": "0a849ceb-45b6-40b7-8b79-a47a12928cd6",
+          "migrations_dir": "drizzle",
+        },
+      ],
+      "r2_buckets": [
+        {
+          "binding": "RAW_UPLOADS_BUCKET",
+          "bucket_name": "chunk-scope-staging-raw-uploads",
+        },
+        {
+          "binding": "CACHE_BUCKET",
+          "bucket_name": "chunk-scope-staging-cache",
+        },
+      ],
+      "workflows": [
+        {
+          "name": "chunk-scope-staging-commit-group-settlement",
+          "binding": "COMMIT_GROUP_SETTLEMENT_WORKFLOW",
+          "class_name": "CommitGroupSettlementWorkflow",
+        },
+        {
+          "name": "chunk-scope-staging-pr-publish-debounce",
+          "binding": "PR_PUBLISH_DEBOUNCE_WORKFLOW",
+          "class_name": "PrPublishDebounceWorkflow",
+        },
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "NORMALIZE_RUN_QUEUE",
+            "queue": "chunk-scope-staging-normalize-run",
+          },
+          {
+            "binding": "DERIVE_RUN_QUEUE",
+            "queue": "chunk-scope-staging-derive-run",
+          },
+          {
+            "binding": "SCHEDULE_COMPARISONS_QUEUE",
+            "queue": "chunk-scope-staging-schedule-comparisons",
+          },
+          {
+            "binding": "MATERIALIZE_COMPARISON_QUEUE",
+            "queue": "chunk-scope-staging-materialize-comparison",
+          },
+          {
+            "binding": "REFRESH_SUMMARIES_QUEUE",
+            "queue": "chunk-scope-staging-refresh-summaries",
+          },
+          {
+            "binding": "PUBLISH_GITHUB_QUEUE",
+            "queue": "chunk-scope-staging-publish-github",
+          },
+        ],
+        "consumers": [
+          {
+            "queue": "chunk-scope-staging-normalize-run",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+          },
+          {
+            "queue": "chunk-scope-staging-derive-run",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+          },
+          {
+            "queue": "chunk-scope-staging-schedule-comparisons",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+          },
+          {
+            "queue": "chunk-scope-staging-materialize-comparison",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+          },
+          {
+            "queue": "chunk-scope-staging-refresh-summaries",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+          },
+          {
+            "queue": "chunk-scope-staging-publish-github",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+          },
+        ],
+      },
+    },
   },
 }
