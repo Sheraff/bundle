@@ -1,5 +1,6 @@
 import {
   DEFAULT_LENS_SLUG,
+  acknowledgeComparisonItemInputSchema,
   gitShaSchema,
   nonAllStringSchema,
   nonEmptyStringSchema,
@@ -7,15 +8,24 @@ import {
   publicRepositoryRouteParamsSchema,
   scenarioSlugSchema,
 } from "@workspace/contracts"
-import { Link, createFileRoute } from "@tanstack/react-router"
-import { createServerFn } from "@tanstack/react-start"
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router"
+import { createServerFn, useServerFn } from "@tanstack/react-start"
+import { getRequest, setResponseStatus } from "@tanstack/react-start/server"
+import { useState } from "react"
 import * as v from "valibot"
 
+import {
+  AcknowledgementAuthorizationError,
+  AcknowledgementNotFoundError,
+  AcknowledgementValidationError,
+  acknowledgeComparisonItemForUser,
+} from "../acknowledgements.js"
+import { AuthRequiredError, requireUser } from "../auth/session.js"
 import {
   getNeutralComparePageData,
   getPullRequestComparePageData,
 } from "../lib/public-read-models.server.js"
-import { shortSha } from "../lib/formatting.js"
+import { formatBytes, shortSha } from "../lib/formatting.js"
 import {
   describeNeutralDelta,
   describeReviewedDelta,
@@ -59,6 +69,52 @@ const getComparePage = createServerFn({ method: "GET" })
           search: data.search,
         }),
   )
+
+const acknowledgeComparisonItem = createServerFn({ method: "POST" })
+  .inputValidator(acknowledgeComparisonItemInputSchema)
+  .handler(async ({ context, data }) => {
+    const request = getRequest()
+
+    let user: Awaited<ReturnType<typeof requireUser>>
+
+    try {
+      user = await requireUser(context.env, request)
+    } catch (error) {
+      if (error instanceof AuthRequiredError) {
+        setResponseStatus(401)
+        return {
+          kind: "error" as const,
+          message: "Sign in with GitHub to acknowledge regressions.",
+        }
+      }
+
+      throw error
+    }
+
+    try {
+      const acknowledgement = await acknowledgeComparisonItemForUser(context.env, user, data)
+
+      return {
+        kind: "ok" as const,
+        acknowledgementId: acknowledgement.acknowledgementId,
+      }
+    } catch (error) {
+      if (error instanceof AcknowledgementAuthorizationError) {
+        setResponseStatus(403)
+      } else if (error instanceof AcknowledgementNotFoundError) {
+        setResponseStatus(404)
+      } else if (error instanceof AcknowledgementValidationError) {
+        setResponseStatus(422)
+      } else {
+        throw error
+      }
+
+      return {
+        kind: "error" as const,
+        message: error instanceof Error ? error.message : "Could not acknowledge item.",
+      }
+    }
+  })
 
 export const Route = createFileRoute("/r/$owner/$repo/compare")({
   validateSearch: comparePageSearchSchema,
@@ -314,7 +370,8 @@ function NeutralRowDetail() {
 }
 
 function ReviewedRowDetail() {
-  const row = Route.useLoaderData().selectedReviewedRow!
+  const data = Route.useLoaderData()
+  const row = data.selectedReviewedRow!
 
   return (
     <>
@@ -324,6 +381,88 @@ function ReviewedRowDetail() {
       <p>Series review state: {describeReviewedSeriesState(row.series)}</p>
       <p>{describeReviewedDelta(row.series, row.primaryItem)}</p>
       <p>Acknowledged items on this scenario: {row.acknowledgedItemCount}</p>
+      {row.series.status === "materialized" ? (
+        <ul>
+          {row.series.items.map((item) => (
+            <li key={item.itemKey}>
+              <p>
+                {item.metricKey}: {formatBytes(item.currentValue)} vs{" "}
+                {formatBytes(item.baselineValue)}
+              </p>
+              <p>Review state: {item.reviewState}</p>
+              {item.acknowledged ? (
+                <p>Acknowledged{item.note ? `: ${item.note}` : ""}</p>
+              ) : item.reviewState === "blocking" || item.reviewState === "regression" ? (
+                <AcknowledgeComparisonItemForm itemKey={item.itemKey} row={row} />
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </>
+  )
+}
+
+function AcknowledgeComparisonItemForm({
+  itemKey,
+  row,
+}: {
+  itemKey: string
+  row: NonNullable<ReturnType<typeof Route.useLoaderData>["selectedReviewedRow"]>
+}) {
+  const data = Route.useLoaderData()
+  const acknowledgeItem = useServerFn(acknowledgeComparisonItem)
+  const router = useRouter()
+  const [error, setError] = useState<string | null>(null)
+  const [note, setNote] = useState("")
+  const [pending, setPending] = useState(false)
+
+  if (!data.latestReviewSummary) {
+    return null
+  }
+
+  return (
+    <form
+      onSubmit={async (event) => {
+        event.preventDefault()
+        setError(null)
+        setPending(true)
+
+        try {
+          const result = await acknowledgeItem({
+            data: {
+              comparisonId: row.series.comparisonId,
+              itemKey,
+              note: note.length > 0 ? note : undefined,
+              pullRequestId: data.latestReviewSummary!.pullRequestId,
+              repositoryId: data.latestReviewSummary!.repositoryId,
+              seriesId: row.series.seriesId,
+            },
+          })
+
+          if (result.kind === "error") {
+            setError(result.message)
+            return
+          }
+
+          await router.invalidate()
+        } finally {
+          setPending(false)
+        }
+      }}
+    >
+      <label>
+        Acknowledgement note
+        <input
+          maxLength={4000}
+          onChange={(event) => setNote(event.currentTarget.value)}
+          value={note}
+        />
+      </label>
+      <button disabled={pending} type="submit">
+        Acknowledge regression
+      </button>
+      {error ? <p>{error}</p> : null}
+    </form>
   )
 }

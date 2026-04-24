@@ -29,6 +29,8 @@ export interface CurrentUserRow {
   updatedAt: string
 }
 
+type RepositoryPermissionUser = Pick<CurrentUserRow, "id" | "login">
+
 export async function upsertUserWithGithubToken(
   env: AppBindings,
   githubUser: GithubAuthenticatedUser,
@@ -115,7 +117,7 @@ export async function getUserGithubAccessToken(env: AppBindings, userId: string)
 
 export async function requireRepositoryAdminForUser(
   env: AppBindings,
-  user: CurrentUserRow,
+  user: RepositoryPermissionUser,
   owner: string,
   repositoryName: string,
 ) {
@@ -123,9 +125,19 @@ export async function requireRepositoryAdminForUser(
   await requireRepositoryAdminWithAccessToken(accessToken, user, owner, repositoryName)
 }
 
+export async function requireRepositoryWriteForUser(
+  env: AppBindings,
+  user: RepositoryPermissionUser,
+  owner: string,
+  repositoryName: string,
+) {
+  const accessToken = await getUserGithubAccessToken(env, user.id)
+  await requireRepositoryWriteWithAccessToken(accessToken, user, owner, repositoryName)
+}
+
 async function requireRepositoryAdminWithAccessToken(
   accessToken: string,
-  user: CurrentUserRow,
+  user: RepositoryPermissionUser,
   owner: string,
   repositoryName: string,
 ) {
@@ -138,6 +150,24 @@ async function requireRepositoryAdminWithAccessToken(
 
   if (permission !== "admin") {
     throw new OnboardingAuthorizationError("Repository admin permission is required.")
+  }
+}
+
+async function requireRepositoryWriteWithAccessToken(
+  accessToken: string,
+  user: RepositoryPermissionUser,
+  owner: string,
+  repositoryName: string,
+) {
+  const permission = await fetchGithubRepositoryPermission(
+    accessToken,
+    owner,
+    repositoryName,
+    user.login,
+  )
+
+  if (permission !== "admin" && permission !== "maintain" && permission !== "write") {
+    throw new OnboardingAuthorizationError("Repository write permission is required.")
   }
 }
 
