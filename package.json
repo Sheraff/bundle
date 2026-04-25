@@ -27,6 +27,8 @@
     "web:typecheck": "pnpm --filter @workspace/web typecheck",
     "web:test": "pnpm --filter @workspace/web test",
     "web:test:unit": "pnpm --filter @workspace/web test:unit",
+    "web:test:e2e": "pnpm --filter @workspace/web test:e2e",
+    "web:seed": "pnpm --filter @workspace/web dev:seed",
     "research:test": "pnpm stable-identity:test"
   },
   "devDependencies": {

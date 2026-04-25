@@ -87,6 +87,35 @@ describe("public read models", () => {
     expect(data.selectedNeutralRow).toBeNull()
   })
 
+  it("returns repository history and metric-aware detail state", async () => {
+    const harness = createPipelineHarness()
+
+    await seedBranchComparison(harness)
+
+    const overview = await getRepositoryOverviewPageData(env, {
+      owner: "acme",
+      repo: "widget",
+      branch: "main",
+      lens: "entry-js-direct-css",
+      metric: "brotli",
+    })
+    const scenario = await getScenarioPageData(env, {
+      owner: "acme",
+      repo: "widget",
+      scenario: "fixture-app-cost",
+      branch: "main",
+      env: "default",
+      entrypoint: "src/main.ts",
+      lens: "entry-js-direct-css",
+      metric: "gzip",
+      tab: "treemap",
+    })
+
+    expect(overview.metric).toBe("brotli")
+    expect(overview.trend[0]).toEqual(expect.objectContaining({ scenarioSlug: "fixture-app-cost" }))
+    expect(scenario.selectedDetail?.status).toBe("available")
+  })
+
   it("keeps URL branch state even when the selected branch has no summaries", async () => {
     const harness = createPipelineHarness()
 

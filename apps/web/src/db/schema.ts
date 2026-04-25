@@ -128,6 +128,32 @@ export const scenarios = sqliteTable(
   ],
 )
 
+export const hostedSyntheticScenarios = sqliteTable(
+  "hosted_synthetic_scenarios",
+  {
+    id: text("id").primaryKey(),
+    repositoryId: text("repository_id")
+      .notNull()
+      .references(() => repositories.id),
+    scenarioSlug: text("scenario_slug").notNull(),
+    displayName: text("display_name").notNull(),
+    sourceText: text("source_text").notNull(),
+    budgetRawBytes: integer("budget_raw_bytes"),
+    budgetGzipBytes: integer("budget_gzip_bytes"),
+    budgetBrotliBytes: integer("budget_brotli_bytes"),
+    archivedAt: text("archived_at"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("hosted_synthetic_scenarios_repository_slug_unique").on(
+      table.repositoryId,
+      table.scenarioSlug,
+    ),
+    index("hosted_synthetic_scenarios_repository_id_idx").on(table.repositoryId),
+  ],
+)
+
 export const pullRequests = sqliteTable(
   "pull_requests",
   {

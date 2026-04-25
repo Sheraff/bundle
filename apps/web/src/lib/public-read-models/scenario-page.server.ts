@@ -1,6 +1,7 @@
 import { DEFAULT_LENS_SLUG } from "@workspace/contracts"
 
 import type { AppBindings } from "../../env.js"
+import { parseSizeMetric } from "../size-metric.js"
 
 import {
   buildNeutralCompareRows,
@@ -14,6 +15,7 @@ import {
   requireRepository,
   requireScenario,
 } from "./shared.server.js"
+import { loadSnapshotDetailForScenarioRun } from "./selected-series-detail.server.js"
 
 export async function getScenarioPageData(
   env: AppBindings,
@@ -26,6 +28,7 @@ export async function getScenarioPageData(
     entrypoint?: string
     lens?: string
     tab?: string
+    metric?: string
   },
 ) {
   const repository = await requireRepository(env, input.owner, input.repo)
@@ -43,6 +46,7 @@ export async function getScenarioPageData(
     resolvedEntrypoint,
   )
   const resolvedLens = input.lens ?? lensOptions[0] ?? DEFAULT_LENS_SLUG
+  const metric = parseSizeMetric(input.metric)
   const latestSummary = resolvedBranch
     ? await loadLatestCommitGroupSummaryByBranch(env, repository.id, resolvedBranch)
     : null
@@ -75,6 +79,14 @@ export async function getScenarioPageData(
             row.series.lens === resolvedLens,
         ) ?? null)
       : null
+  const selectedDetail = selectedSeries
+    ? await loadSnapshotDetailForScenarioRun(env, {
+        scenarioRunId: selectedSeries.series.scenarioRunId,
+        environment: selectedSeries.series.environment,
+        entrypoint: selectedSeries.series.entrypoint,
+        metric,
+      })
+    : null
 
   return {
     repository,
@@ -83,6 +95,7 @@ export async function getScenarioPageData(
     env: resolvedEnvironment,
     entrypoint: resolvedEntrypoint,
     lens: resolvedLens,
+    metric,
     tab: input.tab,
     branchOptions,
     environmentOptions,
@@ -94,5 +107,6 @@ export async function getScenarioPageData(
     history,
     compareShortcut: buildScenarioCompareShortcut(latestFreshScenario),
     selectedSeries,
+    selectedDetail,
   }
 }

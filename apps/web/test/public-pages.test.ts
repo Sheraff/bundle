@@ -43,20 +43,42 @@ describe("public pages", () => {
     expect(repositoryPage.headers.get("content-type")).toContain("text/html")
     expect(await repositoryPage.text()).toContain("Repository overview public page.")
 
+    const historyPage = await fetchPage(
+      "https://bundle.test/r/acme/widget/history?branch=main&scenario=all&env=all&entrypoint=all&lens=entry-js-direct-css&metric=gzip",
+    )
+    const historyPageText = await historyPage.text()
+    expect(historyPage.status).toBe(200)
+    expect(historyPageText).toContain("Repository History")
+    expect(historyPageText).toContain("Compare Builder")
+
     const scenarioPage = await fetchPage(
-      "https://bundle.test/r/acme/widget/scenarios/fixture-app-cost?branch=main&env=all&entrypoint=all&lens=entry-js-direct-css",
+      "https://bundle.test/r/acme/widget/scenarios/fixture-app-cost?branch=main&env=all&entrypoint=all&lens=entry-js-direct-css&metric=gzip&tab=history",
     )
     const scenarioPageText = await scenarioPage.text()
     expect(scenarioPage.status).toBe(200)
     expect(scenarioPageText).toContain("Scenario public page.")
 
+    const scenarioTreemapPage = await fetchPage(
+      "https://bundle.test/r/acme/widget/scenarios/fixture-app-cost?branch=main&env=default&entrypoint=src/main.ts&lens=entry-js-direct-css&metric=gzip&tab=treemap",
+    )
+    const scenarioTreemapText = await scenarioTreemapPage.text()
+    expect(scenarioTreemapPage.status).toBe(200)
+    expect(scenarioTreemapText).toContain("Chunks")
+
     const comparePage = await fetchPage(
-      `https://bundle.test/r/acme/widget/compare${defaultStringifySearch({ base: baseSha, head: headSha })}`,
+      `https://bundle.test/r/acme/widget/compare${defaultStringifySearch({ base: baseSha, head: headSha, metric: "gzip" })}`,
     )
     const comparePageText = await comparePage.text()
     expect(comparePage.status).toBe(200)
     expect(comparePageText).toContain("Compare")
     expect(comparePageText).toContain("fixture-app-cost")
+
+    const compareAssetsPage = await fetchPage(
+      `https://bundle.test/r/acme/widget/compare${defaultStringifySearch({ base: baseSha, head: headSha, scenario: "fixture-app-cost", env: "default", entrypoint: "src/main.ts", lens: "entry-js-direct-css", metric: "gzip", tab: "assets" })}`,
+    )
+    const compareAssetsText = await compareAssetsPage.text()
+    expect(compareAssetsPage.status).toBe(200)
+    expect(compareAssetsText).toContain("Assets")
   })
 
   it("serves the PR-scoped compare page through the worker", async () => {
@@ -95,7 +117,7 @@ describe("public pages", () => {
     const repositoryPageText = await repositoryPage.text()
 
     expect(repositoryPage.status).toBe(200)
-    expect(repositoryPageText).toContain("No branch data yet")
+    expect(repositoryPageText).toContain("Current: <!-- -->none")
     expect(repositoryPageText).toContain("No settled branch summary is available yet.")
 
     const scenarioPage = await fetchPage(
@@ -104,7 +126,7 @@ describe("public pages", () => {
     const scenarioPageText = await scenarioPage.text()
 
     expect(scenarioPage.status).toBe(200)
-    expect(scenarioPageText).toContain("No branch data yet")
+    expect(scenarioPageText).toContain("Current: <!-- -->none")
     expect(scenarioPageText).toContain("No branch summary is available for this scenario yet.")
   })
 

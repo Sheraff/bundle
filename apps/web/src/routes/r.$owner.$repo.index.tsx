@@ -7,6 +7,8 @@ import { Link, createFileRoute } from "@tanstack/react-router"
 import { createServerFn } from "@tanstack/react-start"
 import * as v from "valibot"
 
+import { TrendChart, type TrendChartSeries } from "../components/charts.js"
+import { LinkSelector, MetricSelector } from "../components/url-controls.js"
 import { getRepositoryOverviewPageData } from "../lib/public-read-models.server.js"
 import {
   formatBytes,
@@ -20,10 +22,12 @@ import {
   formatSeriesLabel,
   formatStateBadge,
 } from "../lib/public-route-presentation.js"
+import { metricPointValue, type SizeMetric } from "../lib/size-metric.js"
 
 const repositoryOverviewSearchSchema = v.strictObject({
   branch: v.optional(nonEmptyStringSchema),
   lens: v.optional(nonEmptyStringSchema, DEFAULT_LENS_SLUG),
+  metric: v.optional(nonEmptyStringSchema),
 })
 
 const getRepositoryOverview = createServerFn({ method: "GET" })
@@ -39,6 +43,7 @@ const getRepositoryOverview = createServerFn({ method: "GET" })
       repo: data.params.repo,
       branch: data.search.branch,
       lens: data.search.lens,
+      metric: data.search.metric,
     }),
   )
 
@@ -57,6 +62,7 @@ export const Route = createFileRoute("/r/$owner/$repo/")({
 
 type RepositoryOverviewData = ReturnType<typeof Route.useLoaderData>
 type RepositoryScenarioCatalogRow = RepositoryOverviewData["scenarioCatalog"][number]
+type RepositoryTrendPoint = RepositoryOverviewData["trend"][number]
 
 function RepositoryOverviewRouteComponent() {
   const data = Route.useLoaderData()
@@ -71,46 +77,42 @@ function RepositoryOverviewRouteComponent() {
           {data.repository.owner}/{data.repository.name}
         </h1>
         <p>Repository overview public page.</p>
+        <p>
+          <Link
+            to="/r/$owner/$repo/history"
+            params={{ owner: data.repository.owner, repo: data.repository.name }}
+            search={{
+              branch: data.branch ?? undefined,
+              scenario: "all",
+              env: "all",
+              entrypoint: "all",
+              lens: data.lens,
+              metric: data.metric,
+            }}
+          >
+            Open repository history
+          </Link>
+        </p>
       </header>
 
       <section>
         <h2>Filters</h2>
-        <p>Current branch: {data.branch ?? "No branch data yet"}</p>
-        <p>Current lens: {data.lens}</p>
-        <p>Available branches:</p>
-        <ul>
-          {data.branchOptions.map((branch) => (
-            <li key={branch}>
-              <Link
-                to="/r/$owner/$repo"
-                from={Route.fullPath}
-                search={{
-                  branch,
-                  lens: data.lens,
-                }}
-              >
-                {branch}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <p>Available lenses:</p>
-        <ul>
-          {data.lensOptions.map((lens) => (
-            <li key={lens}>
-              <Link
-                to="/r/$owner/$repo"
-                from={Route.fullPath}
-                search={{
-                  branch: data.branch ?? undefined,
-                  lens,
-                }}
-              >
-                {lens}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <LinkSelector
+          label="Branch"
+          current={data.branch}
+          options={data.branchOptions}
+          searchFor={(branch) => ({ branch, lens: data.lens, metric: data.metric })}
+        />
+        <LinkSelector
+          label="Lens"
+          current={data.lens}
+          options={data.lensOptions}
+          searchFor={(lens) => ({ branch: data.branch ?? undefined, lens, metric: data.metric })}
+        />
+        <MetricSelector
+          current={data.metric}
+          searchFor={(metric) => ({ branch: data.branch ?? undefined, lens: data.lens, metric })}
+        />
       </section>
 
       <section>
@@ -118,28 +120,33 @@ function RepositoryOverviewRouteComponent() {
         {data.trend.length === 0 ? (
           <p>No trend data has been derived for the selected branch and lens yet.</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Commit</th>
-                <th>Measured At</th>
-                <th>Raw</th>
-                <th>Gzip</th>
-                <th>Brotli</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.trend.map((point) => (
-                <tr key={point.commitGroupId}>
-                  <td>{shortSha(point.commitSha)}</td>
-                  <td>{point.measuredAt}</td>
-                  <td>{formatBytes(point.totalRawBytes)}</td>
-                  <td>{formatBytes(point.totalGzipBytes)}</td>
-                  <td>{formatBytes(point.totalBrotliBytes)}</td>
+          <>
+            <TrendChart series={buildTrendSeries(data.trend, data.metric)} />
+            <table>
+              <thead>
+                <tr>
+                  <th>Series</th>
+                  <th>Commit</th>
+                  <th>Measured At</th>
+                  <th>Raw</th>
+                  <th>Gzip</th>
+                  <th>Brotli</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.trend.map((point) => (
+                  <tr key={`${point.seriesId}:${point.commitGroupId}`}>
+                    <td>{point.scenarioSlug} / {point.environment} / {point.entrypoint}</td>
+                    <td>{shortSha(point.commitSha)}</td>
+                    <td>{point.measuredAt}</td>
+                    <td>{formatBytes(point.totalRawBytes)}</td>
+                    <td>{formatBytes(point.totalGzipBytes)}</td>
+                    <td>{formatBytes(point.totalBrotliBytes)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
         )}
       </section>
 
@@ -226,6 +233,38 @@ function RepositoryOverviewRouteComponent() {
       </section>
     </main>
   )
+}
+
+function buildTrendSeries(
+  points: RepositoryTrendPoint[],
+  metric: SizeMetric,
+): TrendChartSeries[] {
+  const seriesById = new Map<string, TrendChartSeries>()
+
+  for (const point of points) {
+    const existing = seriesById.get(point.seriesId)
+    const nextPoint = {
+      commitSha: point.commitSha,
+      measuredAt: point.measuredAt,
+      value: metricPointValue(point, metric),
+    }
+
+    if (existing) {
+      existing.points.push(nextPoint)
+      continue
+    }
+
+    seriesById.set(point.seriesId, {
+      id: point.seriesId,
+      label: `${point.scenarioSlug} / ${point.environment} / ${point.entrypoint}`,
+      points: [nextPoint],
+    })
+  }
+
+  return [...seriesById.values()].map((series) => ({
+    ...series,
+    points: [...series.points].sort((left, right) => left.measuredAt.localeCompare(right.measuredAt)),
+  }))
 }
 
 function RepositoryScenarioRow({

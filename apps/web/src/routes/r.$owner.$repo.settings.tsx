@@ -125,6 +125,14 @@ function RepositorySettingsRouteComponent() {
         </Link>
         .
       </p>
+      <p>
+        <Link
+          to="/r/$owner/$repo/settings/synthetic-scenarios"
+          params={{ owner: data.repository.owner, repo: data.repository.name }}
+        >
+          Manage hosted synthetic scenarios
+        </Link>
+      </p>
       <h2>Setup checklist</h2>
       <ol>
         <li>Install the Chunk Scope Vite plugin.</li>

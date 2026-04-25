@@ -24,6 +24,7 @@ export const publicScenarioRouteParamsSchema = v.strictObject({
 export const repositoryOverviewSearchParamsSchema = v.strictObject({
   branch: v.optional(nonEmptyStringSchema),
   lens: nonEmptyStringSchema,
+  metric: v.optional(nonEmptyStringSchema),
 })
 
 export const repositoryHistorySearchParamsSchema = v.strictObject({
@@ -32,6 +33,7 @@ export const repositoryHistorySearchParamsSchema = v.strictObject({
   env: v.optional(nonEmptyStringSchema),
   entrypoint: v.optional(nonEmptyStringSchema),
   lens: nonEmptyStringSchema,
+  metric: v.optional(nonEmptyStringSchema),
 })
 
 export const scenarioPageSearchParamsSchema = v.strictObject({
@@ -40,6 +42,7 @@ export const scenarioPageSearchParamsSchema = v.strictObject({
   entrypoint: nonEmptyStringSchema,
   lens: nonEmptyStringSchema,
   tab: v.optional(nonEmptyStringSchema),
+  metric: v.optional(nonEmptyStringSchema),
 })
 
 export const comparePageSearchParamsSchema = v.strictObject({
@@ -51,6 +54,7 @@ export const comparePageSearchParamsSchema = v.strictObject({
   entrypoint: v.optional(nonAllStringSchema),
   lens: v.optional(nonEmptyStringSchema),
   tab: v.optional(nonEmptyStringSchema),
+  metric: v.optional(nonEmptyStringSchema),
 })
 
 export type PublicRepositoryRouteParams = v.InferOutput<typeof publicRepositoryRouteParamsSchema>

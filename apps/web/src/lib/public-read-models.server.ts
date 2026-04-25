@@ -2,3 +2,4 @@ export { getRepositoryOverviewPageData } from "./public-read-models/repository-o
 export { getScenarioPageData } from "./public-read-models/scenario-page.server.js"
 export { getNeutralComparePageData } from "./public-read-models/neutral-compare-page.server.js"
 export { getPullRequestComparePageData } from "./public-read-models/pr-compare-page.server.js"
+export { getRepositoryHistoryPageData } from "./public-read-models/repository-history.server.js"

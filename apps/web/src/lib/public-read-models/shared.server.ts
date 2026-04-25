@@ -11,7 +11,7 @@ import {
   type ReviewedComparisonSeriesSummaryV1,
   type ReviewedScenarioSummaryV1,
 } from "@workspace/contracts"
-import { and, asc, desc, eq, isNull, sql } from "drizzle-orm"
+import { and, asc, desc, eq, isNull } from "drizzle-orm"
 import * as v from "valibot"
 
 import { getDb, schema } from "../../db/index.js"
@@ -28,6 +28,12 @@ export interface RepositoryReference {
 }
 
 export interface RepositoryTrendPoint {
+  seriesId: string
+  scenarioSlug: string
+  environment: string
+  entrypoint: string
+  entrypointKind: string
+  lens: string
   commitGroupId: string
   commitSha: string
   measuredAt: string
@@ -46,6 +52,7 @@ export interface ScenarioHistoryPoint {
 
 export type ScenarioHistorySeries = {
   seriesId: string
+  scenarioSlug?: string
   environment: string
   entrypoint: string
   entrypointKind: string
@@ -60,6 +67,14 @@ export interface ScenarioCompareShortcut {
   env: string
   entrypoint: string
   lens: string
+}
+
+export interface RepositoryCommitOption {
+  branch: string
+  commitGroupId: string
+  commitSha: string
+  latestUploadAt: string
+  prNumber: number | null
 }
 
 export type NeutralScenarioCompareRow = {
@@ -161,6 +176,67 @@ export async function listRepositoryLenses(env: AppBindings, repositoryId: strin
     .orderBy(asc(schema.series.lens))
 
   return rows.map((row) => row.lens)
+}
+
+export async function listRepositoryScenarios(env: AppBindings, repositoryId: string) {
+  const rows = await getDb(env)
+    .select({ slug: schema.scenarios.slug })
+    .from(schema.scenarios)
+    .where(eq(schema.scenarios.repositoryId, repositoryId))
+    .orderBy(asc(schema.scenarios.slug))
+
+  return rows.map((row) => row.slug)
+}
+
+export async function listRepositoryEnvironments(env: AppBindings, repositoryId: string) {
+  const rows = await getDb(env)
+    .selectDistinct({ environment: schema.series.environment })
+    .from(schema.series)
+    .where(eq(schema.series.repositoryId, repositoryId))
+    .orderBy(asc(schema.series.environment))
+
+  return rows.map((row) => row.environment)
+}
+
+export async function listRepositoryEntrypoints(
+  env: AppBindings,
+  repositoryId: string,
+  environment: string,
+) {
+  const filters = [eq(schema.series.repositoryId, repositoryId)]
+
+  if (environment !== "all") {
+    filters.push(eq(schema.series.environment, environment))
+  }
+
+  const rows = await getDb(env)
+    .selectDistinct({ entrypoint: schema.series.entrypointKey })
+    .from(schema.series)
+    .where(and(...filters))
+    .orderBy(asc(schema.series.entrypointKey))
+
+  return rows.map((row) => row.entrypoint)
+}
+
+export async function listRepositoryCommitOptions(
+  env: AppBindings,
+  repositoryId: string,
+): Promise<RepositoryCommitOption[]> {
+  const rows = await getDb(env)
+    .select({
+      branch: schema.commitGroups.branch,
+      commitGroupId: schema.commitGroups.id,
+      commitSha: schema.commitGroups.commitSha,
+      latestUploadAt: schema.commitGroups.latestUploadAt,
+      prNumber: schema.pullRequests.prNumber,
+    })
+    .from(schema.commitGroups)
+    .leftJoin(schema.pullRequests, eq(schema.pullRequests.id, schema.commitGroups.pullRequestId))
+    .where(eq(schema.commitGroups.repositoryId, repositoryId))
+    .orderBy(desc(schema.commitGroups.latestUploadAt))
+    .limit(50)
+
+  return rows
 }
 
 export async function listScenarioEnvironments(env: AppBindings, scenarioId: string) {
@@ -317,19 +393,24 @@ export async function loadRepositoryTrend(
   branch: string,
   lens: string,
 ) {
-  const measuredAtExpression = sql<string>`max(${schema.seriesPoints.measuredAt})`
-
   return getDb(env)
     .select({
+      seriesId: schema.series.id,
+      scenarioSlug: schema.scenarios.slug,
+      environment: schema.series.environment,
+      entrypoint: schema.series.entrypointKey,
+      entrypointKind: schema.series.entrypointKind,
+      lens: schema.series.lens,
       commitGroupId: schema.seriesPoints.commitGroupId,
       commitSha: schema.seriesPoints.commitSha,
-      measuredAt: measuredAtExpression,
-      totalRawBytes: sql<number>`sum(${schema.seriesPoints.totalRawBytes})`,
-      totalGzipBytes: sql<number>`sum(${schema.seriesPoints.totalGzipBytes})`,
-      totalBrotliBytes: sql<number>`sum(${schema.seriesPoints.totalBrotliBytes})`,
+      measuredAt: schema.seriesPoints.measuredAt,
+      totalRawBytes: schema.seriesPoints.totalRawBytes,
+      totalGzipBytes: schema.seriesPoints.totalGzipBytes,
+      totalBrotliBytes: schema.seriesPoints.totalBrotliBytes,
     })
     .from(schema.seriesPoints)
     .innerJoin(schema.series, eq(schema.series.id, schema.seriesPoints.seriesId))
+    .innerJoin(schema.scenarios, eq(schema.scenarios.id, schema.series.scenarioId))
     .where(
       and(
         eq(schema.seriesPoints.repositoryId, repositoryId),
@@ -337,9 +418,8 @@ export async function loadRepositoryTrend(
         eq(schema.series.lens, lens),
       ),
     )
-    .groupBy(schema.seriesPoints.commitGroupId, schema.seriesPoints.commitSha)
-    .orderBy(desc(measuredAtExpression))
-    .limit(20)
+    .orderBy(asc(schema.scenarios.slug), asc(schema.series.entrypointKey), desc(schema.seriesPoints.measuredAt))
+    .limit(200)
 }
 
 export async function loadScenarioHistory(
@@ -396,6 +476,86 @@ export async function loadScenarioHistory(
     if (!existingSeries) {
       historyBySeries.set(row.seriesId, {
         seriesId: row.seriesId,
+        environment: row.environment,
+        entrypoint: row.entrypoint,
+        entrypointKind: row.entrypointKind,
+        lens: row.lens,
+        points: [toScenarioHistoryPoint(row)],
+      })
+      continue
+    }
+
+    if (existingSeries.points.length < 20) {
+      existingSeries.points.push(toScenarioHistoryPoint(row))
+    }
+  }
+
+  return Array.from(historyBySeries.values())
+}
+
+export async function loadRepositoryHistory(
+  env: AppBindings,
+  repositoryId: string,
+  input: {
+    branch: string
+    scenario: string
+    environment: string
+    entrypoint: string
+    lens: string
+  },
+) {
+  const filters = [
+    eq(schema.seriesPoints.repositoryId, repositoryId),
+    eq(schema.seriesPoints.branch, input.branch),
+    eq(schema.series.lens, input.lens),
+  ]
+
+  if (input.scenario !== "all") {
+    filters.push(eq(schema.scenarios.slug, input.scenario))
+  }
+
+  if (input.environment !== "all") {
+    filters.push(eq(schema.series.environment, input.environment))
+  }
+
+  if (input.entrypoint !== "all") {
+    filters.push(eq(schema.series.entrypointKey, input.entrypoint))
+  }
+
+  const rows = await getDb(env)
+    .select({
+      seriesId: schema.series.id,
+      scenarioSlug: schema.scenarios.slug,
+      environment: schema.series.environment,
+      entrypoint: schema.series.entrypointKey,
+      entrypointKind: schema.series.entrypointKind,
+      lens: schema.series.lens,
+      commitSha: schema.seriesPoints.commitSha,
+      measuredAt: schema.seriesPoints.measuredAt,
+      totalRawBytes: schema.seriesPoints.totalRawBytes,
+      totalGzipBytes: schema.seriesPoints.totalGzipBytes,
+      totalBrotliBytes: schema.seriesPoints.totalBrotliBytes,
+    })
+    .from(schema.seriesPoints)
+    .innerJoin(schema.series, eq(schema.series.id, schema.seriesPoints.seriesId))
+    .innerJoin(schema.scenarios, eq(schema.scenarios.id, schema.series.scenarioId))
+    .where(and(...filters))
+    .orderBy(
+      asc(schema.scenarios.slug),
+      asc(schema.series.environment),
+      asc(schema.series.entrypointKey),
+      desc(schema.seriesPoints.measuredAt),
+    )
+
+  const historyBySeries = new Map<string, ScenarioHistorySeries>()
+
+  for (const row of rows) {
+    const existingSeries = historyBySeries.get(row.seriesId)
+
+    if (!existingSeries) {
+      historyBySeries.set(row.seriesId, {
+        seriesId: row.seriesId,
+        scenarioSlug: row.scenarioSlug,
         environment: row.environment,
         entrypoint: row.entrypoint,
         entrypointKind: row.entrypointKind,

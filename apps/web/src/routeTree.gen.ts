@@ -15,8 +15,12 @@ import { Route as AppSetupRouteImport } from './routes/app.setup.js'
 import { Route as AppInstallationsInstallationIdRouteImport } from './routes/app.installations.$installationId.js'
 import { Route as ROwnerRepoIndexRouteImport } from './routes/r.$owner.$repo.index.js'
 import { Route as ROwnerRepoSettingsRouteImport } from './routes/r.$owner.$repo.settings.js'
+import { Route as ROwnerRepoHistoryRouteImport } from './routes/r.$owner.$repo.history.js'
 import { Route as ROwnerRepoCompareRouteImport } from './routes/r.$owner.$repo.compare.js'
+import { Route as ROwnerRepoSettingsSyntheticScenariosRouteImport } from './routes/r.$owner.$repo.settings.synthetic-scenarios.js'
 import { Route as ROwnerRepoScenariosScenarioRouteImport } from './routes/r.$owner.$repo.scenarios.$scenario.js'
+import { Route as ROwnerRepoSettingsSyntheticScenariosNewRouteImport } from './routes/r.$owner.$repo.settings.synthetic-scenarios.new.js'
+import { Route as ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRouteImport } from './routes/r.$owner.$repo.settings.synthetic-scenarios.$scenarioId.edit.js'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -49,16 +53,39 @@ const ROwnerRepoSettingsRoute = ROwnerRepoSettingsRouteImport.update({
   path: '/r/$owner/$repo/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ROwnerRepoHistoryRoute = ROwnerRepoHistoryRouteImport.update({
+  id: '/r/$owner/$repo/history',
+  path: '/r/$owner/$repo/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ROwnerRepoCompareRoute = ROwnerRepoCompareRouteImport.update({
   id: '/r/$owner/$repo/compare',
   path: '/r/$owner/$repo/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ROwnerRepoSettingsSyntheticScenariosRoute =
+  ROwnerRepoSettingsSyntheticScenariosRouteImport.update({
+    id: '/synthetic-scenarios',
+    path: '/synthetic-scenarios',
+    getParentRoute: () => ROwnerRepoSettingsRoute,
+  } as any)
 const ROwnerRepoScenariosScenarioRoute =
   ROwnerRepoScenariosScenarioRouteImport.update({
     id: '/r/$owner/$repo/scenarios/$scenario',
     path: '/r/$owner/$repo/scenarios/$scenario',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const ROwnerRepoSettingsSyntheticScenariosNewRoute =
+  ROwnerRepoSettingsSyntheticScenariosNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => ROwnerRepoSettingsSyntheticScenariosRoute,
+  } as any)
+const ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRoute =
+  ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRouteImport.update({
+    id: '/$scenarioId/edit',
+    path: '/$scenarioId/edit',
+    getParentRoute: () => ROwnerRepoSettingsSyntheticScenariosRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -67,9 +94,13 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/app/installations/$installationId': typeof AppInstallationsInstallationIdRoute
   '/r/$owner/$repo/compare': typeof ROwnerRepoCompareRoute
-  '/r/$owner/$repo/settings': typeof ROwnerRepoSettingsRoute
+  '/r/$owner/$repo/history': typeof ROwnerRepoHistoryRoute
+  '/r/$owner/$repo/settings': typeof ROwnerRepoSettingsRouteWithChildren
   '/r/$owner/$repo/': typeof ROwnerRepoIndexRoute
   '/r/$owner/$repo/scenarios/$scenario': typeof ROwnerRepoScenariosScenarioRoute
+  '/r/$owner/$repo/settings/synthetic-scenarios': typeof ROwnerRepoSettingsSyntheticScenariosRouteWithChildren
+  '/r/$owner/$repo/settings/synthetic-scenarios/new': typeof ROwnerRepoSettingsSyntheticScenariosNewRoute
+  '/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit': typeof ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -77,9 +108,13 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/app/installations/$installationId': typeof AppInstallationsInstallationIdRoute
   '/r/$owner/$repo/compare': typeof ROwnerRepoCompareRoute
-  '/r/$owner/$repo/settings': typeof ROwnerRepoSettingsRoute
+  '/r/$owner/$repo/history': typeof ROwnerRepoHistoryRoute
+  '/r/$owner/$repo/settings': typeof ROwnerRepoSettingsRouteWithChildren
   '/r/$owner/$repo': typeof ROwnerRepoIndexRoute
   '/r/$owner/$repo/scenarios/$scenario': typeof ROwnerRepoScenariosScenarioRoute
+  '/r/$owner/$repo/settings/synthetic-scenarios': typeof ROwnerRepoSettingsSyntheticScenariosRouteWithChildren
+  '/r/$owner/$repo/settings/synthetic-scenarios/new': typeof ROwnerRepoSettingsSyntheticScenariosNewRoute
+  '/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit': typeof ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -88,9 +123,13 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/app/installations/$installationId': typeof AppInstallationsInstallationIdRoute
   '/r/$owner/$repo/compare': typeof ROwnerRepoCompareRoute
-  '/r/$owner/$repo/settings': typeof ROwnerRepoSettingsRoute
+  '/r/$owner/$repo/history': typeof ROwnerRepoHistoryRoute
+  '/r/$owner/$repo/settings': typeof ROwnerRepoSettingsRouteWithChildren
   '/r/$owner/$repo/': typeof ROwnerRepoIndexRoute
   '/r/$owner/$repo/scenarios/$scenario': typeof ROwnerRepoScenariosScenarioRoute
+  '/r/$owner/$repo/settings/synthetic-scenarios': typeof ROwnerRepoSettingsSyntheticScenariosRouteWithChildren
+  '/r/$owner/$repo/settings/synthetic-scenarios/new': typeof ROwnerRepoSettingsSyntheticScenariosNewRoute
+  '/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit': typeof ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -100,9 +139,13 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/installations/$installationId'
     | '/r/$owner/$repo/compare'
+    | '/r/$owner/$repo/history'
     | '/r/$owner/$repo/settings'
     | '/r/$owner/$repo/'
     | '/r/$owner/$repo/scenarios/$scenario'
+    | '/r/$owner/$repo/settings/synthetic-scenarios'
+    | '/r/$owner/$repo/settings/synthetic-scenarios/new'
+    | '/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -110,9 +153,13 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/installations/$installationId'
     | '/r/$owner/$repo/compare'
+    | '/r/$owner/$repo/history'
     | '/r/$owner/$repo/settings'
     | '/r/$owner/$repo'
     | '/r/$owner/$repo/scenarios/$scenario'
+    | '/r/$owner/$repo/settings/synthetic-scenarios'
+    | '/r/$owner/$repo/settings/synthetic-scenarios/new'
+    | '/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit'
   id:
     | '__root__'
     | '/'
@@ -120,9 +167,13 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/installations/$installationId'
     | '/r/$owner/$repo/compare'
+    | '/r/$owner/$repo/history'
     | '/r/$owner/$repo/settings'
     | '/r/$owner/$repo/'
     | '/r/$owner/$repo/scenarios/$scenario'
+    | '/r/$owner/$repo/settings/synthetic-scenarios'
+    | '/r/$owner/$repo/settings/synthetic-scenarios/new'
+    | '/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -131,7 +182,8 @@ export interface RootRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppInstallationsInstallationIdRoute: typeof AppInstallationsInstallationIdRoute
   ROwnerRepoCompareRoute: typeof ROwnerRepoCompareRoute
-  ROwnerRepoSettingsRoute: typeof ROwnerRepoSettingsRoute
+  ROwnerRepoHistoryRoute: typeof ROwnerRepoHistoryRoute
+  ROwnerRepoSettingsRoute: typeof ROwnerRepoSettingsRouteWithChildren
   ROwnerRepoIndexRoute: typeof ROwnerRepoIndexRoute
   ROwnerRepoScenariosScenarioRoute: typeof ROwnerRepoScenariosScenarioRoute
 }
@@ -180,12 +232,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ROwnerRepoSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/r/$owner/$repo/history': {
+      id: '/r/$owner/$repo/history'
+      path: '/r/$owner/$repo/history'
+      fullPath: '/r/$owner/$repo/history'
+      preLoaderRoute: typeof ROwnerRepoHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/r/$owner/$repo/compare': {
       id: '/r/$owner/$repo/compare'
       path: '/r/$owner/$repo/compare'
       fullPath: '/r/$owner/$repo/compare'
       preLoaderRoute: typeof ROwnerRepoCompareRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/r/$owner/$repo/settings/synthetic-scenarios': {
+      id: '/r/$owner/$repo/settings/synthetic-scenarios'
+      path: '/synthetic-scenarios'
+      fullPath: '/r/$owner/$repo/settings/synthetic-scenarios'
+      preLoaderRoute: typeof ROwnerRepoSettingsSyntheticScenariosRouteImport
+      parentRoute: typeof ROwnerRepoSettingsRoute
     }
     '/r/$owner/$repo/scenarios/$scenario': {
       id: '/r/$owner/$repo/scenarios/$scenario'
@@ -194,8 +260,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ROwnerRepoScenariosScenarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/r/$owner/$repo/settings/synthetic-scenarios/new': {
+      id: '/r/$owner/$repo/settings/synthetic-scenarios/new'
+      path: '/new'
+      fullPath: '/r/$owner/$repo/settings/synthetic-scenarios/new'
+      preLoaderRoute: typeof ROwnerRepoSettingsSyntheticScenariosNewRouteImport
+      parentRoute: typeof ROwnerRepoSettingsSyntheticScenariosRoute
+    }
+    '/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit': {
+      id: '/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit'
+      path: '/$scenarioId/edit'
+      fullPath: '/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit'
+      preLoaderRoute: typeof ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRouteImport
+      parentRoute: typeof ROwnerRepoSettingsSyntheticScenariosRoute
+    }
   }
 }
+
+interface ROwnerRepoSettingsSyntheticScenariosRouteChildren {
+  ROwnerRepoSettingsSyntheticScenariosNewRoute: typeof ROwnerRepoSettingsSyntheticScenariosNewRoute
+  ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRoute: typeof ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRoute
+}
+
+const ROwnerRepoSettingsSyntheticScenariosRouteChildren: ROwnerRepoSettingsSyntheticScenariosRouteChildren =
+  {
+    ROwnerRepoSettingsSyntheticScenariosNewRoute:
+      ROwnerRepoSettingsSyntheticScenariosNewRoute,
+    ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRoute:
+      ROwnerRepoSettingsSyntheticScenariosScenarioIdEditRoute,
+  }
+
+const ROwnerRepoSettingsSyntheticScenariosRouteWithChildren =
+  ROwnerRepoSettingsSyntheticScenariosRoute._addFileChildren(
+    ROwnerRepoSettingsSyntheticScenariosRouteChildren,
+  )
+
+interface ROwnerRepoSettingsRouteChildren {
+  ROwnerRepoSettingsSyntheticScenariosRoute: typeof ROwnerRepoSettingsSyntheticScenariosRouteWithChildren
+}
+
+const ROwnerRepoSettingsRouteChildren: ROwnerRepoSettingsRouteChildren = {
+  ROwnerRepoSettingsSyntheticScenariosRoute:
+    ROwnerRepoSettingsSyntheticScenariosRouteWithChildren,
+}
+
+const ROwnerRepoSettingsRouteWithChildren =
+  ROwnerRepoSettingsRoute._addFileChildren(ROwnerRepoSettingsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -203,7 +313,8 @@ const rootRouteChildren: RootRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppInstallationsInstallationIdRoute: AppInstallationsInstallationIdRoute,
   ROwnerRepoCompareRoute: ROwnerRepoCompareRoute,
-  ROwnerRepoSettingsRoute: ROwnerRepoSettingsRoute,
+  ROwnerRepoHistoryRoute: ROwnerRepoHistoryRoute,
+  ROwnerRepoSettingsRoute: ROwnerRepoSettingsRouteWithChildren,
   ROwnerRepoIndexRoute: ROwnerRepoIndexRoute,
   ROwnerRepoScenariosScenarioRoute: ROwnerRepoScenariosScenarioRoute,
 }

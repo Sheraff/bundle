@@ -14,6 +14,8 @@ import { getRequest, setResponseStatus } from "@tanstack/react-start/server"
 import { useState } from "react"
 import * as v from "valibot"
 
+import { SelectedSeriesDetailView } from "../components/selected-series-detail.js"
+import { MetricSelector, TabSelector } from "../components/url-controls.js"
 import {
   AcknowledgementAuthorizationError,
   AcknowledgementNotFoundError,
@@ -35,6 +37,8 @@ import {
   formatSeriesLabel,
 } from "../lib/public-route-presentation.js"
 
+const compareTabs = ["summary", "treemap", "graph", "waterfall", "assets", "packages", "budget", "identity"] as const
+
 const comparePageSearchSchema = v.strictObject({
   base: gitShaSchema,
   head: gitShaSchema,
@@ -44,6 +48,7 @@ const comparePageSearchSchema = v.strictObject({
   entrypoint: v.optional(nonAllStringSchema),
   lens: v.optional(nonEmptyStringSchema),
   tab: v.optional(nonEmptyStringSchema),
+  metric: v.optional(nonEmptyStringSchema),
 })
 
 const getComparePage = createServerFn({ method: "GET" })
@@ -132,6 +137,10 @@ export const Route = createFileRoute("/r/$owner/$repo/compare")({
 function ComparePageRouteComponent() {
   const data = Route.useLoaderData()
   const search = Route.useSearch()
+  const tab = compareTabs.includes(search.tab as (typeof compareTabs)[number])
+    ? (search.tab as (typeof compareTabs)[number])
+    : "summary"
+  const rows = data.mode === "pr" ? data.reviewedRows : data.neutralRows
 
   return (
     <main>
@@ -143,6 +152,7 @@ function ComparePageRouteComponent() {
             search={{
               branch: data.latestSummary?.branch ?? data.latestReviewSummary?.branch,
               lens: search.lens ?? DEFAULT_LENS_SLUG,
+              metric: data.metric,
             }}
           >
             {data.repository.owner}/{data.repository.name}
@@ -155,14 +165,23 @@ function ComparePageRouteComponent() {
         </p>
       </header>
 
+      <CompareBuilder />
+
       <section>
         <h2>Context</h2>
         <p>Requested scenario: {search.scenario ?? "all"}</p>
         <p>Requested environment: {search.env ?? "all"}</p>
         <p>Requested entrypoint: {search.entrypoint ?? "all"}</p>
         <p>Requested lens: {search.lens ?? "table mode"}</p>
-        <p>Requested tab: {search.tab ?? "summary"}</p>
+        <p>Requested metric: {data.metric}</p>
+        <p>Requested tab: {tab}</p>
         <p>Stored compare context matched: {data.contextMatched ? "yes" : "no"}</p>
+      </section>
+
+      <section>
+        <h2>Series Selectors</h2>
+        <CompareFilterLinks rows={rows} />
+        <MetricSelector current={data.metric} searchFor={(metric) => compareSearch(search, { metric })} />
       </section>
 
       <section>
@@ -214,16 +233,128 @@ function ComparePageRouteComponent() {
       </section>
 
       <section>
-        <h2>Tabs</h2>
-        <p>Current tab: {search.tab ?? "summary"}</p>
-        <p>Detailed treemap, graph, and waterfall views are not available yet.</p>
+        <h2>Detail Tabs</h2>
+        <TabSelector current={tab} tabs={compareTabs} searchFor={(nextTab) => compareSearch(search, { tab: nextTab })} />
+        <SelectedSeriesDetailView
+          detail={tab === "summary" ? null : data.selectedDetail}
+          metric={data.metric}
+          mode="compare"
+          tab={tab}
+          budgetState={(data.selectedNeutralRow ?? data.selectedReviewedRow)?.series.budgetState}
+          hasDegradedStableIdentity={(data.selectedNeutralRow ?? data.selectedReviewedRow)?.series.hasDegradedStableIdentity}
+        />
       </section>
     </main>
   )
 }
 
+function CompareBuilder() {
+  const data = Route.useLoaderData()
+  const search = Route.useSearch()
+  const options = data.commitOptions
+
+  return (
+    <section>
+      <h2>Compare Builder</h2>
+      {options.length < 2 ? (
+        <p>At least two known commit groups are needed to build an arbitrary comparison.</p>
+      ) : (
+        <form action={`/r/${data.repository.owner}/${data.repository.name}/compare`} method="get">
+          <label>
+            Base
+            <select name="base" defaultValue={quoteSearchString(search.base)}>
+              {options.map((option) => <option key={`base:${option.commitSha}`} value={quoteSearchString(option.commitSha)}>{compareOptionLabel(option)}</option>)}
+            </select>
+          </label>
+          <label>
+            Head
+            <select name="head" defaultValue={quoteSearchString(search.head)}>
+              {options.map((option) => <option key={`head:${option.commitSha}`} value={quoteSearchString(option.commitSha)}>{compareOptionLabel(option)}</option>)}
+            </select>
+          </label>
+          {search.pr ? <input type="hidden" name="pr" value={search.pr} /> : null}
+          {search.scenario ? <input type="hidden" name="scenario" value={search.scenario} /> : null}
+          {search.env ? <input type="hidden" name="env" value={search.env} /> : null}
+          {search.entrypoint ? <input type="hidden" name="entrypoint" value={search.entrypoint} /> : null}
+          {search.lens ? <input type="hidden" name="lens" value={search.lens} /> : null}
+          <input type="hidden" name="metric" value={data.metric} />
+          <button type="submit">Open compare</button>
+        </form>
+      )}
+    </section>
+  )
+}
+
+function CompareFilterLinks(props: {
+  rows: Array<ReturnType<typeof Route.useLoaderData>["neutralRows"][number] | ReturnType<typeof Route.useLoaderData>["reviewedRows"][number]>
+}) {
+  const search = Route.useSearch()
+  const scenarios = unique(props.rows.map((row) => row.scenarioSlug))
+  const environments = unique(props.rows.map((row) => row.series.environment))
+  const entrypoints = unique(props.rows.map((row) => row.series.entrypoint))
+  const lenses = unique(props.rows.map((row) => row.series.lens))
+
+  return (
+    <>
+      <FilterGroup label="Scenario" values={scenarios} searchFor={(scenario) => compareSearch(search, { scenario })} />
+      <FilterGroup label="Environment" values={environments} searchFor={(env) => compareSearch(search, { env })} />
+      <FilterGroup label="Entrypoint" values={entrypoints} searchFor={(entrypoint) => compareSearch(search, { entrypoint })} />
+      <FilterGroup label="Lens" values={lenses} searchFor={(lens) => compareSearch(search, { lens })} />
+    </>
+  )
+}
+
+function FilterGroup(props: {
+  label: string
+  values: string[]
+  searchFor: (value: string | undefined) => Record<string, unknown>
+}) {
+  return (
+    <section>
+      <h3>{props.label}</h3>
+      {props.values.length === 0 ? <p>No options are available for the current compare.</p> : (
+        <ul>
+          <li><Link from={Route.fullPath} to="/r/$owner/$repo/compare" search={props.searchFor(undefined) as never}>all</Link></li>
+          {props.values.map((value) => <li key={value}><Link from={Route.fullPath} to="/r/$owner/$repo/compare" search={props.searchFor(value) as never}>{value}</Link></li>)}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+function compareSearch(
+  current: ReturnType<typeof Route.useSearch>,
+  updates: Partial<Record<"scenario" | "env" | "entrypoint" | "lens" | "tab" | "metric", string | undefined>>,
+) {
+  return {
+    base: current.base,
+    head: current.head,
+    pr: current.pr,
+    scenario: "scenario" in updates ? updates.scenario : current.scenario,
+    env: "env" in updates ? updates.env : current.env,
+    entrypoint: "entrypoint" in updates ? updates.entrypoint : current.entrypoint,
+    lens: "lens" in updates ? updates.lens : current.lens,
+    tab: "tab" in updates ? updates.tab : current.tab,
+    metric: "metric" in updates ? updates.metric : current.metric,
+  }
+}
+
+function unique(values: string[]) {
+  return [...new Set(values)].sort((left, right) => left.localeCompare(right))
+}
+
+function compareOptionLabel(option: ReturnType<typeof Route.useLoaderData>["commitOptions"][number]) {
+  const pr = option.prNumber ? ` PR #${option.prNumber}` : ""
+  return `${shortSha(option.commitSha)} on ${option.branch}${pr}`
+}
+
+function quoteSearchString(value: string) {
+  return JSON.stringify(value)
+}
+
 function NeutralRowsTable() {
   const data = Route.useLoaderData()
+  const search = Route.useSearch()
   return data.neutralRows.length === 0 ? (
     <p>No neutral comparison rows matched the selected base/head and series filters.</p>
   ) : (
@@ -257,6 +388,7 @@ function NeutralRowsTable() {
                   env: row.series.environment,
                   entrypoint: row.series.entrypoint,
                   lens: row.series.lens,
+                  metric: data.metric,
                 }}
               >
                 Scenario
@@ -277,6 +409,8 @@ function NeutralRowsTable() {
                       env: row.series.environment,
                       entrypoint: row.series.entrypoint,
                       lens: row.series.lens,
+                      tab: search.tab,
+                      metric: data.metric,
                     }}
                   >
                     Focus
@@ -327,6 +461,7 @@ function ReviewedRowsTable() {
                   env: row.series.environment,
                   entrypoint: row.series.entrypoint,
                   lens: row.series.lens,
+                  metric: data.metric,
                 }}
               >
                 Scenario
@@ -342,6 +477,8 @@ function ReviewedRowsTable() {
                   env: row.series.environment,
                   entrypoint: row.series.entrypoint,
                   lens: row.series.lens,
+                  tab: search.tab,
+                  metric: data.metric,
                 }}
               >
                 Focus

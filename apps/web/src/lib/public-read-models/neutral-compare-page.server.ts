@@ -5,10 +5,13 @@ import type { AppBindings } from "../../env.js"
 import {
   buildNeutralCompareRows,
   filterNeutralRows,
+  listRepositoryCommitOptions,
   loadCommitGroupSummaryByHeadSha,
   requireRepository,
   selectNeutralRow,
 } from "./shared.server.js"
+import { parseSizeMetric } from "../size-metric.js"
+import { loadComparisonDetail } from "./selected-series-detail.server.js"
 
 export async function getNeutralComparePageData(
   env: AppBindings,
@@ -29,6 +32,15 @@ export async function getNeutralComparePageData(
   )
   const neutralRows = filterNeutralRows(contextMatchedRows, input.search)
   const selectedNeutralRow = selectNeutralRow(neutralRows, input.search)
+  const metric = parseSizeMetric(input.search.metric)
+  const selectedDetail = selectedNeutralRow
+    ? await loadComparisonDetail(env, {
+        comparisonId: selectedNeutralRow.series.comparisonId,
+        environment: selectedNeutralRow.series.environment,
+        entrypoint: selectedNeutralRow.series.entrypoint,
+        metric,
+      })
+    : null
 
   return {
     repository,
@@ -41,5 +53,8 @@ export async function getNeutralComparePageData(
     reviewedRows: [],
     selectedNeutralRow,
     selectedReviewedRow: null,
+    selectedDetail,
+    metric,
+    commitOptions: await listRepositoryCommitOptions(env, repository.id),
   }
 }

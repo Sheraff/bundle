@@ -5,10 +5,13 @@ import type { AppBindings } from "../../env.js"
 import {
   buildReviewedCompareRows,
   filterReviewedRows,
+  listRepositoryCommitOptions,
   loadPrReviewSummaryByPullRequestNumber,
   requireRepository,
   selectReviewedRow,
 } from "./shared.server.js"
+import { parseSizeMetric } from "../size-metric.js"
+import { loadComparisonDetail } from "./selected-series-detail.server.js"
 
 export async function getPullRequestComparePageData(
   env: AppBindings,
@@ -29,6 +32,15 @@ export async function getPullRequestComparePageData(
     ? filterReviewedRows(buildReviewedCompareRows(latestReviewSummary.scenarioGroups), input.search)
     : []
   const selectedReviewedRow = selectReviewedRow(reviewedRows, input.search)
+  const metric = parseSizeMetric(input.search.metric)
+  const selectedDetail = selectedReviewedRow
+    ? await loadComparisonDetail(env, {
+        comparisonId: selectedReviewedRow.series.comparisonId,
+        environment: selectedReviewedRow.series.environment,
+        entrypoint: selectedReviewedRow.series.entrypoint,
+        metric,
+      })
+    : null
   const contextMatched = latestReviewSummary
     ? latestReviewSummary.baseSha === input.search.base &&
       latestReviewSummary.headSha === input.search.head
@@ -45,5 +57,8 @@ export async function getPullRequestComparePageData(
     reviewedRows,
     selectedNeutralRow: null,
     selectedReviewedRow,
+    selectedDetail,
+    metric,
+    commitOptions: await listRepositoryCommitOptions(env, repository.id),
   }
 }

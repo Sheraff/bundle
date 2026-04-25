@@ -9,9 +9,11 @@
     "generate-types": "wrangler types",
     "test": "vitest run --config vitest.config.mts",
     "test:unit": "vitest run --config vitest.unit.config.mts",
+    "test:e2e": "playwright test",
     "typecheck": "pnpm run generate-types && tsc --project tsconfig.json",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply DB --local"
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "dev:seed": "node ./scripts/dev-seed.mjs"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "1.31.0",
@@ -23,6 +25,7 @@
     "@tanstack/react-start": "1.167.16",
     "@tanstack/router-core": "1.168.9",
     "@workspace/contracts": "workspace:*",
+    "d3": "^7.9.0",
     "drizzle-orm": "0.45.2",
     "hono": "4.12.12",
     "jose": "^6.2.2",
@@ -33,6 +36,8 @@
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "0.14.1",
+    "@playwright/test": "^1.59.1",
+    "@types/d3": "^7.4.3",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.1",
