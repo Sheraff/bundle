@@ -69,6 +69,7 @@ export type DetailTreemapNode = {
   kind: string
   value: number
   state?: string
+  identity?: string
 }
 
 export type DetailWaterfallRow = {
@@ -99,6 +100,7 @@ export type TreemapTimelineFrame = {
   measuredAt: string
   scenarioRunId: string
   nodesUrl: string
+  totalValue: number
 }
 
 export type DetailDiffRow = {
@@ -211,6 +213,9 @@ export async function loadTreemapTimelineForSeries(
       scenarioRunId: schema.seriesPoints.scenarioRunId,
       commitSha: schema.seriesPoints.commitSha,
       measuredAt: schema.seriesPoints.measuredAt,
+      totalRawBytes: schema.seriesPoints.totalRawBytes,
+      totalGzipBytes: schema.seriesPoints.totalGzipBytes,
+      totalBrotliBytes: schema.seriesPoints.totalBrotliBytes,
     })
     .from(schema.seriesPoints)
     .where(and(
@@ -232,6 +237,9 @@ export async function loadTreemapTimelineForSeries(
         scenarioRunId: schema.seriesPoints.scenarioRunId,
         commitSha: schema.seriesPoints.commitSha,
         measuredAt: schema.seriesPoints.measuredAt,
+        totalRawBytes: schema.seriesPoints.totalRawBytes,
+        totalGzipBytes: schema.seriesPoints.totalGzipBytes,
+        totalBrotliBytes: schema.seriesPoints.totalBrotliBytes,
       })
       .from(schema.seriesPoints)
       .where(and(
@@ -250,6 +258,7 @@ export async function loadTreemapTimelineForSeries(
     commitSha: row.commitSha,
     measuredAt: row.measuredAt,
     scenarioRunId: row.scenarioRunId,
+    totalValue: seriesPointTotalValue(row, input.metric),
     nodesUrl: treemapFrameUrl({
       owner: input.repositoryOwner,
       repo: input.repositoryName,
@@ -279,6 +288,12 @@ export async function loadTreemapTimelineForSeries(
     initialFrameIndex,
     initialNodes,
   }
+}
+
+function seriesPointTotalValue(row: { totalBrotliBytes: number; totalGzipBytes: number; totalRawBytes: number }, metric: SizeMetric) {
+  if (metric === "raw") return row.totalRawBytes
+  if (metric === "gzip") return row.totalGzipBytes
+  return row.totalBrotliBytes
 }
 
 export async function loadTreemapFrameForScenarioRun(
@@ -380,7 +395,7 @@ function buildSnapshotDetail(
   const packages = environment.packages
   const rootId = "root"
   const treemapNodes: DetailTreemapNode[] = [
-    { id: rootId, parentId: null, label: "selected series", kind: "root", value: 0 },
+    { id: rootId, parentId: null, label: "selected series", kind: "root", value: 0, identity: rootId },
   ]
 
   for (const chunk of chunks) {
@@ -391,6 +406,7 @@ function buildSnapshotDetail(
       label: chunk.fileLabel,
       kind: "chunk",
       value: metricValue(chunk.sizes, metric),
+      identity: chunkId,
     })
 
     for (const module of chunk.modules) {
@@ -400,6 +416,7 @@ function buildSnapshotDetail(
         label: module.rawId,
         kind: module.scope,
         value: module.renderedLength,
+        identity: `module:${module.stableId}`,
       })
     }
   }
@@ -411,6 +428,7 @@ function buildSnapshotDetail(
       label: asset.fileLabel,
       kind: asset.kind,
       value: metricValue(asset.sizes, metric),
+      identity: `asset:${stableAssetId(asset)}`,
     })
   }
 
