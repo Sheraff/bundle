@@ -62,7 +62,7 @@ export async function buildCommentPublicationPayload(
       : null,
   ].filter((value): value is string => value !== null)
   const lines = [
-    `Bundle review: ${summary.overallState}`,
+    `Chunk Scope review: ${summary.overallState}`,
     headerCounts.join("  ") || "No changes detected",
     `[Open PR diff](${openPrDiffUrl})`,
   ]

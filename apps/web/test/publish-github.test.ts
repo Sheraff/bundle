@@ -76,7 +76,7 @@ describe("GitHub publication worker", () => {
     expect(commentRequest).toBeTruthy()
     expect(commentRequest?.body).toEqual(
       expect.objectContaining({
-        body: expect.stringContaining("Bundle review: passing"),
+        body: expect.stringContaining("Chunk Scope review: passing"),
       }),
     )
     expect(commentRequest?.body).toEqual(
@@ -108,7 +108,7 @@ describe("GitHub publication worker", () => {
         conclusion: "success",
         details_url:
           "https://bundle.test/r/acme/widget/compare?pr=42&base=0123456789abcdef0123456789abcdef01234567&head=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        name: "Bundle Review",
+        name: "Chunk Scope Review",
         status: "completed",
       }),
     )

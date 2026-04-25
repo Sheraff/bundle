@@ -36,13 +36,13 @@ function AdminHomeRouteComponent() {
 
   return (
     <main>
-      <h1>Bundle admin</h1>
+      <h1>Chunk Scope admin</h1>
       <p>
         Signed in as {data.user.login}. <a href="/api/v1/auth/logout">Log out</a>
       </p>
       {data.installUrl ? (
         <p>
-          <a href={data.installUrl}>Install Bundle on a GitHub org or user</a>
+          <a href={data.installUrl}>Install Chunk Scope on a GitHub org or user</a>
         </p>
       ) : null}
       <h2>GitHub App installations</h2>

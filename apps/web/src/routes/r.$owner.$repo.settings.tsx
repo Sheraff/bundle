@@ -64,7 +64,7 @@ function RepositorySettingsRouteComponent() {
       <h1>
         {data.repository.owner}/{data.repository.name}
       </h1>
-      <p>Repository enabled. Add this workflow to collect Bundle data in GitHub Actions.</p>
+      <p>Repository enabled. Add this workflow to collect Chunk Scope data in GitHub Actions.</p>
       <pre>{buildWorkflowSnippet(data.apiOrigin)}</pre>
     </main>
   )
@@ -85,7 +85,7 @@ async function requireRouteUser(env: AppBindings) {
 }
 
 function buildWorkflowSnippet(apiOrigin: string) {
-  return `name: Bundle
+  return `name: Chunk Scope
 on:
   pull_request:
   push:
@@ -96,11 +96,11 @@ permissions:
   id-token: write
 
 jobs:
-  bundle:
+  chunk-scope:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: your-org/bundle-action@v1
+      - uses: Sheraff/bundle/packages/github-action@main
         env:
           BUNDLE_API_ORIGIN: ${apiOrigin}
         with:

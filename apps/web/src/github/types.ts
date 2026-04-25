@@ -22,4 +22,4 @@ export interface CheckRunPublicationPayload {
 
 export const PR_COMMENT_SURFACE = "pr-comment"
 export const PR_CHECK_SURFACE = "pr-check"
-export const PR_CHECK_NAME = "Bundle Review"
+export const PR_CHECK_NAME = "Chunk Scope Review"

@@ -53,7 +53,7 @@ export async function buildCheckRunPublicationPayload(
       : null,
   ].filter((value): value is string => value !== null)
   const output = {
-    title: `Bundle review: ${summary.overallState}`,
+    title: `Chunk Scope review: ${summary.overallState}`,
     summary: `${summaryCounts.join(", ") || "No blocking regressions detected."}\n\n[Open PR diff](${detailsUrl})`,
     text: buildCheckDetails(summary),
   }

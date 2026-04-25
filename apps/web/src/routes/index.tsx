@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 function HomeRouteComponent() {
   return (
     <main>
-      <h1>Bundle</h1>
+      <h1>Chunk Scope</h1>
       <p>
         Public repository pages live under <code>/r/:owner/:repo</code>.
       </p>

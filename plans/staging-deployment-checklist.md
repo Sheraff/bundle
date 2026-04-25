@@ -22,7 +22,7 @@ This checklist covers the first staging deployment for internal smoke tests.
    - `workflows`.
 
 5. Create and configure a GitHub App for staging.
-   - App name, for example `Bundle Staging`.
+   - App name, for example `Chunk Scope Staging`.
    - Homepage URL: `${PUBLIC_APP_ORIGIN}`.
    - Callback URL: `${PUBLIC_APP_ORIGIN}/api/v1/auth/github/callback`.
    - Webhook URL: `${PUBLIC_APP_ORIGIN}/api/v1/github/webhooks`.
@@ -35,7 +35,7 @@ This checklist covers the first staging deployment for internal smoke tests.
 6. Configure GitHub App permissions.
    - Repository metadata: read.
    - Repository contents: read.
-   - Pull requests: read.
+   - Pull requests: read/write, for PR comment and check publication.
    - Issues: read/write, for PR comments.
    - Checks: read/write, for check runs.
 
@@ -84,7 +84,7 @@ This checklist covers the first staging deployment for internal smoke tests.
 
 16. Install the staging GitHub App on the public test repo.
 
-17. Log into the staging Bundle app and enable the public test repo.
+17. Log into the staging Chunk Scope app and enable the public test repo.
 
 18. Add a simple workflow to the public test repo.
    - `permissions: contents: read`.
