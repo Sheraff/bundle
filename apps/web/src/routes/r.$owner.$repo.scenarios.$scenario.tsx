@@ -171,6 +171,13 @@ function ScenarioPageRouteComponent() {
               })}
             </p>
           </>
+        ) : data.selectedHistorySeries ? (
+          <>
+            <p>{formatSeriesLabel(data.selectedHistorySeries)}</p>
+            <p>
+              Latest history point: {shortSha(data.selectedHistoryPoint?.commitSha ?? "")} at {data.selectedHistoryPoint?.measuredAt}.
+            </p>
+          </>
         ) : (
           <>
             <p>Select a full series context (`env + entrypoint + lens`) to unlock the detail area.</p>
@@ -206,6 +213,7 @@ function ScenarioPageRouteComponent() {
           metric={data.metric}
           mode="snapshot"
           tab={tab}
+          treemapTimeline={data.selectedTreemapTimeline}
           budgetState={data.selectedSeries?.series.budgetState}
           hasDegradedStableIdentity={data.selectedSeries?.series.hasDegradedStableIdentity}
         />

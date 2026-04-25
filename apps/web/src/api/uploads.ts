@@ -22,25 +22,32 @@ export function registerUploadRoutes(app: Hono<AppEnv>) {
       return jsonError(c, 401, "invalid_upload_token", "The upload token is invalid or expired.")
     }
 
-    const definitions = await getDb(c.env)
-      .select({
-        scenarioSlug: schema.hostedSyntheticScenarios.scenarioSlug,
-        displayName: schema.hostedSyntheticScenarios.displayName,
-        sourceText: schema.hostedSyntheticScenarios.sourceText,
-        budgetRawBytes: schema.hostedSyntheticScenarios.budgetRawBytes,
-        budgetGzipBytes: schema.hostedSyntheticScenarios.budgetGzipBytes,
-        budgetBrotliBytes: schema.hostedSyntheticScenarios.budgetBrotliBytes,
-        updatedAt: schema.hostedSyntheticScenarios.updatedAt,
-      })
-      .from(schema.hostedSyntheticScenarios)
-      .where(
-        and(
-          eq(schema.hostedSyntheticScenarios.repositoryId, payload.repositoryId),
-          isNull(schema.hostedSyntheticScenarios.archivedAt),
+    const [definitions, repoScenarios] = await Promise.all([
+      getDb(c.env)
+        .select({
+          scenarioSlug: schema.hostedSyntheticScenarios.scenarioSlug,
+          displayName: schema.hostedSyntheticScenarios.displayName,
+          sourceText: schema.hostedSyntheticScenarios.sourceText,
+          budgetRawBytes: schema.hostedSyntheticScenarios.budgetRawBytes,
+          budgetGzipBytes: schema.hostedSyntheticScenarios.budgetGzipBytes,
+          budgetBrotliBytes: schema.hostedSyntheticScenarios.budgetBrotliBytes,
+          updatedAt: schema.hostedSyntheticScenarios.updatedAt,
+        })
+        .from(schema.hostedSyntheticScenarios)
+        .where(
+          and(
+            eq(schema.hostedSyntheticScenarios.repositoryId, payload.repositoryId),
+            isNull(schema.hostedSyntheticScenarios.archivedAt),
+          ),
         ),
-      )
+      getDb(c.env)
+        .select({ slug: schema.scenarios.slug, sourceKind: schema.scenarios.sourceKind })
+        .from(schema.scenarios)
+        .where(eq(schema.scenarios.repositoryId, payload.repositoryId)),
+    ])
+    const repoDefinedSlugs = new Set(repoScenarios.filter((scenario) => scenario.sourceKind !== "hosted-synthetic").map((scenario) => scenario.slug))
 
-    return c.json({ definitions })
+    return c.json({ definitions: definitions.filter((definition) => !repoDefinedSlugs.has(definition.scenarioSlug)) })
   })
 
   app.post("/api/v1/uploads/scenario-runs", async (c) => {

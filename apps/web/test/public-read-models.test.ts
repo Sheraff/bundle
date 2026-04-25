@@ -16,6 +16,8 @@ import { createPipelineHarness } from "./support/pipeline-harness.js"
 const baseSha = "0123456789abcdef0123456789abcdef01234567"
 const headSha = "1111111111111111111111111111111111111111"
 const prHeadSha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+const prSourceHeadSha = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+const prMergeHeadSha = "cccccccccccccccccccccccccccccccccccccccc"
 
 describe("public read models", () => {
   it("throws when the repository does not exist", async () => {
@@ -114,6 +116,27 @@ describe("public read models", () => {
     expect(overview.metric).toBe("brotli")
     expect(overview.trend[0]).toEqual(expect.objectContaining({ scenarioSlug: "fixture-app-cost" }))
     expect(scenario.selectedDetail?.status).toBe("available")
+  })
+
+  it("defaults scenario history to the most recently measured branch", async () => {
+    const harness = createPipelineHarness()
+
+    await seedPrComparison(harness)
+
+    const data = await getScenarioPageData(env, {
+      owner: "acme",
+      repo: "widget",
+      scenario: "scenario-pr",
+      env: "default",
+      entrypoint: "src/main.ts",
+      lens: "entry-js-direct-css",
+      metric: "gzip",
+      tab: "treemap",
+    })
+
+    expect(data.branch).toBe("feature/login")
+    expect(data.branchOptions[0]).toBe("feature/login")
+    expect(data.selectedTreemapTimeline?.frames).toHaveLength(1)
   })
 
   it("keeps URL branch state even when the selected branch has no summaries", async () => {
@@ -238,6 +261,72 @@ describe("public read models", () => {
       }),
     )
   })
+
+  it("loads PR compare summaries by the published source head SHA", async () => {
+    const harness = createPipelineHarness()
+
+    await seedPrMergeComparison(harness)
+
+    const data = await getPullRequestComparePageData(env, {
+      owner: "acme",
+      repo: "widget",
+      search: {
+        pr: 43,
+        base: baseSha,
+        head: prSourceHeadSha,
+        scenario: "scenario-pr-merge",
+        env: "default",
+        entrypoint: "src/main.ts",
+        lens: "entry-js-direct-css",
+        metric: "gzip",
+        tab: "treemap",
+      },
+    })
+
+    expect(data.latestReviewSummary?.headSha).toBe(prSourceHeadSha)
+    expect(data.selectedReviewedRow?.series.selectedHeadCommitSha).toBe(prMergeHeadSha)
+    expect(data.selectedTreemapTimeline?.frames.at(-1)?.commitSha).toBe(prMergeHeadSha)
+  })
+
+  it("does not load source-head PR summaries from a different base SHA", async () => {
+    const harness = createPipelineHarness()
+    const differentBaseSha = "dddddddddddddddddddddddddddddddddddddddd"
+
+    await seedPrMergeComparison(harness)
+    const summaryRow = await env.DB.prepare(
+      `SELECT id, summary_json
+       FROM pr_review_summaries
+       WHERE commit_sha = ?
+       LIMIT 1`,
+    )
+      .bind(prMergeHeadSha)
+      .first<{ id: string; summary_json: string }>()
+    expect(summaryRow?.id).toBeTruthy()
+
+    const summary = JSON.parse(summaryRow?.summary_json ?? "{}")
+    await env.DB.prepare(
+      `UPDATE pr_review_summaries
+       SET summary_json = ?
+       WHERE id = ?`,
+    )
+      .bind(JSON.stringify({ ...summary, baseSha: differentBaseSha }), summaryRow?.id ?? "")
+      .run()
+
+    const data = await getPullRequestComparePageData(env, {
+      owner: "acme",
+      repo: "widget",
+      search: {
+        pr: 43,
+        base: baseSha,
+        head: prSourceHeadSha,
+      },
+    })
+
+    expect(data.contextMatched).toBe(false)
+    expect(data.latestReviewSummary).toBeNull()
+    expect(data.reviewedRows).toEqual([])
+    expect(data.selectedReviewedRow).toBeNull()
+  })
 })
 
 async function seedBranchComparison(harness: ReturnType<typeof createPipelineHarness>) {
@@ -310,6 +399,47 @@ async function seedPrComparison(harness: ReturnType<typeof createPipelineHarness
         headRef: "feature/login",
       },
       ci: buildCiContext("8201"),
+    }),
+  )
+  await harness.processUploadPipeline()
+}
+
+async function seedPrMergeComparison(harness: ReturnType<typeof createPipelineHarness>) {
+  await harness.acceptUpload(
+    buildEnvelope({
+      artifact: buildSimpleArtifact({
+        scenarioId: "scenario-pr-merge",
+        chunkSizes: size(123, 45, 38),
+        cssSizes: size(10, 8, 6),
+      }),
+      git: {
+        commitSha: baseSha,
+        branch: "main",
+      },
+      ci: buildCiContext("8300"),
+    }),
+  )
+  await harness.processUploadPipeline()
+
+  await harness.acceptUpload(
+    buildEnvelope({
+      artifact: buildSimpleArtifact({
+        scenarioId: "scenario-pr-merge",
+        chunkSizes: size(150, 45, 38),
+        cssSizes: size(10, 8, 6),
+      }),
+      git: {
+        commitSha: prMergeHeadSha,
+        branch: "feature/merge-head",
+      },
+      pullRequest: {
+        number: 43,
+        baseSha,
+        baseRef: "main",
+        headSha: prSourceHeadSha,
+        headRef: "feature/merge-head",
+      },
+      ci: buildCiContext("8301"),
     }),
   )
   await harness.processUploadPipeline()

@@ -1,6 +1,8 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { HeadContent, Link, Outlet, Scripts, createRootRoute } from "@tanstack/react-router"
 import { createServerFn } from "@tanstack/react-start"
 import { getRequest } from "@tanstack/react-start/server"
+import { useState } from "react"
 
 import { getCurrentUser } from "../auth/session.js"
 
@@ -23,6 +25,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const viewer = Route.useLoaderData()
+  const [queryClient] = useState(() => new QueryClient())
 
   return (
     <html lang="en">
@@ -46,7 +49,9 @@ function RootComponent() {
             )}
           </nav>
         </header>
-        <Outlet />
+        <QueryClientProvider client={queryClient}>
+          <Outlet />
+        </QueryClientProvider>
         <Scripts />
       </body>
     </html>

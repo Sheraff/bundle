@@ -240,6 +240,7 @@ function ComparePageRouteComponent() {
           metric={data.metric}
           mode="compare"
           tab={tab}
+          treemapTimeline={data.selectedTreemapTimeline}
           budgetState={(data.selectedNeutralRow ?? data.selectedReviewedRow)?.series.budgetState}
           hasDegradedStableIdentity={(data.selectedNeutralRow ?? data.selectedReviewedRow)?.series.hasDegradedStableIdentity}
         />

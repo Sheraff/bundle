@@ -11,7 +11,7 @@ import {
   type ReviewedComparisonSeriesSummaryV1,
   type ReviewedScenarioSummaryV1,
 } from "@workspace/contracts"
-import { and, asc, desc, eq, isNull } from "drizzle-orm"
+import { and, asc, desc, eq, isNull, sql } from "drizzle-orm"
 import * as v from "valibot"
 
 import { getDb, schema } from "../../db/index.js"
@@ -43,6 +43,7 @@ export interface RepositoryTrendPoint {
 }
 
 export interface ScenarioHistoryPoint {
+  scenarioRunId: string
   commitSha: string
   measuredAt: string
   totalRawBytes: number
@@ -155,15 +156,14 @@ export async function requireScenario(
 
 export async function listRepositoryBranches(env: AppBindings, repositoryId: string) {
   const rows = await getDb(env)
-    .selectDistinct({ branch: schema.commitGroups.branch })
-    .from(schema.commitGroups)
-    .where(
-      and(
-        eq(schema.commitGroups.repositoryId, repositoryId),
-        isNull(schema.commitGroups.pullRequestId),
-      ),
-    )
-    .orderBy(asc(schema.commitGroups.branch))
+    .select({
+      branch: schema.seriesPoints.branch,
+      latestMeasuredAt: sql<string>`max(${schema.seriesPoints.measuredAt})`,
+    })
+    .from(schema.seriesPoints)
+    .where(eq(schema.seriesPoints.repositoryId, repositoryId))
+    .groupBy(schema.seriesPoints.branch)
+    .orderBy(desc(sql`max(${schema.seriesPoints.measuredAt})`), asc(schema.seriesPoints.branch))
 
   return rows.map((row) => row.branch)
 }
@@ -347,9 +347,10 @@ export async function loadPrReviewSummaryByPullRequestNumber(
   env: AppBindings,
   repositoryId: string,
   pullRequestNumber: number,
+  baseSha: string,
   headSha: string,
 ) {
-  const row = await selectOne(
+  const exactRow = await selectOne(
     getDb(env)
       .select({ summaryJson: schema.prReviewSummaries.summaryJson })
       .from(schema.prReviewSummaries)
@@ -367,7 +368,35 @@ export async function loadPrReviewSummaryByPullRequestNumber(
       .limit(1),
   )
 
-  return row ? parseStoredJson(prReviewSummaryV1Schema, row.summaryJson, "pr review summary") : null
+  if (exactRow) {
+    const summary = parseStoredJson(prReviewSummaryV1Schema, exactRow.summaryJson, "pr review summary")
+    if (summary.baseSha === baseSha) return summary
+  }
+
+  const rows = await getDb(env)
+    .select({ summaryJson: schema.prReviewSummaries.summaryJson })
+    .from(schema.prReviewSummaries)
+    .innerJoin(
+      schema.pullRequests,
+      eq(schema.pullRequests.id, schema.prReviewSummaries.pullRequestId),
+    )
+    .where(
+      and(
+        eq(schema.prReviewSummaries.repositoryId, repositoryId),
+        eq(schema.pullRequests.prNumber, pullRequestNumber),
+      ),
+    )
+    .orderBy(desc(schema.prReviewSummaries.latestUploadAt))
+    .limit(20)
+
+  for (const row of rows) {
+    const summary = parseStoredJson(prReviewSummaryV1Schema, row.summaryJson, "pr review summary")
+    if (summary.baseSha === baseSha && (summary.commitSha === headSha || summary.headSha === headSha)) {
+      return summary
+    }
+  }
+
+  return null
 }
 
 export async function loadKnownScenarios(env: AppBindings, repositoryId: string) {
@@ -453,6 +482,7 @@ export async function loadScenarioHistory(
       entrypoint: schema.series.entrypointKey,
       entrypointKind: schema.series.entrypointKind,
       lens: schema.series.lens,
+      scenarioRunId: schema.seriesPoints.scenarioRunId,
       commitSha: schema.seriesPoints.commitSha,
       measuredAt: schema.seriesPoints.measuredAt,
       totalRawBytes: schema.seriesPoints.totalRawBytes,
@@ -530,6 +560,7 @@ export async function loadRepositoryHistory(
       entrypoint: schema.series.entrypointKey,
       entrypointKind: schema.series.entrypointKind,
       lens: schema.series.lens,
+      scenarioRunId: schema.seriesPoints.scenarioRunId,
       commitSha: schema.seriesPoints.commitSha,
       measuredAt: schema.seriesPoints.measuredAt,
       totalRawBytes: schema.seriesPoints.totalRawBytes,
@@ -746,6 +777,7 @@ export function selectPrimaryReviewedItem(series: ReviewedComparisonSeriesSummar
 }
 
 function toScenarioHistoryPoint(row: {
+  scenarioRunId: string
   commitSha: string
   measuredAt: string
   totalRawBytes: number
@@ -753,6 +785,7 @@ function toScenarioHistoryPoint(row: {
   totalBrotliBytes: number
 }): ScenarioHistoryPoint {
   return {
+    scenarioRunId: row.scenarioRunId,
     commitSha: row.commitSha,
     measuredAt: row.measuredAt,
     totalRawBytes: row.totalRawBytes,

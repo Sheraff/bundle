@@ -15,7 +15,10 @@ import {
   requireRepository,
   requireScenario,
 } from "./shared.server.js"
-import { loadSnapshotDetailForScenarioRun } from "./selected-series-detail.server.js"
+import {
+  loadSnapshotDetailForScenarioRun,
+  loadTreemapTimelineForSeries,
+} from "./selected-series-detail.server.js"
 
 export async function getScenarioPageData(
   env: AppBindings,
@@ -79,12 +82,35 @@ export async function getScenarioPageData(
             row.series.lens === resolvedLens,
         ) ?? null)
       : null
-  const selectedDetail = selectedSeries
+  const selectedHistorySeries =
+    resolvedEnvironment !== "all" && resolvedEntrypoint !== "all"
+      ? (history.find(
+          (series) =>
+            series.environment === resolvedEnvironment &&
+            series.entrypoint === resolvedEntrypoint &&
+            series.lens === resolvedLens,
+        ) ?? null)
+      : null
+  const selectedHistoryPoint = selectedHistorySeries?.points[0] ?? null
+  const selectedDetail = selectedSeries || selectedHistoryPoint
     ? await loadSnapshotDetailForScenarioRun(env, {
-        scenarioRunId: selectedSeries.series.scenarioRunId,
-        environment: selectedSeries.series.environment,
-        entrypoint: selectedSeries.series.entrypoint,
+        scenarioRunId: selectedSeries?.series.scenarioRunId ?? selectedHistoryPoint!.scenarioRunId,
+        environment: selectedSeries?.series.environment ?? selectedHistorySeries!.environment,
+        entrypoint: selectedSeries?.series.entrypoint ?? selectedHistorySeries!.entrypoint,
         metric,
+      })
+    : null
+  const selectedTreemapTimeline = input.tab === "treemap" && (selectedSeries || selectedHistorySeries) && resolvedBranch
+    ? await loadTreemapTimelineForSeries(env, {
+        repositoryId: repository.id,
+        repositoryOwner: repository.owner,
+        repositoryName: repository.name,
+        seriesId: selectedSeries?.series.seriesId ?? selectedHistorySeries!.seriesId,
+        branch: resolvedBranch,
+        environment: selectedSeries?.series.environment ?? selectedHistorySeries!.environment,
+        entrypoint: selectedSeries?.series.entrypoint ?? selectedHistorySeries!.entrypoint,
+        metric,
+        headCommitSha: selectedSeries?.series.selectedHeadCommitSha ?? selectedHistoryPoint?.commitSha,
       })
     : null
 
@@ -107,6 +133,9 @@ export async function getScenarioPageData(
     history,
     compareShortcut: buildScenarioCompareShortcut(latestFreshScenario),
     selectedSeries,
+    selectedHistorySeries,
+    selectedHistoryPoint,
     selectedDetail,
+    selectedTreemapTimeline,
   }
 }

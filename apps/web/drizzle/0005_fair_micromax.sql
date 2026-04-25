@@ -12,5 +12,6 @@ CREATE TABLE `hosted_synthetic_scenarios` (
 	`updated_at` text NOT NULL,
 	FOREIGN KEY (`repository_id`) REFERENCES `repositories`(`id`) ON UPDATE no action ON DELETE no action
 );
-CREATE UNIQUE INDEX `hosted_synthetic_scenarios_repository_slug_unique` ON `hosted_synthetic_scenarios` (`repository_id`,`scenario_slug`);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `hosted_synthetic_scenarios_repository_slug_unique` ON `hosted_synthetic_scenarios` (`repository_id`,`scenario_slug`);--> statement-breakpoint
 CREATE INDEX `hosted_synthetic_scenarios_repository_id_idx` ON `hosted_synthetic_scenarios` (`repository_id`);

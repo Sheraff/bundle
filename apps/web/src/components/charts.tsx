@@ -1,4 +1,6 @@
+import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import * as d3 from "d3"
+import { useEffect, useRef, useState } from "react"
 
 import { formatBytes, shortSha } from "../lib/formatting.js"
 
@@ -93,6 +95,25 @@ export type TreemapNode = {
   state?: string
 }
 
+export type TreemapTimelineFrame = {
+  commitSha: string
+  measuredAt: string
+  scenarioRunId: string
+  nodesUrl: string
+}
+
+export type TreemapTimeline = {
+  frames: TreemapTimelineFrame[]
+  baseFrameIndex?: number
+  headFrameIndex?: number
+  initialFrameIndex: number
+  initialNodes: TreemapNode[]
+}
+
+type TimelineTreemapNode = TreemapNode & { values: number[] }
+type TreemapFrameQueryData = { frameIndex: number; nodes: TreemapNode[] }
+type RectSnapshot = { height: number; width: number; x: number; y: number }
+
 export function TreemapChart(props: { nodes: TreemapNode[] }) {
   const width = 720
   const height = 320
@@ -165,6 +186,251 @@ export function TreemapChart(props: { nodes: TreemapNode[] }) {
       })}
     </svg>
   )
+}
+
+export function TreemapTimelineScrubber(props: { timeline: TreemapTimeline }) {
+  const width = 720
+  const height = 320
+  const initialIndex = props.timeline.initialFrameIndex
+  const [requestedFrameIndex, setRequestedFrameIndex] = useState(initialIndex)
+  const frameIndex = clamp(requestedFrameIndex, 0, props.timeline.frames.length - 1)
+  const frame = props.timeline.frames[frameIndex]
+  const previousRectRef = useRef<Map<string, RectSnapshot>>(new Map())
+  const svgRef = useRef<SVGSVGElement | null>(null)
+
+  if (props.timeline.frames.length === 0 || !frame) return null
+
+  const frameQuery = useQuery<TreemapFrameQueryData>({
+    queryKey: treemapFrameQueryKey(frame),
+    queryFn: async ({ signal }) => {
+      const response = await fetch(frame.nodesUrl, { signal })
+      if (!response.ok) throw new Error(`Could not load treemap frame ${response.status}`)
+
+      const payload = await response.json() as { nodes: TreemapNode[] }
+      return { frameIndex, nodes: payload.nodes }
+    },
+    initialData: frameIndex === props.timeline.initialFrameIndex
+      ? { frameIndex, nodes: props.timeline.initialNodes }
+      : undefined,
+    placeholderData: keepPreviousData,
+    staleTime: Infinity,
+  })
+  const displayFrameIndex = frameQuery.data?.frameIndex ?? props.timeline.initialFrameIndex
+  const displayFrame = props.timeline.frames[displayFrameIndex] ?? frame
+  const displayNodes = frameQuery.data?.nodes ?? props.timeline.initialNodes
+  const parentIds = new Set(displayNodes.flatMap((node) => node.parentId ? [node.parentId] : []))
+  const nodes = buildTimelineTreemapNodes(props.timeline.frames.length, displayFrameIndex, displayNodes, parentIds)
+  const root = d3
+    .stratify<TimelineTreemapNode>()
+    .id((node) => node.id)
+    .parentId((node) => node.parentId)(nodes)
+    .sum((node) => node.values[displayFrameIndex] ?? 0)
+    .sort(compareTimelineTreemapNodes)
+  d3
+    .treemap<TimelineTreemapNode>()
+    .tile(d3.treemapSquarify)
+    .size([width, height])
+    .paddingInner(1)
+    .paddingOuter(1)(root)
+  const rectangularRoot = root as d3.HierarchyRectangularNode<TimelineTreemapNode>
+  const internalNodes = rectangularRoot
+    .descendants()
+    .filter((node) => node.depth > 0 && parentIds.has(node.id ?? ""))
+  const leaves = rectangularRoot.leaves()
+  const color = d3.scaleOrdinal(d3.schemeTableau10).domain([...new Set([...internalNodes, ...leaves].map((node) => node.data.kind))])
+  const currentRects = new Map<string, RectSnapshot>()
+  for (const node of [...internalNodes, ...leaves]) {
+    currentRects.set(node.id ?? node.data.id, rectSnapshot(node))
+  }
+  const previousRects = previousRectRef.current
+  const animationKey = displayFrame.scenarioRunId
+
+  useEffect(() => {
+    const svg = svgRef.current
+    if (svg && previousRects.size > 0) {
+      const groups = d3.select(svg).selectAll<SVGGElement, unknown>("g[data-treemap-node-id]")
+      groups.each(function animateTreemapNode() {
+        const group = d3.select(this)
+        const previousRect = previousRects.get(this.dataset.treemapNodeId ?? "")
+        if (!previousRect) return
+
+        const targetRect = {
+          height: Number(this.dataset.height),
+          width: Number(this.dataset.width),
+          x: Number(this.dataset.x),
+          y: Number(this.dataset.y),
+        }
+        const changed = previousRect.x !== targetRect.x ||
+          previousRect.y !== targetRect.y ||
+          previousRect.width !== targetRect.width ||
+          previousRect.height !== targetRect.height
+        if (!changed) return
+
+        group
+          .interrupt()
+          .attr("transform", `translate(${previousRect.x},${previousRect.y})`)
+          .transition()
+          .duration(240)
+          .ease(d3.easeCubicOut)
+          .attr("transform", `translate(${targetRect.x},${targetRect.y})`)
+
+        group
+          .select<SVGRectElement>("rect[data-treemap-cell]")
+          .interrupt()
+          .attr("width", previousRect.width)
+          .attr("height", previousRect.height)
+          .transition()
+          .duration(240)
+          .ease(d3.easeCubicOut)
+          .attr("width", targetRect.width)
+          .attr("height", targetRect.height)
+
+        group
+          .select<SVGRectElement>("clipPath rect")
+          .interrupt()
+          .attr("width", previousRect.width)
+          .attr("height", previousRect.height)
+          .transition()
+          .duration(240)
+          .ease(d3.easeCubicOut)
+          .attr("width", targetRect.width)
+          .attr("height", targetRect.height)
+      })
+    }
+
+    previousRectRef.current = currentRects
+  }, [animationKey])
+
+  return (
+    <section aria-label="Treemap history scrubber">
+      <h3>History Scrubber</h3>
+      <p>
+        Frame {frameIndex + 1} of {props.timeline.frames.length}: {shortSha(frame.commitSha)} at {frame.measuredAt}
+        {props.timeline.baseFrameIndex === frameIndex ? " (base)" : ""}
+        {props.timeline.headFrameIndex === frameIndex ? " (head)" : ""}
+        {frameQuery.isPlaceholderData ? ` (loading; showing ${shortSha(displayFrame.commitSha)})` : ""}
+      </p>
+      {frameQuery.isError ? <p>Could not load this treemap frame. The previous frame is still shown.</p> : null}
+      <p>
+        <button type="button" onClick={() => setRequestedFrameIndex(frameIndex - 1)} disabled={frameIndex === 0}>Previous</button>{" "}
+        <button type="button" onClick={() => setRequestedFrameIndex(frameIndex + 1)} disabled={frameIndex === props.timeline.frames.length - 1}>Next</button>
+      </p>
+      <label>
+        Commit frame
+        <input
+          aria-label="Treemap history frame"
+          type="range"
+          min="0"
+          max={props.timeline.frames.length - 1}
+          value={frameIndex}
+          onChange={(event) => setRequestedFrameIndex(Number(event.currentTarget.value))}
+        />
+      </label>
+      <svg ref={svgRef} role="img" aria-label="Bundle composition treemap timeline" viewBox={`0 0 ${width} ${height}`} width="100%">
+        {internalNodes.map((node, index) => renderTreemapRect({ color, frameIndex: displayFrameIndex, index, isParent: true, node, prefix: "timeline-parent" }))}
+        {leaves.map((node, index) => renderTreemapRect({ color, frameIndex: displayFrameIndex, index, isParent: false, node, prefix: "timeline-leaf" }))}
+      </svg>
+    </section>
+  )
+}
+
+function treemapFrameQueryKey(frame: TreemapTimelineFrame) {
+  return ["treemap-frame", frame.nodesUrl] as const
+}
+
+function buildTimelineTreemapNodes(frameCount: number, frameIndex: number, frameNodes: TreemapNode[], parentIds: Set<string>) {
+  const nodes = new Map<string, TimelineTreemapNode>()
+
+  for (const node of frameNodes) {
+    if (node.value <= 0 && node.parentId !== null && !parentIds.has(node.id)) continue
+
+    const values = Array.from({ length: frameCount }, () => 0)
+    values[frameIndex] = node.value
+    nodes.set(node.id, { ...node, values })
+  }
+
+  return [...nodes.values()].sort((left, right) => {
+    const parentCompare = (left.parentId ?? "").localeCompare(right.parentId ?? "")
+    if (parentCompare !== 0) return parentCompare
+
+    const valueCompare = right.values[frameIndex] - left.values[frameIndex]
+    if (valueCompare !== 0) return valueCompare
+
+    const kindCompare = left.kind.localeCompare(right.kind)
+    if (kindCompare !== 0) return kindCompare
+
+    return left.id.localeCompare(right.id)
+  })
+}
+
+function compareTimelineTreemapNodes(left: d3.HierarchyNode<TimelineTreemapNode>, right: d3.HierarchyNode<TimelineTreemapNode>) {
+  const valueCompare = (right.value ?? 0) - (left.value ?? 0)
+  if (valueCompare !== 0) return valueCompare
+
+  const kindCompare = left.data.kind.localeCompare(right.data.kind)
+  if (kindCompare !== 0) return kindCompare
+
+  return left.data.id.localeCompare(right.data.id)
+}
+
+function renderTreemapRect(props: {
+  color: d3.ScaleOrdinal<string, string>
+  frameIndex: number
+  index: number
+  isParent: boolean
+  node: d3.HierarchyRectangularNode<TimelineTreemapNode>
+  prefix: string
+}) {
+  const rectWidth = Math.max(0, props.node.x1 - props.node.x0)
+  const rectHeight = Math.max(0, props.node.y1 - props.node.y0)
+  const labelLines = treemapLabelLines(props.node.data.label, rectWidth, rectHeight)
+  const value = props.node.data.values[props.frameIndex] ?? 0
+  const clipId = `${props.prefix}-${props.index}`
+  const rect = rectSnapshot(props.node)
+
+  return (
+    <g
+      key={props.node.id}
+      data-height={rect.height}
+      data-treemap-node-id={props.node.id ?? props.node.data.id}
+      data-width={rect.width}
+      data-x={rect.x}
+      data-y={rect.y}
+      transform={`translate(${props.node.x0},${props.node.y0})`}
+    >
+      <clipPath id={clipId}>
+        <rect width={rectWidth} height={rectHeight} />
+      </clipPath>
+      <rect
+        data-treemap-cell="true"
+        width={rectWidth}
+        height={rectHeight}
+        fill={props.color(props.node.data.kind)}
+        fillOpacity={props.isParent ? 0.22 : props.node.data.state === "removed" ? 0.35 : 0.75}
+      />
+      {labelLines.length > 0 ? (
+        <text x="5" y="14" fontSize="11" fontWeight="600" clipPath={`url(#${clipId})`} pointerEvents="none">
+          {labelLines.map((line, lineIndex) => (
+            <tspan key={lineIndex} x="5" dy={lineIndex === 0 ? 0 : 13}>{line}</tspan>
+          ))}
+        </text>
+      ) : null}
+      <title>
+        {props.isParent
+          ? `${props.node.data.label}: ${formatBytes(value)} self, ${formatBytes(props.node.value ?? 0)} including children`
+          : `${props.node.data.label}: ${formatBytes(value)}`}
+      </title>
+    </g>
+  )
+}
+
+function rectSnapshot(node: d3.HierarchyRectangularNode<TimelineTreemapNode>): RectSnapshot {
+  return {
+    height: Math.max(0, node.y1 - node.y0),
+    width: Math.max(0, node.x1 - node.x0),
+    x: node.x0,
+    y: node.y0,
+  }
 }
 
 function treemapLabelLines(label: string, width: number, height: number) {

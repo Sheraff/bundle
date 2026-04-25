@@ -1,3 +1,4 @@
+import { scenarioSlugSchema } from "@workspace/contracts"
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router"
 import { createServerFn, useServerFn } from "@tanstack/react-start"
 import { and, eq } from "drizzle-orm"
@@ -17,7 +18,7 @@ const editParamsSchema = v.strictObject({
 
 const updateInputSchema = v.strictObject({
   params: editParamsSchema,
-  scenarioSlug: v.pipe(v.string(), v.trim(), v.minLength(1)),
+  scenarioSlug: scenarioSlugSchema,
   displayName: v.pipe(v.string(), v.trim(), v.minLength(1)),
   sourceText: v.pipe(v.string(), v.trim(), v.minLength(1)),
   budgetRawBytes: v.optional(v.number()),

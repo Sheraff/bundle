@@ -11,7 +11,10 @@ import {
   selectReviewedRow,
 } from "./shared.server.js"
 import { parseSizeMetric } from "../size-metric.js"
-import { loadComparisonDetail } from "./selected-series-detail.server.js"
+import {
+  loadComparisonDetail,
+  loadTreemapTimelineForSeries,
+} from "./selected-series-detail.server.js"
 
 export async function getPullRequestComparePageData(
   env: AppBindings,
@@ -26,6 +29,7 @@ export async function getPullRequestComparePageData(
     env,
     repository.id,
     input.search.pr,
+    input.search.base,
     input.search.head,
   )
   const reviewedRows = latestReviewSummary
@@ -39,6 +43,20 @@ export async function getPullRequestComparePageData(
         environment: selectedReviewedRow.series.environment,
         entrypoint: selectedReviewedRow.series.entrypoint,
         metric,
+      })
+    : null
+  const selectedTreemapTimeline = input.search.tab === "treemap" && selectedReviewedRow && latestReviewSummary
+    ? await loadTreemapTimelineForSeries(env, {
+        repositoryId: repository.id,
+        repositoryOwner: repository.owner,
+        repositoryName: repository.name,
+        seriesId: selectedReviewedRow.series.seriesId,
+        branch: latestReviewSummary.branch,
+        environment: selectedReviewedRow.series.environment,
+        entrypoint: selectedReviewedRow.series.entrypoint,
+        metric,
+        baseCommitSha: selectedReviewedRow.series.selectedBaseCommitSha,
+        headCommitSha: selectedReviewedRow.series.selectedHeadCommitSha,
       })
     : null
   const contextMatched = latestReviewSummary
@@ -58,6 +76,7 @@ export async function getPullRequestComparePageData(
     selectedNeutralRow: null,
     selectedReviewedRow,
     selectedDetail,
+    selectedTreemapTimeline,
     metric,
     commitOptions: await listRepositoryCommitOptions(env, repository.id),
   }

@@ -10,6 +10,7 @@ import { getAppLogger } from "./logger.js"
 import { PrPublishDebounceWorkflow } from "./pr-publish-debounce-workflow.js"
 import { dispatchMessage } from "./queues/dispatch-message.js"
 import { registerUploadRoutes } from "./api/uploads.js"
+import { registerPublicApiRoutes } from "./api/public.js"
 
 const app = new Hono<AppEnv>()
 
@@ -18,6 +19,7 @@ app.get("/healthz", (c) => {
 })
 
 registerUploadRoutes(app)
+registerPublicApiRoutes(app)
 registerUploadAuthRoutes(app)
 registerAuthRoutes(app)
 registerGithubWebhookRoutes(app)

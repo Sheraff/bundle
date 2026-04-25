@@ -42,8 +42,9 @@ test("scenario history exposes treemap-capable series and renders visual tabs", 
   await page.goto(treemapHref!)
   await expect(page.getByRole("heading", { name: "Detail Tabs" })).toBeVisible()
   await expect(page.getByLabel("Detail tabs").getByRole("link", { name: "treemap" })).toBeVisible()
-  await expect(page.locator('svg[aria-label="Bundle composition treemap"]')).toBeVisible()
-  await expectTreemapToFill(page, { expectParentCells: true })
+  await expect(page.getByRole("region", { name: "Treemap history scrubber" })).toBeVisible()
+  await expect(page.locator('svg[aria-label="Bundle composition treemap timeline"]')).toBeVisible()
+  await expectTimelineTreemapToScrub(page)
 
   await page.getByLabel("Detail tabs").getByRole("link", { name: "graph" }).click()
   await expect(page).toHaveURL(/env=default/)
@@ -58,6 +59,9 @@ test("scenario history exposes treemap-capable series and renders visual tabs", 
 
 test("compare detail tabs preserve selected series and render visualizations", async ({ page, consoleProblems: _consoleProblems }) => {
   await page.goto('/r/acme/widget/compare?base="0123456789abcdef0123456789abcdef01234567"&head="1111111111111111111111111111111111111111"&scenario=fixture-app-cost&env=default&entrypoint=src%2Fmain.ts&lens=entry-js-direct-css&metric=gzip&tab=treemap')
+  await expect(page.getByRole("region", { name: "Treemap history scrubber" })).toBeVisible()
+  await expect(page.locator('svg[aria-label="Bundle composition treemap timeline"]')).toBeVisible()
+  await expectTimelineTreemapToScrub(page)
   await expect(page.locator('svg[aria-label="Bundle composition treemap"]')).toBeVisible()
   await expectTreemapToFill(page)
 
@@ -73,7 +77,21 @@ test("compare detail tabs preserve selected series and render visualizations", a
 })
 
 async function expectTreemapToFill(page: Page, options: { expectParentCells?: boolean } = {}) {
-  const metrics = await page.locator('svg[aria-label="Bundle composition treemap"]').evaluate((svg) => {
+  await expectTreemapSvgToFill(page.locator('svg[aria-label="Bundle composition treemap"]'), options)
+}
+
+async function expectTimelineTreemapToScrub(page: Page) {
+  await expectTreemapSvgToFill(page.locator('svg[aria-label="Bundle composition treemap timeline"]'), { expectParentCells: true })
+  await page.waitForLoadState("networkidle")
+
+  const frameLabel = page.getByRole("region", { name: "Treemap history scrubber" }).locator("p").first()
+  const latestLabel = await frameLabel.textContent()
+  await page.getByRole("button", { name: "Previous" }).click()
+  await expect(frameLabel).not.toHaveText(latestLabel ?? "")
+}
+
+async function expectTreemapSvgToFill(locator: ReturnType<Page["locator"]>, options: { expectParentCells?: boolean } = {}) {
+  const metrics = await locator.evaluate((svg) => {
     const viewBox = svg.getAttribute("viewBox")?.split(/\s+/).map(Number) ?? []
     const viewArea = (viewBox[2] ?? 0) * (viewBox[3] ?? 0)
     const rectArea = [...svg.querySelectorAll("g > rect")].reduce((sum, rect) => {

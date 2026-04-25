@@ -11,7 +11,10 @@ import {
   selectNeutralRow,
 } from "./shared.server.js"
 import { parseSizeMetric } from "../size-metric.js"
-import { loadComparisonDetail } from "./selected-series-detail.server.js"
+import {
+  loadComparisonDetail,
+  loadTreemapTimelineForSeries,
+} from "./selected-series-detail.server.js"
 
 export async function getNeutralComparePageData(
   env: AppBindings,
@@ -41,6 +44,20 @@ export async function getNeutralComparePageData(
         metric,
       })
     : null
+  const selectedTreemapTimeline = input.search.tab === "treemap" && selectedNeutralRow && latestSummary
+    ? await loadTreemapTimelineForSeries(env, {
+        repositoryId: repository.id,
+        repositoryOwner: repository.owner,
+        repositoryName: repository.name,
+        seriesId: selectedNeutralRow.series.seriesId,
+        branch: latestSummary.branch,
+        environment: selectedNeutralRow.series.environment,
+        entrypoint: selectedNeutralRow.series.entrypoint,
+        metric,
+        baseCommitSha: selectedNeutralRow.series.selectedBaseCommitSha,
+        headCommitSha: selectedNeutralRow.series.selectedHeadCommitSha,
+      })
+    : null
 
   return {
     repository,
@@ -54,6 +71,7 @@ export async function getNeutralComparePageData(
     selectedNeutralRow,
     selectedReviewedRow: null,
     selectedDetail,
+    selectedTreemapTimeline,
     metric,
     commitOptions: await listRepositoryCommitOptions(env, repository.id),
   }

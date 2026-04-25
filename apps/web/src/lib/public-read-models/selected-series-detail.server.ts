@@ -1,5 +1,5 @@
 import { normalizedSnapshotV1Schema, type NormalizedEnvironmentSnapshotV1 } from "@workspace/contracts"
-import { eq } from "drizzle-orm"
+import { and, desc, eq } from "drizzle-orm"
 import * as v from "valibot"
 
 import { getDb, schema } from "../../db/index.js"
@@ -84,6 +84,21 @@ export type DiffDetail = {
   modules: DetailDiffRow[]
   packages: DetailDiffRow[]
   treemapNodes: DetailTreemapNode[]
+}
+
+export type TreemapTimeline = {
+  frames: TreemapTimelineFrame[]
+  baseFrameIndex?: number
+  headFrameIndex?: number
+  initialFrameIndex: number
+  initialNodes: DetailTreemapNode[]
+}
+
+export type TreemapTimelineFrame = {
+  commitSha: string
+  measuredAt: string
+  scenarioRunId: string
+  nodesUrl: string
 }
 
 export type DetailDiffRow = {
@@ -175,6 +190,132 @@ export async function loadComparisonDetail(
   }
 }
 
+export async function loadTreemapTimelineForSeries(
+  env: AppBindings,
+  input: {
+    repositoryId: string
+    repositoryOwner: string
+    repositoryName: string
+    seriesId: string
+    branch: string
+    environment: string
+    entrypoint: string
+    metric: SizeMetric
+    baseCommitSha?: string | null
+    headCommitSha?: string | null
+    limit?: number
+  },
+): Promise<TreemapTimeline | null> {
+  const latestRows = await getDb(env)
+    .select({
+      scenarioRunId: schema.seriesPoints.scenarioRunId,
+      commitSha: schema.seriesPoints.commitSha,
+      measuredAt: schema.seriesPoints.measuredAt,
+    })
+    .from(schema.seriesPoints)
+    .where(and(
+      eq(schema.seriesPoints.repositoryId, input.repositoryId),
+      eq(schema.seriesPoints.seriesId, input.seriesId),
+      eq(schema.seriesPoints.branch, input.branch),
+    ))
+    .orderBy(desc(schema.seriesPoints.measuredAt))
+    .limit(input.limit ?? 20)
+
+  const rowsByRunId = new Map(latestRows.map((row) => [row.scenarioRunId, row]))
+  for (const commitSha of [input.baseCommitSha, input.headCommitSha]) {
+    if (!commitSha) continue
+    const existing = latestRows.find((row) => row.commitSha === commitSha)
+    if (existing) continue
+
+    const point = await selectOne(getDb(env)
+      .select({
+        scenarioRunId: schema.seriesPoints.scenarioRunId,
+        commitSha: schema.seriesPoints.commitSha,
+        measuredAt: schema.seriesPoints.measuredAt,
+      })
+      .from(schema.seriesPoints)
+      .where(and(
+        eq(schema.seriesPoints.repositoryId, input.repositoryId),
+        eq(schema.seriesPoints.seriesId, input.seriesId),
+        eq(schema.seriesPoints.branch, input.branch),
+        eq(schema.seriesPoints.commitSha, commitSha),
+      ))
+      .limit(1))
+
+    if (point) rowsByRunId.set(point.scenarioRunId, point)
+  }
+
+  const rows = [...rowsByRunId.values()].sort((left, right) => left.measuredAt.localeCompare(right.measuredAt))
+  const frames: TreemapTimelineFrame[] = rows.map((row) => ({
+    commitSha: row.commitSha,
+    measuredAt: row.measuredAt,
+    scenarioRunId: row.scenarioRunId,
+    nodesUrl: treemapFrameUrl({
+      owner: input.repositoryOwner,
+      repo: input.repositoryName,
+      scenarioRunId: row.scenarioRunId,
+      environment: input.environment,
+      entrypoint: input.entrypoint,
+      metric: input.metric,
+    }),
+  }))
+
+  if (frames.length === 0) return null
+
+  const baseFrameIndex = input.baseCommitSha ? frames.findIndex((frame) => frame.commitSha === input.baseCommitSha) : -1
+  const headFrameIndex = input.headCommitSha ? frames.findIndex((frame) => frame.commitSha === input.headCommitSha) : -1
+  const initialFrameIndex = headFrameIndex >= 0 ? headFrameIndex : frames.length - 1
+  const initialNodes = await loadTreemapFrameForScenarioRun(env, {
+    scenarioRunId: frames[initialFrameIndex]!.scenarioRunId,
+    environment: input.environment,
+    entrypoint: input.entrypoint,
+    metric: input.metric,
+  })
+
+  return {
+    frames,
+    baseFrameIndex: baseFrameIndex >= 0 ? baseFrameIndex : undefined,
+    headFrameIndex: headFrameIndex >= 0 ? headFrameIndex : undefined,
+    initialFrameIndex,
+    initialNodes,
+  }
+}
+
+export async function loadTreemapFrameForScenarioRun(
+  env: AppBindings,
+  input: {
+    scenarioRunId: string
+    environment: string
+    entrypoint: string
+    metric: SizeMetric
+  },
+) {
+  const snapshot = await loadScenarioRunSnapshot(env, input.scenarioRunId)
+  if (!snapshot.status) return []
+
+  return buildSnapshotDetail(snapshot.snapshot, input.environment, input.entrypoint, input.metric).treemapNodes
+}
+
+function treemapFrameUrl(input: {
+  owner: string
+  repo: string
+  scenarioRunId: string
+  environment: string
+  entrypoint: string
+  metric: SizeMetric
+}) {
+  const params = new URLSearchParams({
+    owner: input.owner,
+    repo: input.repo,
+    scenarioRunId: input.scenarioRunId,
+    env: input.environment,
+    entrypoint: input.entrypoint,
+    metric: input.metric,
+  })
+
+  return `/api/v1/public/treemap-frame?${params.toString()}`
+}
+
 async function loadScenarioRunSnapshot(env: AppBindings, scenarioRunId: string) {
   const scenarioRun = await selectOne(
     getDb(env)
@@ -243,7 +384,7 @@ function buildSnapshotDetail(
   ]
 
   for (const chunk of chunks) {
-    const chunkId = `chunk:${chunk.fileName}`
+    const chunkId = `chunk:${stableChunkId(chunk)}`
     treemapNodes.push({
       id: chunkId,
       parentId: rootId,
@@ -254,7 +395,7 @@ function buildSnapshotDetail(
 
     for (const module of chunk.modules) {
       treemapNodes.push({
-        id: `module:${chunk.fileName}:${module.stableId}`,
+        id: `module:${chunkId}:${module.stableId}`,
         parentId: chunkId,
         label: module.rawId,
         kind: module.scope,
@@ -265,7 +406,7 @@ function buildSnapshotDetail(
 
   for (const asset of assets) {
     treemapNodes.push({
-      id: `asset:${asset.fileName}`,
+      id: `asset:${stableAssetId(asset)}`,
       parentId: rootId,
       label: asset.fileLabel,
       kind: asset.kind,
@@ -306,6 +447,14 @@ function buildSnapshotDetail(
     waterfallRows: buildWaterfallRows(environment, chunks, entrypointKey, metric),
     warnings: environment.warnings.map((warning) => `${warning.code}: ${warning.message}`),
   }
+}
+
+function stableChunkId(chunk: NormalizedEnvironmentSnapshotV1["chunks"][number]) {
+  return chunk.manifestSourceKeys[0] ?? chunk.facadeModule?.stableId ?? chunk.fileName
+}
+
+function stableAssetId(asset: NormalizedEnvironmentSnapshotV1["assets"][number]) {
+  return asset.sourceKeys[0] ?? asset.fileName
 }
 
 function selectEnvironment(environments: NormalizedEnvironmentSnapshotV1[], environmentName: string) {

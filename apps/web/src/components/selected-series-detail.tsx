@@ -3,15 +3,17 @@ import type {
   DetailAvailability,
   DetailDiffRow,
   SnapshotDetail,
+  TreemapTimeline,
 } from "../lib/public-read-models/selected-series-detail.server.js"
 import type { SizeMetric } from "../lib/size-metric.js"
-import { DependencyGraph, TreemapChart, WaterfallChart } from "./charts.js"
+import { DependencyGraph, TreemapChart, TreemapTimelineScrubber, WaterfallChart } from "./charts.js"
 
 export function SelectedSeriesDetailView(props: {
   detail: DetailAvailability | null
   metric: SizeMetric
   mode: "snapshot" | "compare"
   tab: string
+  treemapTimeline?: TreemapTimeline | null
   budgetState?: string | null
   hasDegradedStableIdentity?: boolean
 }) {
@@ -27,9 +29,14 @@ export function SelectedSeriesDetailView(props: {
   const diffs = props.detail.diffs
 
   if (props.tab === "treemap") {
+    const timeline = props.treemapTimeline
+    const showTimeline = timeline && timeline.frames.length > 1
+
     return (
       <>
-        <TreemapChart nodes={props.mode === "compare" && diffs ? diffs.treemapNodes : snapshot.treemapNodes} />
+        {showTimeline ? <TreemapTimelineScrubber key={timeline.frames.map((frame) => frame.nodesUrl).join(":")} timeline={timeline} /> : null}
+        {props.mode === "compare" && diffs ? <h3>Comparison Delta</h3> : null}
+        {showTimeline && props.mode === "snapshot" ? null : <TreemapChart nodes={props.mode === "compare" && diffs ? diffs.treemapNodes : snapshot.treemapNodes} />}
         {props.mode === "compare" && diffs ? <DiffTable title="Changed chunks" rows={diffs.chunks} /> : <ChunkTable snapshot={snapshot} />}
       </>
     )
