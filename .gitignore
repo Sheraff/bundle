@@ -4,5 +4,10 @@ node_modules/
 !packages/github-action/dist/
 packages/github-action/dist/*
 !packages/github-action/dist/index.js
+!packages/vite-plugin/dist/
+packages/vite-plugin/dist/*
+!packages/vite-plugin/dist/index.js
+!packages/vite-plugin/dist/index.d.ts
+!packages/vite-plugin/dist/bundle-tracker.d.ts
 **/.wrangler/
 **/.tanstack/

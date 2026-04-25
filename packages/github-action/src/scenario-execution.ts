@@ -41,7 +41,7 @@ export async function runRepoSyntheticScenario(
   const syntheticSource = await materializeSyntheticSource(workingDirectory, scenario, source)
   const [{ build }, { bundleTracker }] = await Promise.all([
     import("vite"),
-    import("@workspace/vite-plugin"),
+    import("@chunk-scope/vite-plugin"),
   ])
 
   try {

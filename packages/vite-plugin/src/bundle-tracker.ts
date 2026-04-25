@@ -5,7 +5,7 @@ import { brotliCompressSync, gzipSync } from "node:zlib"
 
 import {
   BUNDLE_ARTIFACT_OUTPUT_ENV_VAR,
-  DEFAULT_ARTIFACT_RELATIVE_PATH,
+  DEFAULT_ARTIFACT_RELATIVE_PATH as CONTRACT_DEFAULT_ARTIFACT_RELATIVE_PATH,
   SCHEMA_VERSION_V1,
   scenarioSlugSchema,
   nonEmptyStringSchema,
@@ -23,13 +23,15 @@ import type { Plugin, UserConfig } from "vite"
 const PLUGIN_VERSION = "0.0.0"
 const DEFAULT_ENVIRONMENT_NAME = "default"
 
+export const DEFAULT_ARTIFACT_RELATIVE_PATH = CONTRACT_DEFAULT_ARTIFACT_RELATIVE_PATH
+
 const bundleTrackerOptionsSchema = v.strictObject({
   scenario: scenarioSlugSchema,
   kind: v.optional(v.union([v.literal("fixture-app"), v.literal("synthetic-import")])),
   artifactOutput: v.optional(nonEmptyStringSchema),
 })
 
-export type BundleTrackerScenarioKind = PluginArtifactV1["scenario"]["kind"]
+export type BundleTrackerScenarioKind = "fixture-app" | "synthetic-import"
 
 export interface BundleTrackerOptions {
   scenario: string

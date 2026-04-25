@@ -6,6 +6,7 @@ import { getDb, schema } from "../db/index.js"
 import { selectOne } from "../db/select-one.js"
 import type { AppBindings } from "../env.js"
 import * as githubApi from "../github-api.js"
+import { getAppLogger, type AppLogger } from "../logger.js"
 import { formatIssues } from "../shared/format-issues.js"
 
 import {
@@ -27,6 +28,7 @@ import { PR_CHECK_SURFACE, PR_COMMENT_SURFACE } from "./types.js"
 export async function publishGithubForPullRequest(
   env: AppBindings,
   message: PublishGithubQueueMessage,
+  logger: AppLogger = getAppLogger(),
 ) {
   const db = getDb(env)
   const pullRequest = await selectOne(
@@ -122,6 +124,15 @@ export async function publishGithubForPullRequest(
     )
   }
 
+  if (!exactSummaryRow) {
+    logger.warn("Publishing latest available PR summary because the exact head summary is not ready", {
+      pullRequestHeadSha: pullRequest.headSha,
+      pullRequestId: pullRequest.id,
+      repositoryId: pullRequest.repositoryId,
+      selectedCommitGroupId: summaryRow.commitGroupId,
+    })
+  }
+
   const summaryResult = v.safeParse(prReviewSummaryV1Schema, safeParseJson(summaryRow.summaryJson))
 
   if (!summaryResult.success) {
@@ -164,6 +175,11 @@ export async function publishGithubForPullRequest(
   )
 
   if (!shouldPublishComment && !shouldPublishCheck) {
+    logger.info("Skipping publish-github message because both surfaces are already current", {
+      pullRequestHeadSha: pullRequest.headSha,
+      pullRequestId: pullRequest.id,
+      repositoryId: repository.id,
+    })
     return
   }
 
@@ -174,6 +190,13 @@ export async function publishGithubForPullRequest(
 
   if (shouldPublishComment) {
     try {
+      logger.info("Publishing GitHub PR comment", {
+        existingPublicationId: commentPublication?.externalPublicationId ?? null,
+        pullRequestHeadSha: pullRequest.headSha,
+        pullRequestId: pullRequest.id,
+        repository: `${repository.owner}/${repository.name}`,
+        surface: PR_COMMENT_SURFACE,
+      })
       const publishedComment = await githubApi.upsertGithubPullRequestComment({
         accessToken,
         body: commentPayload.body,
@@ -196,6 +219,13 @@ export async function publishGithubForPullRequest(
         repositoryId: repository.id,
         surface: PR_COMMENT_SURFACE,
       })
+      logger.info("Published GitHub PR comment", {
+        externalPublicationId: publishedComment.id,
+        pullRequestHeadSha: pullRequest.headSha,
+        pullRequestId: pullRequest.id,
+        repository: `${repository.owner}/${repository.name}`,
+        surface: PR_COMMENT_SURFACE,
+      })
     } catch (error) {
       await upsertPublicationFailure(db, {
         commitGroupId: summaryRow.commitGroupId,
@@ -216,6 +246,18 @@ export async function publishGithubForPullRequest(
   }
 
   try {
+    const checkPublicationId =
+      checkPublication?.publishedHeadSha === pullRequest.headSha
+        ? (checkPublication.externalPublicationId ?? null)
+        : null
+    logger.info("Publishing GitHub check run", {
+      existingPublicationId: checkPublicationId,
+      previousPublishedHeadSha: checkPublication?.publishedHeadSha ?? null,
+      pullRequestHeadSha: pullRequest.headSha,
+      pullRequestId: pullRequest.id,
+      repository: `${repository.owner}/${repository.name}`,
+      surface: PR_CHECK_SURFACE,
+    })
     const publishedCheckRun = await githubApi.upsertGithubCheckRun({
       accessToken,
       conclusion: checkPayload.conclusion,
@@ -225,10 +267,7 @@ export async function publishGithubForPullRequest(
       name: checkPayload.name,
       output: checkPayload.output,
       owner: repository.owner,
-      publicationId:
-        checkPublication?.publishedHeadSha === pullRequest.headSha
-          ? (checkPublication.externalPublicationId ?? null)
-          : null,
+      publicationId: checkPublicationId,
       repository: repository.name,
       status: checkPayload.status,
     })
@@ -243,6 +282,13 @@ export async function publishGithubForPullRequest(
       publishedHeadSha: pullRequest.headSha,
       pullRequestId: pullRequest.id,
       repositoryId: repository.id,
+      surface: PR_CHECK_SURFACE,
+    })
+    logger.info("Published GitHub check run", {
+      externalPublicationId: publishedCheckRun.id,
+      pullRequestHeadSha: pullRequest.headSha,
+      pullRequestId: pullRequest.id,
+      repository: `${repository.owner}/${repository.name}`,
       surface: PR_CHECK_SURFACE,
     })
   } catch (error) {

@@ -779,10 +779,12 @@ function buildReorderedEnvelopeBody(envelope: ReturnType<typeof buildEnvelope>) 
 
 function buildLogger(): AppLogger & {
   error: ReturnType<typeof vi.fn<(...args: unknown[]) => void>>
+  info: ReturnType<typeof vi.fn<(...args: unknown[]) => void>>
   warn: ReturnType<typeof vi.fn<(...args: unknown[]) => void>>
 } {
   return {
     error: vi.fn<(...args: unknown[]) => void>(),
+    info: vi.fn<(...args: unknown[]) => void>(),
     warn: vi.fn<(...args: unknown[]) => void>(),
   }
 }

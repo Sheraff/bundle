@@ -24,7 +24,14 @@ export async function handlePublishGithubMessage(
   }
 
   try {
-    await publishGithubForPullRequest(env, messageResult.output)
+    logger.info("Handling publish-github message", {
+      attempts: message.attempts,
+      dedupeKey: messageResult.output.dedupeKey,
+      messageId: message.id,
+      pullRequestId: messageResult.output.pullRequestId,
+      repositoryId: messageResult.output.repositoryId,
+    })
+    await publishGithubForPullRequest(env, messageResult.output, logger)
     message.ack()
   } catch (error) {
     if (error instanceof TerminalPublishGithubError) {

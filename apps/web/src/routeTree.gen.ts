@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root.js'
 import { Route as IndexRouteImport } from './routes/index.js'
 import { Route as AppIndexRouteImport } from './routes/app.index.js'
+import { Route as AppSetupRouteImport } from './routes/app.setup.js'
 import { Route as AppInstallationsInstallationIdRouteImport } from './routes/app.installations.$installationId.js'
 import { Route as ROwnerRepoIndexRouteImport } from './routes/r.$owner.$repo.index.js'
 import { Route as ROwnerRepoSettingsRouteImport } from './routes/r.$owner.$repo.settings.js'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/app/',
   path: '/app/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppSetupRoute = AppSetupRouteImport.update({
+  id: '/app/setup',
+  path: '/app/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppInstallationsInstallationIdRoute =
@@ -57,6 +63,7 @@ const ROwnerRepoScenariosScenarioRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app/setup': typeof AppSetupRoute
   '/app/': typeof AppIndexRoute
   '/app/installations/$installationId': typeof AppInstallationsInstallationIdRoute
   '/r/$owner/$repo/compare': typeof ROwnerRepoCompareRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/setup': typeof AppSetupRoute
   '/app': typeof AppIndexRoute
   '/app/installations/$installationId': typeof AppInstallationsInstallationIdRoute
   '/r/$owner/$repo/compare': typeof ROwnerRepoCompareRoute
@@ -76,6 +84,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app/setup': typeof AppSetupRoute
   '/app/': typeof AppIndexRoute
   '/app/installations/$installationId': typeof AppInstallationsInstallationIdRoute
   '/r/$owner/$repo/compare': typeof ROwnerRepoCompareRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app/setup'
     | '/app/'
     | '/app/installations/$installationId'
     | '/r/$owner/$repo/compare'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app/setup'
     | '/app'
     | '/app/installations/$installationId'
     | '/r/$owner/$repo/compare'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/app/setup'
     | '/app/'
     | '/app/installations/$installationId'
     | '/r/$owner/$repo/compare'
@@ -115,6 +127,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppSetupRoute: typeof AppSetupRoute
   AppIndexRoute: typeof AppIndexRoute
   AppInstallationsInstallationIdRoute: typeof AppInstallationsInstallationIdRoute
   ROwnerRepoCompareRoute: typeof ROwnerRepoCompareRoute
@@ -137,6 +150,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/setup': {
+      id: '/app/setup'
+      path: '/app/setup'
+      fullPath: '/app/setup'
+      preLoaderRoute: typeof AppSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/installations/$installationId': {
@@ -179,6 +199,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppSetupRoute: AppSetupRoute,
   AppIndexRoute: AppIndexRoute,
   AppInstallationsInstallationIdRoute: AppInstallationsInstallationIdRoute,
   ROwnerRepoCompareRoute: ROwnerRepoCompareRoute,

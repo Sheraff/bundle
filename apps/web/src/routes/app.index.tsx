@@ -45,6 +45,9 @@ function AdminHomeRouteComponent() {
           <a href={data.installUrl}>Install Chunk Scope on a GitHub org or user</a>
         </p>
       ) : null}
+      <p>
+        <Link to="/app/setup">View setup guide</Link>
+      </p>
       <h2>GitHub App installations</h2>
       {data.installations.length === 0 ? (
         <p>No installations found for this GitHub user.</p>
