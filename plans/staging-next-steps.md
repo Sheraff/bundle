@@ -1,41 +1,47 @@
 # Staging Next Steps
 
-## Immediate
+## Completed
 
-1. Make the Vite plugin consumable outside this workspace.
-   - Choose the public package name.
-   - Remove workspace-only package assumptions.
-   - Add a build output for the package.
-   - Publish or otherwise expose a testable install path.
+1. Made the Vite plugin consumable outside this workspace.
+   - Public package name: `@chunk-scope/vite-plugin`.
+   - Build output: `packages/vite-plugin/dist/index.js` and declarations.
+   - The package can be installed from the `staging` branch with `git+https://github.com/Sheraff/bundle.git#staging&path:packages/vite-plugin`.
+   - A packed tarball was validated in a temporary external project.
 
-2. Make the GitHub Action consumable by version.
-   - Keep packaged `dist/index.js` committed.
-   - Create a staging tag or release channel.
-   - Update snippets to avoid depending on moving `main` once the flow stabilizes.
+2. Made the GitHub Action consumable by staging channel.
+   - Packaged `packages/github-action/dist/index.js` is committed.
+   - `staging` branch is the staging release channel.
+   - Workflow snippets and `Sheraff/bundle-test` use `Sheraff/bundle/packages/github-action@staging`.
 
-3. Replace the temporary real package-build smoke workaround with a normal package install.
-   - Install the published Chunk Scope Vite plugin in `Sheraff/bundle-test`.
-   - Remove the second checkout and esbuild bundling step.
-   - Keep running the action with `command: pnpm build`.
-   - Keep verifying D1, R2, queues, repository page, PR comment, and check run.
+3. Replaced the temporary real package-build smoke workaround with a normal package install.
+   - `Sheraff/bundle-test` installs `@chunk-scope/vite-plugin` from the `staging` branch.
+   - The second checkout and esbuild bundling step were removed.
+   - The smoke workflow still runs the action with `command: pnpm build`.
+   - Push and PR smoke workflows passed.
 
-4. Add deployment scripts.
-   - `staging:build` should set `CLOUDFLARE_ENV=staging`.
-   - `staging:deploy` should build and deploy with the staging environment.
-   - Add a script or document for staging verification queries.
+4. Added deployment scripts.
+   - `pnpm staging:build` sets `CLOUDFLARE_ENV=staging`.
+   - `pnpm staging:deploy` builds, validates generated Wrangler config, and deploys staging.
+   - `pnpm staging:verify` checks health, repositories, latest scenario runs, and publication rows.
 
-## Product UX
+## Product UX Completed
 
-1. Improve the app install and repository enablement pages.
-2. Add a setup guide for the GitHub App and workflow snippet.
-3. Show latest upload, queue, and publication status on repository settings.
-4. Show publication failures from `github_publications` in the UI.
-5. Replace remaining internal `bundle` resource/package names when the final package names are chosen.
+1. Added `/app/setup` with GitHub App URLs, permissions, webhook events, and workflow permissions.
+2. Added an admin link to the setup guide.
+3. Expanded repository settings with setup checklist, workflow snippet, latest uploads, and latest publication rows.
+4. Publication rows show status, external links, published head SHA, and error code/message.
 
-## Reliability
+## Reliability Completed
 
-1. Add automated tests for PR publication when the uploaded run SHA differs from the PR head SHA.
-2. Add a test for PKCS#8 private-key validation or a clearer startup/config error.
-3. Add observability around queue retries and terminal publication failures.
-4. Decide how to handle failed/stale publish queue messages after permission fixes.
-5. Add a cleanup/reset path for staging smoke-test data if it becomes noisy.
+1. Added automated coverage for PR check publication when PR head changes.
+2. Fixed PR check publication bookkeeping so the D1 row advances to the latest head/check run.
+3. Added structured publish queue logs for message handling, selected summaries, skipped current surfaces, PR comments, and check runs.
+4. Moved the GitHub Action runtime to Node 24.
+5. Confirmed smoke workflows no longer list the Chunk Scope action in GitHub's Node 20 deprecation warning.
+
+## Remaining Later Work
+
+1. Publish the Vite plugin to the final package registry when ready; staging currently uses a Git subdirectory dependency.
+2. Add a PKCS#8 private-key validation test or clearer startup/config error.
+3. Add a cleanup/reset path for staging smoke-test data if it becomes noisy.
+4. Replace remaining internal `bundle` resource/package names when final package names are chosen.

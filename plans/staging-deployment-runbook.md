@@ -109,8 +109,8 @@ pnpm --dir apps/web exec wrangler d1 migrations apply DB --env staging --remote
 The Cloudflare Vite plugin reads Wrangler environments at build time. Always set `CLOUDFLARE_ENV=staging` for staging builds and deploys.
 
 ```bash
-CLOUDFLARE_ENV=staging pnpm --filter @workspace/web build
-CLOUDFLARE_ENV=staging pnpm --dir apps/web exec wrangler deploy --env staging
+pnpm staging:build
+pnpm staging:deploy
 ```
 
 If `CLOUDFLARE_ENV=staging` is omitted during build, the generated `dist/server/wrangler.json` uses top-level resources and deploy can accidentally provision/use production-shaped resource names.
@@ -126,11 +126,14 @@ pnpm --filter @workspace/web build
 pnpm --filter @workspace/github-action typecheck
 pnpm --filter @workspace/github-action test
 pnpm --filter @workspace/github-action build
+pnpm vite-plugin:build
+pnpm vite-plugin:typecheck
+pnpm vite-plugin:test
 ```
 
 ## Smoke-Test Workflow
 
-The smoke-test repository currently uses `Sheraff/bundle/packages/github-action@main`.
+The smoke-test repository currently uses `Sheraff/bundle/packages/github-action@staging` and installs the Vite plugin with `git+https://github.com/Sheraff/bundle.git#staging&path:packages/vite-plugin`.
 
 Minimal required permissions:
 
@@ -147,7 +150,7 @@ env:
   BUNDLE_API_ORIGIN: https://chunk-scope-web-staging.me-b16.workers.dev
 ```
 
-Current smoke-test mode uses a tiny Vite app in `Sheraff/bundle-test`. Until the Vite plugin is published, the workflow checks out this repository, bundles the plugin source with esbuild, imports that local bundle from `vite.config.ts`, then runs `pnpm build` through the GitHub Action command mode. This validates the real package-build path plus OIDC, upload auth, raw object persistence, D1 persistence, queue processing, page rendering, PR summaries, PR comments, and checks.
+Current smoke-test mode uses a tiny Vite app in `Sheraff/bundle-test`. The app imports `bundleTracker` from `@chunk-scope/vite-plugin`, runs `pnpm build` through the GitHub Action command mode, and uploads the generated artifact. This validates the real package-build path plus OIDC, upload auth, raw object persistence, D1 persistence, queue processing, page rendering, PR summaries, PR comments, and checks.
 
 ## Verification Commands
 

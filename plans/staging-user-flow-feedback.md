@@ -44,13 +44,13 @@ This captures first-pass feedback from exercising the full staging flow with `Sh
 
 ## Real Package-Build Smoke Test
 
-The real package-build flow now runs in `Sheraff/bundle-test`: the consuming repository runs Vite with the Chunk Scope Vite plugin and then calls the GitHub Action in command mode.
+The real package-build flow now runs in `Sheraff/bundle-test`: the consuming repository installs `@chunk-scope/vite-plugin`, runs Vite with the Chunk Scope Vite plugin, and then calls the GitHub Action in command mode.
 
-Because `@workspace/vite-plugin` is still private and workspace-scoped, the smoke workflow temporarily checks out `Sheraff/bundle`, bundles `packages/vite-plugin/src/index.ts` with esbuild, and imports the generated `.chunk-scope/vite-plugin.mjs` from `vite.config.ts`.
+The smoke workflow uses the staging channel instead of unpublished workspace paths:
 
-Required before this can become a normal consumer setup:
+1. `@chunk-scope/vite-plugin` is installed from `git+https://github.com/Sheraff/bundle.git#staging&path:packages/vite-plugin`.
+2. `vite.config.ts` imports `bundleTracker` from `@chunk-scope/vite-plugin`.
+3. The workflow uses `Sheraff/bundle/packages/github-action@staging`.
+4. The action runs in command mode with `command: pnpm build`.
 
-1. Rename/publish the Vite plugin package under the final package name.
-2. Publish or tag a consumable GitHub Action ref.
-3. Configure the test app to install and use the published Chunk Scope Vite plugin directly.
-4. Keep the action in command mode with `command: pnpm build`.
+The remaining packaging step is publishing the plugin to the final registry when the public release channel is chosen.

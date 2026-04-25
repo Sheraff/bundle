@@ -13,7 +13,7 @@ This repo contains the V1 product workspace plus a local research lab that stays
 
 Use these from the repo root for product checks:
 
-- `pnpm typecheck`: typechecks `@workspace/contracts`, `@workspace/vite-plugin`, `@workspace/github-action`, and `@workspace/web`.
+- `pnpm typecheck`: typechecks `@workspace/contracts`, `@chunk-scope/vite-plugin`, `@workspace/github-action`, and `@workspace/web`.
 - `pnpm test`: runs the product test suites for the same four workspace packages.
 - `pnpm check`: runs both product typechecks and product tests.
 

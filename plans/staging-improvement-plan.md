@@ -2,6 +2,8 @@
 
 Chunk Scope is still pre-production with no users. These tasks should optimize for the cleanest implementation rather than backwards compatibility. Breaking internal package names, smoke-test workflow shape, staging data, and unpublished interfaces is acceptable.
 
+Status: completed on staging. Remaining later work is limited to registry publication, PKCS#8 config validation, staging data cleanup, and final internal `bundle` naming cleanup.
+
 ## Goals
 
 1. Make the real Vite package-build smoke test representative of a normal consumer setup.
