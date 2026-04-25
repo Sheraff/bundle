@@ -241,6 +241,119 @@ describe("GitHub publication worker", () => {
     )
   })
 
+  it("creates a new check run when the PR head changes and records it on the existing publication row", async () => {
+    const harness = createPipelineHarness()
+
+    await seedPrComparison(harness)
+
+    const pullRequest = await getPullRequestRow()
+    expect(pullRequest).toBeTruthy()
+
+    vi.spyOn(githubApi, "createGithubInstallationAccessToken").mockResolvedValue(
+      "installation-token",
+    )
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
+    mockInitialCreateGithubResponses(fetchSpy)
+
+    const firstPublish = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.publishGithub,
+      buildPublishGithubMessage(pullRequest, "publish-github:first-head:v1"),
+    )
+    expect(firstPublish).toBeAcknowledged()
+
+    fetchSpy.mockClear()
+
+    const nextHeadSha = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    await harness.acceptUpload(
+      buildEnvelope({
+        artifact: buildSimpleArtifact({
+          scenarioId: "scenario-pr",
+          chunkSizes: size(175, 45, 38),
+          cssSizes: size(10, 8, 6),
+        }),
+        git: {
+          commitSha: nextHeadSha,
+          branch: "feature/login",
+        },
+        pullRequest: {
+          number: 42,
+          baseSha,
+          baseRef: "main",
+          headSha: nextHeadSha,
+          headRef: "feature/login",
+        },
+        ci: buildCiContext("5603"),
+      }),
+    )
+    await harness.processUploadPipeline()
+
+    const requests: Array<{ body: unknown; method: string; url: string }> = []
+    fetchSpy.mockImplementation(async (input, init) => {
+      const url = toRequestUrl(input)
+      const method = init?.method ?? "GET"
+      requests.push({
+        body: init?.body ? parseJsonRequestBody(init) : null,
+        method,
+        url,
+      })
+
+      if (url.endsWith("/issues/comments/101") && method === "PATCH") {
+        return Response.json({
+          body: parseJsonRequestBody(init).body,
+          html_url: "https://github.com/acme/widget/issues/42#issuecomment-101",
+          id: 101,
+          node_id: "IC_kwDOA",
+        })
+      }
+
+      if (url.endsWith("/check-runs") && method === "POST") {
+        return Response.json({
+          html_url: "https://github.com/acme/widget/runs/303",
+          id: 303,
+          node_id: "CR_kwDOB",
+        })
+      }
+
+      throw new Error(`Unexpected GitHub request: ${method} ${url}`)
+    })
+
+    const secondPublish = await dispatchQueueMessage(
+      TEST_QUEUE_NAMES.publishGithub,
+      buildPublishGithubMessage(pullRequest, "publish-github:second-head:v1"),
+    )
+    expect(secondPublish).toBeAcknowledged()
+
+    expect(requests).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          method: "PATCH",
+          url: expect.stringContaining("/issues/comments/101"),
+        }),
+        expect.objectContaining({
+          method: "POST",
+          url: expect.stringContaining("/check-runs"),
+        }),
+      ]),
+    )
+    expect(requests).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          method: "PATCH",
+          url: expect.stringContaining("/check-runs/202"),
+        }),
+      ]),
+    )
+
+    const checkPublication = await getGithubPublication("pr-check")
+    expect(checkPublication).toEqual(
+      expect.objectContaining({
+        external_publication_id: "303",
+        published_head_sha: nextHeadSha,
+        status: "published",
+      }),
+    )
+  })
+
   it("persists terminal GitHub publication failures", async () => {
     const harness = createPipelineHarness()
 
@@ -836,7 +949,7 @@ async function listGithubPublications() {
 
 async function getGithubPublication(surface: string) {
   return env.DB.prepare(
-    `SELECT surface, status, external_publication_id
+    `SELECT surface, status, external_publication_id, published_head_sha
      FROM github_publications
      WHERE surface = ?
      LIMIT 1`,
@@ -844,6 +957,7 @@ async function getGithubPublication(surface: string) {
     .bind(surface)
     .first<{
       external_publication_id: string | null
+      published_head_sha: string | null
       status: string
       surface: string
     }>()

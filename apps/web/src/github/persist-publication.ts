@@ -38,14 +38,14 @@ export async function selectCommentPublication(db: DbClient, pullRequestId: stri
   )
 }
 
-export async function selectCheckPublication(db: DbClient, commitGroupId: string) {
+export async function selectCheckPublication(db: DbClient, pullRequestId: string) {
   return selectOne(
     db
       .select()
       .from(schema.githubPublications)
       .where(
         and(
-          eq(schema.githubPublications.commitGroupId, commitGroupId),
+          eq(schema.githubPublications.pullRequestId, pullRequestId),
           eq(schema.githubPublications.surface, "pr-check"),
         ),
       )

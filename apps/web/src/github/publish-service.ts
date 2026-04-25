@@ -133,7 +133,7 @@ export async function publishGithubForPullRequest(
   const prSummary = summaryResult.output
   const [commentPublication, checkPublication] = await Promise.all([
     selectCommentPublication(db, pullRequest.id),
-    selectCheckPublication(db, summaryRow.commitGroupId),
+    selectCheckPublication(db, pullRequest.id),
   ])
   const commentPayload = await buildCommentPublicationPayload(
     env,
@@ -225,7 +225,10 @@ export async function publishGithubForPullRequest(
       name: checkPayload.name,
       output: checkPayload.output,
       owner: repository.owner,
-      publicationId: checkPublication?.externalPublicationId ?? null,
+      publicationId:
+        checkPublication?.publishedHeadSha === pullRequest.headSha
+          ? (checkPublication.externalPublicationId ?? null)
+          : null,
       repository: repository.name,
       status: checkPayload.status,
     })
