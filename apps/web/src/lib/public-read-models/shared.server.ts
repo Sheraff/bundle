@@ -15,6 +15,7 @@ import { and, asc, desc, eq, isNull, sql } from "drizzle-orm"
 import * as v from "valibot"
 
 import { getDb, schema } from "../../db/index.js"
+import { repositoryRouteMatch } from "../../db/repository-route-match.js"
 import { selectOne } from "../../db/select-one.js"
 import type { AppBindings } from "../../env.js"
 import { formatIssues } from "../../shared/format-issues.js"
@@ -97,7 +98,7 @@ export async function requireRepository(
         githubRepoId: schema.repositories.githubRepoId,
       })
       .from(schema.repositories)
-      .where(and(eq(schema.repositories.owner, owner), eq(schema.repositories.name, repo)))
+      .where(repositoryRouteMatch(owner, repo))
       .limit(1),
   )
 

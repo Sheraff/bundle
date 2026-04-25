@@ -27,6 +27,28 @@ describe("public read models", () => {
     ).rejects.toThrow("Repository acme/missing-widget was not found.")
   })
 
+  it("resolves repository route params case-insensitively", async () => {
+    await insertRepository({
+      id: "repo-read-case-insensitive",
+      githubRepoId: 3000,
+      installationId: 3000,
+      owner: "Acme",
+      name: "Case-Widget",
+    })
+
+    const data = await getRepositoryOverviewPageData(env, {
+      owner: "acme",
+      repo: "case-widget",
+    })
+
+    expect(data.repository).toEqual(
+      expect.objectContaining({
+        owner: "Acme",
+        name: "Case-Widget",
+      }),
+    )
+  })
+
   it("throws when the scenario does not exist for the repository", async () => {
     await insertRepository({
       id: "repo-read-missing-scenario",

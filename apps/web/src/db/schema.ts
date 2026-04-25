@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm"
 import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core"
 
 export const githubAccounts = sqliteTable(
@@ -100,7 +101,13 @@ export const repositories = sqliteTable(
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),
   },
-  (table) => [uniqueIndex("repositories_github_repo_id_unique").on(table.githubRepoId)],
+  (table) => [
+    uniqueIndex("repositories_github_repo_id_unique").on(table.githubRepoId),
+    uniqueIndex("repositories_owner_name_lower_unique").on(
+      sql`lower(${table.owner})`,
+      sql`lower(${table.name})`,
+    ),
+  ],
 )
 
 export const scenarios = sqliteTable(

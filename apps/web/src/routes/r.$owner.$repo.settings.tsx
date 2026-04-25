@@ -7,6 +7,7 @@ import { getRequest } from "@tanstack/react-start/server"
 
 import { requireUser } from "../auth/session.js"
 import { getDb, schema } from "../db/index.js"
+import { repositoryRouteMatch } from "../db/repository-route-match.js"
 import { selectOne } from "../db/select-one.js"
 import type { AppBindings } from "../env.js"
 import { requireRepositoryAdminForUser } from "../github/onboarding.js"
@@ -16,24 +17,22 @@ const getRepositorySettings = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     const user = await requireRouteUser(context.env)
 
-    try {
-      await requireRepositoryAdminForUser(context.env, user, data.owner, data.repo)
-    } catch {
-      throw notFound()
-    }
-
     const db = getDb(context.env)
     const repository = await selectOne(
       db
         .select()
         .from(schema.repositories)
-        .where(
-          and(eq(schema.repositories.owner, data.owner), eq(schema.repositories.name, data.repo)),
-        )
+        .where(repositoryRouteMatch(data.owner, data.repo))
         .limit(1),
     )
 
     if (!repository || repository.enabled !== 1) {
+      throw notFound()
+    }
+
+    try {
+      await requireRepositoryAdminForUser(context.env, user, repository.owner, repository.name)
+    } catch {
       throw notFound()
     }
 
