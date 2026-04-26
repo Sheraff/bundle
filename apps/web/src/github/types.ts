@@ -10,7 +10,7 @@ export interface CommentPublicationPayload {
 }
 
 export interface CheckRunPublicationPayload {
-  conclusion?: "failure" | "success"
+  conclusion?: GithubCheckConclusion
   detailsUrl: string
   externalId: string
   headSha: string
@@ -23,3 +23,5 @@ export interface CheckRunPublicationPayload {
 export const PR_COMMENT_SURFACE = "pr-comment"
 export const PR_CHECK_SURFACE = "pr-check"
 export const PR_CHECK_NAME = "Chunk Scope Review"
+
+export type GithubCheckConclusion = "failure" | "neutral" | "success"

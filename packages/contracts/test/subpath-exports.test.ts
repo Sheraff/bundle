@@ -10,6 +10,7 @@ import { uploadScenarioRunAcceptedResponseV1Schema } from "@workspace/contracts/
 import { githubActionsUploadTokenResponseV1Schema } from "@workspace/contracts/upload-auth"
 import { comparePageSearchParamsSchema } from "@workspace/contracts/public-routes"
 import { prReviewSummaryV1Schema } from "@workspace/contracts/summaries"
+import { uiTerminology } from "@workspace/contracts/ui-semantics"
 import { acknowledgeComparisonItemInputSchema } from "@workspace/contracts/mutations"
 import { queueMessageSchema } from "@workspace/contracts/queues"
 import { workflowInputSchema } from "@workspace/contracts/workflows"
@@ -27,6 +28,7 @@ describe("contracts subpath exports", () => {
     expect(githubActionsUploadTokenResponseV1Schema).toBeDefined()
     expect(comparePageSearchParamsSchema).toBeDefined()
     expect(prReviewSummaryV1Schema).toBeDefined()
+    expect(uiTerminology.scenario.label).toBe("Scenario")
     expect(acknowledgeComparisonItemInputSchema).toBeDefined()
     expect(queueMessageSchema).toBeDefined()
     expect(workflowInputSchema).toBeDefined()

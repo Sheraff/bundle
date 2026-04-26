@@ -97,7 +97,7 @@ function RepositoryHistoryRouteComponent() {
           <span data-sep aria-hidden="true">/</span>
           {data.repository.name}
         </h1>
-        <p>Inspect branch evolution across scenarios and launch pairwise comparisons.</p>
+        <p>History mode shows how scenarios and outputs evolved over time without mixing What's-counted lenses or sizes.</p>
         <nav aria-label="Repository views" className="repo-subnav">
           <Link
             to="/r/$owner/$repo"
@@ -110,73 +110,152 @@ function RepositoryHistoryRouteComponent() {
         </nav>
       </header>
 
-      <section className="section">
-        <h2>Filters</h2>
-        <div className="filters-bar">
-          <LinkSelector
-            label="Branch"
-            options={data.branchOptions.map((branch) => (
-              <Link key={branch} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, branch })}>
-                {branch}
-              </Link>
-            ))}
-          />
-          <LinkSelector
-            label="Scenario"
-            options={["all", ...data.scenarioOptions].map((scenario) => (
-              <Link key={scenario} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, scenario })}>
-                {scenario}
-              </Link>
-            ))}
-          />
-          <LinkSelector
-            label="Environment"
-            options={["all", ...data.environmentOptions].map((env) => (
-              <Link key={env} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, env })}>
-                {env}
-              </Link>
-            ))}
-          />
-          <LinkSelector
-            label="Entrypoint"
-            options={["all", ...data.entrypointOptions].map((entrypoint) => (
-              <Link key={entrypoint} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, entrypoint })}>
-                {entrypoint}
-              </Link>
-            ))}
-          />
-          <LinkSelector
-            label="Lens"
-            options={data.lensOptions.map((lens) => (
-              <Link key={lens} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, lens })}>
-                {lens}
-              </Link>
-            ))}
-          />
-          <MetricSelector
-            raw={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "raw" })}>raw</Link>}
-            gzip={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "gzip" })}>gzip</Link>}
-            brotli={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "brotli" })}>brotli</Link>}
-          />
-        </div>
-      </section>
+      <HistoryModeSummary data={data} />
+      <HistoryMarkers data={data} />
+      <HistoryControls data={data} />
 
       <CompareLauncher data={data} />
 
+      <ScenarioRollups data={data} />
+
       <section className="section">
         <h2>Branch evolution</h2>
+        <p className="notice">Line charts are fixed to {data.lens} and {data.metric}. Missing points are gaps, not zeroes.</p>
         {data.history.length === 0 ? (
           <p className="notice">No history rows match the selected filters. Try broadening scenario, environment, or entrypoint.</p>
         ) : (
           <div className="viz-block">
             <div data-role="chart">
-              <TrendChart series={buildHistoryChartSeries(data.history, data.metric)} />
+              <TrendChart series={buildHistoryChartSeries(visibleHistorySeries(data.history), data.metric)} />
             </div>
-            {data.history.map((series) => <HistoryTable key={series.seriesId} series={series} />)}
+            {data.history.length > visibleHistorySeries(data.history).length ? (
+              <p className="notice">Showing the first {visibleHistorySeries(data.history).length} lines to keep the chart readable. Narrow the output selection for more detail.</p>
+            ) : null}
+            {data.history.map((series) => <HistoryTable key={series.seriesId} data={data} series={series} />)}
           </div>
         )}
       </section>
     </main>
+  )
+}
+
+function HistoryModeSummary(props: { data: HistoryData }) {
+  const data = props.data
+  const pointCount = data.history.reduce((sum: number, series: HistorySeries) => sum + series.points.length, 0)
+
+  return (
+    <section className="section history-mode-summary">
+      <p className="eyebrow">History mode</p>
+      <h2>Scenario rollups for {data.branch ?? "no branch"}</h2>
+      <dl className="repo-health">
+        <div><dt>Scenarios</dt><dd>{unique(data.history.map((series: HistorySeries) => series.scenarioSlug ?? "unknown")).length}</dd></div>
+        <div><dt>Outputs</dt><dd>{data.history.length}</dd></div>
+        <div><dt>Measured points</dt><dd>{pointCount}</dd></div>
+        <div><dt>What's counted</dt><dd>{data.lens}</dd></div>
+        <div><dt>Size</dt><dd>{data.metric}</dd></div>
+      </dl>
+    </section>
+  )
+}
+
+function HistoryMarkers(props: { data: HistoryData }) {
+  const data = props.data
+
+  return (
+    <section className="section">
+      <h2>Branch markers</h2>
+      {data.branchOptions.length === 0 ? (
+        <p className="notice">No branch markers are available yet.</p>
+      ) : (
+        <div className="scenario-control-row">
+          {data.branchOptions.map((branch: string) => (
+            <Link key={branch} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, branch })} aria-current={data.branch === branch ? "page" : undefined}>
+              {branch}
+            </Link>
+          ))}
+        </div>
+      )}
+      <p className="notice">Tag and release markers will appear here once release data exists.</p>
+    </section>
+  )
+}
+
+function HistoryControls(props: { data: HistoryData }) {
+  const data = props.data
+
+  return (
+    <section className="section">
+      <h2>Timeline controls</h2>
+      <p>History keeps one What's-counted lens and one size visible at a time. Output selection can narrow the rollups without changing the meaning of the chart.</p>
+      <div className="filters-bar">
+        <LinkSelector
+          label="Scenario"
+          options={["all", ...data.scenarioOptions].map((scenario: string) => (
+            <Link key={scenario} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, scenario })}>
+              {scenario}
+            </Link>
+          ))}
+        />
+        <LinkSelector
+          label="Environment"
+          options={["all", ...data.environmentOptions].map((env: string) => (
+            <Link key={env} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, env })}>
+              {env}
+            </Link>
+          ))}
+        />
+        <LinkSelector
+          label="Entrypoint"
+          options={["all", ...data.entrypointOptions].map((entrypoint: string) => (
+            <Link key={entrypoint} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, entrypoint })}>
+              {entrypoint}
+            </Link>
+          ))}
+        />
+        <LinkSelector
+          label="What's counted"
+          options={data.lensOptions.map((lens: string) => (
+            <Link key={lens} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, lens })}>
+              {lens}
+            </Link>
+          ))}
+        />
+        <MetricSelector
+          raw={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "raw" })}>raw</Link>}
+          gzip={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "gzip" })}>gzip</Link>}
+          brotli={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "brotli" })}>brotli</Link>}
+        />
+      </div>
+    </section>
+  )
+}
+
+function ScenarioRollups(props: { data: HistoryData }) {
+  const groups = groupHistoryByScenario(props.data.history)
+
+  return (
+    <section className="section">
+      <h2>Scenario rollups</h2>
+      {groups.length === 0 ? (
+        <p className="notice">No scenario rollups are available for this history context.</p>
+      ) : (
+        <div className="card-grid">
+          {groups.map((group) => (
+            <article key={group.scenarioSlug} className="card">
+              <h3>{group.scenarioSlug}</h3>
+              <p>{group.series.length} outputs, {group.pointCount} measured points.</p>
+              <Link
+                to="/r/$owner/$repo/scenarios/$scenario"
+                params={{ owner: props.data.repository.owner, repo: props.data.repository.name, scenario: group.scenarioSlug }}
+                search={{ branch: props.data.branch ?? undefined, lens: props.data.lens, metric: props.data.metric }}
+              >
+                Open scenario history
+              </Link>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -196,9 +275,9 @@ function CompareLauncher(props: { data: HistoryData }) {
         >
           <label>
             Base
-            <select name="base" defaultValue={quoteSearchString(options[1]?.commitSha ?? options[0]?.commitSha ?? "")}>
+            <select name="base" defaultValue={options[1]?.commitSha ?? options[0]?.commitSha ?? ""}>
               {options.map((option) => (
-                <option key={`base:${option.commitSha}`} value={quoteSearchString(option.commitSha)}>
+                <option key={`base:${option.commitSha}`} value={option.commitSha}>
                   {optionLabel(option)}
                 </option>
               ))}
@@ -206,9 +285,9 @@ function CompareLauncher(props: { data: HistoryData }) {
           </label>
           <label>
             Head
-            <select name="head" defaultValue={quoteSearchString(options[0]?.commitSha ?? "")}>
+            <select name="head" defaultValue={options[0]?.commitSha ?? ""}>
               {options.map((option) => (
-                <option key={`head:${option.commitSha}`} value={quoteSearchString(option.commitSha)}>
+                <option key={`head:${option.commitSha}`} value={option.commitSha}>
                   {optionLabel(option)}
                 </option>
               ))}
@@ -226,10 +305,19 @@ function CompareLauncher(props: { data: HistoryData }) {
   )
 }
 
-function HistoryTable(props: { series: HistorySeries }) {
+function HistoryTable(props: { data: HistoryData; series: HistorySeries }) {
   return (
     <article className="card">
       <h3>{props.series.scenarioSlug} / {props.series.environment} / {props.series.entrypoint} / {props.series.lens}</h3>
+      {props.series.scenarioSlug ? (
+        <Link
+          to="/r/$owner/$repo/scenarios/$scenario"
+          params={{ owner: props.data.repository.owner, repo: props.data.repository.name, scenario: props.series.scenarioSlug }}
+          search={{ branch: props.data.branch ?? undefined, env: props.series.environment, entrypoint: props.series.entrypoint, lens: props.series.lens, metric: props.data.metric }}
+        >
+          Open scenario detail
+        </Link>
+      ) : null}
       <div className="table-scroll">
         <table>
           <thead>
@@ -258,6 +346,32 @@ function HistoryTable(props: { series: HistorySeries }) {
   )
 }
 
+function visibleHistorySeries(seriesRows: HistorySeries[]) {
+  return seriesRows.slice(0, 6)
+}
+
+function groupHistoryByScenario(seriesRows: HistorySeries[]) {
+  const groups = new Map<string, { pointCount: number; scenarioSlug: string; series: HistorySeries[] }>()
+
+  for (const series of seriesRows) {
+    const scenarioSlug = series.scenarioSlug ?? "unknown"
+    const existing = groups.get(scenarioSlug)
+
+    if (existing) {
+      existing.series.push(series)
+      existing.pointCount += series.points.length
+    } else {
+      groups.set(scenarioSlug, { pointCount: series.points.length, scenarioSlug, series: [series] })
+    }
+  }
+
+  return [...groups.values()].sort((left, right) => left.scenarioSlug.localeCompare(right.scenarioSlug))
+}
+
+function unique(values: string[]) {
+  return [...new Set(values)]
+}
+
 function buildHistoryChartSeries(seriesRows: HistorySeries[], metric: SizeMetric): TrendChartSeries[] {
   return seriesRows.map((series) => ({
     id: series.seriesId,
@@ -271,8 +385,4 @@ function buildHistoryChartSeries(seriesRows: HistorySeries[], metric: SizeMetric
 function optionLabel(option: HistoryData["commitOptions"][number]) {
   const pr = option.prNumber ? ` PR #${option.prNumber}` : ""
   return `${shortSha(option.commitSha)} on ${option.branch}${pr} (${option.latestUploadAt})`
-}
-
-function quoteSearchString(value: string) {
-  return JSON.stringify(value)
 }

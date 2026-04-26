@@ -1,9 +1,57 @@
 import type {
+  PolicyState,
+  PrReviewSummaryV1,
   ReviewedComparisonSeriesSummaryV1,
   ReviewedScenarioSummaryV1,
 } from "@workspace/contracts"
 
+import { isWarningPolicyState, mapBudgetStateToPolicyState, policyStateLabel } from "../lib/policy-state.js"
+
 import { formatSignedBytes, formatSignedPercentage } from "./formatting.js"
+
+export type PublicationScenarioSeries = {
+  policyState: PolicyState
+  scenarioGroup: ReviewedScenarioSummaryV1
+  seriesSummary: ReviewedComparisonSeriesSummaryV1
+}
+
+export type PublicationFacts = {
+  acceptedPolicyDecisionCount: number
+  blockingPolicyOutcomeCount: number
+  failedMeasurementCount: number
+  missingBaselineCount: number
+  noPolicyOutputCount: number
+  notEvaluatedPolicyOutcomeCount: number
+  warningPolicyOutcomeCount: number
+}
+
+export function collectPublicationFacts(summary: PrReviewSummaryV1): PublicationFacts {
+  const series = collectPublicationSeries(summary)
+
+  return {
+    acceptedPolicyDecisionCount: series.filter((row) => row.policyState === "accepted").length,
+    blockingPolicyOutcomeCount: series.filter((row) => row.policyState === "fail_blocking").length,
+    failedMeasurementCount: summary.counts.failedScenarioCount + summary.counts.failedComparisonCount,
+    missingBaselineCount: summary.counts.noBaselineSeriesCount + summary.counts.missingScenarioCount,
+    noPolicyOutputCount: series.filter((row) => row.policyState === "not_configured").length,
+    notEvaluatedPolicyOutcomeCount: series.filter((row) => row.policyState === "not_evaluated").length,
+    warningPolicyOutcomeCount: series.filter((row) => isWarningPolicyState(row.policyState)).length,
+  }
+}
+
+export function collectPublicationSeries(summary: PrReviewSummaryV1): PublicationScenarioSeries[] {
+  return summary.scenarioGroups.flatMap((scenarioGroup) =>
+    scenarioGroup.series.map((seriesSummary) => ({
+      policyState: mapBudgetStateToPolicyState(seriesSummary.budgetState),
+      scenarioGroup,
+      seriesSummary,
+    })),
+  )
+}
+
+export function describePolicyOutcome(policyState: PolicyState) {
+  return policyStateLabel(policyState)
+}
 
 export function selectVisibleSeries(scenarioGroup: ReviewedScenarioSummaryV1) {
   return (
@@ -54,13 +102,18 @@ export function describeScenarioHighlight(scenarioGroup: ReviewedScenarioSummary
   const subject = `${scenarioGroup.scenarioSlug}: ${visibleSeries.environment} / ${visibleSeries.entrypoint} / ${visibleSeries.lens}`
   const primaryItem = selectPrimaryItem(visibleSeries)
 
+  const policyState = mapBudgetStateToPolicyState(visibleSeries.budgetState)
+  const policySuffix = policyState === "not_configured" || policyState === "pass"
+    ? ""
+    : `; ${describePolicyOutcome(policyState)}`
+
   if (primaryItem) {
-    return `${subject} [${primaryItem.metricKey}] ${formatSignedBytes(primaryItem.deltaValue)} (${formatSignedPercentage(primaryItem.percentageDelta)})`
+    return `${subject} [${primaryItem.metricKey}] ${formatSignedBytes(primaryItem.deltaValue)} (${formatSignedPercentage(primaryItem.percentageDelta)})${policySuffix}`
   }
 
   if (visibleSeries.status === "no-baseline") {
-    return `${subject} (no baseline)`
+    return `${subject} (no baseline)${policySuffix}`
   }
 
-  return `${subject} (comparison failed)`
+  return `${subject} (comparison failed)${policySuffix}`
 }

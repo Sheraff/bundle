@@ -118,7 +118,36 @@ describe("public read models", () => {
     expect(scenario.selectedDetail?.status).toBe("available")
   })
 
-  it("defaults scenario history to the most recently measured branch", async () => {
+  it("filters latest repository and scenario output rows to the selected lens", async () => {
+    const harness = createPipelineHarness()
+
+    await seedBranchComparison(harness)
+    await addAlternateLensSeriesToLatestSummary("fixture-app-cost")
+
+    const overview = await getRepositoryOverviewPageData(env, {
+      owner: "acme",
+      repo: "widget",
+      branch: "main",
+      lens: "entry-js-direct-css",
+      metric: "gzip",
+    })
+    const scenario = await getScenarioPageData(env, {
+      owner: "acme",
+      repo: "widget",
+      scenario: "fixture-app-cost",
+      branch: "main",
+      lens: "entry-js-direct-css",
+      metric: "gzip",
+    })
+
+    expect(scenario.latestFreshScenario?.series.map((series) => series.lens)).toContain("alternate-lens")
+    expect(overview.scenarioOutputRows).toHaveLength(1)
+    expect(scenario.latestOutputRows).toHaveLength(1)
+    expect(overview.scenarioOutputRows.every((row) => row.lens.id === "entry-js-direct-css")).toBe(true)
+    expect(scenario.latestOutputRows.every((row) => row.lens.id === "entry-js-direct-css")).toBe(true)
+  })
+
+  it("defaults scenario history to main when it has measured data", async () => {
     const harness = createPipelineHarness()
 
     await seedPrComparison(harness)
@@ -134,9 +163,23 @@ describe("public read models", () => {
       tab: "treemap",
     })
 
-    expect(data.branch).toBe("feature/login")
+    expect(data.branch).toBe("main")
     expect(data.branchOptions[0]).toBe("feature/login")
     expect(data.selectedTreemapTimeline?.frames).toHaveLength(1)
+
+    const selectedBranch = await getScenarioPageData(env, {
+      owner: "acme",
+      repo: "widget",
+      scenario: "scenario-pr",
+      branch: "feature/login",
+      env: "default",
+      entrypoint: "src/main.ts",
+      lens: "entry-js-direct-css",
+      metric: "gzip",
+    })
+
+    expect(selectedBranch.branch).toBe("feature/login")
+    expect(selectedBranch.historyOutputRows[0]?.points.every((point) => point.state === "measured")).toBe(true)
   })
 
   it("keeps URL branch state even when the selected branch has no summaries", async () => {
@@ -361,6 +404,44 @@ async function seedBranchComparison(harness: ReturnType<typeof createPipelineHar
     }),
   )
   await harness.processUploadPipeline()
+}
+
+type MutableCommitGroupSummary = {
+  freshScenarioGroups: Array<{
+    scenarioSlug: string
+    series: Array<Record<string, unknown> & { lens: string; seriesId: string }>
+  }>
+}
+
+async function addAlternateLensSeriesToLatestSummary(scenarioSlug: string) {
+  const row = await env.DB.prepare(
+    `SELECT id, summary_json
+     FROM commit_group_summaries
+     WHERE branch = ? AND commit_sha = ?
+     LIMIT 1`,
+  )
+    .bind("main", headSha)
+    .first<{ id: string; summary_json: string }>()
+  expect(row?.id).toBeTruthy()
+
+  const summary = JSON.parse(row?.summary_json ?? "{}") as MutableCommitGroupSummary
+  const scenario = summary.freshScenarioGroups.find((group) => group.scenarioSlug === scenarioSlug)
+  const sourceSeries = scenario?.series[0]
+  expect(sourceSeries).toBeTruthy()
+
+  scenario?.series.push({
+    ...sourceSeries!,
+    lens: "alternate-lens",
+    seriesId: ulid(),
+  })
+
+  await env.DB.prepare(
+    `UPDATE commit_group_summaries
+     SET summary_json = ?
+     WHERE id = ?`,
+  )
+    .bind(JSON.stringify(summary), row?.id ?? "")
+    .run()
 }
 
 async function seedPrComparison(harness: ReturnType<typeof createPipelineHarness>) {

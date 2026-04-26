@@ -4,8 +4,13 @@ import type { AppBindings } from "../env.js"
 import { sha256Hex } from "../shared/sha256-hex.js"
 
 import { buildPrCompareUrl, formatCount } from "./formatting.js"
-import { describeScenarioHighlight } from "./render-shared.js"
-import { PR_CHECK_NAME, type CheckRunPublicationPayload } from "./types.js"
+import {
+  collectPublicationFacts,
+  collectPublicationSeries,
+  describePolicyOutcome,
+  describeScenarioHighlight,
+} from "./render-shared.js"
+import { PR_CHECK_NAME, type CheckRunPublicationPayload, type GithubCheckConclusion } from "./types.js"
 
 export async function buildCheckRunPublicationPayload(
   env: AppBindings,
@@ -26,15 +31,17 @@ export async function buildCheckRunPublicationPayload(
     },
   )
   const status = summary.status === "pending" ? "in_progress" : "completed"
-  const conclusion =
-    status === "completed"
-      ? summary.counts.blockingRegressionCount > 0
-        ? "failure"
-        : "success"
-      : undefined
+  const conclusion = status === "completed" ? selectCheckRunConclusion(summary) : undefined
+  const publicationFacts = collectPublicationFacts(summary)
   const summaryCounts = [
-    summary.counts.blockingRegressionCount > 0
-      ? formatCount(summary.counts.blockingRegressionCount, "blocking regression")
+    publicationFacts.blockingPolicyOutcomeCount > 0
+      ? formatCount(publicationFacts.blockingPolicyOutcomeCount, "blocking policy outcome")
+      : null,
+    publicationFacts.warningPolicyOutcomeCount > 0
+      ? formatCount(publicationFacts.warningPolicyOutcomeCount, "warning policy outcome")
+      : null,
+    publicationFacts.acceptedPolicyDecisionCount > 0
+      ? formatCount(publicationFacts.acceptedPolicyDecisionCount, "accepted policy decision")
       : null,
     summary.counts.regressionCount > 0
       ? formatCount(summary.counts.regressionCount, "regression")
@@ -51,10 +58,13 @@ export async function buildCheckRunPublicationPayload(
     summary.counts.missingScenarioCount > 0
       ? formatCount(summary.counts.missingScenarioCount, "missing scenario")
       : null,
+    publicationFacts.noPolicyOutputCount > 0
+      ? formatCount(publicationFacts.noPolicyOutputCount, "output without a matching policy")
+      : null,
   ].filter((value): value is string => value !== null)
   const output = {
     title: `Chunk Scope review: ${summary.overallState}`,
-    summary: `${summaryCounts.join(", ") || "No blocking regressions detected."}\n\n[Open PR diff](${detailsUrl})`,
+    summary: `${summaryCounts.join(", ") || "No blocking policy outcomes detected."}\n\n[Open hosted Review Mode](${detailsUrl})`,
     text: buildCheckDetails(summary),
   }
 
@@ -72,14 +82,65 @@ export async function buildCheckRunPublicationPayload(
   }
 }
 
+export function selectCheckRunConclusion(summary: PrReviewSummaryV1): GithubCheckConclusion {
+  const publicationFacts = collectPublicationFacts(summary)
+
+  if (publicationFacts.blockingPolicyOutcomeCount > 0 || publicationFacts.failedMeasurementCount > 0) {
+    return "failure"
+  }
+
+  if (
+    publicationFacts.warningPolicyOutcomeCount > 0 ||
+    publicationFacts.missingBaselineCount > 0 ||
+    summary.counts.degradedComparisonCount > 0 ||
+    summary.counts.inheritedScenarioCount > 0 ||
+    summary.counts.pendingScenarioCount > 0
+  ) {
+    return "neutral"
+  }
+
+  return "success"
+}
+
 function buildCheckDetails(summary: PrReviewSummaryV1) {
+  const blockingPolicyLines = collectPolicyOutcomeHighlights(summary, ["fail_blocking"])
+  const warningPolicyLines = collectPolicyOutcomeHighlights(summary, [
+    "fail_non_blocking",
+    "not_evaluated",
+    "warn",
+  ])
+  const acceptedPolicyLines = collectPolicyOutcomeHighlights(summary, ["accepted"])
   const blockingLines = collectScenarioHighlights(summary.scenarioGroups, "blocking")
   const regressionLines = collectScenarioHighlights(summary.scenarioGroups, "regression")
   const acknowledgedLines = collectScenarioHighlights(summary.scenarioGroups, "acknowledged")
   const warningLines = buildWarningLines(summary)
   const lines: string[] = []
 
+  if (blockingPolicyLines.length > 0) {
+    lines.push("### Blocking policy outcomes", ...blockingPolicyLines.map((line) => `- ${line}`))
+  }
+
+  if (warningPolicyLines.length > 0) {
+    if (lines.length > 0) {
+      lines.push("")
+    }
+
+    lines.push("### Warning policy outcomes", ...warningPolicyLines.map((line) => `- ${line}`))
+  }
+
+  if (acceptedPolicyLines.length > 0) {
+    if (lines.length > 0) {
+      lines.push("")
+    }
+
+    lines.push("### Accepted policy decisions", ...acceptedPolicyLines.map((line) => `- ${line}`))
+  }
+
   if (blockingLines.length > 0) {
+    if (lines.length > 0) {
+      lines.push("")
+    }
+
     lines.push("### Blocking regressions", ...blockingLines.map((line) => `- ${line}`))
   }
 
@@ -108,6 +169,21 @@ function buildCheckDetails(summary: PrReviewSummaryV1) {
   }
 
   return lines.join("\n")
+}
+
+function collectPolicyOutcomeHighlights(
+  summary: PrReviewSummaryV1,
+  policyStates: Array<ReturnType<typeof collectPublicationSeries>[number]["policyState"]>,
+) {
+  const selectedStates = new Set(policyStates)
+
+  return collectPublicationSeries(summary)
+    .filter((row) => selectedStates.has(row.policyState))
+    .slice(0, 10)
+    .map((row) => {
+      const subject = `${row.scenarioGroup.scenarioSlug}: ${row.seriesSummary.environment} / ${row.seriesSummary.entrypoint} / ${row.seriesSummary.lens}`
+      return `${subject} (${describePolicyOutcome(row.policyState)})`
+    })
 }
 
 function collectScenarioHighlights(

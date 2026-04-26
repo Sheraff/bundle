@@ -19,6 +19,10 @@ import {
   loadSnapshotDetailForScenarioRun,
   loadTreemapTimelineForSeries,
 } from "./selected-series-detail.server.js"
+import {
+  scenarioHistoryOutputRowsFromSeries,
+  scenarioLatestOutputRowsFromFreshScenario,
+} from "./output-rows.server.js"
 
 export async function getScenarioPageData(
   env: AppBindings,
@@ -37,7 +41,8 @@ export async function getScenarioPageData(
   const repository = await requireRepository(env, input.owner, input.repo)
   const scenario = await requireScenario(env, repository.id, input.scenario)
   const branchOptions = await listRepositoryBranches(env, repository.id)
-  const resolvedBranch = input.branch ?? branchOptions[0] ?? null
+  const defaultBranch = branchOptions.includes("main") ? "main" : branchOptions[0] ?? null
+  const resolvedBranch = input.branch ?? defaultBranch
   const resolvedEnvironment = input.env ?? "all"
   const resolvedEntrypoint = input.entrypoint ?? "all"
   const environmentOptions = await listScenarioEnvironments(env, scenario.id)
@@ -131,7 +136,16 @@ export async function getScenarioPageData(
     latestFreshScenario,
     latestStatusScenario,
     history,
+    historyOutputRows: scenarioHistoryOutputRowsFromSeries(history, {
+      scenarioId: scenario.id,
+      scenarioSlug: scenario.slug,
+      scenarioSourceKind: scenario.sourceKind,
+      selectedSize: metric,
+    }),
     compareShortcut: buildScenarioCompareShortcut(latestFreshScenario),
+    latestOutputRows: latestFreshScenario
+      ? scenarioLatestOutputRowsFromFreshScenario(latestFreshScenario, metric, { lens: resolvedLens })
+      : [],
     selectedSeries,
     selectedHistorySeries,
     selectedHistoryPoint,

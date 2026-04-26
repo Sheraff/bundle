@@ -15,6 +15,7 @@ import {
   loadComparisonDetail,
   loadTreemapTimelineForSeries,
 } from "./selected-series-detail.server.js"
+import { loadUnionPairOutputRows, type UnionPairOutputRow } from "./output-rows.server.js"
 
 export async function getNeutralComparePageData(
   env: AppBindings,
@@ -36,43 +37,79 @@ export async function getNeutralComparePageData(
   const neutralRows = filterNeutralRows(contextMatchedRows, input.search)
   const selectedNeutralRow = selectNeutralRow(neutralRows, input.search)
   const metric = parseSizeMetric(input.search.metric)
-  const selectedDetail = selectedNeutralRow
+  const unionPairData = await loadUnionPairOutputRows(env, {
+    baseSha: input.search.base,
+    headSha: input.search.head,
+    repositoryId: repository.id,
+    selectedSize: metric,
+  })
+  const unionRows = filterUnionRows(unionPairData.rows, input.search)
+  const selectedUnionRow = selectUnionRow(unionRows, input.search)
+  const selectedDetail = selectedUnionRow?.comparisonId
     ? await loadComparisonDetail(env, {
-        comparisonId: selectedNeutralRow.series.comparisonId,
-        environment: selectedNeutralRow.series.environment,
-        entrypoint: selectedNeutralRow.series.entrypoint,
+        comparisonId: selectedUnionRow.comparisonId,
+        environment: selectedUnionRow.environment.key,
+        entrypoint: selectedUnionRow.entrypoint.key,
         metric,
       })
     : null
-  const selectedTreemapTimeline = input.search.tab === "treemap" && selectedNeutralRow && latestSummary
+  const selectedTreemapTimeline = input.search.tab === "treemap" && selectedUnionRow?.seriesId
     ? await loadTreemapTimelineForSeries(env, {
         repositoryId: repository.id,
         repositoryOwner: repository.owner,
         repositoryName: repository.name,
-        seriesId: selectedNeutralRow.series.seriesId,
-        branch: latestSummary.branch,
-        environment: selectedNeutralRow.series.environment,
-        entrypoint: selectedNeutralRow.series.entrypoint,
+        seriesId: selectedUnionRow.seriesId,
+        branch: selectedUnionRow.headPoint?.branch ?? selectedUnionRow.basePoint?.branch ?? latestSummary?.branch ?? "",
+        environment: selectedUnionRow.environment.key,
+        entrypoint: selectedUnionRow.entrypoint.key,
         metric,
-        baseCommitSha: selectedNeutralRow.series.selectedBaseCommitSha,
-        headCommitSha: selectedNeutralRow.series.selectedHeadCommitSha,
+        baseCommitSha: input.search.base,
+        headCommitSha: input.search.head,
       })
     : null
 
   return {
     repository,
     mode: "neutral" as const,
-    contextMatched: contextMatchedRows.length > 0,
+    contextMatched: unionPairData.contextMatched,
     latestSummary,
     latestReviewSummary: null,
     statusScenarios: latestSummary?.statusScenarios ?? [],
     neutralRows,
+    unionRows,
     reviewedRows: [],
     selectedNeutralRow,
+    selectedUnionRow,
     selectedReviewedRow: null,
     selectedDetail,
     selectedTreemapTimeline,
     metric,
     commitOptions: await listRepositoryCommitOptions(env, repository.id),
   }
+}
+
+function filterUnionRows(rows: UnionPairOutputRow[], search: ComparePageSearchParams) {
+  return rows.filter(
+    (row) =>
+      (!search.scenario || row.scenario.slug === search.scenario) &&
+      (!search.env || row.environment.key === search.env) &&
+      (!search.entrypoint || row.entrypoint.key === search.entrypoint) &&
+      (!search.lens || row.lens.id === search.lens),
+  )
+}
+
+function selectUnionRow(rows: UnionPairOutputRow[], search: ComparePageSearchParams) {
+  if (!search.scenario || !search.env || !search.entrypoint || !search.lens) {
+    return null
+  }
+
+  return (
+    rows.find(
+      (row) =>
+        row.scenario.slug === search.scenario &&
+        row.environment.key === search.env &&
+        row.entrypoint.key === search.entrypoint &&
+        row.lens.id === search.lens,
+    ) ?? null
+  )
 }

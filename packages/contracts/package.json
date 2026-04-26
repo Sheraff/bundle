@@ -13,6 +13,7 @@
     "./upload-response": "./src/upload-response.ts",
     "./public-routes": "./src/public-routes.ts",
     "./summaries": "./src/summaries.ts",
+    "./ui-semantics": "./src/ui-semantics.ts",
     "./mutations": "./src/mutations.ts",
     "./queues": "./src/queue-messages.ts",
     "./workflows": "./src/workflows.ts"

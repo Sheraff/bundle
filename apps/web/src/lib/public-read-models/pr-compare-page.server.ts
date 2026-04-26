@@ -15,6 +15,7 @@ import {
   loadComparisonDetail,
   loadTreemapTimelineForSeries,
 } from "./selected-series-detail.server.js"
+import { reviewOutputRowsFromSummary } from "./output-rows.server.js"
 
 export async function getPullRequestComparePageData(
   env: AppBindings,
@@ -72,8 +73,13 @@ export async function getPullRequestComparePageData(
     latestReviewSummary,
     statusScenarios: latestReviewSummary?.statusScenarios ?? [],
     neutralRows: [],
+    unionRows: [],
     reviewedRows,
+    reviewOutputRows: latestReviewSummary
+      ? reviewOutputRowsFromSummary(latestReviewSummary, metric)
+      : [],
     selectedNeutralRow: null,
+    selectedUnionRow: null,
     selectedReviewedRow,
     selectedDetail,
     selectedTreemapTimeline,

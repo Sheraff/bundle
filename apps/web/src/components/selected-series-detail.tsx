@@ -1,3 +1,5 @@
+import type { ReactNode } from "react"
+
 import { formatBytes, formatSignedBytes } from "../lib/formatting.js"
 import type {
   DetailAvailability,
@@ -11,7 +13,17 @@ import { StateBadge } from "./state-badge.js"
 
 import "./selected-series-detail.css"
 
+export type ExpertVisualizerContext = {
+  baselineRef?: string | null
+  currentRef?: string | null
+  entrypoint?: string | null
+  environment?: string | null
+  lens?: string | null
+  scenario?: string | null
+}
+
 export function SelectedSeriesDetailView(props: {
+  context?: ExpertVisualizerContext
   detail: DetailAvailability | null
   metric: SizeMetric
   mode: "snapshot" | "compare"
@@ -29,17 +41,22 @@ export function SelectedSeriesDetailView(props: {
   }
 
   if (props.detail.status === "unavailable") {
-    return <p className="notice">{props.detail.message}</p>
+    return (
+      <ExpertVisualizerShell context={props.context} detailStatus="unavailable" metric={props.metric} mode={props.mode} tab={props.tab}>
+        <p className="notice">{props.detail.message}</p>
+      </ExpertVisualizerShell>
+    )
   }
 
   const snapshot = props.detail.snapshot
   const diffs = props.detail.diffs
+  let content
 
   if (props.tab === "treemap") {
     const timeline = props.treemapTimeline
     const showTimeline = timeline && timeline.frames.length > 1
 
-    return (
+    content = (
       <div className="series-detail">
         {showTimeline ? <TreemapTimelineScrubber key={timeline.frames.map((frame) => frame.nodesUrl).join(":")} timeline={timeline} /> : null}
         {props.mode === "compare" && diffs ? <h3>Comparison delta</h3> : null}
@@ -47,10 +64,8 @@ export function SelectedSeriesDetailView(props: {
         {props.mode === "compare" && diffs ? <DiffTable title="Changed chunks" rows={diffs.chunks} /> : <ChunkTable snapshot={snapshot} />}
       </div>
     )
-  }
-
-  if (props.tab === "graph") {
-    return (
+  } else if (props.tab === "graph") {
+    content = (
       <div className="series-detail">
         <p data-role="hint">This graph shows build-time chunk imports. Dashed edges are dynamic imports.</p>
         <DependencyGraph
@@ -60,36 +75,28 @@ export function SelectedSeriesDetailView(props: {
         <GraphEdgeTable snapshot={snapshot} />
       </div>
     )
-  }
-
-  if (props.tab === "waterfall") {
-    return (
+  } else if (props.tab === "waterfall") {
+    content = (
       <div className="series-detail">
         <p data-role="hint">This waterfall is build-time dependency depth, not browser network timing.</p>
         <WaterfallChart rows={snapshot.waterfallRows} />
         <WaterfallTable snapshot={snapshot} />
       </div>
     )
-  }
-
-  if (props.tab === "assets") {
-    return (
+  } else if (props.tab === "assets") {
+    content = (
       <div className="series-detail">
         {props.mode === "compare" && diffs ? <DiffTable title="Assets" rows={diffs.assets} /> : <AssetTable snapshot={snapshot} />}
       </div>
     )
-  }
-
-  if (props.tab === "packages") {
-    return (
+  } else if (props.tab === "packages") {
+    content = (
       <div className="series-detail">
         {props.mode === "compare" && diffs ? <DiffTable title="Packages" rows={diffs.packages} /> : <PackageTable snapshot={snapshot} />}
       </div>
     )
-  }
-
-  if (props.tab === "identity") {
-    return (
+  } else if (props.tab === "identity") {
+    content = (
       <div className="series-detail">
         <p>
           Degraded stable identity:{" "}
@@ -98,10 +105,8 @@ export function SelectedSeriesDetailView(props: {
         {props.mode === "compare" && diffs ? <DiffTable title="Modules" rows={diffs.modules} /> : <ModuleTable snapshot={snapshot} />}
       </div>
     )
-  }
-
-  if (props.tab === "budget") {
-    return (
+  } else if (props.tab === "budget") {
+    content = (
       <div className="series-detail">
         <p>
           Budget state: <StateBadge state={props.budgetState ?? "missing"} />
@@ -111,20 +116,82 @@ export function SelectedSeriesDetailView(props: {
         </p>
       </div>
     )
+  } else {
+    content = (
+      <div className="series-detail">
+        <ChunkTable snapshot={snapshot} />
+        <AssetTable snapshot={snapshot} />
+        {snapshot.warnings.length > 0 ? (
+          <section className="section">
+            <h3>Warnings</h3>
+            <ul className="bulleted">{snapshot.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
+          </section>
+        ) : null}
+      </div>
+    )
   }
 
   return (
-    <div className="series-detail">
-      <ChunkTable snapshot={snapshot} />
-      <AssetTable snapshot={snapshot} />
-      {snapshot.warnings.length > 0 ? (
-        <section className="section">
-          <h3>Warnings</h3>
-          <ul className="bulleted">{snapshot.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul>
-        </section>
-      ) : null}
+    <ExpertVisualizerShell context={props.context} detailStatus="available" metric={props.metric} mode={props.mode} tab={props.tab}>
+      {content}
+    </ExpertVisualizerShell>
+  )
+}
+
+function ExpertVisualizerShell(props: {
+  children: ReactNode
+  context?: ExpertVisualizerContext
+  detailStatus: "available" | "unavailable"
+  metric: SizeMetric
+  mode: "snapshot" | "compare"
+  tab: string
+}) {
+  return (
+    <section className="expert-visualizer" aria-label="Expert visualizer" data-status={props.detailStatus}>
+      <header>
+        <p className="eyebrow">Expert visualizer</p>
+        <h3>{expertContextTitle(props.context, props.metric)}</h3>
+        <p>{expertRefLabel(props.context, props.mode)}</p>
+      </header>
+      <nav className="intent-rail" aria-label="Expert analysis intents">
+        <span data-active={props.tab === "treemap"}>Where size lives <strong>Treemap</strong></span>
+        <span data-active={props.tab === "waterfall"}>What changed <strong>Bundle waterfall</strong></span>
+        <span data-active={props.tab === "graph"}>How modules connect <strong>Module graph</strong></span>
+        <span data-active={props.tab === "assets" || props.tab === "packages"}>Which assets/packages changed <strong>Tables</strong></span>
+      </nav>
+      <AttributionBanner mode={props.mode} status={props.detailStatus} />
+      {props.children}
+    </section>
+  )
+}
+
+function AttributionBanner(props: { mode: "snapshot" | "compare"; status: "available" | "unavailable" }) {
+  const state = props.status === "unavailable" ? "unavailable" : props.mode === "compare" ? "partial attribution" : "full attribution"
+
+  return (
+    <div className="attribution-banner">
+      <StateBadge state={state} />
+      <p>Attribution is reported at asset, chunk, module, and package level when available. Module-level attribution only. Source-line attribution is unavailable because sourcemaps are not uploaded in V1.</p>
     </div>
   )
+}
+
+function expertContextTitle(context: ExpertVisualizerContext | undefined, metric: SizeMetric) {
+  return [
+    context?.scenario ?? "Selected scenario",
+    context?.environment ?? "selected environment",
+    context?.entrypoint ?? "selected entrypoint",
+    context?.lens ?? "selected What's counted",
+    metric,
+  ].join(" · ")
+}
+
+function expertRefLabel(context: ExpertVisualizerContext | undefined, mode: "snapshot" | "compare") {
+  const current = context?.currentRef ?? "current ref"
+  const baseline = context?.baselineRef
+
+  if (mode === "compare" && baseline) return `${baseline} -> ${current}`
+  return current
 }
 
 function ChunkTable(props: { snapshot: SnapshotDetail }) {

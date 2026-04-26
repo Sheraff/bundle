@@ -12,6 +12,7 @@ import type { AppBindings } from "./env.js"
 import { getAppLogger, type AppLogger } from "./logger.js"
 import { enqueueRefreshSummaries } from "./summaries/refresh-queue.js"
 import { formatIssues } from "./shared/format-issues.js"
+import { evaluatePoliciesForComparison } from "./policies.js"
 import {
   matchEnvironmentPair,
   type AmbiguousRelation,
@@ -27,10 +28,6 @@ interface SelectedEntrypointRelationSummary {
   confidence: RelationConfidence | null
   evidence: string[]
   relation: "added" | "removed" | "same"
-}
-
-interface BudgetEvaluationResult {
-  budgetState: "not-configured"
 }
 
 export async function handleMaterializeComparisonQueue(
@@ -202,8 +199,12 @@ async function materializeComparison(
     matchResult,
   )
   const stableIdentitySummary = buildStableIdentitySummary(matchResult, selectedEntrypoint)
-  const budgetEvaluation = evaluateBudgetResults()
   const timestamp = new Date().toISOString()
+  const policyEvaluation = await evaluatePoliciesForComparison(env, {
+    comparison,
+    evaluatedAt: timestamp,
+    series: seriesRow,
+  })
 
   await db.delete(schema.budgetResults).where(eq(schema.budgetResults.comparisonId, comparison.id))
   await db
@@ -217,7 +218,7 @@ async function materializeComparison(
         : null,
       stableIdentitySummaryJson: JSON.stringify(stableIdentitySummary),
       hasDegradedStableIdentity: stableIdentitySummary.degraded.totalCount > 0 ? 1 : 0,
-      budgetState: budgetEvaluation.budgetState,
+      budgetState: policyEvaluation.budgetState,
       failureCode: null,
       failureMessage: null,
       updatedAt: timestamp,
@@ -408,12 +409,6 @@ function summarizeAssetMatches(matches: StableIdentityMatchResult["css"]) {
 
 function takeFirst<T extends SameRelation | AmbiguousRelation>(values: T[], limit: number) {
   return values.slice(0, limit)
-}
-
-function evaluateBudgetResults(): BudgetEvaluationResult {
-  return {
-    budgetState: "not-configured",
-  }
 }
 
 async function readStoredJson<TSchema extends v.BaseSchema<unknown, unknown, v.BaseIssue<unknown>>>(

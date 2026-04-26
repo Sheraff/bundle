@@ -8,19 +8,15 @@ import { createServerFn } from "@tanstack/react-start"
 import * as v from "valibot"
 
 import { TrendChart, type TrendChartSeries } from "../components/charts.js"
+import { OutputRowCard } from "../components/output-row.js"
 import { SelectedSeriesDetailView } from "../components/selected-series-detail.js"
-import { LinkSelector, MetricSelector, TabSelector } from "../components/url-controls.js"
+import { StateBadge } from "../components/state-badge.js"
+import { TabSelector } from "../components/url-controls.js"
 import { getScenarioPageData } from "../lib/public-read-models.server.js"
-import { formatBytes, shortSha } from "../lib/formatting.js"
-import {
-  describeNeutralDelta,
-  describeStatusScenarioDetail,
-  formatSeriesLabel,
-} from "../lib/public-route-presentation.js"
-import { metricPointValue, type SizeMetric } from "../lib/size-metric.js"
+import { shortSha } from "../lib/formatting.js"
+import { describeStatusScenarioDetail } from "../lib/public-route-presentation.js"
 
 import "./repo-shared.css"
-import { queryOptions } from "@tanstack/react-query"
 
 const scenarioTabs = ["history", "treemap", "graph", "waterfall", "assets", "packages", "budget"] as const
 
@@ -57,17 +53,13 @@ const getScenarioPage = createServerFn({ method: "GET" })
 export const Route = createFileRoute("/r/$owner/$repo/scenarios/$scenario")({
   validateSearch: scenarioPageSearchSchema,
   loaderDeps: ({ search }) => search,
-  loader: ({ params, deps }) => getScenarioPage({
-    data: {
-      params,
-      search: deps,
-    }
-  }),
+  loader: ({ params, deps }) => getScenarioPage({ data: { params, search: deps } }),
   component: ScenarioPageRouteComponent,
 })
 
 type ScenarioPageData = ReturnType<typeof Route.useLoaderData>
-type ScenarioHistorySeries = ScenarioPageData["history"][number]
+type ScenarioLatestOutputRow = ScenarioPageData["latestOutputRows"][number]
+type ScenarioHistoryOutputRow = ScenarioPageData["historyOutputRows"][number]
 
 function ScenarioPageRouteComponent() {
   const data = Route.useLoaderData()
@@ -76,226 +68,256 @@ function ScenarioPageRouteComponent() {
     : "history"
 
   return (
-    <main className="page repo-page">
+    <main className="page repo-page scenario-page">
       <header className="page-header">
         <p className="breadcrumb">
           <Link to="/">Home</Link>
           <span aria-hidden="true">/</span>
-          <Link
-            to="/r/$owner/$repo"
-            from={Route.fullPath}
-            search={{
-              branch: data.branch ?? undefined,
-              lens: data.lens,
-              metric: data.metric,
-            }}
-          >
+          <Link to="/r/$owner/$repo" from={Route.fullPath} search={{ branch: data.branch ?? undefined, lens: data.lens, metric: data.metric }}>
             {data.repository.owner}/{data.repository.name}
           </Link>
           <span aria-hidden="true">/</span>
           <span>Scenario</span>
         </p>
         <h1>{data.scenario.slug}</h1>
-        <p>Scenario detail with history, comparisons, and visualizations.</p>
+        <p>A scenario is one reproducible bundle target. Its outputs show each environment / entrypoint measured for the selected byte-counting mode.</p>
       </header>
 
-      <section className="section">
-        <h2>Filters</h2>
-        <div className="filters-bar">
-          <LinkSelector
-            label="Branch"
-            options={data.branchOptions.map((branch) => (
-              <Link key={branch} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, branch })}>
-                {branch}
-              </Link>
-            ))}
-          />
-          <LinkSelector
-            label="Environment"
-            options={["all", ...data.environmentOptions].map((env) => (
-              <Link key={env} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, env })}>
-                {env}
-              </Link>
-            ))}
-          />
-          <LinkSelector
-            label="Entrypoint"
-            options={["all", ...data.entrypointOptions].map((entrypoint) => (
-              <Link key={entrypoint} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, entrypoint })}>
-                {entrypoint}
-              </Link>
-            ))}
-          />
-          <LinkSelector
-            label="Lens"
-            options={data.lensOptions.map((lens) => (
-              <Link key={lens} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, lens })}>
-                {lens}
-              </Link>
-            ))}
-          />
-          <MetricSelector
-            raw={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "raw" })}>raw</Link>}
-            gzip={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "gzip" })}>gzip</Link>}
-            brotli={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "brotli" })}>brotli</Link>}
-          />
-        </div>
-      </section>
-
-      <div className="card-grid">
-        <section className="section">
-          <h2>Latest status</h2>
-          {data.latestFreshScenario ? (
-            <dl className="definition">
-              <dt>Active run</dt>
-              <dd className="mono">{shortSha(data.latestFreshScenario.activeCommitSha)}</dd>
-              <dt>Uploaded at</dt>
-              <dd>{data.latestFreshScenario.activeUploadedAt}</dd>
-              <dt>Processed runs</dt>
-              <dd>{data.latestFreshScenario.processedRunCount}</dd>
-              <dt>Failed runs</dt>
-              <dd>{data.latestFreshScenario.failedRunCount}</dd>
-              <dt>Newer failed rerun</dt>
-              <dd>{data.latestFreshScenario.hasNewerFailedRun ? "yes" : "no"}</dd>
-            </dl>
-          ) : data.latestStatusScenario ? (
-            <dl className="definition">
-              <dt>State</dt>
-              <dd>{data.latestStatusScenario.state}</dd>
-              <dt>Detail</dt>
-              <dd>{describeStatusScenarioDetail(data.latestStatusScenario)}</dd>
-            </dl>
-          ) : (
-            <p className="notice">No branch summary is available for this scenario yet.</p>
-          )}
-        </section>
-
-        <section className="section">
-          <h2>Compare shortcut</h2>
-          {data.compareShortcut ? (
-            <p>
-              <Link
-                className="button-secondary"
-                from={Route.fullPath}
-                to="/r/$owner/$repo/compare"
-                search={{
-                  base: data.compareShortcut.base,
-                  head: data.compareShortcut.head,
-                  scenario: data.compareShortcut.scenario,
-                  env: data.compareShortcut.env,
-                  entrypoint: data.compareShortcut.entrypoint,
-                  lens: data.compareShortcut.lens,
-                  metric: data.metric,
-                }}
-              >
-                Open latest compare
-              </Link>
-            </p>
-          ) : (
-            <p className="notice">No baseline-backed compare shortcut is available for this scenario yet.</p>
-          )}
-        </section>
-      </div>
-
-      <section className="section">
-        <h2>History</h2>
-        {data.history.length === 0 ? (
-          <p className="notice">No history points match the selected scenario filters yet.</p>
-        ) : (
-          <div className="viz-block">
-            <div data-role="chart">
-              <TrendChart series={buildScenarioChartSeries(data.history, data.metric)} />
-            </div>
-            {data.history.map((series) => <ScenarioHistoryTable key={series.seriesId} data={data} series={series} />)}
-          </div>
-        )}
-      </section>
-
-      <section className="section">
-        <h2>Selected series</h2>
-        {data.selectedSeries ? (
-          <dl className="context-summary">
-            <div><dt>Series</dt><dd>{formatSeriesLabel(data.selectedSeries.series)}</dd></div>
-            <div>
-              <dt>Delta</dt>
-              <dd>
-                {describeNeutralDelta(data.selectedSeries.series, data.selectedSeries.primaryItem, {
-                  detailed: true,
-                  noBaselineText: "No baseline is available for this series yet.",
-                  failedPrefix: "Comparison failed",
-                  unchangedPrefix: "Brotli total unchanged at",
-                })}
-              </dd>
-            </div>
-          </dl>
-        ) : data.selectedHistorySeries ? (
-          <dl className="context-summary">
-            <div><dt>Series</dt><dd>{formatSeriesLabel(data.selectedHistorySeries)}</dd></div>
-            <div>
-              <dt>Latest point</dt>
-              <dd className="mono">{shortSha(data.selectedHistoryPoint?.commitSha ?? "")} at {data.selectedHistoryPoint?.measuredAt}</dd>
-            </div>
-          </dl>
-        ) : (
-          <>
-            <p className="notice">Select a full series context (<code>env + entrypoint + lens</code>) to unlock the detail area.</p>
-            {data.history.length > 0 ? (
-              <ul className="row-actions">
-                {data.history.map((series) => (
-                  <li key={`detail:${series.seriesId}`}>
-                    <Link
-                      from={Route.fullPath}
-                      to="/r/$owner/$repo/scenarios/$scenario"
-                      search={scenarioSearch(data, {
-                        env: series.environment,
-                        entrypoint: series.entrypoint,
-                        lens: series.lens,
-                        tab: "treemap",
-                      })}
-                    >
-                      Open treemap for {formatSeriesLabel(series)}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </>
-        )}
-      </section>
-
-      <section className="section">
-        <h2>Detail tabs</h2>
-        <TabSelector
-          tabs={scenarioTabs.map((nextTab) => (
-            <Link key={nextTab} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, tab: nextTab })}>
-              {nextTab}
-            </Link>
-          ))}
-        />
-        <SelectedSeriesDetailView
-          detail={tab === "history" ? null : data.selectedDetail}
-          metric={data.metric}
-          mode="snapshot"
-          tab={tab}
-          treemapTimeline={data.selectedTreemapTimeline}
-          budgetState={data.selectedSeries?.series.budgetState}
-          hasDegradedStableIdentity={data.selectedSeries?.series.hasDegradedStableIdentity}
-        />
-      </section>
+      <ScenarioSummary data={data} />
+      <ScenarioContextControls data={data} />
+      <RecommendedNextAction data={data} />
+      <CurrentOutputs data={data} />
+      <HistoryModule data={data} />
+      <PoliciesContext data={data} />
+      <ExpertEvidence data={data} tab={tab} />
     </main>
   )
 }
 
-function buildScenarioChartSeries(
-  seriesRows: ScenarioHistorySeries[],
-  metric: SizeMetric,
-): TrendChartSeries[] {
-  return seriesRows.map((series) => ({
-    id: series.seriesId,
-    label: `${series.environment} / ${series.entrypoint}`,
-    points: [...series.points]
-      .sort((left, right) => left.measuredAt.localeCompare(right.measuredAt))
-      .map((point) => ({ commitSha: point.commitSha, measuredAt: point.measuredAt, value: metricPointValue(point, metric) })),
+function ScenarioSummary(props: { data: ScenarioPageData }) {
+  const data = props.data
+
+  return (
+    <section className="section">
+      <h2>Scenario summary</h2>
+      <dl className="repo-health">
+        <div><dt>Source</dt><dd>{data.scenario.sourceKind}</dd></div>
+        <div><dt>Branch</dt><dd>{data.branch ?? "none"}</dd></div>
+        <div><dt>Outputs</dt><dd>{data.latestOutputRows.length}</dd></div>
+        <div><dt>What's counted</dt><dd>{data.lens}</dd></div>
+        <div><dt>Size</dt><dd>{data.metric}</dd></div>
+        <div><dt>Status</dt><dd><StateBadge state={scenarioStatus(data)} /></dd></div>
+      </dl>
+      {data.latestFreshScenario ? (
+        <p className="notice">Latest run {shortSha(data.latestFreshScenario.activeCommitSha)} uploaded at {data.latestFreshScenario.activeUploadedAt}.</p>
+      ) : data.latestStatusScenario ? (
+        <p className="notice">{describeStatusScenarioDetail(data.latestStatusScenario)}</p>
+      ) : (
+        <p className="notice">No branch summary is available for this scenario yet.</p>
+      )}
+    </section>
+  )
+}
+
+function ScenarioContextControls(props: { data: ScenarioPageData }) {
+  const data = props.data
+
+  return (
+    <section className="section scenario-view-context" aria-labelledby="scenario-context-heading">
+      <div>
+        <p className="eyebrow">Measurement context</p>
+        <h2 id="scenario-context-heading">Choose output interpretation</h2>
+      </div>
+      <p>Changing these controls changes how output rows are interpreted. Environment and entrypoint remain visible on each row.</p>
+      <div className="scenario-control-row">
+        <ControlLinks label="Branch" values={data.branchOptions} current={data.branch} toSearch={(branch) => ({ branch })} />
+        <ControlLinks label="What's counted" values={data.lensOptions} current={data.lens} toSearch={(lens) => ({ lens })} />
+        <ControlLinks label="Size" values={["raw", "gzip", "brotli"]} current={data.metric} toSearch={(metric) => ({ metric })} />
+      </div>
+    </section>
+  )
+}
+
+function ControlLinks(props: {
+  current?: string | null
+  label: string
+  toSearch: (value: string) => Record<string, string>
+  values: string[]
+}) {
+  if (props.values.length === 0) return null
+
+  return (
+    <span className="scenario-control-group">
+      <span>{props.label}</span>
+      {props.values.map((value) => (
+        <Link key={value} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, ...props.toSearch(value) })} aria-current={props.current === value ? "page" : undefined}>
+          {value}
+        </Link>
+      ))}
+    </span>
+  )
+}
+
+function RecommendedNextAction(props: { data: ScenarioPageData }) {
+  const data = props.data
+  const action = nextAction(data)
+
+  return (
+    <section className="section recommended-action">
+      <p className="eyebrow">Recommended next action</p>
+      <h2>{action.title}</h2>
+      <p>{action.description}</p>
+      {action.href ? <Link className="button-secondary" from={Route.fullPath} to={action.href.to} search={action.href.search}>{action.label}</Link> : null}
+    </section>
+  )
+}
+
+function CurrentOutputs(props: { data: ScenarioPageData }) {
+  const data = props.data
+
+  return (
+    <section className="section">
+      <h2>Current outputs</h2>
+      {data.latestOutputRows.length === 0 ? (
+        <p className="notice">No outputs have been measured for this scenario on the selected branch yet.</p>
+      ) : (
+        <div className="output-row-grid">
+          {data.latestOutputRows.map((row: ScenarioLatestOutputRow) => <ScenarioOutputCard key={row.rowId} data={data} row={row} />)}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function ScenarioOutputCard(props: { data: ScenarioPageData; row: ScenarioLatestOutputRow }) {
+  const row = props.row
+
+  return (
+    <OutputRowCard
+      row={row}
+      primaryAction={(
+        <Link from={Route.fullPath} to="/r/$owner/$repo/scenarios/$scenario" search={scenarioSearch(props.data, { env: row.environment.key, entrypoint: row.entrypoint.key, lens: row.lens.id, tab: "treemap" })}>
+          Inspect evidence
+        </Link>
+      )}
+    >
+      <div className="row-actions">
+        <Link from={Route.fullPath} to="/r/$owner/$repo/scenarios/$scenario" search={scenarioSearch(props.data, { env: row.environment.key, entrypoint: row.entrypoint.key, lens: row.lens.id, tab: "treemap" })}>Treemap</Link>
+        <Link from={Route.fullPath} to="/r/$owner/$repo/scenarios/$scenario" search={scenarioSearch(props.data, { env: row.environment.key, entrypoint: row.entrypoint.key, lens: row.lens.id, tab: "graph" })}>Graph</Link>
+        <Link from={Route.fullPath} to="/r/$owner/$repo/scenarios/$scenario" search={scenarioSearch(props.data, { env: row.environment.key, entrypoint: row.entrypoint.key, lens: row.lens.id, tab: "waterfall" })}>Waterfall</Link>
+      </div>
+    </OutputRowCard>
+  )
+}
+
+function HistoryModule(props: { data: ScenarioPageData }) {
+  const data = props.data
+  const visibleRows = data.historyOutputRows.slice(0, 6)
+
+  return (
+    <section className="section">
+      <p className="eyebrow">History mode</p>
+      <h2>Output evolution over time</h2>
+      <p className="notice">Fixed to scenario {data.scenario.slug}, {data.lens}, and {data.metric}. Missing points remain gaps instead of zeroes.</p>
+      <dl className="context-summary">
+        <div><dt>Branch</dt><dd>{data.branch ?? "none"}</dd></div>
+        <div><dt>Outputs</dt><dd>{data.historyOutputRows.length}</dd></div>
+        <div><dt>Visible lines</dt><dd>{visibleRows.length}</dd></div>
+        <div><dt>Point state</dt><dd>measured</dd></div>
+      </dl>
+      <HistoryStateLegend />
+      {data.historyOutputRows.length === 0 ? (
+        <p className="notice">No history points match this scenario context yet.</p>
+      ) : (
+        <div className="viz-block">
+          <div data-role="chart">
+            <TrendChart series={buildHistoryChartSeries(visibleRows)} />
+          </div>
+          {data.historyOutputRows.length > visibleRows.length ? (
+            <p className="notice">Showing the first {visibleRows.length} output lines to keep the chart readable. Narrow the output selection for more detail.</p>
+          ) : null}
+          <div className="output-row-grid compact">
+            {data.historyOutputRows.map((row: ScenarioHistoryOutputRow) => <OutputRowCard key={row.rowId} row={row} />)}
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
+
+function HistoryStateLegend() {
+  return (
+    <details className="history-state-legend">
+      <summary>History states</summary>
+      <dl className="context-summary compact">
+        <div><dt>measured</dt><dd>real uploaded size point</dd></div>
+        <div><dt>missing run</dt><dd>gap, never zero</dd></div>
+        <div><dt>failed run</dt><dd>status marker, not a size point</dd></div>
+        <div><dt>unsupported lens</dt><dd>not charted for this lens</dd></div>
+        <div><dt>missing size</dt><dd>gap for selected size</dd></div>
+        <div><dt>stale point</dt><dd>older point retained for context</dd></div>
+        <div><dt>incompatible schema</dt><dd>excluded from the line</dd></div>
+      </dl>
+    </details>
+  )
+}
+
+function PoliciesContext(props: { data: ScenarioPageData }) {
+  const states = unique(props.data.latestOutputRows.map((row: ScenarioLatestOutputRow) => row.policyState))
+
+  return (
+    <section className="section">
+      <h2>Policies context</h2>
+      {states.length === 0 ? (
+        <p className="notice">No policy can be evaluated until outputs exist.</p>
+      ) : (
+        <p>Current output policy states: {states.map((state) => <StateBadge key={state} state={state} />)}</p>
+      )}
+      <p className="notice">Scenario-scoped policy evaluation is active when repository policies match this output context.</p>
+    </section>
+  )
+}
+
+function ExpertEvidence(props: { data: ScenarioPageData; tab: (typeof scenarioTabs)[number] }) {
+  const data = props.data
+
+  return (
+    <section className="section">
+      <h2>Expert evidence</h2>
+      <p className="notice">Open evidence from an output row to inspect treemap, graph, waterfall, assets, packages, and budget context.</p>
+      <TabSelector
+        tabs={scenarioTabs.map((nextTab) => (
+          <Link key={nextTab} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, tab: nextTab })}>
+            {nextTab}
+          </Link>
+        ))}
+      />
+      <SelectedSeriesDetailView
+        context={{
+          baselineRef: data.selectedSeries?.series.selectedBaseCommitSha,
+          currentRef: data.selectedSeries?.series.selectedHeadCommitSha ?? data.selectedHistoryPoint?.commitSha ?? data.latestFreshScenario?.activeCommitSha,
+          entrypoint: data.selectedSeries?.series.entrypoint ?? data.selectedHistorySeries?.entrypoint ?? data.entrypoint,
+          environment: data.selectedSeries?.series.environment ?? data.selectedHistorySeries?.environment ?? data.env,
+          lens: data.lens,
+          scenario: data.scenario.slug,
+        }}
+        detail={props.tab === "history" ? null : data.selectedDetail}
+        metric={data.metric}
+        mode="snapshot"
+        tab={props.tab}
+        treemapTimeline={data.selectedTreemapTimeline}
+        budgetState={data.selectedSeries?.series.budgetState}
+        hasDegradedStableIdentity={data.selectedSeries?.series.hasDegradedStableIdentity}
+      />
+    </section>
+  )
+}
+
+function buildHistoryChartSeries(rows: ScenarioHistoryOutputRow[]): TrendChartSeries[] {
+  return rows.map((row) => ({
+    id: row.seriesId ?? row.rowId,
+    label: `${row.environment.label} / ${row.entrypoint.label}`,
+    points: row.points,
   }))
 }
 
@@ -313,74 +335,51 @@ function scenarioSearch(
   }
 }
 
-function ScenarioHistoryTable(props: { data: ScenarioPageData; series: ScenarioHistorySeries }) {
-  return (
-    <article className="card">
-      <header className="row">
-        <h3>{formatSeriesLabel(props.series)}</h3>
-        <span className="row-actions">
-          <Link
-            from={Route.fullPath}
-            to="/r/$owner/$repo/scenarios/$scenario"
-            search={scenarioSearch(props.data, {
-              env: props.series.environment,
-              entrypoint: props.series.entrypoint,
-              lens: props.series.lens,
-              tab: "treemap",
-            })}
-          >
-            Treemap
-          </Link>
-          <Link
-            from={Route.fullPath}
-            to="/r/$owner/$repo/scenarios/$scenario"
-            search={scenarioSearch(props.data, {
-              env: props.series.environment,
-              entrypoint: props.series.entrypoint,
-              lens: props.series.lens,
-              tab: "graph",
-            })}
-          >
-            Graph
-          </Link>
-          <Link
-            from={Route.fullPath}
-            to="/r/$owner/$repo/scenarios/$scenario"
-            search={scenarioSearch(props.data, {
-              env: props.series.environment,
-              entrypoint: props.series.entrypoint,
-              lens: props.series.lens,
-              tab: "waterfall",
-            })}
-          >
-            Waterfall
-          </Link>
-        </span>
-      </header>
-      <div className="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Commit</th>
-              <th>Measured at</th>
-              <th>Raw</th>
-              <th>Gzip</th>
-              <th>Brotli</th>
-            </tr>
-          </thead>
-          <tbody>
-            {props.series.points.map((point: ScenarioHistorySeries["points"][number]) => (
-              <tr key={`${props.series.seriesId}:${point.commitSha}:${point.measuredAt}`}>
-                <td className="mono">{shortSha(point.commitSha)}</td>
-                <td className="num">{point.measuredAt}</td>
-                <td className="num">{formatBytes(point.totalRawBytes)}</td>
-                <td className="num">{formatBytes(point.totalGzipBytes)}</td>
-                <td className="num">{formatBytes(point.totalBrotliBytes)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </article>
-  )
+function scenarioStatus(data: ScenarioPageData) {
+  if (data.latestFreshScenario?.hasNewerFailedRun) return "warning"
+  if (data.latestFreshScenario) return "fresh"
+  if (data.latestStatusScenario) return data.latestStatusScenario.state
+  return "missing"
+}
+
+function nextAction(data: ScenarioPageData): { description: string; href: { search: ReturnType<typeof scenarioSearch>; to: "." } | null; label: string; title: string } {
+  const firstOutput = data.latestOutputRows[0]
+
+  if (!firstOutput) {
+    return {
+      description: "Run the first measurement for this scenario so outputs can be confirmed.",
+      href: null,
+      label: "Run measurement",
+      title: "Measure this scenario",
+    }
+  }
+
+  if (data.latestOutputRows.some((row: ScenarioLatestOutputRow) => row.measurementState === "missing_baseline")) {
+    return {
+      description: "This scenario has current bytes but no baseline yet. Another run on the tracked branch will make deltas meaningful.",
+      href: { to: ".", search: scenarioSearch(data, { env: firstOutput.environment.key, entrypoint: firstOutput.entrypoint.key, lens: firstOutput.lens.id, tab: "treemap" }) },
+      label: "Inspect current evidence",
+      title: "Collect a baseline next",
+    }
+  }
+
+  if (data.latestOutputRows.every((row: ScenarioLatestOutputRow) => row.policyState === "not_configured")) {
+    return {
+      description: "Outputs are measured. Add policy context later to distinguish acceptable changes from regressions.",
+      href: { to: ".", search: scenarioSearch(data, { env: firstOutput.environment.key, entrypoint: firstOutput.entrypoint.key, lens: firstOutput.lens.id, tab: "treemap" }) },
+      label: "Inspect evidence",
+      title: "Review bytes before adding policy",
+    }
+  }
+
+  return {
+    description: "Outputs have measurements and policy context. Review trend and evidence before changing this scenario.",
+    href: { to: ".", search: scenarioSearch(data, { env: firstOutput.environment.key, entrypoint: firstOutput.entrypoint.key, lens: firstOutput.lens.id, tab: "treemap" }) },
+    label: "Inspect evidence",
+    title: "Review current evidence",
+  }
+}
+
+function unique(values: string[]) {
+  return [...new Set(values)]
 }

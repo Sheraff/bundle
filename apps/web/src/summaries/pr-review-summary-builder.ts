@@ -16,6 +16,7 @@ import * as v from "valibot"
 
 import { getDb, schema } from "../db/index.js"
 import type { AppBindings } from "../env.js"
+import { mapBudgetStateToPolicyState } from "../lib/policy-state.js"
 import { formatIssues } from "../shared/format-issues.js"
 
 import type { AcknowledgementOverlayRow, CommitGroupRow, PullRequestRow } from "./types.js"
@@ -34,7 +35,7 @@ const ITEM_REVIEW_PRIORITY: Record<ReviewItemState, number> = {
   acknowledged: 2,
   improvement: 3,
 }
-const BLOCKING_BUDGET_STATES = new Set(["blocking", "failing", "failed"])
+const BLOCKING_BUDGET_STATES = new Set(["blocking", "failing", "failed", "fail-blocking", "fail_blocking"])
 
 export async function buildPrReviewSummary(
   env: AppBindings,
@@ -147,8 +148,10 @@ export async function buildPrReviewSummary(
       commitGroupSummary.status === "pending"
         ? "pending"
         : blockingRegressionCount > 0
-          ? "failing"
-          : "passing",
+      ? "failing"
+      : scenarioGroups.some((scenarioGroup) => scenarioGroup.reviewState === "blocking")
+        ? "failing"
+        : "passing",
     settledAt: commitGroupSummary.settledAt,
     counts: {
       blockingRegressionCount,
@@ -232,7 +235,7 @@ function buildReviewedSeriesSummary(
 
     return {
       ...seriesSummary,
-      reviewState: primaryItem?.reviewState ?? "neutral",
+      reviewState: selectMaterializedSeriesReviewState(seriesSummary.budgetState, primaryItem),
       items: reviewedItems,
       primaryItemKey: primaryItem?.itemKey ?? null,
     }
@@ -291,6 +294,20 @@ function selectReviewItemState(
   }
 
   return BLOCKING_BUDGET_STATES.has(budgetState) ? "blocking" : "regression"
+}
+
+function selectMaterializedSeriesReviewState(
+  budgetState: string,
+  primaryItem: ReviewedComparisonItemSummaryV1 | null,
+): ReviewSeriesState {
+  const policyState = mapBudgetStateToPolicyState(budgetState)
+
+  if (policyState === "fail_blocking") return "blocking"
+  if (policyState === "fail_non_blocking") return "regression"
+  if (policyState === "warn" || policyState === "not_evaluated") return "warning"
+  if (policyState === "accepted") return "acknowledged"
+
+  return primaryItem?.reviewState ?? "neutral"
 }
 
 function selectPrimaryReviewedItem(items: ReviewedComparisonItemSummaryV1[]) {

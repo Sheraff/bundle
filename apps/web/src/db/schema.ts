@@ -415,6 +415,94 @@ export const budgetResults = sqliteTable(
   ],
 )
 
+export const policies = sqliteTable(
+  "policies",
+  {
+    id: text("id").primaryKey(),
+    repositoryId: text("repository_id")
+      .notNull()
+      .references(() => repositories.id),
+    scenarioId: text("scenario_id")
+      .notNull()
+      .references(() => scenarios.id),
+    name: text("name").notNull(),
+    environment: text("environment"),
+    entrypointKey: text("entrypoint_key"),
+    lens: text("lens"),
+    sizeMetric: text("size_metric").notNull(),
+    operator: text("operator").notNull(),
+    thresholdBytes: integer("threshold_bytes").notNull(),
+    severity: text("severity").notNull(),
+    blocking: integer("blocking").notNull(),
+    enabled: integer("enabled").notNull(),
+    version: integer("version").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    index("policies_repository_id_idx").on(table.repositoryId),
+    index("policies_scenario_id_idx").on(table.scenarioId),
+  ],
+)
+
+export const policyResults = sqliteTable(
+  "policy_results",
+  {
+    id: text("id").primaryKey(),
+    repositoryId: text("repository_id")
+      .notNull()
+      .references(() => repositories.id),
+    policyId: text("policy_id")
+      .notNull()
+      .references(() => policies.id),
+    comparisonId: text("comparison_id")
+      .notNull()
+      .references(() => comparisons.id),
+    seriesId: text("series_id")
+      .notNull()
+      .references(() => series.id),
+    actualValue: integer("actual_value"),
+    thresholdBytes: integer("threshold_bytes").notNull(),
+    result: text("result").notNull(),
+    severity: text("severity").notNull(),
+    message: text("message").notNull(),
+    evaluatedAt: text("evaluated_at").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("policy_results_policy_comparison_unique").on(table.policyId, table.comparisonId),
+    index("policy_results_repository_id_idx").on(table.repositoryId),
+    index("policy_results_comparison_id_idx").on(table.comparisonId),
+    index("policy_results_policy_id_idx").on(table.policyId),
+  ],
+)
+
+export const acceptedPolicyDecisions = sqliteTable(
+  "accepted_policy_decisions",
+  {
+    id: text("id").primaryKey(),
+    repositoryId: text("repository_id")
+      .notNull()
+      .references(() => repositories.id),
+    policyId: text("policy_id")
+      .notNull()
+      .references(() => policies.id),
+    policyResultId: text("policy_result_id").references(() => policyResults.id),
+    comparisonId: text("comparison_id").references(() => comparisons.id),
+    actorLogin: text("actor_login").notNull(),
+    reason: text("reason").notNull(),
+    scope: text("scope").notNull(),
+    expiresAt: text("expires_at"),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    index("accepted_policy_decisions_repository_id_idx").on(table.repositoryId),
+    index("accepted_policy_decisions_policy_id_idx").on(table.policyId),
+    index("accepted_policy_decisions_comparison_id_idx").on(table.comparisonId),
+  ],
+)
+
 export const acknowledgements = sqliteTable(
   "acknowledgements",
   {

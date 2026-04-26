@@ -18,29 +18,38 @@ const test = base.extend<{ consoleProblems: string[] }>({
 
 test("homepage, repository overview, and history are navigable", async ({ page, consoleProblems: _consoleProblems }) => {
   await page.goto("/")
-  await expect(page.getByRole("heading", { name: "Chunk Scope" })).toBeVisible()
-  await expect(page.getByText("Quick Start")).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Track Vite bundle size across scenarios, branches, and pull requests." })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Quick start" })).toBeVisible()
 
   await page.goto("/r/acme/widget?lens=entry-js-direct-css&metric=gzip")
-  await expect(page.getByRole("heading", { name: "Trend" })).toBeVisible()
-  await expect(page.getByRole("link", { name: "Open repository history" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: /Scenarios for/ })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Uncovered / no policy" })).toBeVisible()
+  await expect(page.getByRole("link", { name: "History" })).toBeVisible()
 
-  await page.getByRole("link", { name: "Open repository history" }).click()
-  await expect(page.getByRole("heading", { name: "Repository History" })).toBeVisible()
-  await expect(page.getByRole("heading", { name: "Compare Builder" })).toBeVisible()
+  await page.getByRole("link", { name: "History" }).click()
+  await expect(page.getByRole("heading", { name: "Scenario rollups", exact: true })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Branch evolution" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Compare builder" })).toBeVisible()
   await page.getByRole("button", { name: "Open compare" }).click()
-  await expect(page.getByRole("heading", { name: "Compare", exact: true })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Scenario groups" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: /artifact comparison/i })).toBeVisible()
+  await page.locator("details.advanced-compare summary").click()
+  await page.locator("details.advanced-compare").getByRole("button", { name: "Open compare" }).click()
+  await expect(page.getByRole("heading", { name: "Scenario groups" })).toBeVisible()
   await expect(page.getByText("Invalid type")).toHaveCount(0)
 })
 
 test("scenario history exposes treemap-capable series and renders visual tabs", async ({ page, consoleProblems: _consoleProblems }) => {
   await page.goto("/r/acme/widget/scenarios/fixture-app-cost?branch=main&env=all&entrypoint=all&lens=entry-js-direct-css&metric=gzip")
   const treemapHref = await page
-    .getByRole("link", { name: "Open treemap for default / src/main.ts / entry-js-direct-css" })
+    .getByRole("link", { name: "Inspect evidence" })
+    .first()
     .getAttribute("href")
   expect(treemapHref).toContain("env=default")
   await page.goto(treemapHref!)
-  await expect(page.getByRole("heading", { name: "Detail Tabs" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Expert evidence" })).toBeVisible()
+  await expect(page.getByLabel("Expert visualizer")).toBeVisible()
+  await expect(page.getByText("Source-line attribution is unavailable")).toBeVisible()
   await expect(page.getByLabel("Detail tabs").getByRole("link", { name: "treemap" })).toBeVisible()
   await expect(page.getByRole("region", { name: "Treemap history scrubber" })).toBeVisible()
   await expect(page.locator('svg[aria-label="Bundle composition treemap timeline"]')).toBeVisible()
@@ -59,6 +68,7 @@ test("scenario history exposes treemap-capable series and renders visual tabs", 
 
 test("compare detail tabs preserve selected series and render visualizations", async ({ page, consoleProblems: _consoleProblems }) => {
   await page.goto('/r/acme/widget/compare?base="0123456789abcdef0123456789abcdef01234567"&head="1111111111111111111111111111111111111111"&scenario=fixture-app-cost&env=default&entrypoint=src%2Fmain.ts&lens=entry-js-direct-css&metric=gzip&tab=treemap')
+  await expect(page.getByLabel("Expert visualizer")).toBeVisible()
   await expect(page.getByRole("region", { name: "Treemap history scrubber" })).toBeVisible()
   await expect(page.locator('svg[aria-label="Bundle composition treemap timeline"]')).toBeVisible()
   await expectTimelineTreemapToScrub(page)
@@ -74,6 +84,15 @@ test("compare detail tabs preserve selected series and render visualizations", a
   await expect(page).toHaveURL(/env=default/)
   await expect(page).toHaveURL(/tab=waterfall/)
   await expect(page.locator('svg[aria-label="Build-time dependency waterfall"]')).toBeVisible()
+})
+
+test("release readiness preset renders an explicit report", async ({ page, consoleProblems: _consoleProblems }) => {
+  await page.goto('/r/acme/widget/compare?base="0123456789abcdef0123456789abcdef01234567"&head="1111111111111111111111111111111111111111"&metric=gzip')
+  await page.getByRole("link", { name: "Check release candidate vs main" }).click()
+  await expect(page).toHaveURL(/preset=release-main/)
+  await expect(page.getByRole("heading", { name: /Release review/ })).toBeVisible()
+  await expect(page.getByText("Missing measurements", { exact: true })).toBeVisible()
+  await expect(page.getByText("Unavailable artifacts", { exact: true })).toBeVisible()
 })
 
 async function expectTreemapToFill(page: Page, options: { expectParentCells?: boolean } = {}) {

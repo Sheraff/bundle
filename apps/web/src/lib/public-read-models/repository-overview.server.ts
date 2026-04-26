@@ -22,6 +22,7 @@ import {
   selectPrimaryNeutralSeries,
 } from "./shared.server.js"
 import { parseSizeMetric } from "../size-metric.js"
+import { scenarioLatestOutputRowsFromFreshScenario } from "./output-rows.server.js"
 
 type RepositoryScenarioCatalogRow =
   | {
@@ -74,6 +75,11 @@ export async function getRepositoryOverviewPageData(
       ? await loadRepositoryTrend(env, repository.id, resolvedBranch, resolvedLens)
       : [],
     latestSummary,
+    scenarioOutputRows: latestSummary
+      ? latestSummary.freshScenarioGroups.flatMap((scenario) =>
+          scenarioLatestOutputRowsFromFreshScenario(scenario, metric, { lens: resolvedLens })
+        )
+      : [],
     commitOptions: await listRepositoryCommitOptions(env, repository.id),
     latestImportantCompare: latestSummary ? selectLatestImportantCompare(latestSummary) : null,
     scenarioCatalog: latestSummary

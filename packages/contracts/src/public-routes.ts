@@ -55,6 +55,7 @@ export const comparePageSearchParamsSchema = v.strictObject({
   lens: v.optional(nonEmptyStringSchema),
   tab: v.optional(nonEmptyStringSchema),
   metric: v.optional(nonEmptyStringSchema),
+  preset: v.optional(v.union([v.literal("release-last-release"), v.literal("release-main"), v.literal("release-tag")])),
 })
 
 export type PublicRepositoryRouteParams = v.InferOutput<typeof publicRepositoryRouteParamsSchema>

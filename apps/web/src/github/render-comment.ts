@@ -1,6 +1,7 @@
 import type { PrReviewSummaryV1, ReviewedScenarioSummaryV1 } from "@workspace/contracts"
 
 import type { AppBindings } from "../env.js"
+import { mapBudgetStateToPolicyState } from "../lib/policy-state.js"
 import { sha256Hex } from "../shared/sha256-hex.js"
 
 import {
@@ -10,7 +11,13 @@ import {
   formatSignedBytes,
   formatSignedPercentage,
 } from "./formatting.js"
-import { formatScenarioBadge, selectPrimaryItem, selectVisibleSeries } from "./render-shared.js"
+import {
+  collectPublicationFacts,
+  describePolicyOutcome,
+  formatScenarioBadge,
+  selectPrimaryItem,
+  selectVisibleSeries,
+} from "./render-shared.js"
 import type { CommentPublicationPayload } from "./types.js"
 
 export async function buildCommentPublicationPayload(
@@ -35,9 +42,16 @@ export async function buildCommentPublicationPayload(
   const visibleScenarioGroups = summary.scenarioGroups.filter(
     (scenarioGroup) => scenarioGroup.reviewState !== "neutral",
   )
+  const publicationFacts = collectPublicationFacts(summary)
   const headerCounts = [
-    summary.counts.blockingRegressionCount > 0
-      ? formatCount(summary.counts.blockingRegressionCount, "blocking regression")
+    publicationFacts.blockingPolicyOutcomeCount > 0
+      ? formatCount(publicationFacts.blockingPolicyOutcomeCount, "blocking policy outcome")
+      : null,
+    publicationFacts.warningPolicyOutcomeCount > 0
+      ? formatCount(publicationFacts.warningPolicyOutcomeCount, "warning policy outcome")
+      : null,
+    publicationFacts.acceptedPolicyDecisionCount > 0
+      ? formatCount(publicationFacts.acceptedPolicyDecisionCount, "accepted policy decision")
       : null,
     summary.counts.regressionCount > 0
       ? formatCount(summary.counts.regressionCount, "regression")
@@ -64,7 +78,8 @@ export async function buildCommentPublicationPayload(
   const lines = [
     `Chunk Scope review: ${summary.overallState}`,
     headerCounts.join("  ") || "No changes detected",
-    `[Open PR diff](${openPrDiffUrl})`,
+    policySummaryLine(publicationFacts),
+    `[Open hosted Review Mode](${openPrDiffUrl})`,
   ]
 
   for (const scenarioGroup of visibleScenarioGroups) {
@@ -114,11 +129,11 @@ function renderCommentScenarioGroup(
     badges.push(`${scenarioGroup.acknowledgedItemCount} acknowledged`)
   }
 
-  const lines = [
-    `${scenarioGroup.scenarioSlug}${badges.length > 0 ? `  ${badges.map((badge) => `[${badge}]`).join(" ")}` : ""}`,
-  ]
-
   if (!visibleSeries) {
+    const lines = [
+      `${scenarioGroup.scenarioSlug}${badges.length > 0 ? `  ${badges.map((badge) => `[${badge}]`).join(" ")}` : ""}`,
+    ]
+
     if (scenarioGroup.hasNewerFailedRun) {
       lines.push(
         `Latest rerun failed${scenarioGroup.latestFailureMessage ? `: ${scenarioGroup.latestFailureMessage}` : "."}`,
@@ -128,12 +143,22 @@ function renderCommentScenarioGroup(
     return lines
   }
 
+  const policyState = mapBudgetStateToPolicyState(visibleSeries.budgetState)
+
+  if (policyState !== "pass" && policyState !== "not_configured") {
+    badges.push(describePolicyOutcome(policyState))
+  }
+
+  const lines = [
+    `${scenarioGroup.scenarioSlug}${badges.length > 0 ? `  ${badges.map((badge) => `[${badge}]`).join(" ")}` : ""}`,
+  ]
+
   lines.push(`${visibleSeries.environment} / ${visibleSeries.entrypoint} / ${visibleSeries.lens}`)
   const primaryItem = selectPrimaryItem(visibleSeries)
 
   if (primaryItem) {
     lines.push(
-      `${formatBytes(primaryItem.currentValue)} vs ${formatBytes(primaryItem.baselineValue)}  (${formatSignedBytes(primaryItem.deltaValue)}, ${formatSignedPercentage(primaryItem.percentageDelta)})${primaryItem.acknowledged ? "  [Acknowledged]" : ""}`,
+      `${formatBytes(primaryItem.currentValue)} vs ${formatBytes(primaryItem.baselineValue)}  (${formatSignedBytes(primaryItem.deltaValue)}, ${formatSignedPercentage(primaryItem.percentageDelta)})${primaryItem.acknowledged || policyState === "accepted" ? "  [Accepted]" : ""}`,
     )
   } else if (visibleSeries.status === "no-baseline") {
     lines.push("No baseline available for this series yet.")
@@ -163,4 +188,24 @@ function renderCommentScenarioGroup(
   )
 
   return lines
+}
+
+function policySummaryLine(publicationFacts: ReturnType<typeof collectPublicationFacts>) {
+  if (publicationFacts.blockingPolicyOutcomeCount > 0) {
+    return `Policy: ${formatCount(publicationFacts.blockingPolicyOutcomeCount, "blocking outcome")}.`
+  }
+
+  if (publicationFacts.warningPolicyOutcomeCount > 0) {
+    return `Policy: ${formatCount(publicationFacts.warningPolicyOutcomeCount, "warning outcome")}.`
+  }
+
+  if (publicationFacts.acceptedPolicyDecisionCount > 0) {
+    return `Policy: ${formatCount(publicationFacts.acceptedPolicyDecisionCount, "accepted decision")}.`
+  }
+
+  if (publicationFacts.noPolicyOutputCount > 0) {
+    return "Policy: no configured policy matched at least one reviewed output."
+  }
+
+  return "Policy: all evaluated policies passed."
 }

@@ -39,30 +39,41 @@ describe("public pages", () => {
     const repositoryPage = await fetchPage(
       "https://bundle.test/r/acme/widget?lens=entry-js-direct-css",
     )
+    const repositoryPageText = await repositoryPage.text()
     expect(repositoryPage.status).toBe(200)
     expect(repositoryPage.headers.get("content-type")).toContain("text/html")
-    expect(await repositoryPage.text()).toContain("Repository overview public page.")
+    expect(repositoryPageText).toContain("Scenarios for")
+    expect(repositoryPageText).toContain("Uncovered / no policy")
 
     const historyPage = await fetchPage(
       "https://bundle.test/r/acme/widget/history?branch=main&scenario=all&env=all&entrypoint=all&lens=entry-js-direct-css&metric=gzip",
     )
     const historyPageText = await historyPage.text()
     expect(historyPage.status).toBe(200)
-    expect(historyPageText).toContain("Repository History")
-    expect(historyPageText).toContain("Compare Builder")
+    expect(historyPageText).toContain("History mode")
+    expect(historyPageText).toContain("Branch markers")
+    expect(historyPageText).toContain("Scenario rollups")
+    expect(historyPageText).toContain("Branch evolution")
+    expect(historyPageText).toContain("Compare builder")
 
     const scenarioPage = await fetchPage(
       "https://bundle.test/r/acme/widget/scenarios/fixture-app-cost?branch=main&env=all&entrypoint=all&lens=entry-js-direct-css&metric=gzip&tab=history",
     )
     const scenarioPageText = await scenarioPage.text()
     expect(scenarioPage.status).toBe(200)
-    expect(scenarioPageText).toContain("Scenario public page.")
+    expect(scenarioPageText).toContain("A scenario is one reproducible bundle target.")
+    expect(scenarioPageText).toContain("Current outputs")
+    expect(scenarioPageText).toContain("Output evolution over time")
+    expect(scenarioPageText).toContain("History states")
 
     const scenarioTreemapPage = await fetchPage(
       "https://bundle.test/r/acme/widget/scenarios/fixture-app-cost?branch=main&env=default&entrypoint=src/main.ts&lens=entry-js-direct-css&metric=gzip&tab=treemap",
     )
     const scenarioTreemapText = await scenarioTreemapPage.text()
     expect(scenarioTreemapPage.status).toBe(200)
+    expect(scenarioTreemapText).toContain("Expert visualizer")
+    expect(scenarioTreemapText).toContain("Where size lives")
+    expect(scenarioTreemapText).toContain("Source-line attribution is unavailable")
     expect(scenarioTreemapText).toContain("Chunks")
 
     const comparePage = await fetchPage(
@@ -71,6 +82,10 @@ describe("public pages", () => {
     const comparePageText = await comparePage.text()
     expect(comparePage.status).toBe(200)
     expect(comparePageText).toContain("Compare")
+    expect(comparePageText).toContain("Compare presets")
+    expect(comparePageText).toContain("Compatibility")
+    expect(comparePageText).toContain("Scenario groups")
+    expect(comparePageText).toContain("policy-grade inputs")
     expect(comparePageText).toContain("fixture-app-cost")
 
     const compareAssetsPage = await fetchPage(
@@ -78,6 +93,7 @@ describe("public pages", () => {
     )
     const compareAssetsText = await compareAssetsPage.text()
     expect(compareAssetsPage.status).toBe(200)
+    expect(compareAssetsText).toContain("Which assets/packages changed")
     expect(compareAssetsText).toContain("Assets")
   })
 
@@ -92,8 +108,30 @@ describe("public pages", () => {
     const comparePageText = await comparePage.text()
 
     expect(comparePage.status).toBe(200)
-    expect(comparePageText).toContain("PR Compare")
+    expect(comparePageText).toContain("Review PR #")
+    expect(comparePageText).toContain("Needs review")
+    expect(comparePageText).toContain("Policy state is not_configured")
     expect(comparePageText).toContain("scenario-pr")
+    expect(comparePageText).toContain('<details open=""><summary><span>scenario-pr')
+    expect(comparePageText).not.toContain("Blocked by policy")
+    expect(comparePageText).not.toContain("Confidence")
+    expect(comparePageText).not.toContain("Sourcemap")
+  })
+
+  it("shows an explicit unavailable verdict when no PR review summary matches the selected base/head", async () => {
+    const harness = createPipelineHarness()
+
+    await seedPrComparison(harness)
+
+    const comparePage = await fetchPage(
+      `https://bundle.test/r/acme/widget/compare${defaultStringifySearch({ pr: 42, base: baseSha, head: headSha })}`,
+    )
+    const comparePageText = await comparePage.text()
+
+    expect(comparePage.status).toBe(200)
+    expect(comparePageText).toContain("Review summary unavailable")
+    expect(comparePageText).toContain("No PR review summary matched this base/head context.")
+    expect(comparePageText).not.toContain("Review passes")
   })
 
   it("renders empty states when a repository and scenario exist without branch summaries yet", async () => {
@@ -117,8 +155,8 @@ describe("public pages", () => {
     const repositoryPageText = await repositoryPage.text()
 
     expect(repositoryPage.status).toBe(200)
-    expect(repositoryPageText).toContain("Current: <!-- -->none")
-    expect(repositoryPageText).toContain("No settled branch summary is available yet.")
+    expect(repositoryPageText).toContain("Stale / missing")
+    expect(repositoryPageText).toContain("Awaiting first processed measurement.")
 
     const scenarioPage = await fetchPage(
       "https://bundle.test/r/acme/empty-widget/scenarios/lonely-scenario?env=all&entrypoint=all&lens=entry-js-direct-css",
@@ -126,7 +164,6 @@ describe("public pages", () => {
     const scenarioPageText = await scenarioPage.text()
 
     expect(scenarioPage.status).toBe(200)
-    expect(scenarioPageText).toContain("Current: <!-- -->none")
     expect(scenarioPageText).toContain("No branch summary is available for this scenario yet.")
   })
 

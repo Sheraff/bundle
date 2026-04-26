@@ -148,7 +148,7 @@ export interface UpsertGithubPullRequestCommentOptions {
 
 export interface UpsertGithubCheckRunOptions {
   accessToken: string
-  conclusion?: "failure" | "success"
+  conclusion?: "failure" | "neutral" | "success"
   detailsUrl: string
   externalId: string
   headSha: string

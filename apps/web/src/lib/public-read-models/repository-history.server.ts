@@ -28,9 +28,10 @@ export async function getRepositoryHistoryPageData(
 ) {
   const repository = await requireRepository(env, input.owner, input.repo)
   const branchOptions = await listRepositoryBranches(env, repository.id)
+  const defaultBranch = branchOptions.includes("main") ? "main" : branchOptions[0] ?? null
   const scenarioOptions = await listRepositoryScenarios(env, repository.id)
   const environmentOptions = await listRepositoryEnvironments(env, repository.id)
-  const resolvedBranch = input.branch ?? branchOptions[0] ?? null
+  const resolvedBranch = input.branch ?? defaultBranch
   const resolvedScenario = input.scenario ?? "all"
   const resolvedEnvironment = input.env ?? "all"
   const entrypointOptions = await listRepositoryEntrypoints(env, repository.id, resolvedEnvironment)

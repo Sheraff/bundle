@@ -87,7 +87,7 @@ describe("GitHub publication worker", () => {
     expect(commentRequest?.body).toEqual(
       expect.objectContaining({
         body: expect.stringContaining(
-          "[Open PR diff](https://bundle.test/r/acme/widget/compare?pr=42&base=0123456789abcdef0123456789abcdef01234567&head=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)",
+          "[Open hosted Review Mode](https://bundle.test/r/acme/widget/compare?pr=42&base=0123456789abcdef0123456789abcdef01234567&head=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)",
         ),
       }),
     )
