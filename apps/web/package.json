@@ -23,6 +23,7 @@
     "@octokit/webhooks-methods": "^6.0.0",
     "@tanstack/react-query": "^5.100.3",
     "@tanstack/react-router": "1.168.10",
+    "@tanstack/react-router-ssr-query": "^1.166.12",
     "@tanstack/react-start": "1.167.16",
     "@tanstack/router-core": "1.168.9",
     "@workspace/contracts": "workspace:*",

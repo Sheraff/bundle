@@ -20,6 +20,7 @@ import {
 import { metricPointValue, type SizeMetric } from "../lib/size-metric.js"
 
 import "./repo-shared.css"
+import { queryOptions } from "@tanstack/react-query"
 
 const scenarioTabs = ["history", "treemap", "graph", "waterfall", "assets", "packages", "budget"] as const
 
@@ -56,13 +57,12 @@ const getScenarioPage = createServerFn({ method: "GET" })
 export const Route = createFileRoute("/r/$owner/$repo/scenarios/$scenario")({
   validateSearch: scenarioPageSearchSchema,
   loaderDeps: ({ search }) => search,
-  loader: ({ params, deps }) =>
-    getScenarioPage({
-      data: {
-        params,
-        search: deps,
-      },
-    }),
+  loader: ({ params, deps }) => getScenarioPage({
+    data: {
+      params,
+      search: deps,
+    }
+  }),
   component: ScenarioPageRouteComponent,
 })
 
