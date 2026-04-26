@@ -14,6 +14,8 @@ export type TimelineNodeState = "stable" | "added" | "removed" | "split" | "merg
 
 export type TimelineTreemapNode = TimelineLayoutNode & {
   identity: string
+  labelHeight?: number
+  labelWidth?: number
   parentIdentity: string | null
   timelineState: TimelineNodeState
   transitionId: string
@@ -24,7 +26,10 @@ export type TimelineRectNode = d3.HierarchyRectangularNode<TimelineTreemapNode>
 
 export type RectSnapshot = { height: number; width: number; x: number; y: number }
 
+const parentHeaderHeight = 18
+
 export type TimelineTreemapLayout = {
+  bounds: RectSnapshot
   internalNodes: TimelineRectNode[]
   leaves: TimelineRectNode[]
   maxFrameValue: number
@@ -87,9 +92,14 @@ export function buildContinuityTreemapLayout(input: {
     .size([input.width * scale, input.height * scale])
     .paddingInner(1)
     .paddingOuter(1)
+    .paddingTop((node) => node.depth > 0 && node.children ? parentHeaderHeight : 1)
 
   // Seed resquarify with the anchor values, then compute the current frame on the same hierarchy.
   treemap(root.sum((node) => anchorValues.get(node.id) ?? 0).sort((left, right) => compareByContinuity(left.data, right.data, input.frameIndex, anchorOrder, previousOrder)))
+  const anchorRects = new Map<string, RectSnapshot>()
+  for (const node of (root as TimelineRectNode).descendants()) {
+    anchorRects.set(node.data.identity, rectSnapshot(node))
+  }
   treemap(root.sum((node) => node.values[input.frameIndex] ?? 0).sort((left, right) => compareByContinuity(left.data, right.data, input.frameIndex, anchorOrder, previousOrder)))
   const rectangularRoot = root as TimelineRectNode
   rectangularRoot.each((node) => {
@@ -97,6 +107,11 @@ export function buildContinuityTreemapLayout(input: {
     node.x1 += offsetX
     node.y0 += offsetY
     node.y1 += offsetY
+    const anchorRect = anchorRects.get(node.data.identity)
+    if (anchorRect) {
+      node.data.labelWidth = Math.max(0, anchorRect.width)
+      node.data.labelHeight = Math.max(0, anchorRect.height)
+    }
   })
 
   const internalNodes = rectangularRoot.descendants().filter((node) => node.depth > 0 && parentIds.has(node.id ?? ""))
@@ -106,7 +121,17 @@ export function buildContinuityTreemapLayout(input: {
     rects.set(node.data.transitionId, rectSnapshot(node))
   }
 
-  return { internalNodes, leaves, maxFrameValue, parentIds, rects }
+  return { bounds: layoutBounds([...internalNodes, ...leaves]), internalNodes, leaves, maxFrameValue, parentIds, rects }
+}
+
+function layoutBounds(nodes: TimelineRectNode[]): RectSnapshot {
+  if (nodes.length === 0) return { height: 0, width: 0, x: 0, y: 0 }
+
+  const x0 = Math.min(...nodes.map((node) => node.x0))
+  const y0 = Math.min(...nodes.map((node) => node.y0))
+  const x1 = Math.max(...nodes.map((node) => node.x1))
+  const y1 = Math.max(...nodes.map((node) => node.y1))
+  return { height: Math.max(0, y1 - y0), width: Math.max(0, x1 - x0), x: x0, y: y0 }
 }
 
 function buildCanonicalNodes(input: {
