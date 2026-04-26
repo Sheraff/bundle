@@ -16,7 +16,7 @@ import * as v from "valibot"
 
 import { SelectedSeriesDetailView } from "../components/selected-series-detail.js"
 import { StateBadge } from "../components/state-badge.js"
-import { MetricSelector, TabSelector } from "../components/url-controls.js"
+import { LinkSelector, MetricSelector, TabSelector } from "../components/url-controls.js"
 import {
   AcknowledgementAuthorizationError,
   AcknowledgementNotFoundError,
@@ -65,18 +65,18 @@ const getComparePage = createServerFn({ method: "GET" })
   .handler(({ data, context }) =>
     data.search.pr
       ? getPullRequestComparePageData(context.env, {
-          owner: data.params.owner,
-          repo: data.params.repo,
-          search: {
-            ...data.search,
-            pr: data.search.pr,
-          },
-        })
+        owner: data.params.owner,
+        repo: data.params.repo,
+        search: {
+          ...data.search,
+          pr: data.search.pr,
+        },
+      })
       : getNeutralComparePageData(context.env, {
-          owner: data.params.owner,
-          repo: data.params.repo,
-          search: data.search,
-        }),
+        owner: data.params.owner,
+        repo: data.params.repo,
+        search: data.search,
+      }),
   )
 
 const acknowledgeComparisonItem = createServerFn({ method: "POST" })
@@ -193,7 +193,11 @@ function ComparePageRouteComponent() {
         <h2>Series filters</h2>
         <div className="filters-bar">
           <CompareFilterLinks rows={rows} />
-          <MetricSelector current={data.metric} searchFor={(metric) => compareSearch(search, { metric })} />
+          <MetricSelector
+            raw={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "raw" })}>raw</Link>}
+            gzip={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "gzip" })}>gzip</Link>}
+            brotli={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "brotli" })}>brotli</Link>}
+          />
         </div>
       </section>
 
@@ -247,7 +251,13 @@ function ComparePageRouteComponent() {
 
       <section className="section">
         <h2>Detail tabs</h2>
-        <TabSelector current={tab} tabs={compareTabs} searchFor={(nextTab) => compareSearch(search, { tab: nextTab })} />
+        <TabSelector
+          tabs={compareTabs.map((nextTab) => (
+            <Link key={nextTab} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, tab: nextTab })}>
+              {nextTab}
+            </Link>
+          ))}
+        />
         <SelectedSeriesDetailView
           detail={tab === "summary" ? null : data.selectedDetail}
           metric={data.metric}
@@ -306,7 +316,6 @@ function CompareBuilder() {
 function CompareFilterLinks(props: {
   rows: Array<ReturnType<typeof Route.useLoaderData>["neutralRows"][number] | ReturnType<typeof Route.useLoaderData>["reviewedRows"][number]>
 }) {
-  const search = Route.useSearch()
   const scenarios = unique(props.rows.map((row) => row.scenarioSlug))
   const environments = unique(props.rows.map((row) => row.series.environment))
   const entrypoints = unique(props.rows.map((row) => row.series.entrypoint))
@@ -314,73 +323,52 @@ function CompareFilterLinks(props: {
 
   return (
     <>
-      <FilterGroup label="Scenario" current={search.scenario ?? null} values={scenarios} searchFor={(scenario) => compareSearch(search, { scenario })} />
-      <FilterGroup label="Environment" current={search.env ?? null} values={environments} searchFor={(env) => compareSearch(search, { env })} />
-      <FilterGroup label="Entrypoint" current={search.entrypoint ?? null} values={entrypoints} searchFor={(entrypoint) => compareSearch(search, { entrypoint })} />
-      <FilterGroup label="Lens" current={search.lens ?? null} values={lenses} searchFor={(lens) => compareSearch(search, { lens })} />
+      <LinkSelector
+        label="Scenario"
+        options={[
+          <Link key="all" from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, scenario: undefined })}>all</Link>,
+          ...scenarios.map((scenario) => (
+            <Link key={scenario} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, scenario })}>
+              {scenario}
+            </Link>
+          )),
+        ]}
+      />
+      <LinkSelector
+        label="Environment"
+        options={[
+          <Link key="all" from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, env: undefined })}>all</Link>,
+          ...environments.map((env) => (
+            <Link key={env} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, env })}>
+              {env}
+            </Link>
+          )),
+        ]}
+      />
+      <LinkSelector
+        label="Entrypoint"
+        options={[
+          <Link key="all" from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, entrypoint: undefined })}>all</Link>,
+          ...entrypoints.map((entrypoint) => (
+            <Link key={entrypoint} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, entrypoint })}>
+              {entrypoint}
+            </Link>
+          )),
+        ]}
+      />
+      <LinkSelector
+        label="Lens"
+        options={[
+          <Link key="all" from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, lens: undefined })}>all</Link>,
+          ...lenses.map((lens) => (
+            <Link key={lens} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, lens })}>
+              {lens}
+            </Link>
+          )),
+        ]}
+      />
     </>
   )
-}
-
-function FilterGroup(props: {
-  label: string
-  current: string | null
-  values: string[]
-  searchFor: (value: string | undefined) => Record<string, unknown>
-}) {
-  return (
-    <section className="selector">
-      <h3>
-        {props.label}
-        <small>{props.current ?? "all"}</small>
-      </h3>
-      {props.values.length === 0 ? (
-        <p>No options available.</p>
-      ) : (
-        <ul>
-          <li>
-            <Link
-              from={Route.fullPath}
-              to="/r/$owner/$repo/compare"
-              search={props.searchFor(undefined) as never}
-              aria-current={props.current === null ? "true" : undefined}
-            >
-              all
-            </Link>
-          </li>
-          {props.values.map((value) => (
-            <li key={value}>
-              <Link
-                from={Route.fullPath}
-                to="/r/$owner/$repo/compare"
-                search={props.searchFor(value) as never}
-                aria-current={value === props.current ? "true" : undefined}
-              >
-                {value}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  )
-}
-
-function compareSearch(
-  current: ReturnType<typeof Route.useSearch>,
-  updates: Partial<Record<"scenario" | "env" | "entrypoint" | "lens" | "tab" | "metric", string | undefined>>,
-) {
-  return {
-    base: current.base,
-    head: current.head,
-    pr: current.pr,
-    scenario: "scenario" in updates ? updates.scenario : current.scenario,
-    env: "env" in updates ? updates.env : current.env,
-    entrypoint: "entrypoint" in updates ? updates.entrypoint : current.entrypoint,
-    lens: "lens" in updates ? updates.lens : current.lens,
-    tab: "tab" in updates ? updates.tab : current.tab,
-    metric: "metric" in updates ? updates.metric : current.metric,
-  }
 }
 
 function unique(values: string[]) {

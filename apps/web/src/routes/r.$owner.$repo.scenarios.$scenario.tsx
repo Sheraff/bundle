@@ -102,11 +102,43 @@ function ScenarioPageRouteComponent() {
       <section className="section">
         <h2>Filters</h2>
         <div className="filters-bar">
-          <LinkSelector label="Branch" current={data.branch} options={data.branchOptions} searchFor={(branch) => scenarioSearch(data, { branch, tab })} />
-          <LinkSelector label="Environment" current={data.env} options={["all", ...data.environmentOptions]} searchFor={(env) => scenarioSearch(data, { env, entrypoint: "all", tab })} />
-          <LinkSelector label="Entrypoint" current={data.entrypoint} options={["all", ...data.entrypointOptions]} searchFor={(entrypoint) => scenarioSearch(data, { entrypoint, tab })} />
-          <LinkSelector label="Lens" current={data.lens} options={data.lensOptions} searchFor={(lens) => scenarioSearch(data, { lens, tab })} />
-          <MetricSelector current={data.metric} searchFor={(metric) => scenarioSearch(data, { metric, tab })} />
+          <LinkSelector
+            label="Branch"
+            options={data.branchOptions.map((branch) => (
+              <Link key={branch} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, branch })}>
+                {branch}
+              </Link>
+            ))}
+          />
+          <LinkSelector
+            label="Environment"
+            options={["all", ...data.environmentOptions].map((env) => (
+              <Link key={env} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, env })}>
+                {env}
+              </Link>
+            ))}
+          />
+          <LinkSelector
+            label="Entrypoint"
+            options={["all", ...data.entrypointOptions].map((entrypoint) => (
+              <Link key={entrypoint} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, entrypoint })}>
+                {entrypoint}
+              </Link>
+            ))}
+          />
+          <LinkSelector
+            label="Lens"
+            options={data.lensOptions.map((lens) => (
+              <Link key={lens} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, lens })}>
+                {lens}
+              </Link>
+            ))}
+          />
+          <MetricSelector
+            raw={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "raw" })}>raw</Link>}
+            gzip={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "gzip" })}>gzip</Link>}
+            brotli={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "brotli" })}>brotli</Link>}
+          />
         </div>
       </section>
 
@@ -233,7 +265,13 @@ function ScenarioPageRouteComponent() {
 
       <section className="section">
         <h2>Detail tabs</h2>
-        <TabSelector current={tab} tabs={scenarioTabs} searchFor={(nextTab) => scenarioSearch(data, { tab: nextTab })} />
+        <TabSelector
+          tabs={scenarioTabs.map((nextTab) => (
+            <Link key={nextTab} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, tab: nextTab })}>
+              {nextTab}
+            </Link>
+          ))}
+        />
         <SelectedSeriesDetailView
           detail={tab === "history" ? null : data.selectedDetail}
           metric={data.metric}

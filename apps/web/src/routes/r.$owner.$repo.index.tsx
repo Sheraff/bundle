@@ -107,19 +107,24 @@ function RepositoryOverviewRouteComponent() {
         <div className="filters-bar">
           <LinkSelector
             label="Branch"
-            current={data.branch}
-            options={data.branchOptions}
-            searchFor={(branch) => ({ branch, lens: data.lens, metric: data.metric })}
+            options={data.branchOptions.map((branch) => (
+              <Link key={branch} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, branch })}>
+                {branch}
+              </Link>
+            ))}
           />
           <LinkSelector
             label="Lens"
-            current={data.lens}
-            options={data.lensOptions}
-            searchFor={(lens) => ({ branch: data.branch ?? undefined, lens, metric: data.metric })}
+            options={data.lensOptions.map((lens) => (
+              <Link key={lens} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, lens })}>
+                {lens}
+              </Link>
+            ))}
           />
           <MetricSelector
-            current={data.metric}
-            searchFor={(metric) => ({ branch: data.branch ?? undefined, lens: data.lens, metric })}
+            raw={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "raw" })}>raw</Link>}
+            gzip={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "gzip" })}>gzip</Link>}
+            brotli={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "brotli" })}>brotli</Link>}
           />
         </div>
       </section>

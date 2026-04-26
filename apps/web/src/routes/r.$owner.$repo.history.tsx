@@ -113,12 +113,51 @@ function RepositoryHistoryRouteComponent() {
       <section className="section">
         <h2>Filters</h2>
         <div className="filters-bar">
-          <LinkSelector label="Branch" current={data.branch} options={data.branchOptions} searchFor={(branch) => filterSearch(data, { branch })} />
-          <LinkSelector label="Scenario" current={data.scenario} options={["all", ...data.scenarioOptions]} searchFor={(scenario) => filterSearch(data, { scenario })} />
-          <LinkSelector label="Environment" current={data.env} options={["all", ...data.environmentOptions]} searchFor={(env) => filterSearch(data, { env, entrypoint: "all" })} />
-          <LinkSelector label="Entrypoint" current={data.entrypoint} options={["all", ...data.entrypointOptions]} searchFor={(entrypoint) => filterSearch(data, { entrypoint })} />
-          <LinkSelector label="Lens" current={data.lens} options={data.lensOptions} searchFor={(lens) => filterSearch(data, { lens })} />
-          <MetricSelector current={data.metric} searchFor={(metric) => filterSearch(data, { metric })} />
+          <LinkSelector
+            label="Branch"
+            options={data.branchOptions.map((branch) => (
+              <Link key={branch} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, branch })}>
+                {branch}
+              </Link>
+            ))}
+          />
+          <LinkSelector
+            label="Scenario"
+            options={["all", ...data.scenarioOptions].map((scenario) => (
+              <Link key={scenario} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, scenario })}>
+                {scenario}
+              </Link>
+            ))}
+          />
+          <LinkSelector
+            label="Environment"
+            options={["all", ...data.environmentOptions].map((env) => (
+              <Link key={env} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, env })}>
+                {env}
+              </Link>
+            ))}
+          />
+          <LinkSelector
+            label="Entrypoint"
+            options={["all", ...data.entrypointOptions].map((entrypoint) => (
+              <Link key={entrypoint} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, entrypoint })}>
+                {entrypoint}
+              </Link>
+            ))}
+          />
+          <LinkSelector
+            label="Lens"
+            options={data.lensOptions.map((lens) => (
+              <Link key={lens} from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, lens })}>
+                {lens}
+              </Link>
+            ))}
+          />
+          <MetricSelector
+            raw={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "raw" })}>raw</Link>}
+            gzip={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "gzip" })}>gzip</Link>}
+            brotli={<Link from={Route.fullPath} replace resetScroll={false} to="." search={(prev) => ({ ...prev, metric: "brotli" })}>brotli</Link>}
+          />
         </div>
       </section>
 
@@ -227,17 +266,6 @@ function buildHistoryChartSeries(seriesRows: HistorySeries[], metric: SizeMetric
       .sort((left, right) => left.measuredAt.localeCompare(right.measuredAt))
       .map((point) => ({ commitSha: point.commitSha, measuredAt: point.measuredAt, value: metricPointValue(point, metric) })),
   }))
-}
-
-function filterSearch(data: HistoryData, updates: Partial<Record<"branch" | "scenario" | "env" | "entrypoint" | "lens" | "metric", string>>) {
-  return {
-    branch: updates.branch ?? data.branch ?? undefined,
-    scenario: updates.scenario ?? data.scenario,
-    env: updates.env ?? data.env,
-    entrypoint: updates.entrypoint ?? data.entrypoint,
-    lens: updates.lens ?? data.lens,
-    metric: updates.metric ?? data.metric,
-  }
 }
 
 function optionLabel(option: HistoryData["commitOptions"][number]) {
