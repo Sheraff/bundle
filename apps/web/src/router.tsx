@@ -12,6 +12,10 @@ export function getRouter() {
     routeTree,
     defaultPreload: "intent",
     scrollRestoration: true,
+    defaultStaleTime: 60_000,
+    defaultPreloadStaleTime: 60_000,
+    defaultGcTime: 10 * 60_000,
+    defaultPreloadGcTime: 10 * 60_000,
   })
   setupRouterSsrQueryIntegration({
     router,
