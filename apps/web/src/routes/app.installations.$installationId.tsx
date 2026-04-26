@@ -153,14 +153,14 @@ function InstallationRouteComponent() {
                     </td>
                     <td>
                       {repository.private === 1 ||
-                      repository.accessStatus !== "active" ? null : repository.enabled === 1 ? (
-                        <Link
-                          to="/r/$owner/$repo/settings"
-                          params={{ owner: repository.owner, repo: repository.name }}
-                        >
-                          Settings
-                        </Link>
-                      ) : (
+                        repository.accessStatus !== "active" ? null : repository.enabled === 1 ? (
+                          <Link
+                            to="/r/$owner/$repo/settings"
+                            params={{ owner: repository.owner, repo: repository.name }}
+                          >
+                            Settings
+                          </Link>
+                        ) : (
                         <EnableRepositoryForm
                           installationId={data.installationId}
                           owner={repository.owner}
@@ -239,12 +239,9 @@ async function requireRouteUser(env: AppBindings) {
   } catch {
     const url = new URL(request.url)
     throw redirect({
-      href: loginUrl(`${url.pathname}${url.search}`),
+      href: `/api/v1/auth/github/start?redirect_to=${encodeURIComponent(`${url.pathname}${url.search}`)}`,
       statusCode: 302,
+      reloadDocument: true,
     })
   }
-}
-
-function loginUrl(redirectTo: string) {
-  return `/api/v1/auth/github/start?redirect_to=${encodeURIComponent(redirectTo)}`
 }

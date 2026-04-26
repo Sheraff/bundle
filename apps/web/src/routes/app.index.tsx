@@ -86,12 +86,10 @@ async function requireRouteUser(env: Parameters<typeof requireUser>[0]) {
   } catch {
     const url = new URL(request.url)
     throw redirect({
-      href: loginUrl(`${url.pathname}${url.search}`),
+      href: `/api/v1/auth/github/start?redirect_to=${encodeURIComponent(`${url.pathname}${url.search}`)}`,
       statusCode: 302,
+      reloadDocument: true,
     })
   }
 }
 
-function loginUrl(redirectTo: string) {
-  return `/api/v1/auth/github/start?redirect_to=${encodeURIComponent(redirectTo)}`
-}

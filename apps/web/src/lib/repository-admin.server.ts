@@ -24,6 +24,7 @@ export async function requireRepositoryAdminRoute(
     throw redirect({
       href: `/api/v1/auth/github/start?redirect_to=${encodeURIComponent(`${url.pathname}${url.search}`)}`,
       statusCode: 302,
+      reloadDocument: true,
     })
   }
 

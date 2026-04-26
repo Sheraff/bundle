@@ -234,8 +234,9 @@ async function requireRouteUser(env: AppBindings) {
   } catch {
     const url = new URL(request.url)
     throw redirect({
-      href: loginUrl(`${url.pathname}${url.search}`),
+      href: `/api/v1/auth/github/start?redirect_to=${encodeURIComponent(`${url.pathname}${url.search}`)}`,
       statusCode: 302,
+      reloadDocument: true,
     })
   }
 }
@@ -265,8 +266,4 @@ jobs:
 
 function formatSha(sha: string) {
   return sha.slice(0, 7)
-}
-
-function loginUrl(redirectTo: string) {
-  return `/api/v1/auth/github/start?redirect_to=${encodeURIComponent(redirectTo)}`
 }
