@@ -35,37 +35,45 @@ function AdminHomeRouteComponent() {
   const data = Route.useLoaderData()
 
   return (
-    <main>
-      <h1>Chunk Scope admin</h1>
-      <p>
-        Signed in as {data.user.login}. <a href="/api/v1/auth/logout">Log out</a>
-      </p>
-      {data.installUrl ? (
+    <main className="page narrow">
+      <header className="page-header">
+        <h1>Admin</h1>
         <p>
-          <a href={data.installUrl}>Install Chunk Scope on a GitHub org or user</a>
+          Signed in as <strong>{data.user.login}</strong>.{" "}
+          <a href="/api/v1/auth/logout">Log out</a>.
         </p>
-      ) : null}
-      <p>
-        <Link to="/app/setup">View setup guide</Link>
-      </p>
-      <h2>GitHub App installations</h2>
-      {data.installations.length === 0 ? (
-        <p>No installations found for this GitHub user.</p>
-      ) : (
-        <ul>
-          {data.installations.map((installation) => (
-            <li key={installation.installationId}>
-              <Link
-                to="/app/installations/$installationId"
-                params={{ installationId: installation.installationId }}
-              >
-                {installation.account.login}
-              </Link>{" "}
-              ({installation.installationId})
-            </li>
-          ))}
-        </ul>
-      )}
+        <div className="row">
+          {data.installUrl ? (
+            <a className="button-link" href={data.installUrl}>
+              Install on GitHub
+            </a>
+          ) : null}
+          <Link className="button-secondary" to="/app/setup">
+            Setup guide
+          </Link>
+        </div>
+      </header>
+
+      <section className="section">
+        <h2>GitHub App installations</h2>
+        {data.installations.length === 0 ? (
+          <p className="notice">No installations found for this GitHub user.</p>
+        ) : (
+          <ul className="bulleted">
+            {data.installations.map((installation) => (
+              <li key={installation.installationId}>
+                <Link
+                  to="/app/installations/$installationId"
+                  params={{ installationId: installation.installationId }}
+                >
+                  {installation.account.login}
+                </Link>{" "}
+                <small className="text-muted">({installation.installationId})</small>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   )
 }

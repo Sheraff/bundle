@@ -12,6 +12,8 @@ import { selectOne } from "../db/select-one.js"
 import type { AppBindings } from "../env.js"
 import { requireRepositoryAdminForUser } from "../github/onboarding.js"
 
+import "./repo-shared.css"
+
 const getRepositorySettings = createServerFn({ method: "GET" })
   .inputValidator(publicRepositoryRouteParamsSchema)
   .handler(async ({ context, data }) => {
@@ -108,110 +110,118 @@ function RepositorySettingsRouteComponent() {
   const data = Route.useLoaderData()
 
   return (
-    <main>
-      <p>
-        <Link to="/app">Back to admin</Link>
-      </p>
-      <h1>
-        {data.repository.owner}/{data.repository.name}
-      </h1>
-      <p>
-        Repository enabled.{" "}
-        <Link
-          to="/r/$owner/$repo"
-          params={{ owner: data.repository.owner, repo: data.repository.name }}
-        >
-          Open public page
-        </Link>
-        .
-      </p>
-      <p>
-        <Link
-          to="/r/$owner/$repo/settings/synthetic-scenarios"
-          params={{ owner: data.repository.owner, repo: data.repository.name }}
-        >
-          Manage hosted synthetic scenarios
-        </Link>
-      </p>
-      <h2>Setup checklist</h2>
-      <ol>
-        <li>Install the Chunk Scope Vite plugin.</li>
-        <li>Add the plugin to `vite.config.ts` with a stable scenario id.</li>
-        <li>Add this workflow to collect Chunk Scope data in GitHub Actions.</li>
-      </ol>
-      <pre>{buildWorkflowSnippet(data.apiOrigin)}</pre>
-      <h2>Latest uploads</h2>
-      {data.scenarioRuns.length === 0 ? (
-        <p>No uploads yet.</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Scenario</th>
-              <th>Status</th>
-              <th>Commit</th>
-              <th>Branch</th>
-              <th>Workflow</th>
-              <th>Updated</th>
-              <th>Error</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.scenarioRuns.map((scenarioRun) => (
-              <tr key={`${scenarioRun.ciWorkflowRunId}-${scenarioRun.commitSha}`}>
-                <td>{scenarioRun.scenarioId}</td>
-                <td>{scenarioRun.status}</td>
-                <td>
-                  <code>{scenarioRun.shortCommitSha}</code>
-                </td>
-                <td>{scenarioRun.branch}</td>
-                <td>
-                  {scenarioRun.workflowUrl ? <a href={scenarioRun.workflowUrl}>workflow</a> : "-"}
-                </td>
-                <td>{scenarioRun.updatedAt}</td>
-                <td>{scenarioRun.failureCode ?? scenarioRun.failureMessage ?? "-"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-      <h2>Latest GitHub publications</h2>
-      {data.publications.length === 0 ? (
-        <p>No PR comments or checks published yet.</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Surface</th>
-              <th>Status</th>
-              <th>PR</th>
-              <th>Head</th>
-              <th>External link</th>
-              <th>Updated</th>
-              <th>Error</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.publications.map((publication) => (
-              <tr key={`${publication.surface}-${publication.prNumber ?? "none"}`}>
-                <td>{publication.surface}</td>
-                <td>{publication.status}</td>
-                <td>{publication.prNumber ? `#${publication.prNumber}` : "-"}</td>
-                <td>
-                  {publication.shortPublishedHeadSha ? (
-                    <code>{publication.shortPublishedHeadSha}</code>
-                  ) : (
-                    "-"
-                  )}
-                </td>
-                <td>{publication.externalUrl ? <a href={publication.externalUrl}>open</a> : "-"}</td>
-                <td>{publication.updatedAt}</td>
-                <td>{publication.lastErrorCode ?? publication.lastErrorMessage ?? "-"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+    <main className="page repo-page">
+      <header className="page-header">
+        <p className="breadcrumb">
+          <Link to="/app">Admin</Link>
+          <span aria-hidden="true">/</span>
+          <span>{data.repository.owner}/{data.repository.name}</span>
+        </p>
+        <h1>
+          <span data-owner>{data.repository.owner}</span>
+          <span data-sep aria-hidden="true">/</span>
+          {data.repository.name}
+        </h1>
+        <p>Repository settings, latest uploads, and publication state.</p>
+        <div className="row">
+          <Link
+            className="button-secondary"
+            to="/r/$owner/$repo"
+            params={{ owner: data.repository.owner, repo: data.repository.name }}
+          >
+            Open public page
+          </Link>
+          <Link
+            className="button-secondary"
+            to="/r/$owner/$repo/settings/synthetic-scenarios"
+            params={{ owner: data.repository.owner, repo: data.repository.name }}
+          >
+            Manage hosted synthetic scenarios
+          </Link>
+        </div>
+      </header>
+
+      <section className="section">
+        <h2>Setup checklist</h2>
+        <ol className="numbered">
+          <li>Install the Chunk Scope Vite plugin.</li>
+          <li>Add the plugin to <code>vite.config.ts</code> with a stable scenario id.</li>
+          <li>Add this workflow to collect Chunk Scope data in GitHub Actions.</li>
+        </ol>
+        <pre><code>{buildWorkflowSnippet(data.apiOrigin)}</code></pre>
+      </section>
+
+      <section className="section">
+        <h2>Latest uploads</h2>
+        {data.scenarioRuns.length === 0 ? (
+          <p className="notice">No uploads yet.</p>
+        ) : (
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>Status</th>
+                  <th>Commit</th>
+                  <th>Branch</th>
+                  <th>Workflow</th>
+                  <th>Updated</th>
+                  <th>Error</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.scenarioRuns.map((scenarioRun) => (
+                  <tr key={`${scenarioRun.ciWorkflowRunId}-${scenarioRun.commitSha}`}>
+                    <td>{scenarioRun.scenarioId}</td>
+                    <td>{scenarioRun.status}</td>
+                    <td><code>{scenarioRun.shortCommitSha}</code></td>
+                    <td>{scenarioRun.branch}</td>
+                    <td>{scenarioRun.workflowUrl ? <a href={scenarioRun.workflowUrl}>workflow</a> : <span className="text-muted">—</span>}</td>
+                    <td className="num">{scenarioRun.updatedAt}</td>
+                    <td className="text-muted">{scenarioRun.failureCode ?? scenarioRun.failureMessage ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="section">
+        <h2>Latest GitHub publications</h2>
+        {data.publications.length === 0 ? (
+          <p className="notice">No PR comments or checks published yet.</p>
+        ) : (
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Surface</th>
+                  <th>Status</th>
+                  <th>PR</th>
+                  <th>Head</th>
+                  <th>Link</th>
+                  <th>Updated</th>
+                  <th>Error</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.publications.map((publication) => (
+                  <tr key={`${publication.surface}-${publication.prNumber ?? "none"}`}>
+                    <td>{publication.surface}</td>
+                    <td>{publication.status}</td>
+                    <td>{publication.prNumber ? `#${publication.prNumber}` : <span className="text-muted">—</span>}</td>
+                    <td>{publication.shortPublishedHeadSha ? <code>{publication.shortPublishedHeadSha}</code> : <span className="text-muted">—</span>}</td>
+                    <td>{publication.externalUrl ? <a href={publication.externalUrl}>open</a> : <span className="text-muted">—</span>}</td>
+                    <td className="num">{publication.updatedAt}</td>
+                    <td className="text-muted">{publication.lastErrorCode ?? publication.lastErrorMessage ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </main>
   )
 }

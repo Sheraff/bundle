@@ -1,4 +1,5 @@
 import { formatMetricLabel, sizeMetrics, type SizeMetric } from "../lib/size-metric.js"
+import "./url-controls.css"
 
 export function LinkSelector(props: {
   label: string
@@ -10,16 +11,23 @@ export function LinkSelector(props: {
   const optionLabel = props.optionLabel ?? ((option: string) => option)
 
   return (
-    <section>
-      <h3>{props.label}</h3>
-      <p>Current: {props.current ?? "none"}</p>
+    <section className="selector">
+      <h3>
+        {props.label}
+        <small>{props.current ?? "none"}</small>
+      </h3>
       {props.options.length === 0 ? (
-        <p>No options are available yet.</p>
+        <p>No options yet</p>
       ) : (
         <ul>
           {props.options.map((option) => (
             <li key={option}>
-              <a href={searchHref(props.searchFor(option))}>{optionLabel(option)}</a>
+              <a
+                href={searchHref(props.searchFor(option))}
+                aria-current={option === props.current ? "true" : undefined}
+              >
+                {optionLabel(option)}
+              </a>
             </li>
           ))}
         </ul>
@@ -33,13 +41,20 @@ export function MetricSelector(props: {
   searchFor: (metric: SizeMetric) => Record<string, unknown>
 }) {
   return (
-    <section>
-      <h3>Metric</h3>
-      <p>Current: {formatMetricLabel(props.current)}</p>
+    <section className="selector">
+      <h3>
+        Metric
+        <small>{formatMetricLabel(props.current)}</small>
+      </h3>
       <ul>
         {sizeMetrics.map((metric) => (
           <li key={metric}>
-            <a href={searchHref(props.searchFor(metric))}>{formatMetricLabel(metric)}</a>
+            <a
+              href={searchHref(props.searchFor(metric))}
+              aria-current={metric === props.current ? "true" : undefined}
+            >
+              {formatMetricLabel(metric)}
+            </a>
           </li>
         ))}
       </ul>
@@ -53,7 +68,7 @@ export function TabSelector<TTab extends string>(props: {
   searchFor: (tab: TTab) => Record<string, unknown>
 }) {
   return (
-    <nav aria-label="Detail tabs">
+    <nav aria-label="Detail tabs" className="tabs">
       <ul>
         {props.tabs.map((tab) => (
           <li key={tab}>

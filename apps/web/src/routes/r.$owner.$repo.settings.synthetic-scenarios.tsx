@@ -4,7 +4,10 @@ import { asc, eq } from "drizzle-orm"
 import * as v from "valibot"
 
 import { getDb, schema } from "../db/index.js"
+import { StateBadge } from "../components/state-badge.js"
 import { repositoryAdminParamsSchema } from "../lib/repository-admin-schema.js"
+
+import "./repo-shared.css"
 
 const getHostedSyntheticScenarios = createServerFn({ method: "GET" })
   .inputValidator(repositoryAdminParamsSchema)
@@ -43,17 +46,73 @@ function HostedSyntheticScenarioListRoute() {
   const data = Route.useLoaderData()
 
   return (
-    <main>
-      <p><Link to="/r/$owner/$repo/settings" params={{ owner: data.repository.owner, repo: data.repository.name }}>Back to settings</Link></p>
-      <h1>Hosted Synthetic Scenarios</h1>
-      <p>Hosted definitions are stored here for CI resolution. Real measurement still happens in GitHub Actions.</p>
-      <p><Link to="/r/$owner/$repo/settings/synthetic-scenarios/new" params={{ owner: data.repository.owner, repo: data.repository.name }}>Create hosted synthetic scenario</Link></p>
-      {data.definitions.length === 0 ? <p>No hosted synthetic scenarios have been configured.</p> : (
-        <table>
-          <thead><tr><th>Scenario</th><th>Display name</th><th>Budgets</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>{data.definitions.map((definition) => <tr key={definition.id}><td>{definition.scenarioSlug}</td><td>{definition.displayName}</td><td>{formatBudgets(definition)}</td><td>{definition.archivedAt ? "archived" : definition.shadowedByRepoDefinition ? "shadowed by repo definition" : "active"}</td><td><Link to="/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit" params={{ owner: data.repository.owner, repo: data.repository.name, scenarioId: definition.id }}>Edit</Link></td></tr>)}</tbody>
-        </table>
-      )}
+    <main className="page repo-page">
+      <header className="page-header">
+        <p className="breadcrumb">
+          <Link to="/r/$owner/$repo/settings" params={{ owner: data.repository.owner, repo: data.repository.name }}>
+            Settings
+          </Link>
+          <span aria-hidden="true">/</span>
+          <span>Hosted synthetic scenarios</span>
+        </p>
+        <h1>Hosted synthetic scenarios</h1>
+        <p>Hosted definitions are stored here for CI resolution. Real measurement still happens in GitHub Actions.</p>
+        <div className="row">
+          <Link
+            className="button-link"
+            to="/r/$owner/$repo/settings/synthetic-scenarios/new"
+            params={{ owner: data.repository.owner, repo: data.repository.name }}
+          >
+            Create hosted synthetic scenario
+          </Link>
+        </div>
+      </header>
+
+      <section className="section">
+        <h2>Definitions</h2>
+        {data.definitions.length === 0 ? (
+          <p className="notice">No hosted synthetic scenarios have been configured.</p>
+        ) : (
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>Display name</th>
+                  <th>Budgets</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.definitions.map((definition) => {
+                  const status = definition.archivedAt
+                    ? "archived"
+                    : definition.shadowedByRepoDefinition
+                      ? "shadowed"
+                      : "active"
+                  return (
+                    <tr key={definition.id}>
+                      <td className="mono">{definition.scenarioSlug}</td>
+                      <td>{definition.displayName}</td>
+                      <td className="num text-secondary">{formatBudgets(definition)}</td>
+                      <td><StateBadge state={status} /></td>
+                      <td>
+                        <Link
+                          to="/r/$owner/$repo/settings/synthetic-scenarios/$scenarioId/edit"
+                          params={{ owner: data.repository.owner, repo: data.repository.name, scenarioId: definition.id }}
+                        >
+                          Edit
+                        </Link>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </main>
   )
 }

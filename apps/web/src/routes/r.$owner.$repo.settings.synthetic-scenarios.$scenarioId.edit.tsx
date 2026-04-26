@@ -10,6 +10,8 @@ import { getDb, schema } from "../db/index.js"
 import { selectOne } from "../db/select-one.js"
 import { repositoryAdminParamsSchema } from "../lib/repository-admin-schema.js"
 
+import "./repo-shared.css"
+
 const editParamsSchema = v.strictObject({
   owner: repositoryAdminParamsSchema.entries.owner,
   repo: repositoryAdminParamsSchema.entries.repo,
@@ -78,26 +80,52 @@ function EditHostedSyntheticScenarioRoute() {
   const [error, setError] = useState<string | null>(null)
 
   return (
-    <main>
-      <p><Link to="/r/$owner/$repo/settings/synthetic-scenarios" params={{ owner: data.repository.owner, repo: data.repository.name }}>Back to hosted scenarios</Link></p>
-      <h1>Edit Hosted Synthetic Scenario</h1>
-      {data.definition.archivedAt ? <p>This definition is archived. It is kept for auditability and can be edited before future reactivation work.</p> : null}
-      <HostedSyntheticForm initial={{
-        ...data.definition,
-        budgetRawBytes: data.definition.budgetRawBytes ?? undefined,
-        budgetGzipBytes: data.definition.budgetGzipBytes ?? undefined,
-        budgetBrotliBytes: data.definition.budgetBrotliBytes ?? undefined,
-      }} submitLabel="Save" onSubmit={async (input) => {
-        try {
-          setError(null)
-          await updateDefinition({ data: { params, ...input } })
-          await router.invalidate()
-        } catch (error) {
-          setError(error instanceof Error ? error.message : "Could not save hosted synthetic scenario.")
-        }
-      }} />
-      <button type="button" onClick={async () => { await archiveDefinition({ data: params }); await router.invalidate() }}>Archive</button>
-      {error ? <p>{error}</p> : null}
+    <main className="page repo-page">
+      <header className="page-header">
+        <p className="breadcrumb">
+          <Link to="/r/$owner/$repo/settings/synthetic-scenarios" params={{ owner: data.repository.owner, repo: data.repository.name }}>
+            Hosted synthetic scenarios
+          </Link>
+          <span aria-hidden="true">/</span>
+          <span>Edit</span>
+        </p>
+        <h1>{data.definition.displayName || data.definition.scenarioSlug}</h1>
+        {data.definition.archivedAt ? (
+          <p className="notice">This definition is archived. It is kept for auditability and can be edited before future reactivation work.</p>
+        ) : null}
+      </header>
+
+      <HostedSyntheticForm
+        initial={{
+          ...data.definition,
+          budgetRawBytes: data.definition.budgetRawBytes ?? undefined,
+          budgetGzipBytes: data.definition.budgetGzipBytes ?? undefined,
+          budgetBrotliBytes: data.definition.budgetBrotliBytes ?? undefined,
+        }}
+        submitLabel="Save"
+        onSubmit={async (input) => {
+          try {
+            setError(null)
+            await updateDefinition({ data: { params, ...input } })
+            await router.invalidate()
+          } catch (error) {
+            setError(error instanceof Error ? error.message : "Could not save hosted synthetic scenario.")
+          }
+        }}
+      />
+      <div className="row">
+        <button
+          className="button-secondary"
+          type="button"
+          onClick={async () => {
+            await archiveDefinition({ data: params })
+            await router.invalidate()
+          }}
+        >
+          Archive
+        </button>
+      </div>
+      {error ? <p className="text-danger">{error}</p> : null}
     </main>
   )
 }

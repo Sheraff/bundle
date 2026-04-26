@@ -1,0 +1,57 @@
+@layer components {
+  .series-detail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+
+    & > h3 {
+      color: var(--color-text-secondary);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    & > p[data-role="hint"] {
+      font-size: var(--fs-sm);
+      color: var(--color-text-secondary);
+      background: var(--color-surface-sunken);
+      border-left: 3px solid var(--color-info);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+    }
+  }
+
+  /* Diff state cells in tables — colored by [data-state] */
+  td[data-state] {
+    font-weight: var(--fw-medium);
+
+    &[data-state="added"] {
+      color: var(--diff-added);
+    }
+
+    &[data-state="removed"] {
+      color: var(--diff-removed);
+    }
+
+    &[data-state="grown"] {
+      color: var(--diff-grown);
+    }
+
+    &[data-state="shrunk"] {
+      color: var(--diff-shrunk);
+    }
+
+    &[data-state="same"],
+    &[data-state="stable"] {
+      color: var(--diff-stable);
+    }
+  }
+
+  /* Number cells in detail tables */
+  .series-detail .table-scroll table {
+    & td.num,
+    & td:has(+ td.num):nth-last-child(-n + 4) {
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}

@@ -1,0 +1,236 @@
+@layer components {
+  /* All visualizations live inside <figure> / <svg> elements. We expose
+     CSS variables and rely on the SVG inheriting them for inline `style`
+     references on individual nodes when needed. */
+
+  .trend-chart,
+  .treemap-chart,
+  .dependency-graph,
+  .waterfall-chart {
+    display: block;
+    width: 100%;
+    height: auto;
+    font-family: var(--font-sans);
+
+    /* Default axis/grid colors */
+    --axis: var(--color-border-strong);
+    --grid: color-mix(in oklch, var(--color-border) 60%, transparent);
+    --label: var(--color-text-secondary);
+  }
+
+  /* Trend chart */
+  .trend-chart {
+    & line[data-role="axis"] {
+      stroke: var(--axis);
+    }
+
+    & line[data-role="grid"] {
+      stroke: var(--grid);
+    }
+
+    & text {
+      fill: var(--label);
+      font-size: var(--fs-2xs);
+    }
+
+    & path[data-role="series"] {
+      fill: none;
+      stroke-width: 2;
+      transition: stroke-width var(--duration-fast) var(--ease-standard);
+    }
+
+    & circle[data-role="point"] {
+      fill: var(--color-bg);
+      stroke-width: 1.5;
+    }
+  }
+
+  .trend-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    color: var(--color-text-secondary);
+    font-size: var(--fs-xs);
+
+    & > span {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+
+      &::before {
+        content: "";
+        width: 0.75rem;
+        height: 0.25rem;
+        background: var(--swatch, var(--color-text-muted));
+        border-radius: var(--radius-pill);
+      }
+    }
+  }
+
+  /* Treemap */
+  .treemap-chart {
+    & rect[data-role="container"] {
+      fill: none;
+      stroke: var(--grid);
+    }
+
+    & rect[data-role="bounds"] {
+      fill: none;
+      stroke: var(--axis);
+      stroke-opacity: 0.4;
+    }
+
+    & g[data-kind] > rect[data-role="cell"] {
+      transition: fill-opacity var(--duration-fast) var(--ease-standard);
+    }
+
+    & g[data-kind="parent"] > rect[data-role="cell"] {
+      fill-opacity: 0.22;
+    }
+
+    & g[data-kind="leaf"] > rect[data-role="cell"] {
+      fill-opacity: 0.75;
+    }
+
+    & g[data-state="removed"] > rect[data-role="cell"] {
+      fill-opacity: 0.35;
+    }
+
+    & g[data-state="added"] > rect[data-role="cell"] {
+      fill-opacity: 0.65;
+      stroke: currentColor;
+      stroke-width: 1.5;
+    }
+
+    & g[data-state="moved"] > rect[data-role="cell"] {
+      stroke: var(--color-text);
+      stroke-width: 1.5;
+    }
+
+    & g[data-state="split"] > rect[data-role="cell"] {
+      stroke: var(--diff-grown);
+      stroke-width: 1.5;
+    }
+
+    & g[data-state="merged"] > rect[data-role="cell"] {
+      stroke: var(--diff-shrunk);
+      stroke-width: 1.5;
+    }
+
+    & text {
+      font-size: var(--fs-2xs);
+      font-weight: var(--fw-semibold);
+      fill: var(--color-text);
+    }
+
+    & g[data-kind="leaf"] text {
+      fill: var(--color-accent-fg);
+    }
+  }
+
+  .timeline-scrubber {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+
+    & > p {
+      font-size: var(--fs-sm);
+      color: var(--color-text-secondary);
+    }
+
+    & > div[data-role="controls"] {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    & > label {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-2);
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: var(--fs-xs);
+      color: var(--color-text-secondary);
+
+      & > input[type="range"] {
+        flex: 1;
+      }
+    }
+
+    & .timeline-minimap {
+      display: block;
+      width: 100%;
+      height: auto;
+
+      & rect {
+        cursor: pointer;
+        fill: var(--color-text-muted);
+        fill-opacity: 0.22;
+        transition: fill-opacity var(--duration-fast) var(--ease-standard);
+
+        &:hover {
+          fill-opacity: 0.45;
+        }
+
+        &[data-active="true"] {
+          fill: var(--color-accent);
+          fill-opacity: 0.85;
+        }
+      }
+    }
+
+    & button[type="button"] {
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--fs-xs);
+    }
+  }
+
+  /* Dependency graph */
+  .dependency-graph {
+    & path[data-edge] {
+      fill: none;
+      stroke: var(--color-text-muted);
+      stroke-width: 1.5;
+      transition: stroke-opacity var(--duration-fast) var(--ease-standard);
+    }
+
+    & path[data-edge="static-import"] {
+      stroke-opacity: 0.7;
+    }
+
+    & path[data-edge="dynamic-import"] {
+      stroke-opacity: 0.45;
+      stroke-dasharray: 4 3;
+    }
+
+    & circle {
+      fill: var(--color-surface);
+      stroke: var(--color-text);
+      stroke-width: 1.5;
+    }
+
+    & text {
+      fill: var(--color-text-secondary);
+      font-size: var(--fs-2xs);
+    }
+  }
+
+  /* Waterfall */
+  .waterfall-chart {
+    & rect[data-role="bar"] {
+      fill: var(--color-accent);
+      fill-opacity: 0.65;
+    }
+
+    & text {
+      font-size: var(--fs-xs);
+      fill: var(--color-text);
+    }
+
+    & text[data-role="label"] {
+      fill: var(--color-text-secondary);
+    }
+  }
+}

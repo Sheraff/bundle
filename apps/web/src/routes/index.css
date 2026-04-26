@@ -1,0 +1,113 @@
+@layer components {
+  .home {
+    max-width: 64rem;
+    display: grid;
+    gap: var(--space-7);
+
+    /* Hero — first section, no <h2> just a big <h1> */
+    & > section:first-of-type {
+      display: grid;
+      gap: var(--space-4);
+      padding-block: var(--space-7) var(--space-5);
+      border-bottom: var(--border-width) solid var(--color-border);
+
+      & h1 {
+        font-size: clamp(var(--fs-3xl), 6vw, var(--fs-4xl));
+        letter-spacing: -0.03em;
+        line-height: var(--lh-tight);
+        max-width: 18ch;
+      }
+
+      & p {
+        font-size: var(--fs-md);
+        line-height: var(--lh-normal);
+        color: var(--color-text-secondary);
+        max-width: 60ch;
+      }
+
+      & > div:last-child {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+        margin-top: var(--space-2);
+      }
+    }
+
+    /* Section headings inside the home page should look prominent (not the
+       small uppercase pattern used elsewhere) */
+    & > section > h2 {
+      font-size: var(--fs-xl);
+      color: var(--color-text);
+      text-transform: none;
+      letter-spacing: -0.01em;
+      font-weight: var(--fw-semibold);
+    }
+
+    & ol {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+      gap: var(--space-3);
+      counter-reset: steps;
+
+      & > li {
+        background: var(--color-surface);
+        border: var(--border-width) solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-4);
+        counter-increment: steps;
+        position: relative;
+        color: var(--color-text-secondary);
+        line-height: var(--lh-normal);
+
+        &::before {
+          content: counter(steps, decimal-leading-zero);
+          position: absolute;
+          top: var(--space-3);
+          right: var(--space-3);
+          font-family: var(--font-mono);
+          font-size: var(--fs-xs);
+          color: var(--color-text-muted);
+          letter-spacing: 0.05em;
+        }
+      }
+    }
+
+    & pre {
+      background: var(--color-surface);
+      border-color: var(--color-border);
+      font-size: var(--fs-sm);
+    }
+
+    /* Inspect chip cloud — flex container of <span> */
+    & section:has(> div) > div:not(:first-child) {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+
+      & > span {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.15rem var(--space-2);
+        background: var(--color-surface-sunken);
+        border: var(--border-width) solid var(--color-border);
+        border-radius: var(--radius-pill);
+        font-size: var(--fs-xs);
+        color: var(--color-text-secondary);
+      }
+    }
+
+    /* Limits callout — last section flagged with [data-tone="warning"] */
+    & > section[data-tone="warning"] {
+      background: var(--color-warning-soft);
+      border: var(--border-width) solid color-mix(in oklch, var(--color-warning) 35%, transparent);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      color: var(--color-text-secondary);
+
+      & h2 {
+        color: var(--color-text);
+        font-size: var(--fs-md);
+      }
+    }
+  }
+}

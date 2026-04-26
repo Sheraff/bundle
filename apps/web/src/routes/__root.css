@@ -1,0 +1,98 @@
+@layer components {
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    background: color-mix(in oklch, var(--color-bg) 85%, transparent);
+    backdrop-filter: blur(12px) saturate(140%);
+    border-bottom: var(--border-width) solid var(--color-border);
+
+    /* Inner wrapper handles max-width and flex layout */
+    & > div {
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
+      height: var(--header-height);
+      max-width: var(--content-max);
+      margin-inline: auto;
+      padding-inline: clamp(var(--space-3), 3vw, var(--space-6));
+    }
+
+    /* Brand link is the first <a> under inner */
+    & > div > a:first-of-type {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-weight: var(--fw-semibold);
+      color: var(--color-text);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+
+      & > span:first-child {
+        display: grid;
+        place-items: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: var(--radius-sm);
+        background: var(--color-accent);
+        color: var(--color-accent-fg);
+        font-size: var(--fs-md);
+        font-weight: var(--fw-bold);
+      }
+
+      &:hover {
+        color: var(--color-accent);
+      }
+    }
+
+    /* Primary nav links */
+    & nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+
+      & a {
+        padding: var(--space-1) var(--space-3);
+        border-radius: var(--radius-sm);
+        font-size: var(--fs-sm);
+        font-weight: var(--fw-medium);
+        color: var(--color-text-secondary);
+        text-decoration: none;
+
+        &:hover,
+        &[aria-current] {
+          color: var(--color-text);
+          background: var(--color-surface-hover);
+        }
+      }
+    }
+
+    /* Viewer area pushed to the end */
+    & [data-role="viewer"] {
+      margin-inline-start: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--fs-sm);
+      color: var(--color-text-secondary);
+
+      & strong {
+        color: var(--color-text);
+        font-weight: var(--fw-semibold);
+      }
+    }
+
+    @media (max-width: 40rem) {
+      & > div {
+        flex-wrap: wrap;
+        height: auto;
+        padding-block: var(--space-2);
+        gap: var(--space-3);
+      }
+
+      & [data-role="viewer"] :where(span) {
+        display: none;
+      }
+    }
+  }
+}

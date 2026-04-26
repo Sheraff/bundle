@@ -15,6 +15,7 @@ import { useState } from "react"
 import * as v from "valibot"
 
 import { SelectedSeriesDetailView } from "../components/selected-series-detail.js"
+import { StateBadge } from "../components/state-badge.js"
 import { MetricSelector, TabSelector } from "../components/url-controls.js"
 import {
   AcknowledgementAuthorizationError,
@@ -31,11 +32,14 @@ import { formatBytes, shortSha } from "../lib/formatting.js"
 import {
   describeNeutralDelta,
   describeReviewedDelta,
-  describeReviewedSeriesState,
   describeScenarioReviewState,
   describeStatusScenarioDetail,
   formatSeriesLabel,
 } from "../lib/public-route-presentation.js"
+
+import "./repo-shared.css"
+import "./r.$owner.$repo.compare.css"
+import "../components/compare-form.css"
 
 const compareTabs = ["summary", "treemap", "graph", "waterfall", "assets", "packages", "budget", "identity"] as const
 
@@ -143,9 +147,11 @@ function ComparePageRouteComponent() {
   const rows = data.mode === "pr" ? data.reviewedRows : data.neutralRows
 
   return (
-    <main>
-      <header>
-        <p>
+    <main className="page repo-page">
+      <header className="page-header">
+        <p className="breadcrumb">
+          <Link to="/">Home</Link>
+          <span aria-hidden="true">/</span>
           <Link
             from={Route.fullPath}
             to="/r/$owner/$repo"
@@ -157,83 +163,90 @@ function ComparePageRouteComponent() {
           >
             {data.repository.owner}/{data.repository.name}
           </Link>
+          <span aria-hidden="true">/</span>
+          <span>{data.mode === "pr" ? "PR Compare" : "Compare"}</span>
         </p>
-        <h1>{data.mode === "pr" ? "PR Compare" : "Compare"}</h1>
-        <p>
-          Base {shortSha(search.base)} to head {shortSha(search.head)}
-          {search.pr ? ` for PR #${search.pr}` : ""}
-        </p>
+        <h1>
+          <span className="mono">{shortSha(search.base)}</span>
+          <span data-sep aria-hidden="true">→</span>
+          <span className="mono">{shortSha(search.head)}</span>
+          {search.pr ? <span data-owner> · PR #{search.pr}</span> : null}
+        </h1>
       </header>
 
       <CompareBuilder />
 
-      <section>
+      <section className="section">
         <h2>Context</h2>
-        <p>Requested scenario: {search.scenario ?? "all"}</p>
-        <p>Requested environment: {search.env ?? "all"}</p>
-        <p>Requested entrypoint: {search.entrypoint ?? "all"}</p>
-        <p>Requested lens: {search.lens ?? "table mode"}</p>
-        <p>Requested metric: {data.metric}</p>
-        <p>Requested tab: {tab}</p>
-        <p>Stored compare context matched: {data.contextMatched ? "yes" : "no"}</p>
+        <dl className="context-summary">
+          <div><dt>Scenario</dt><dd>{search.scenario ?? "all"}</dd></div>
+          <div><dt>Environment</dt><dd>{search.env ?? "all"}</dd></div>
+          <div><dt>Entrypoint</dt><dd>{search.entrypoint ?? "all"}</dd></div>
+          <div><dt>Lens</dt><dd>{search.lens ?? "—"}</dd></div>
+          <div><dt>Metric</dt><dd>{data.metric}</dd></div>
+          <div><dt>Tab</dt><dd>{tab}</dd></div>
+          <div><dt>Stored ctx</dt><dd>{data.contextMatched ? "matched" : "fallback"}</dd></div>
+        </dl>
       </section>
 
-      <section>
-        <h2>Series Selectors</h2>
-        <CompareFilterLinks rows={rows} />
-        <MetricSelector current={data.metric} searchFor={(metric) => compareSearch(search, { metric })} />
+      <section className="section">
+        <h2>Series filters</h2>
+        <div className="filters-bar">
+          <CompareFilterLinks rows={rows} />
+          <MetricSelector current={data.metric} searchFor={(metric) => compareSearch(search, { metric })} />
+        </div>
       </section>
 
-      <section>
-        <h2>Status Block</h2>
+      <section className="section">
+        <h2>Status block</h2>
         {data.statusScenarios.length === 0 ? (
-          <p>
-            No inherited, missing, or failed scenario states are attached to this compare context.
-          </p>
+          <p className="notice">No inherited, missing, or failed scenario states are attached to this compare context.</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Scenario</th>
-                <th>State</th>
-                <th>Detail</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.statusScenarios.map((scenario) => (
-                <tr key={`${scenario.state}:${scenario.scenarioId}`}>
-                  <td>{scenario.scenarioSlug}</td>
-                  <td>{scenario.state}</td>
-                  <td>{describeStatusScenarioDetail(scenario)}</td>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>State</th>
+                  <th>Detail</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {data.statusScenarios.map((scenario) => (
+                  <tr key={`${scenario.state}:${scenario.scenarioId}`}>
+                    <td>{scenario.scenarioSlug}</td>
+                    <td><StateBadge state={scenario.state} /></td>
+                    <td className="text-muted">{describeStatusScenarioDetail(scenario)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 
-      <section>
-        <h2>Series Table</h2>
+      <section className="section">
+        <h2>Series table</h2>
         {data.mode === "pr" ? <ReviewedRowsTable /> : <NeutralRowsTable />}
       </section>
 
-      <section>
-        <h2>Selected Series Detail</h2>
+      <section className="section">
+        <h2>Selected series detail</h2>
         {data.mode === "pr" ? (
           data.selectedReviewedRow ? (
             <ReviewedRowDetail />
           ) : (
-            <p>Select `scenario + env + entrypoint + lens` to unlock the detail outline.</p>
+            <p className="notice">Select <code>scenario + env + entrypoint + lens</code> to unlock the detail outline.</p>
           )
         ) : data.selectedNeutralRow ? (
           <NeutralRowDetail />
         ) : (
-          <p>Select `scenario + env + entrypoint + lens` to unlock the detail outline.</p>
+          <p className="notice">Select <code>scenario + env + entrypoint + lens</code> to unlock the detail outline.</p>
         )}
       </section>
 
-      <section>
-        <h2>Detail Tabs</h2>
+      <section className="section">
+        <h2>Detail tabs</h2>
         <TabSelector current={tab} tabs={compareTabs} searchFor={(nextTab) => compareSearch(search, { tab: nextTab })} />
         <SelectedSeriesDetailView
           detail={tab === "summary" ? null : data.selectedDetail}
@@ -255,12 +268,16 @@ function CompareBuilder() {
   const options = data.commitOptions
 
   return (
-    <section>
-      <h2>Compare Builder</h2>
+    <section className="section">
+      <h2>Compare builder</h2>
       {options.length < 2 ? (
-        <p>At least two known commit groups are needed to build an arbitrary comparison.</p>
+        <p className="notice">At least two known commit groups are needed to build an arbitrary comparison.</p>
       ) : (
-        <form action={`/r/${data.repository.owner}/${data.repository.name}/compare`} method="get">
+        <form
+          className="compare-form"
+          action={`/r/${data.repository.owner}/${data.repository.name}/compare`}
+          method="get"
+        >
           <label>
             Base
             <select name="base" defaultValue={quoteSearchString(search.base)}>
@@ -297,26 +314,52 @@ function CompareFilterLinks(props: {
 
   return (
     <>
-      <FilterGroup label="Scenario" values={scenarios} searchFor={(scenario) => compareSearch(search, { scenario })} />
-      <FilterGroup label="Environment" values={environments} searchFor={(env) => compareSearch(search, { env })} />
-      <FilterGroup label="Entrypoint" values={entrypoints} searchFor={(entrypoint) => compareSearch(search, { entrypoint })} />
-      <FilterGroup label="Lens" values={lenses} searchFor={(lens) => compareSearch(search, { lens })} />
+      <FilterGroup label="Scenario" current={search.scenario ?? null} values={scenarios} searchFor={(scenario) => compareSearch(search, { scenario })} />
+      <FilterGroup label="Environment" current={search.env ?? null} values={environments} searchFor={(env) => compareSearch(search, { env })} />
+      <FilterGroup label="Entrypoint" current={search.entrypoint ?? null} values={entrypoints} searchFor={(entrypoint) => compareSearch(search, { entrypoint })} />
+      <FilterGroup label="Lens" current={search.lens ?? null} values={lenses} searchFor={(lens) => compareSearch(search, { lens })} />
     </>
   )
 }
 
 function FilterGroup(props: {
   label: string
+  current: string | null
   values: string[]
   searchFor: (value: string | undefined) => Record<string, unknown>
 }) {
   return (
-    <section>
-      <h3>{props.label}</h3>
-      {props.values.length === 0 ? <p>No options are available for the current compare.</p> : (
+    <section className="selector">
+      <h3>
+        {props.label}
+        <small>{props.current ?? "all"}</small>
+      </h3>
+      {props.values.length === 0 ? (
+        <p>No options available.</p>
+      ) : (
         <ul>
-          <li><Link from={Route.fullPath} to="/r/$owner/$repo/compare" search={props.searchFor(undefined) as never}>all</Link></li>
-          {props.values.map((value) => <li key={value}><Link from={Route.fullPath} to="/r/$owner/$repo/compare" search={props.searchFor(value) as never}>{value}</Link></li>)}
+          <li>
+            <Link
+              from={Route.fullPath}
+              to="/r/$owner/$repo/compare"
+              search={props.searchFor(undefined) as never}
+              aria-current={props.current === null ? "true" : undefined}
+            >
+              all
+            </Link>
+          </li>
+          {props.values.map((value) => (
+            <li key={value}>
+              <Link
+                from={Route.fullPath}
+                to="/r/$owner/$repo/compare"
+                search={props.searchFor(value) as never}
+                aria-current={value === props.current ? "true" : undefined}
+              >
+                {value}
+              </Link>
+            </li>
+          ))}
         </ul>
       )}
     </section>
@@ -357,55 +400,126 @@ function NeutralRowsTable() {
   const data = Route.useLoaderData()
   const search = Route.useSearch()
   return data.neutralRows.length === 0 ? (
-    <p>No neutral comparison rows matched the selected base/head and series filters.</p>
+    <p className="notice">No neutral comparison rows matched the selected base/head and series filters.</p>
   ) : (
-    <table>
-      <thead>
-        <tr>
-          <th>Scenario</th>
-          <th>Series</th>
-          <th>Status</th>
-          <th>Delta</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.neutralRows.map((row) => (
-          <tr key={row.series.seriesId}>
-            <td>{row.scenarioSlug}</td>
-            <td>{formatSeriesLabel(row.series)}</td>
-            <td>{row.series.status}</td>
-            <td>{describeNeutralDelta(row.series, row.primaryItem)}</td>
-            <td>
-              <Link
-                to="/r/$owner/$repo/scenarios/$scenario"
-                params={{
-                  owner: data.repository.owner,
-                  repo: data.repository.name,
-                  scenario: row.scenarioSlug,
-                }}
-                search={{
-                  branch: data.latestSummary?.branch,
-                  env: row.series.environment,
-                  entrypoint: row.series.entrypoint,
-                  lens: row.series.lens,
-                  metric: data.metric,
-                }}
-              >
-                Scenario
-              </Link>
-              {row.series.selectedBaseCommitSha ? (
-                <>
-                  {" "}
+    <div className="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Series</th>
+            <th>Status</th>
+            <th>Delta</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.neutralRows.map((row) => (
+            <tr key={row.series.seriesId}>
+              <td>{row.scenarioSlug}</td>
+              <td>{formatSeriesLabel(row.series)}</td>
+              <td><StateBadge state={row.series.status} /></td>
+              <td className="num mono">{describeNeutralDelta(row.series, row.primaryItem)}</td>
+              <td>
+                <span className="row-actions">
                   <Link
-                    to="/r/$owner/$repo/compare"
+                    to="/r/$owner/$repo/scenarios/$scenario"
                     params={{
                       owner: data.repository.owner,
                       repo: data.repository.name,
+                      scenario: row.scenarioSlug,
                     }}
                     search={{
-                      base: row.series.selectedBaseCommitSha,
-                      head: row.series.selectedHeadCommitSha,
+                      branch: data.latestSummary?.branch,
+                      env: row.series.environment,
+                      entrypoint: row.series.entrypoint,
+                      lens: row.series.lens,
+                      metric: data.metric,
+                    }}
+                  >
+                    Scenario
+                  </Link>
+                  {row.series.selectedBaseCommitSha ? (
+                    <Link
+                      to="/r/$owner/$repo/compare"
+                      params={{
+                        owner: data.repository.owner,
+                        repo: data.repository.name,
+                      }}
+                      search={{
+                        base: row.series.selectedBaseCommitSha,
+                        head: row.series.selectedHeadCommitSha,
+                        scenario: row.scenarioSlug,
+                        env: row.series.environment,
+                        entrypoint: row.series.entrypoint,
+                        lens: row.series.lens,
+                        tab: search.tab,
+                        metric: data.metric,
+                      }}
+                    >
+                      Focus
+                    </Link>
+                  ) : null}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function ReviewedRowsTable() {
+  const data = Route.useLoaderData()
+  const search = Route.useSearch()
+  return data.reviewedRows.length === 0 ? (
+    <p className="notice">No PR comparison rows matched the selected series filters.</p>
+  ) : (
+    <div className="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Series</th>
+            <th>Review state</th>
+            <th>Delta</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.reviewedRows.map((row) => (
+            <tr key={row.series.seriesId}>
+              <td>{row.scenarioSlug}</td>
+              <td>{formatSeriesLabel(row.series)}</td>
+              <td><StateBadge state={row.series.reviewState} /></td>
+              <td className="num mono">{describeReviewedDelta(row.series, row.primaryItem)}</td>
+              <td>
+                <span className="row-actions">
+                  <Link
+                    to="/r/$owner/$repo/scenarios/$scenario"
+                    params={{
+                      owner: data.repository.owner,
+                      repo: data.repository.name,
+                      scenario: row.scenarioSlug,
+                    }}
+                    search={{
+                      branch: data.latestReviewSummary?.branch,
+                      env: row.series.environment,
+                      entrypoint: row.series.entrypoint,
+                      lens: row.series.lens,
+                      metric: data.metric,
+                    }}
+                  >
+                    Scenario
+                  </Link>
+                  <Link
+                    from={Route.fullPath}
+                    to="/r/$owner/$repo/compare"
+                    search={{
+                      base: search.base,
+                      head: search.head,
+                      pr: search.pr,
                       scenario: row.scenarioSlug,
                       env: row.series.environment,
                       entrypoint: row.series.entrypoint,
@@ -416,79 +530,13 @@ function NeutralRowsTable() {
                   >
                     Focus
                   </Link>
-                </>
-              ) : null}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-}
-
-function ReviewedRowsTable() {
-  const data = Route.useLoaderData()
-  const search = Route.useSearch()
-  return data.reviewedRows.length === 0 ? (
-    <p>No PR comparison rows matched the selected series filters.</p>
-  ) : (
-    <table>
-      <thead>
-        <tr>
-          <th>Scenario</th>
-          <th>Series</th>
-          <th>Review State</th>
-          <th>Delta</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.reviewedRows.map((row) => (
-          <tr key={row.series.seriesId}>
-            <td>{row.scenarioSlug}</td>
-            <td>{formatSeriesLabel(row.series)}</td>
-            <td>{describeReviewedSeriesState(row.series)}</td>
-            <td>{describeReviewedDelta(row.series, row.primaryItem)}</td>
-            <td>
-              <Link
-                to="/r/$owner/$repo/scenarios/$scenario"
-                params={{
-                  owner: data.repository.owner,
-                  repo: data.repository.name,
-                  scenario: row.scenarioSlug,
-                }}
-                search={{
-                  branch: data.latestReviewSummary?.branch,
-                  env: row.series.environment,
-                  entrypoint: row.series.entrypoint,
-                  lens: row.series.lens,
-                  metric: data.metric,
-                }}
-              >
-                Scenario
-              </Link>{" "}
-              <Link
-                from={Route.fullPath}
-                to="/r/$owner/$repo/compare"
-                search={{
-                  base: search.base,
-                  head: search.head,
-                  pr: search.pr,
-                  scenario: row.scenarioSlug,
-                  env: row.series.environment,
-                  entrypoint: row.series.entrypoint,
-                  lens: row.series.lens,
-                  tab: search.tab,
-                  metric: data.metric,
-                }}
-              >
-                Focus
-              </Link>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 
@@ -496,14 +544,14 @@ function NeutralRowDetail() {
   const row = Route.useLoaderData().selectedNeutralRow!
 
   return (
-    <>
-      <p>Scenario: {row.scenarioSlug}</p>
-      <p>Series: {formatSeriesLabel(row.series)}</p>
-      <p>Status: {row.series.status}</p>
-      <p>{describeNeutralDelta(row.series, row.primaryItem, { detailed: true })}</p>
-      <p>Selected entrypoint relation: {row.series.selectedEntrypointRelation ?? "unknown"}</p>
-      <p>Degraded stable identity: {row.series.hasDegradedStableIdentity ? "yes" : "no"}</p>
-    </>
+    <dl className="context-summary">
+      <div><dt>Scenario</dt><dd>{row.scenarioSlug}</dd></div>
+      <div><dt>Series</dt><dd>{formatSeriesLabel(row.series)}</dd></div>
+      <div><dt>Status</dt><dd><StateBadge state={row.series.status} /></dd></div>
+      <div><dt>Delta</dt><dd>{describeNeutralDelta(row.series, row.primaryItem, { detailed: true })}</dd></div>
+      <div><dt>Entrypoint relation</dt><dd>{row.series.selectedEntrypointRelation ?? "unknown"}</dd></div>
+      <div><dt>Stable identity</dt><dd>{row.series.hasDegradedStableIdentity ? "degraded" : "ok"}</dd></div>
+    </dl>
   )
 }
 
@@ -513,23 +561,31 @@ function ReviewedRowDetail() {
 
   return (
     <>
-      <p>Scenario: {row.scenarioSlug}</p>
-      <p>Series: {formatSeriesLabel(row.series)}</p>
-      <p>Scenario review state: {describeScenarioReviewState(row.scenarioReviewState)}</p>
-      <p>Series review state: {describeReviewedSeriesState(row.series)}</p>
-      <p>{describeReviewedDelta(row.series, row.primaryItem)}</p>
-      <p>Acknowledged items on this scenario: {row.acknowledgedItemCount}</p>
+      <dl className="context-summary">
+        <div><dt>Scenario</dt><dd>{row.scenarioSlug}</dd></div>
+        <div><dt>Series</dt><dd>{formatSeriesLabel(row.series)}</dd></div>
+        <div><dt>Scenario review</dt><dd>{describeScenarioReviewState(row.scenarioReviewState)}</dd></div>
+        <div><dt>Series review</dt><dd><StateBadge state={row.series.reviewState} /></dd></div>
+        <div><dt>Delta</dt><dd>{describeReviewedDelta(row.series, row.primaryItem)}</dd></div>
+        <div><dt>Acknowledged items</dt><dd>{row.acknowledgedItemCount}</dd></div>
+      </dl>
       {row.series.status === "materialized" ? (
-        <ul>
+        <ul className="item-list">
           {row.series.items.map((item) => (
             <li key={item.itemKey}>
               <p>
-                {item.metricKey}: {formatBytes(item.currentValue)} vs{" "}
+                {item.metricKey}: {formatBytes(item.currentValue)}
+                <span className="text-muted"> vs </span>
                 {formatBytes(item.baselineValue)}
               </p>
-              <p>Review state: {item.reviewState}</p>
+              <p>
+                Review state: <StateBadge state={item.reviewState} />
+              </p>
               {item.acknowledged ? (
-                <p>Acknowledged{item.note ? `: ${item.note}` : ""}</p>
+                <p>
+                  <StateBadge state="acknowledged" />
+                  {item.note ? <span className="text-secondary"> {item.note}</span> : null}
+                </p>
               ) : item.reviewState === "blocking" || item.reviewState === "regression" ? (
                 <AcknowledgeComparisonItemForm itemKey={item.itemKey} row={row} />
               ) : null}
@@ -561,6 +617,7 @@ function AcknowledgeComparisonItemForm({
 
   return (
     <form
+      className="ack-form"
       onSubmit={async (event) => {
         event.preventDefault()
         setError(null)
@@ -595,12 +652,14 @@ function AcknowledgeComparisonItemForm({
           maxLength={4000}
           onChange={(event) => setNote(event.currentTarget.value)}
           value={note}
+          placeholder="Why is this regression acceptable?"
         />
       </label>
       <button disabled={pending} type="submit">
-        Acknowledge regression
+        {pending ? "Acknowledging…" : "Acknowledge regression"}
       </button>
       {error ? <p>{error}</p> : null}
     </form>
   )
 }
+

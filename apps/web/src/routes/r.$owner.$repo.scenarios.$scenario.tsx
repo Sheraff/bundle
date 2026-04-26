@@ -19,6 +19,8 @@ import {
 } from "../lib/public-route-presentation.js"
 import { metricPointValue, type SizeMetric } from "../lib/size-metric.js"
 
+import "./repo-shared.css"
+
 const scenarioTabs = ["history", "treemap", "graph", "waterfall", "assets", "packages", "budget"] as const
 
 const scenarioPageSearchSchema = v.strictObject({
@@ -74,9 +76,11 @@ function ScenarioPageRouteComponent() {
     : "history"
 
   return (
-    <main>
-      <header>
-        <p>
+    <main className="page repo-page">
+      <header className="page-header">
+        <p className="breadcrumb">
+          <Link to="/">Home</Link>
+          <span aria-hidden="true">/</span>
           <Link
             to="/r/$owner/$repo"
             from={Route.fullPath}
@@ -88,101 +92,123 @@ function ScenarioPageRouteComponent() {
           >
             {data.repository.owner}/{data.repository.name}
           </Link>
+          <span aria-hidden="true">/</span>
+          <span>Scenario</span>
         </p>
         <h1>{data.scenario.slug}</h1>
-        <p>Scenario public page.</p>
+        <p>Scenario detail with history, comparisons, and visualizations.</p>
       </header>
 
-      <section>
+      <section className="section">
         <h2>Filters</h2>
-        <LinkSelector label="Branch" current={data.branch} options={data.branchOptions} searchFor={(branch) => scenarioSearch(data, { branch, tab })} />
-        <LinkSelector label="Environment" current={data.env} options={["all", ...data.environmentOptions]} searchFor={(env) => scenarioSearch(data, { env, entrypoint: "all", tab })} />
-        <LinkSelector label="Entrypoint" current={data.entrypoint} options={["all", ...data.entrypointOptions]} searchFor={(entrypoint) => scenarioSearch(data, { entrypoint, tab })} />
-        <LinkSelector label="Lens" current={data.lens} options={data.lensOptions} searchFor={(lens) => scenarioSearch(data, { lens, tab })} />
-        <MetricSelector current={data.metric} searchFor={(metric) => scenarioSearch(data, { metric, tab })} />
+        <div className="filters-bar">
+          <LinkSelector label="Branch" current={data.branch} options={data.branchOptions} searchFor={(branch) => scenarioSearch(data, { branch, tab })} />
+          <LinkSelector label="Environment" current={data.env} options={["all", ...data.environmentOptions]} searchFor={(env) => scenarioSearch(data, { env, entrypoint: "all", tab })} />
+          <LinkSelector label="Entrypoint" current={data.entrypoint} options={["all", ...data.entrypointOptions]} searchFor={(entrypoint) => scenarioSearch(data, { entrypoint, tab })} />
+          <LinkSelector label="Lens" current={data.lens} options={data.lensOptions} searchFor={(lens) => scenarioSearch(data, { lens, tab })} />
+          <MetricSelector current={data.metric} searchFor={(metric) => scenarioSearch(data, { metric, tab })} />
+        </div>
       </section>
 
-      <section>
-        <h2>Latest Status</h2>
-        {data.latestFreshScenario ? (
-          <>
-            <p>Active run: {shortSha(data.latestFreshScenario.activeCommitSha)}</p>
-            <p>Uploaded at: {data.latestFreshScenario.activeUploadedAt}</p>
-            <p>Processed runs: {data.latestFreshScenario.processedRunCount}</p>
-            <p>Failed runs: {data.latestFreshScenario.failedRunCount}</p>
-            <p>Newer failed rerun: {data.latestFreshScenario.hasNewerFailedRun ? "yes" : "no"}</p>
-          </>
-        ) : data.latestStatusScenario ? (
-          <>
-            <p>State: {data.latestStatusScenario.state}</p>
-            <p>{describeStatusScenarioDetail(data.latestStatusScenario)}</p>
-          </>
-        ) : (
-          <p>No branch summary is available for this scenario yet.</p>
-        )}
-      </section>
+      <div className="card-grid">
+        <section className="section">
+          <h2>Latest status</h2>
+          {data.latestFreshScenario ? (
+            <dl className="definition">
+              <dt>Active run</dt>
+              <dd className="mono">{shortSha(data.latestFreshScenario.activeCommitSha)}</dd>
+              <dt>Uploaded at</dt>
+              <dd>{data.latestFreshScenario.activeUploadedAt}</dd>
+              <dt>Processed runs</dt>
+              <dd>{data.latestFreshScenario.processedRunCount}</dd>
+              <dt>Failed runs</dt>
+              <dd>{data.latestFreshScenario.failedRunCount}</dd>
+              <dt>Newer failed rerun</dt>
+              <dd>{data.latestFreshScenario.hasNewerFailedRun ? "yes" : "no"}</dd>
+            </dl>
+          ) : data.latestStatusScenario ? (
+            <dl className="definition">
+              <dt>State</dt>
+              <dd>{data.latestStatusScenario.state}</dd>
+              <dt>Detail</dt>
+              <dd>{describeStatusScenarioDetail(data.latestStatusScenario)}</dd>
+            </dl>
+          ) : (
+            <p className="notice">No branch summary is available for this scenario yet.</p>
+          )}
+        </section>
 
-      <section>
-        <h2>Compare Shortcut</h2>
-        {data.compareShortcut ? (
-          <Link
-            from={Route.fullPath}
-            to="/r/$owner/$repo/compare"
-            search={{
-              base: data.compareShortcut.base,
-              head: data.compareShortcut.head,
-              scenario: data.compareShortcut.scenario,
-              env: data.compareShortcut.env,
-              entrypoint: data.compareShortcut.entrypoint,
-              lens: data.compareShortcut.lens,
-              metric: data.metric,
-            }}
-          >
-            Open latest compare
-          </Link>
-        ) : (
-          <p>No baseline-backed compare shortcut is available for this scenario yet.</p>
-        )}
-      </section>
+        <section className="section">
+          <h2>Compare shortcut</h2>
+          {data.compareShortcut ? (
+            <p>
+              <Link
+                className="button-secondary"
+                from={Route.fullPath}
+                to="/r/$owner/$repo/compare"
+                search={{
+                  base: data.compareShortcut.base,
+                  head: data.compareShortcut.head,
+                  scenario: data.compareShortcut.scenario,
+                  env: data.compareShortcut.env,
+                  entrypoint: data.compareShortcut.entrypoint,
+                  lens: data.compareShortcut.lens,
+                  metric: data.metric,
+                }}
+              >
+                Open latest compare
+              </Link>
+            </p>
+          ) : (
+            <p className="notice">No baseline-backed compare shortcut is available for this scenario yet.</p>
+          )}
+        </section>
+      </div>
 
-      <section>
+      <section className="section">
         <h2>History</h2>
         {data.history.length === 0 ? (
-          <p>No history points match the selected scenario filters yet.</p>
+          <p className="notice">No history points match the selected scenario filters yet.</p>
         ) : (
-          <>
-            <TrendChart series={buildScenarioChartSeries(data.history, data.metric)} />
+          <div className="viz-block">
+            <div data-role="chart">
+              <TrendChart series={buildScenarioChartSeries(data.history, data.metric)} />
+            </div>
             {data.history.map((series) => <ScenarioHistoryTable key={series.seriesId} data={data} series={series} />)}
-          </>
+          </div>
         )}
       </section>
 
-      <section>
-        <h2>Selected Series</h2>
+      <section className="section">
+        <h2>Selected series</h2>
         {data.selectedSeries ? (
-          <>
-            <p>{formatSeriesLabel(data.selectedSeries.series)}</p>
-            <p>
-              {describeNeutralDelta(data.selectedSeries.series, data.selectedSeries.primaryItem, {
-                detailed: true,
-                noBaselineText: "No baseline is available for this series yet.",
-                failedPrefix: "Comparison failed",
-                unchangedPrefix: "Brotli total unchanged at",
-              })}
-            </p>
-          </>
+          <dl className="context-summary">
+            <div><dt>Series</dt><dd>{formatSeriesLabel(data.selectedSeries.series)}</dd></div>
+            <div>
+              <dt>Delta</dt>
+              <dd>
+                {describeNeutralDelta(data.selectedSeries.series, data.selectedSeries.primaryItem, {
+                  detailed: true,
+                  noBaselineText: "No baseline is available for this series yet.",
+                  failedPrefix: "Comparison failed",
+                  unchangedPrefix: "Brotli total unchanged at",
+                })}
+              </dd>
+            </div>
+          </dl>
         ) : data.selectedHistorySeries ? (
-          <>
-            <p>{formatSeriesLabel(data.selectedHistorySeries)}</p>
-            <p>
-              Latest history point: {shortSha(data.selectedHistoryPoint?.commitSha ?? "")} at {data.selectedHistoryPoint?.measuredAt}.
-            </p>
-          </>
+          <dl className="context-summary">
+            <div><dt>Series</dt><dd>{formatSeriesLabel(data.selectedHistorySeries)}</dd></div>
+            <div>
+              <dt>Latest point</dt>
+              <dd className="mono">{shortSha(data.selectedHistoryPoint?.commitSha ?? "")} at {data.selectedHistoryPoint?.measuredAt}</dd>
+            </div>
+          </dl>
         ) : (
           <>
-            <p>Select a full series context (`env + entrypoint + lens`) to unlock the detail area.</p>
+            <p className="notice">Select a full series context (<code>env + entrypoint + lens</code>) to unlock the detail area.</p>
             {data.history.length > 0 ? (
-              <ul>
+              <ul className="row-actions">
                 {data.history.map((series) => (
                   <li key={`detail:${series.seriesId}`}>
                     <Link
@@ -205,8 +231,8 @@ function ScenarioPageRouteComponent() {
         )}
       </section>
 
-      <section>
-        <h2>Detail Tabs</h2>
+      <section className="section">
+        <h2>Detail tabs</h2>
         <TabSelector current={tab} tabs={scenarioTabs} searchFor={(nextTab) => scenarioSearch(data, { tab: nextTab })} />
         <SelectedSeriesDetailView
           detail={tab === "history" ? null : data.selectedDetail}
@@ -251,68 +277,72 @@ function scenarioSearch(
 
 function ScenarioHistoryTable(props: { data: ScenarioPageData; series: ScenarioHistorySeries }) {
   return (
-    <article>
-      <h3>{formatSeriesLabel(props.series)}</h3>
-      <p>
-        <Link
-          from={Route.fullPath}
-          to="/r/$owner/$repo/scenarios/$scenario"
-          search={scenarioSearch(props.data, {
-            env: props.series.environment,
-            entrypoint: props.series.entrypoint,
-            lens: props.series.lens,
-            tab: "treemap",
-          })}
-        >
-          Treemap
-        </Link>{" "}
-        <Link
-          from={Route.fullPath}
-          to="/r/$owner/$repo/scenarios/$scenario"
-          search={scenarioSearch(props.data, {
-            env: props.series.environment,
-            entrypoint: props.series.entrypoint,
-            lens: props.series.lens,
-            tab: "graph",
-          })}
-        >
-          Graph
-        </Link>{" "}
-        <Link
-          from={Route.fullPath}
-          to="/r/$owner/$repo/scenarios/$scenario"
-          search={scenarioSearch(props.data, {
-            env: props.series.environment,
-            entrypoint: props.series.entrypoint,
-            lens: props.series.lens,
-            tab: "waterfall",
-          })}
-        >
-          Waterfall
-        </Link>
-      </p>
-      <table>
-        <thead>
-          <tr>
-            <th>Commit</th>
-            <th>Measured At</th>
-            <th>Raw</th>
-            <th>Gzip</th>
-            <th>Brotli</th>
-          </tr>
-        </thead>
-        <tbody>
-          {props.series.points.map((point: ScenarioHistorySeries["points"][number]) => (
-            <tr key={`${props.series.seriesId}:${point.commitSha}:${point.measuredAt}`}>
-              <td>{shortSha(point.commitSha)}</td>
-              <td>{point.measuredAt}</td>
-              <td>{formatBytes(point.totalRawBytes)}</td>
-              <td>{formatBytes(point.totalGzipBytes)}</td>
-              <td>{formatBytes(point.totalBrotliBytes)}</td>
+    <article className="card">
+      <header className="row">
+        <h3>{formatSeriesLabel(props.series)}</h3>
+        <span className="row-actions">
+          <Link
+            from={Route.fullPath}
+            to="/r/$owner/$repo/scenarios/$scenario"
+            search={scenarioSearch(props.data, {
+              env: props.series.environment,
+              entrypoint: props.series.entrypoint,
+              lens: props.series.lens,
+              tab: "treemap",
+            })}
+          >
+            Treemap
+          </Link>
+          <Link
+            from={Route.fullPath}
+            to="/r/$owner/$repo/scenarios/$scenario"
+            search={scenarioSearch(props.data, {
+              env: props.series.environment,
+              entrypoint: props.series.entrypoint,
+              lens: props.series.lens,
+              tab: "graph",
+            })}
+          >
+            Graph
+          </Link>
+          <Link
+            from={Route.fullPath}
+            to="/r/$owner/$repo/scenarios/$scenario"
+            search={scenarioSearch(props.data, {
+              env: props.series.environment,
+              entrypoint: props.series.entrypoint,
+              lens: props.series.lens,
+              tab: "waterfall",
+            })}
+          >
+            Waterfall
+          </Link>
+        </span>
+      </header>
+      <div className="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Commit</th>
+              <th>Measured at</th>
+              <th>Raw</th>
+              <th>Gzip</th>
+              <th>Brotli</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {props.series.points.map((point: ScenarioHistorySeries["points"][number]) => (
+              <tr key={`${props.series.seriesId}:${point.commitSha}:${point.measuredAt}`}>
+                <td className="mono">{shortSha(point.commitSha)}</td>
+                <td className="num">{point.measuredAt}</td>
+                <td className="num">{formatBytes(point.totalRawBytes)}</td>
+                <td className="num">{formatBytes(point.totalGzipBytes)}</td>
+                <td className="num">{formatBytes(point.totalBrotliBytes)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </article>
   )
 }

@@ -9,6 +9,7 @@ import { getRequest, setResponseStatus } from "@tanstack/react-start/server"
 import { requireUser } from "../auth/session.js"
 import { getDb, schema } from "../db/index.js"
 import type { AppBindings } from "../env.js"
+import { StateBadge } from "../components/state-badge.js"
 import {
   enableRepositoryForUser,
   OnboardingAuthorizationError,
@@ -102,57 +103,78 @@ function InstallationRouteComponent() {
   const data = Route.useLoaderData()
 
   return (
-    <main>
-      <p>
-        <Link to="/app">Back to admin</Link>
-      </p>
-      <h1>Installation {data.installationId}</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Repository</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.repositories.map((repository) => {
-            const fullName = `${repository.owner}/${repository.name}`
-            const status =
-              repository.private === 1
-                ? "Private repos are not supported in V1"
-                : repository.enabled === 1
-                  ? "Enabled"
-                  : repository.accessStatus === "active"
-                    ? "Available"
-                    : "Removed"
+    <main className="page narrow">
+      <header className="page-header">
+        <p className="breadcrumb">
+          <Link to="/app">Admin</Link>
+          <span aria-hidden="true">/</span>
+          <span>Installation</span>
+        </p>
+        <h1>Installation #{data.installationId}</h1>
+      </header>
 
-            return (
-              <tr key={fullName}>
-                <td>{fullName}</td>
-                <td>{status}</td>
-                <td>
-                  {repository.private === 1 ||
-                  repository.accessStatus !== "active" ? null : repository.enabled === 1 ? (
-                    <Link
-                      to="/r/$owner/$repo/settings"
-                      params={{ owner: repository.owner, repo: repository.name }}
-                    >
-                      Settings
-                    </Link>
-                  ) : (
-                    <EnableRepositoryForm
-                      installationId={data.installationId}
-                      owner={repository.owner}
-                      repo={repository.name}
-                    />
-                  )}
-                </td>
+      <section className="section">
+        <h2>Repositories</h2>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Repository</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            )
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {data.repositories.map((repository) => {
+                const fullName = `${repository.owner}/${repository.name}`
+                const statusLabel =
+                  repository.private === 1
+                    ? "private"
+                    : repository.enabled === 1
+                      ? "fresh"
+                      : repository.accessStatus === "active"
+                        ? "pending"
+                        : "missing"
+                const statusText =
+                  repository.private === 1
+                    ? "Private repos not supported in V1"
+                    : repository.enabled === 1
+                      ? "Enabled"
+                      : repository.accessStatus === "active"
+                        ? "Available"
+                        : "Removed"
+
+                return (
+                  <tr key={fullName}>
+                    <td className="mono">{fullName}</td>
+                    <td>
+                      <StateBadge state={statusLabel} />
+                      <span className="text-muted"> {statusText}</span>
+                    </td>
+                    <td>
+                      {repository.private === 1 ||
+                      repository.accessStatus !== "active" ? null : repository.enabled === 1 ? (
+                        <Link
+                          to="/r/$owner/$repo/settings"
+                          params={{ owner: repository.owner, repo: repository.name }}
+                        >
+                          Settings
+                        </Link>
+                      ) : (
+                        <EnableRepositoryForm
+                          installationId={data.installationId}
+                          owner={repository.owner}
+                          repo={repository.name}
+                        />
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </main>
   )
 }
@@ -202,9 +224,9 @@ function EnableRepositoryForm({
       }}
     >
       <button disabled={pending} type="submit">
-        Enable
+        {pending ? "Enabling…" : "Enable"}
       </button>
-      {error ? <p>{error}</p> : null}
+      {error ? <p className="text-danger">{error}</p> : null}
     </form>
   )
 }

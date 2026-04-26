@@ -25,50 +25,58 @@ function SetupGuideRouteComponent() {
   const data = Route.useLoaderData()
 
   return (
-    <main>
-      <p>
-        <Link to="/app">Back to admin</Link>
-      </p>
-      <h1>Chunk Scope setup guide</h1>
-      <p>Use these values for the staging GitHub App and repository workflow.</p>
-      <h2>GitHub App URLs</h2>
-      <dl>
-        <dt>Homepage URL</dt>
-        <dd>
-          <code>{data.appOrigin}</code>
-        </dd>
-        <dt>Callback URL</dt>
-        <dd>
-          <code>{data.callbackUrl}</code>
-        </dd>
-        <dt>Setup URL</dt>
-        <dd>
-          <code>{data.setupUrl}</code>
-        </dd>
-        <dt>Webhook URL</dt>
-        <dd>
-          <code>{data.webhookUrl}</code>
-        </dd>
-      </dl>
-      <h2>Repository permissions</h2>
-      <ul>
-        <li>Metadata: read</li>
-        <li>Contents: read</li>
-        <li>Pull requests: read/write</li>
-        <li>Issues: read/write</li>
-        <li>Checks: read/write</li>
-      </ul>
-      <h2>Webhook events</h2>
-      <ul>
-        <li>Repository</li>
-        <li>Pull request</li>
-        <li>Installation</li>
-        <li>Installation repositories</li>
-      </ul>
-      <h2>Workflow permissions</h2>
-      <pre>{`permissions:
+    <main className="page narrow">
+      <header className="page-header">
+        <p className="breadcrumb">
+          <Link to="/app">Admin</Link>
+          <span aria-hidden="true">/</span>
+          <span>Setup guide</span>
+        </p>
+        <h1>Setup guide</h1>
+        <p>Use these values for the staging GitHub App and repository workflow.</p>
+      </header>
+
+      <section className="section">
+        <h2>GitHub App URLs</h2>
+        <dl className="definition">
+          <dt>Homepage</dt>
+          <dd><code>{data.appOrigin}</code></dd>
+          <dt>Callback</dt>
+          <dd><code>{data.callbackUrl}</code></dd>
+          <dt>Setup</dt>
+          <dd><code>{data.setupUrl}</code></dd>
+          <dt>Webhook</dt>
+          <dd><code>{data.webhookUrl}</code></dd>
+        </dl>
+      </section>
+
+      <section className="section">
+        <h2>Repository permissions</h2>
+        <ul className="bulleted">
+          <li>Metadata: read</li>
+          <li>Contents: read</li>
+          <li>Pull requests: read/write</li>
+          <li>Issues: read/write</li>
+          <li>Checks: read/write</li>
+        </ul>
+      </section>
+
+      <section className="section">
+        <h2>Webhook events</h2>
+        <ul className="bulleted">
+          <li>Repository</li>
+          <li>Pull request</li>
+          <li>Installation</li>
+          <li>Installation repositories</li>
+        </ul>
+      </section>
+
+      <section className="section">
+        <h2>Workflow permissions</h2>
+        <pre><code>{`permissions:
   contents: read
-  id-token: write`}</pre>
+  id-token: write`}</code></pre>
+      </section>
     </main>
   )
 }

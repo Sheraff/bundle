@@ -9,6 +9,9 @@ import { formatBytes, shortSha } from "../lib/formatting.js"
 import { getRepositoryHistoryPageData } from "../lib/public-read-models.server.js"
 import { metricPointValue, type SizeMetric } from "../lib/size-metric.js"
 
+import "./repo-shared.css"
+import "../components/compare-form.css"
+
 const repositoryHistorySearchSchema = v.strictObject({
   branch: v.optional(nonEmptyStringSchema),
   scenario: v.optional(nonEmptyStringSchema, "all"),
@@ -76,38 +79,62 @@ function RepositoryHistoryRouteComponent() {
   const data = Route.useLoaderData()
 
   return (
-    <main>
-      <header>
-        <p>
-          <Link to="/r/$owner/$repo" from={Route.fullPath} search={{ branch: data.branch ?? undefined, lens: data.lens, metric: data.metric }}>
+    <main className="page repo-page">
+      <header className="page-header">
+        <p className="breadcrumb">
+          <Link to="/">Home</Link>
+          <span aria-hidden="true">/</span>
+          <Link
+            to="/r/$owner/$repo"
+            from={Route.fullPath}
+            search={{ branch: data.branch ?? undefined, lens: data.lens, metric: data.metric }}
+          >
             {data.repository.owner}/{data.repository.name}
           </Link>
         </p>
-        <h1>Repository History</h1>
+        <h1>
+          <span data-owner>{data.repository.owner}</span>
+          <span data-sep aria-hidden="true">/</span>
+          {data.repository.name}
+        </h1>
         <p>Inspect branch evolution across scenarios and launch pairwise comparisons.</p>
+        <nav aria-label="Repository views" className="repo-subnav">
+          <Link
+            to="/r/$owner/$repo"
+            params={{ owner: data.repository.owner, repo: data.repository.name }}
+            search={{ branch: data.branch ?? undefined, lens: data.lens, metric: data.metric }}
+          >
+            Overview
+          </Link>
+          <a aria-current="page">History</a>
+        </nav>
       </header>
 
-      <section>
+      <section className="section">
         <h2>Filters</h2>
-        <LinkSelector label="Branch" current={data.branch} options={data.branchOptions} searchFor={(branch) => filterSearch(data, { branch })} />
-        <LinkSelector label="Scenario" current={data.scenario} options={["all", ...data.scenarioOptions]} searchFor={(scenario) => filterSearch(data, { scenario })} />
-        <LinkSelector label="Environment" current={data.env} options={["all", ...data.environmentOptions]} searchFor={(env) => filterSearch(data, { env, entrypoint: "all" })} />
-        <LinkSelector label="Entrypoint" current={data.entrypoint} options={["all", ...data.entrypointOptions]} searchFor={(entrypoint) => filterSearch(data, { entrypoint })} />
-        <LinkSelector label="Lens" current={data.lens} options={data.lensOptions} searchFor={(lens) => filterSearch(data, { lens })} />
-        <MetricSelector current={data.metric} searchFor={(metric) => filterSearch(data, { metric })} />
+        <div className="filters-bar">
+          <LinkSelector label="Branch" current={data.branch} options={data.branchOptions} searchFor={(branch) => filterSearch(data, { branch })} />
+          <LinkSelector label="Scenario" current={data.scenario} options={["all", ...data.scenarioOptions]} searchFor={(scenario) => filterSearch(data, { scenario })} />
+          <LinkSelector label="Environment" current={data.env} options={["all", ...data.environmentOptions]} searchFor={(env) => filterSearch(data, { env, entrypoint: "all" })} />
+          <LinkSelector label="Entrypoint" current={data.entrypoint} options={["all", ...data.entrypointOptions]} searchFor={(entrypoint) => filterSearch(data, { entrypoint })} />
+          <LinkSelector label="Lens" current={data.lens} options={data.lensOptions} searchFor={(lens) => filterSearch(data, { lens })} />
+          <MetricSelector current={data.metric} searchFor={(metric) => filterSearch(data, { metric })} />
+        </div>
       </section>
 
       <CompareLauncher data={data} />
 
-      <section>
-        <h2>Branch Evolution</h2>
+      <section className="section">
+        <h2>Branch evolution</h2>
         {data.history.length === 0 ? (
-          <p>No history rows match the selected filters. Try broadening scenario, environment, or entrypoint.</p>
+          <p className="notice">No history rows match the selected filters. Try broadening scenario, environment, or entrypoint.</p>
         ) : (
-          <>
-            <TrendChart series={buildHistoryChartSeries(data.history, data.metric)} />
+          <div className="viz-block">
+            <div data-role="chart">
+              <TrendChart series={buildHistoryChartSeries(data.history, data.metric)} />
+            </div>
             {data.history.map((series) => <HistoryTable key={series.seriesId} series={series} />)}
-          </>
+          </div>
         )}
       </section>
     </main>
@@ -118,22 +145,34 @@ function CompareLauncher(props: { data: HistoryData }) {
   const options: HistoryCommitOption[] = props.data.commitOptions
 
   return (
-    <section>
-      <h2>Compare Builder</h2>
+    <section className="section">
+      <h2>Compare builder</h2>
       {options.length < 2 ? (
-        <p>At least two known commit groups are needed to launch a comparison.</p>
+        <p className="notice">At least two known commit groups are needed to launch a comparison.</p>
       ) : (
-        <form action={`/r/${props.data.repository.owner}/${props.data.repository.name}/compare`} method="get">
+        <form
+          className="compare-form"
+          action={`/r/${props.data.repository.owner}/${props.data.repository.name}/compare`}
+          method="get"
+        >
           <label>
             Base
             <select name="base" defaultValue={quoteSearchString(options[1]?.commitSha ?? options[0]?.commitSha ?? "")}>
-              {options.map((option) => <option key={`base:${option.commitSha}`} value={quoteSearchString(option.commitSha)}>{optionLabel(option)}</option>)}
+              {options.map((option) => (
+                <option key={`base:${option.commitSha}`} value={quoteSearchString(option.commitSha)}>
+                  {optionLabel(option)}
+                </option>
+              ))}
             </select>
           </label>
           <label>
             Head
             <select name="head" defaultValue={quoteSearchString(options[0]?.commitSha ?? "")}>
-              {options.map((option) => <option key={`head:${option.commitSha}`} value={quoteSearchString(option.commitSha)}>{optionLabel(option)}</option>)}
+              {options.map((option) => (
+                <option key={`head:${option.commitSha}`} value={quoteSearchString(option.commitSha)}>
+                  {optionLabel(option)}
+                </option>
+              ))}
             </select>
           </label>
           {props.data.scenario !== "all" ? <input type="hidden" name="scenario" value={props.data.scenario} /> : null}
@@ -150,12 +189,32 @@ function CompareLauncher(props: { data: HistoryData }) {
 
 function HistoryTable(props: { series: HistorySeries }) {
   return (
-    <article>
+    <article className="card">
       <h3>{props.series.scenarioSlug} / {props.series.environment} / {props.series.entrypoint} / {props.series.lens}</h3>
-      <table>
-        <thead><tr><th>Commit</th><th>Measured At</th><th>Raw</th><th>Gzip</th><th>Brotli</th></tr></thead>
-        <tbody>{props.series.points.map((point) => <tr key={`${props.series.seriesId}:${point.commitSha}:${point.measuredAt}`}><td>{shortSha(point.commitSha)}</td><td>{point.measuredAt}</td><td>{formatBytes(point.totalRawBytes)}</td><td>{formatBytes(point.totalGzipBytes)}</td><td>{formatBytes(point.totalBrotliBytes)}</td></tr>)}</tbody>
-      </table>
+      <div className="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Commit</th>
+              <th>Measured at</th>
+              <th>Raw</th>
+              <th>Gzip</th>
+              <th>Brotli</th>
+            </tr>
+          </thead>
+          <tbody>
+            {props.series.points.map((point) => (
+              <tr key={`${props.series.seriesId}:${point.commitSha}:${point.measuredAt}`}>
+                <td className="mono">{shortSha(point.commitSha)}</td>
+                <td className="num">{point.measuredAt}</td>
+                <td className="num">{formatBytes(point.totalRawBytes)}</td>
+                <td className="num">{formatBytes(point.totalGzipBytes)}</td>
+                <td className="num">{formatBytes(point.totalBrotliBytes)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </article>
   )
 }

@@ -6,6 +6,9 @@ import { useState } from "react"
 
 import { getCurrentUser } from "../auth/session.js"
 
+import appCss from "../styles/index.css?url"
+import "./__root.css"
+
 const getRootViewer = createServerFn({ method: "GET" }).handler(async ({ context }) => {
   try {
     const user = await getCurrentUser(context.env, getRequest())
@@ -17,6 +20,9 @@ const getRootViewer = createServerFn({ method: "GET" }).handler(async ({ context
 })
 
 export const Route = createRootRoute({
+  head: () => ({
+    links: [{ rel: "stylesheet", href: appCss }],
+  }),
   loader: () => getRootViewer(),
   component: RootComponent,
   errorComponent: RootErrorComponent,
@@ -36,18 +42,29 @@ function RootComponent() {
         <HeadContent />
       </head>
       <body>
-        <header>
-          <nav aria-label="Global navigation">
-            <Link to="/">Chunk Scope</Link> <Link to="/app">Admin</Link>{" "}
-            <Link to="/app/setup">Setup</Link>{" "}
-            {viewer ? (
-              <>
-                <span>Signed in as {viewer.login}</span> <a href="/api/v1/auth/logout">Sign out</a>
-              </>
-            ) : (
-              <a href="/api/v1/auth/github/start">Sign in with GitHub</a>
-            )}
-          </nav>
+        <header className="app-header">
+          <div>
+            <Link to="/">
+              <span aria-hidden="true">⌘</span>
+              <span>Chunk Scope</span>
+            </Link>
+            <nav aria-label="Primary">
+              <Link to="/app">Admin</Link>
+              <Link to="/app/setup">Setup</Link>
+            </nav>
+            <div data-role="viewer">
+              {viewer ? (
+                <>
+                  <span>
+                    Signed in as <strong>{viewer.login}</strong>
+                  </span>
+                  <a className="button-secondary" href="/api/v1/auth/logout">Sign out</a>
+                </>
+              ) : (
+                <a className="button-link" href="/api/v1/auth/github/start">Sign in with GitHub</a>
+              )}
+            </div>
+          </div>
         </header>
         <QueryClientProvider client={queryClient}>
           <Outlet />
@@ -60,18 +77,26 @@ function RootComponent() {
 
 function RootErrorComponent(props: { error: Error }) {
   return (
-    <main>
-      <h1>Application Error</h1>
-      <p>{props.error.message}</p>
+    <main className="page narrow">
+      <header className="page-header">
+        <h1>Application error</h1>
+        <p>Something went wrong while rendering this page.</p>
+      </header>
+      <pre>{props.error.message}</pre>
     </main>
   )
 }
 
 function RootNotFoundComponent() {
   return (
-    <main>
-      <h1>Not Found</h1>
-      <p>The requested page does not exist.</p>
+    <main className="page narrow">
+      <header className="page-header">
+        <h1>Not found</h1>
+        <p>The requested page does not exist.</p>
+      </header>
+      <p>
+        <Link to="/" className="button-secondary">Go home</Link>
+      </p>
     </main>
   )
 }

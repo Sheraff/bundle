@@ -8,6 +8,7 @@ import { createServerFn } from "@tanstack/react-start"
 import * as v from "valibot"
 
 import { TrendChart, type TrendChartSeries } from "../components/charts.js"
+import { StateBadge } from "../components/state-badge.js"
 import { LinkSelector, MetricSelector } from "../components/url-controls.js"
 import { getRepositoryOverviewPageData } from "../lib/public-read-models.server.js"
 import {
@@ -20,9 +21,10 @@ import {
   describeNeutralDelta,
   describeStatusScenarioDetail,
   formatSeriesLabel,
-  formatStateBadge,
 } from "../lib/public-route-presentation.js"
 import { metricPointValue, type SizeMetric } from "../lib/size-metric.js"
+
+import "./repo-shared.css"
 
 const repositoryOverviewSearchSchema = v.strictObject({
   branch: v.optional(nonEmptyStringSchema),
@@ -68,16 +70,21 @@ function RepositoryOverviewRouteComponent() {
   const data = Route.useLoaderData()
 
   return (
-    <main>
-      <header>
-        <p>
+    <main className="page repo-page">
+      <header className="page-header">
+        <p className="breadcrumb">
           <Link to="/">Home</Link>
+          <span aria-hidden="true">/</span>
+          <span>Repository</span>
         </p>
         <h1>
-          {data.repository.owner}/{data.repository.name}
+          <span data-owner>{data.repository.owner}</span>
+          <span data-sep aria-hidden="true">/</span>
+          {data.repository.name}
         </h1>
-        <p>Repository overview public page.</p>
-        <p>
+        <p>Public repository overview.</p>
+        <nav aria-label="Repository views" className="repo-subnav">
+          <a aria-current="page">Overview</a>
           <Link
             to="/r/$owner/$repo/history"
             params={{ owner: data.repository.owner, repo: data.repository.name }}
@@ -90,101 +97,139 @@ function RepositoryOverviewRouteComponent() {
               metric: data.metric,
             }}
           >
-            Open repository history
+            History
           </Link>
-        </p>
+        </nav>
       </header>
 
-      <section>
+      <section className="section">
         <h2>Filters</h2>
-        <LinkSelector
-          label="Branch"
-          current={data.branch}
-          options={data.branchOptions}
-          searchFor={(branch) => ({ branch, lens: data.lens, metric: data.metric })}
-        />
-        <LinkSelector
-          label="Lens"
-          current={data.lens}
-          options={data.lensOptions}
-          searchFor={(lens) => ({ branch: data.branch ?? undefined, lens, metric: data.metric })}
-        />
-        <MetricSelector
-          current={data.metric}
-          searchFor={(metric) => ({ branch: data.branch ?? undefined, lens: data.lens, metric })}
-        />
+        <div className="filters-bar">
+          <LinkSelector
+            label="Branch"
+            current={data.branch}
+            options={data.branchOptions}
+            searchFor={(branch) => ({ branch, lens: data.lens, metric: data.metric })}
+          />
+          <LinkSelector
+            label="Lens"
+            current={data.lens}
+            options={data.lensOptions}
+            searchFor={(lens) => ({ branch: data.branch ?? undefined, lens, metric: data.metric })}
+          />
+          <MetricSelector
+            current={data.metric}
+            searchFor={(metric) => ({ branch: data.branch ?? undefined, lens: data.lens, metric })}
+          />
+        </div>
       </section>
 
-      <section>
+      <section className="section">
         <h2>Trend</h2>
         {data.trend.length === 0 ? (
-          <p>No trend data has been derived for the selected branch and lens yet.</p>
+          <p className="notice">No trend data has been derived for the selected branch and lens yet.</p>
         ) : (
-          <>
-            <TrendChart series={buildTrendSeries(data.trend, data.metric)} />
-            <table>
-              <thead>
-                <tr>
-                  <th>Series</th>
-                  <th>Commit</th>
-                  <th>Measured At</th>
-                  <th>Raw</th>
-                  <th>Gzip</th>
-                  <th>Brotli</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.trend.map((point) => (
-                  <tr key={`${point.seriesId}:${point.commitGroupId}`}>
-                    <td>{point.scenarioSlug} / {point.environment} / {point.entrypoint}</td>
-                    <td>{shortSha(point.commitSha)}</td>
-                    <td>{point.measuredAt}</td>
-                    <td>{formatBytes(point.totalRawBytes)}</td>
-                    <td>{formatBytes(point.totalGzipBytes)}</td>
-                    <td>{formatBytes(point.totalBrotliBytes)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
+          <div className="viz-block">
+            <div data-role="chart">
+              <TrendChart series={buildTrendSeries(data.trend, data.metric)} />
+            </div>
+            <details>
+              <summary>Show data table</summary>
+              <div className="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Series</th>
+                      <th>Commit</th>
+                      <th>Measured at</th>
+                      <th>Raw</th>
+                      <th>Gzip</th>
+                      <th>Brotli</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.trend.map((point) => (
+                      <tr key={`${point.seriesId}:${point.commitGroupId}`}>
+                        <td>{point.scenarioSlug} / {point.environment} / {point.entrypoint}</td>
+                        <td className="mono">{shortSha(point.commitSha)}</td>
+                        <td className="num">{point.measuredAt}</td>
+                        <td className="num">{formatBytes(point.totalRawBytes)}</td>
+                        <td className="num">{formatBytes(point.totalGzipBytes)}</td>
+                        <td className="num">{formatBytes(point.totalBrotliBytes)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </div>
         )}
       </section>
 
-      <section>
-        <h2>Repository Health</h2>
+      <section className="section">
+        <h2>Repository health</h2>
         {data.latestSummary ? (
-          <>
-            <p>Status: {data.latestSummary.status}</p>
-            <p>Commit: {shortSha(data.latestSummary.commitSha)}</p>
-            <p>Fresh scenarios: {data.latestSummary.counts.freshScenarioCount}</p>
-            <p>Pending scenarios: {data.latestSummary.counts.pendingScenarioCount}</p>
-            <p>Inherited scenarios: {data.latestSummary.counts.inheritedScenarioCount}</p>
-            <p>Missing scenarios: {data.latestSummary.counts.missingScenarioCount}</p>
-            <p>Failed scenarios: {data.latestSummary.counts.failedScenarioCount}</p>
-            <p>Changed metrics: {data.latestSummary.counts.changedMetricCount}</p>
-          </>
+          <dl className="repo-health">
+            <div>
+              <dt>Status</dt>
+              <dd><StateBadge state={data.latestSummary.status} /></dd>
+            </div>
+            <div>
+              <dt>Commit</dt>
+              <dd className="mono">{shortSha(data.latestSummary.commitSha)}</dd>
+            </div>
+            <div>
+              <dt>Fresh</dt>
+              <dd>{data.latestSummary.counts.freshScenarioCount}</dd>
+            </div>
+            <div>
+              <dt>Pending</dt>
+              <dd>{data.latestSummary.counts.pendingScenarioCount}</dd>
+            </div>
+            <div>
+              <dt>Inherited</dt>
+              <dd>{data.latestSummary.counts.inheritedScenarioCount}</dd>
+            </div>
+            <div>
+              <dt>Missing</dt>
+              <dd>{data.latestSummary.counts.missingScenarioCount}</dd>
+            </div>
+            <div>
+              <dt>Failed</dt>
+              <dd>{data.latestSummary.counts.failedScenarioCount}</dd>
+            </div>
+            <div>
+              <dt>Changed</dt>
+              <dd>{data.latestSummary.counts.changedMetricCount}</dd>
+            </div>
+          </dl>
         ) : (
-          <p>No settled branch summary is available yet.</p>
+          <p className="notice">No settled branch summary is available yet.</p>
         )}
       </section>
 
-      <section>
-        <h2>Latest Important Compare</h2>
+      <section className="section">
+        <h2>Latest important compare</h2>
         {data.latestImportantCompare ? (
-          <>
-            <p>Scenario: {data.latestImportantCompare.scenarioSlug}</p>
-            <p>
-              Series: {data.latestImportantCompare.environment} /{" "}
-              {data.latestImportantCompare.entrypoint} / {data.latestImportantCompare.lens}
-            </p>
-            <p>
-              {formatBytes(data.latestImportantCompare.primaryItem.currentValue)} vs{" "}
-              {formatBytes(data.latestImportantCompare.primaryItem.baselineValue)} ({" "}
-              {formatSignedBytes(data.latestImportantCompare.primaryItem.deltaValue)},{" "}
-              {formatSignedPercentage(data.latestImportantCompare.primaryItem.percentageDelta)})
-            </p>
-            <p>
+          <div className="compare-callout">
+            <div data-role="series">
+              <strong>{data.latestImportantCompare.scenarioSlug}</strong>
+              {" — "}
+              {data.latestImportantCompare.environment} / {data.latestImportantCompare.entrypoint} /{" "}
+              {data.latestImportantCompare.lens}
+            </div>
+            <div data-role="delta">
+              {formatBytes(data.latestImportantCompare.primaryItem.currentValue)}
+              <span className="text-muted"> vs </span>
+              {formatBytes(data.latestImportantCompare.primaryItem.baselineValue)}
+              <span className="text-muted"> · </span>
+              {formatSignedBytes(data.latestImportantCompare.primaryItem.deltaValue)}
+              <span className="text-muted"> · </span>
+              {formatSignedPercentage(data.latestImportantCompare.primaryItem.percentageDelta)}
+            </div>
+            <div>
               <Link
+                className="button-secondary"
                 to="/r/$owner/$repo/compare"
                 from={Route.fullPath}
                 search={{
@@ -198,38 +243,40 @@ function RepositoryOverviewRouteComponent() {
               >
                 Open compare
               </Link>
-            </p>
-          </>
+            </div>
+          </div>
         ) : (
-          <p>No branch comparison is available for the latest summary yet.</p>
+          <p className="notice">No branch comparison is available for the latest summary yet.</p>
         )}
       </section>
 
-      <section>
-        <h2>Scenario Catalog</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Scenario</th>
-              <th>State</th>
-              <th>Primary Series</th>
-              <th>Primary Delta</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.scenarioCatalog.map((row) => (
-              <RepositoryScenarioRow
-                key={`${row.kind}:${row.kind === "known" ? row.scenario.id : row.scenario.scenarioId}`}
-                owner={data.repository.owner}
-                repo={data.repository.name}
-                branch={data.branch ?? undefined}
-                lens={data.lens}
-                row={row}
-              />
-            ))}
-          </tbody>
-        </table>
+      <section className="section">
+        <h2>Scenario catalog</h2>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>State</th>
+                <th>Primary series</th>
+                <th>Primary delta</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.scenarioCatalog.map((row) => (
+                <RepositoryScenarioRow
+                  key={`${row.kind}:${row.kind === "known" ? row.scenario.id : row.scenario.scenarioId}`}
+                  owner={data.repository.owner}
+                  repo={data.repository.name}
+                  branch={data.branch ?? undefined}
+                  lens={data.lens}
+                  row={row}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
   )
@@ -300,25 +347,24 @@ function RepositoryScenarioRow({
             {row.scenario.scenarioSlug}
           </Link>
         </td>
-        <td>{formatStateBadge(row.scenario.hasNewerFailedRun ? "warning" : "fresh")}</td>
-        <td>{primarySeries ? formatSeriesLabel(primarySeries) : "No active series"}</td>
-        <td>{primarySeries ? describeNeutralDelta(primarySeries, primaryItem) : "No delta"}</td>
+        <td><StateBadge state={row.scenario.hasNewerFailedRun ? "warning" : "fresh"} /></td>
+        <td>{primarySeries ? formatSeriesLabel(primarySeries) : <span className="text-muted">No active series</span>}</td>
+        <td className="num">{primarySeries ? describeNeutralDelta(primarySeries, primaryItem) : <span className="text-muted">No delta</span>}</td>
         <td>
-          <Link
-            to="/r/$owner/$repo/scenarios/$scenario"
-            params={{ owner, repo, scenario: row.scenario.scenarioSlug }}
-            search={{
-              branch,
-              env: "all",
-              entrypoint: "all",
-              lens,
-            }}
-          >
-            Scenario
-          </Link>
-          {primarySeries?.selectedBaseCommitSha ? (
-            <>
-              {" "}
+          <span className="row-actions">
+            <Link
+              to="/r/$owner/$repo/scenarios/$scenario"
+              params={{ owner, repo, scenario: row.scenario.scenarioSlug }}
+              search={{
+                branch,
+                env: "all",
+                entrypoint: "all",
+                lens,
+              }}
+            >
+              Scenario
+            </Link>
+            {primarySeries?.selectedBaseCommitSha ? (
               <Link
                 to="/r/$owner/$repo/compare"
                 from={Route.fullPath}
@@ -333,8 +379,8 @@ function RepositoryScenarioRow({
               >
                 Compare
               </Link>
-            </>
-          ) : null}
+            ) : null}
+          </span>
         </td>
       </tr>
     )
@@ -357,22 +403,24 @@ function RepositoryScenarioRow({
             {row.scenario.scenarioSlug}
           </Link>
         </td>
-        <td>{formatStateBadge(row.scenario.state)}</td>
-        <td>Not available on the active commit group</td>
-        <td>{describeStatusScenarioDetail(row.scenario)}</td>
+        <td><StateBadge state={row.scenario.state} /></td>
+        <td className="text-muted">Not on active commit group</td>
+        <td className="text-muted">{describeStatusScenarioDetail(row.scenario)}</td>
         <td>
-          <Link
-            to="/r/$owner/$repo/scenarios/$scenario"
-            params={{ owner, repo, scenario: row.scenario.scenarioSlug }}
-            search={{
-              branch,
-              env: "all",
-              entrypoint: "all",
-              lens,
-            }}
-          >
-            Scenario
-          </Link>
+          <span className="row-actions">
+            <Link
+              to="/r/$owner/$repo/scenarios/$scenario"
+              params={{ owner, repo, scenario: row.scenario.scenarioSlug }}
+              search={{
+                branch,
+                env: "all",
+                entrypoint: "all",
+                lens,
+              }}
+            >
+              Scenario
+            </Link>
+          </span>
         </td>
       </tr>
     )
@@ -394,22 +442,24 @@ function RepositoryScenarioRow({
           {row.scenario.slug}
         </Link>
       </td>
-      <td>{formatStateBadge("known")}</td>
-      <td>No active summary row yet</td>
-      <td>Awaiting the first processed branch summary</td>
+      <td><StateBadge state="known" /></td>
+      <td className="text-muted">No active summary row yet</td>
+      <td className="text-muted">Awaiting the first processed branch summary</td>
       <td>
-        <Link
-          to="/r/$owner/$repo/scenarios/$scenario"
-          params={{ owner, repo, scenario: row.scenario.slug }}
-          search={{
-            branch,
-            env: "all",
-            entrypoint: "all",
-            lens,
-          }}
-        >
-          Scenario
-        </Link>
+        <span className="scenario-row-actions">
+          <Link
+            to="/r/$owner/$repo/scenarios/$scenario"
+            params={{ owner, repo, scenario: row.scenario.slug }}
+            search={{
+              branch,
+              env: "all",
+              entrypoint: "all",
+              lens,
+            }}
+          >
+            Scenario
+          </Link>
+        </span>
       </td>
     </tr>
   )

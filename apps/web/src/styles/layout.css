@@ -1,0 +1,297 @@
+@layer layout {
+  /* Page container — every route's <main> uses this via the .page class */
+  .page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    width: 100%;
+    max-width: var(--content-max);
+    margin-inline: auto;
+    padding: var(--space-5) clamp(var(--space-3), 3vw, var(--space-6)) var(--space-8);
+  }
+
+  .page.narrow {
+    max-width: var(--reading-max);
+  }
+
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    border-bottom: var(--border-width) solid var(--color-border);
+    padding-bottom: var(--space-4);
+
+    & h1 {
+      font-size: var(--fs-3xl);
+      letter-spacing: -0.02em;
+    }
+
+    & > p {
+      color: var(--color-text-secondary);
+      max-width: 60ch;
+    }
+  }
+
+  .breadcrumb {
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    flex-wrap: wrap;
+
+    & a {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--color-accent);
+      }
+    }
+
+    & span[aria-hidden] {
+      color: var(--color-border-strong);
+    }
+  }
+
+  /* Section: a labeled block of content */
+  .section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .section > :is(h2, h3):first-child {
+    color: var(--color-text-secondary);
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: var(--fw-semibold);
+  }
+
+  .card {
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .stack.tight {
+    gap: var(--space-2);
+  }
+
+  .row {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* Button variants */
+  .button-secondary,
+  button.button-secondary,
+  a.button-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: var(--border-width) solid var(--color-border);
+    text-decoration: none;
+    transition: border-color var(--duration-fast) var(--ease-standard),
+      background var(--duration-fast) var(--ease-standard);
+
+    &:hover {
+      background: var(--color-surface-hover);
+      border-color: var(--color-border-strong);
+      color: var(--color-text);
+    }
+  }
+
+  .button-link,
+  a.button-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-medium);
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--color-accent-strong);
+      color: var(--color-accent-fg);
+    }
+  }
+
+  /* Mono inline (for SHAs, identifiers) */
+  .mono {
+    font-family: var(--font-mono);
+    font-size: 0.95em;
+    color: var(--color-text);
+  }
+
+  /* Pill — shape primitive. State variants applied via data-state. */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0.1em 0.55em;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-2xs);
+    font-weight: var(--fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: var(--border-width) solid currentColor;
+    background: color-mix(in oklch, currentColor 12%, transparent);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+
+    &[data-state="fresh"],
+    &[data-state="improved"] {
+      color: var(--color-success);
+    }
+
+    &[data-state="warning"],
+    &[data-state="regression"] {
+      color: var(--color-warning);
+    }
+
+    &[data-state="failed"],
+    &[data-state="blocking"] {
+      color: var(--color-danger);
+    }
+
+    &[data-state="pending"],
+    &[data-state="inherited"],
+    &[data-state="acknowledged"] {
+      color: var(--color-info);
+    }
+
+    &[data-state="missing"],
+    &[data-state="known"],
+    &[data-state="neutral"] {
+      color: var(--color-text-muted);
+    }
+  }
+
+  /* Inline empty/info messages */
+  .empty {
+    color: var(--color-text-muted);
+    font-style: italic;
+    font-size: var(--fs-sm);
+  }
+
+  .notice {
+    color: var(--color-text-muted);
+    background: var(--color-surface-sunken);
+    border: var(--border-width) dashed var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--fs-sm);
+  }
+
+  /* Opt-in numbered list (since the reset removes list-style) */
+  ol.numbered,
+  ul.bulleted {
+    padding-inline-start: 1.5rem;
+    color: var(--color-text-secondary);
+    line-height: var(--lh-loose);
+
+    & > li {
+      padding-inline-start: var(--space-1);
+    }
+  }
+
+  ol.numbered {
+    list-style: decimal;
+  }
+
+  ul.bulleted {
+    list-style: disc;
+  }
+
+  .definition {
+    display: grid;
+    grid-template-columns: minmax(8rem, max-content) 1fr;
+    column-gap: var(--space-4);
+    row-gap: var(--space-2);
+    font-size: var(--fs-sm);
+
+    & dt {
+      color: var(--color-text-muted);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    & dd {
+      color: var(--color-text);
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
+@layer utilities {
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .text-secondary {
+    color: var(--color-text-secondary);
+  }
+
+  .text-muted {
+    color: var(--color-text-muted);
+  }
+
+  .text-success {
+    color: var(--color-success);
+  }
+
+  .text-warning {
+    color: var(--color-warning);
+  }
+
+  .text-danger {
+    color: var(--color-danger);
+  }
+
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+}

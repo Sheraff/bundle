@@ -9,6 +9,8 @@ import { HostedSyntheticForm } from "../components/hosted-synthetic-form.js"
 import { getDb, schema } from "../db/index.js"
 import { repositoryAdminParamsSchema } from "../lib/repository-admin-schema.js"
 
+import "./repo-shared.css"
+
 const hostedSyntheticInputSchema = v.strictObject({
   params: repositoryAdminParamsSchema,
   scenarioSlug: scenarioSlugSchema,
@@ -63,19 +65,32 @@ function NewHostedSyntheticScenarioRoute() {
   const [error, setError] = useState<string | null>(null)
 
   return (
-    <main>
-      <p><Link to="/r/$owner/$repo/settings/synthetic-scenarios" params={{ owner: data.repository.owner, repo: data.repository.name }}>Back to hosted scenarios</Link></p>
-      <h1>Create Hosted Synthetic Scenario</h1>
-      <HostedSyntheticForm submitLabel="Create" onSubmit={async (input) => {
-        try {
-          setError(null)
-          await createDefinition({ data: { params, ...input } })
-          await router.navigate({ to: "/r/$owner/$repo/settings/synthetic-scenarios", params })
-        } catch (error) {
-          setError(error instanceof Error ? error.message : "Could not create hosted synthetic scenario.")
-        }
-      }} />
-      {error ? <p>{error}</p> : null}
+    <main className="page repo-page">
+      <header className="page-header">
+        <p className="breadcrumb">
+          <Link to="/r/$owner/$repo/settings/synthetic-scenarios" params={{ owner: data.repository.owner, repo: data.repository.name }}>
+            Hosted synthetic scenarios
+          </Link>
+          <span aria-hidden="true">/</span>
+          <span>New</span>
+        </p>
+        <h1>Create hosted synthetic scenario</h1>
+        <p>Hosted definitions resolve at CI build time. Real measurement still happens in GitHub Actions.</p>
+      </header>
+
+      <HostedSyntheticForm
+        submitLabel="Create"
+        onSubmit={async (input) => {
+          try {
+            setError(null)
+            await createDefinition({ data: { params, ...input } })
+            await router.navigate({ to: "/r/$owner/$repo/settings/synthetic-scenarios", params })
+          } catch (error) {
+            setError(error instanceof Error ? error.message : "Could not create hosted synthetic scenario.")
+          }
+        }}
+      />
+      {error ? <p className="text-danger">{error}</p> : null}
     </main>
   )
 }

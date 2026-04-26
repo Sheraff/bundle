@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import * as d3 from "d3"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type CSSProperties } from "react"
 
 import { formatBytes, shortSha } from "../lib/formatting.js"
 import {
@@ -10,6 +10,25 @@ import {
   type TimelineRectNode,
   type TimelineTreemapNode,
 } from "../lib/treemap-timeline-layout.js"
+
+import "./charts.css"
+
+const chartPalette = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "var(--chart-6)",
+  "var(--chart-7)",
+  "var(--chart-8)",
+  "var(--chart-9)",
+  "var(--chart-10)",
+] as const
+
+function buildPalette(domain: string[]) {
+  return d3.scaleOrdinal<string, string>().domain(domain).range(chartPalette as unknown as string[])
+}
 
 export type TrendChartSeries = {
   id: string
@@ -28,7 +47,7 @@ export function TrendChart(props: { height?: number; series: TrendChartSeries[];
   const points = props.series.flatMap((series) => series.points.map((point) => ({ ...point, series })))
 
   if (points.length === 0) {
-    return <p>No graph points are available.</p>
+    return <p className="empty">No graph points are available.</p>
   }
 
   const orderedCommits = Array.from(
@@ -49,7 +68,7 @@ export function TrendChart(props: { height?: number; series: TrendChartSeries[];
     .domain([0, Math.max(1, maxValue)])
     .nice()
     .range([height - margin.bottom, margin.top])
-  const color = d3.scaleOrdinal(d3.schemeTableau10).domain(props.series.map((series) => series.id))
+  const color = buildPalette(props.series.map((series) => series.id))
   const line = d3
     .line<TrendChartSeries["points"][number]>()
     .x((point) => x(point.commitSha) ?? margin.left)
@@ -57,35 +76,47 @@ export function TrendChart(props: { height?: number; series: TrendChartSeries[];
 
   return (
     <figure>
-      <svg role="img" aria-label="Bundle size trend graph" viewBox={`0 0 ${width} ${height}`} width="100%">
-        <line x1={margin.left} x2={width - margin.right} y1={height - margin.bottom} y2={height - margin.bottom} stroke="currentColor" />
-        <line x1={margin.left} x2={margin.left} y1={margin.top} y2={height - margin.bottom} stroke="currentColor" />
+      <svg className="trend-chart" role="img" aria-label="Bundle size trend graph" viewBox={`0 0 ${width} ${height}`}>
+        <line data-role="axis" x1={margin.left} x2={width - margin.right} y1={height - margin.bottom} y2={height - margin.bottom} />
+        <line data-role="axis" x1={margin.left} x2={margin.left} y1={margin.top} y2={height - margin.bottom} />
         {y.ticks(4).map((tick) => (
           <g key={tick}>
-            <line x1={margin.left - 4} x2={width - margin.right} y1={y(tick)} y2={y(tick)} stroke="currentColor" strokeOpacity={0.15} />
-            <text x={margin.left - 8} y={y(tick)} textAnchor="end" dominantBaseline="middle" fontSize="11">
+            <line data-role="grid" x1={margin.left - 4} x2={width - margin.right} y1={y(tick)} y2={y(tick)} />
+            <text x={margin.left - 8} y={y(tick)} textAnchor="end" dominantBaseline="middle">
               {formatBytes(tick)}
             </text>
           </g>
         ))}
         {orderedCommits.map((point) => (
-          <text key={point.commitSha} x={x(point.commitSha)} y={height - 12} textAnchor="middle" fontSize="10">
+          <text key={point.commitSha} x={x(point.commitSha)} y={height - 12} textAnchor="middle">
             {shortSha(point.commitSha)}
           </text>
         ))}
         {props.series.map((series) => (
-          <path key={series.id} d={line(series.points) ?? undefined} fill="none" stroke={color(series.id)} strokeWidth="2" />
+          <path
+            key={series.id}
+            data-role="series"
+            d={line(series.points) ?? undefined}
+            style={{ stroke: color(series.id) } as CSSProperties}
+          />
         ))}
         {points.map((point) => (
-          <circle key={`${point.series.id}:${point.commitSha}:${point.measuredAt}`} cx={x(point.commitSha)} cy={y(point.value)} r="3">
+          <circle
+            key={`${point.series.id}:${point.commitSha}:${point.measuredAt}`}
+            data-role="point"
+            cx={x(point.commitSha)}
+            cy={y(point.value)}
+            r="3"
+            style={{ stroke: color(point.series.id) } as CSSProperties}
+          >
             <title>{`${point.series.label}: ${formatBytes(point.value)} at ${shortSha(point.commitSha)}`}</title>
           </circle>
         ))}
       </svg>
-      <figcaption>
+      <figcaption className="trend-legend">
         {props.series.map((series) => (
-          <span key={series.id} style={{ marginRight: "1rem" }}>
-            <svg aria-hidden="true" width="12" height="12"><rect width="12" height="12" fill={color(series.id)} /></svg> {series.label}
+          <span key={series.id} style={{ "--swatch": color(series.id) } as CSSProperties}>
+            {series.label}
           </span>
         ))}
       </figcaption>
@@ -132,7 +163,7 @@ export function TreemapChart(props: { nodes: TreemapNode[] }) {
   const nodes = props.nodes.filter((node) => node.value > 0 || node.parentId === null || parentIds.has(node.id))
 
   if (nodes.length <= 1) {
-    return <p>No treemap nodes are available for the selected series.</p>
+    return <p className="empty">No treemap nodes are available for the selected series.</p>
   }
 
   const internalIds = new Set(nodes.flatMap((node) => node.parentId ? [node.parentId] : []))
@@ -152,23 +183,30 @@ export function TreemapChart(props: { nodes: TreemapNode[] }) {
     .descendants()
     .filter((node) => node.depth > 0 && internalIds.has(node.id ?? "")) as Array<d3.HierarchyRectangularNode<TreemapNode>>
   const leaves = root.leaves() as Array<d3.HierarchyRectangularNode<TreemapNode>>
-  const color = d3.scaleOrdinal(d3.schemeTableau10).domain([...new Set([...internalNodes, ...leaves].map((node) => node.data.kind))])
+  const color = buildPalette([...new Set([...internalNodes, ...leaves].map((node) => node.data.kind))])
 
   return (
-    <svg role="img" aria-label="Bundle composition treemap" viewBox={`0 0 ${width} ${height}`} width="100%">
+    <svg className="treemap-chart" role="img" aria-label="Bundle composition treemap" viewBox={`0 0 ${width} ${height}`}>
       {internalNodes.map((node, index) => {
         const rectWidth = Math.max(0, node.x1 - node.x0)
         const rectHeight = Math.max(0, node.y1 - node.y0)
         const labelLines = treemapLabelLines(node.data.label, rectWidth, treemapParentHeaderHeight)
+        const fill = color(node.data.kind)
 
         return (
-          <g key={node.id} transform={`translate(${node.x0},${node.y0})`}>
+          <g
+            key={node.id}
+            data-kind="parent"
+            data-state={node.data.state ?? "stable"}
+            transform={`translate(${node.x0},${node.y0})`}
+            style={{ color: fill } as CSSProperties}
+          >
             <clipPath id={`treemap-parent-label-${index}`}>
               <rect width={rectWidth} height={Math.min(rectHeight, treemapParentHeaderHeight)} />
             </clipPath>
-            <rect width={rectWidth} height={rectHeight} fill={color(node.data.kind)} fillOpacity="0.22" />
+            <rect data-role="cell" width={rectWidth} height={rectHeight} style={{ fill } as CSSProperties} />
             {labelLines.length > 0 ? (
-              <text x="5" y="14" fontSize="11" fontWeight="600" clipPath={`url(#treemap-parent-label-${index})`} pointerEvents="none">
+              <text x="5" y="14" clipPath={`url(#treemap-parent-label-${index})`} pointerEvents="none">
                 {labelLines.map((line, lineIndex) => (
                   <tspan key={lineIndex} x="5" dy={lineIndex === 0 ? 0 : 13}>{line}</tspan>
                 ))}
@@ -182,15 +220,22 @@ export function TreemapChart(props: { nodes: TreemapNode[] }) {
         const rectWidth = Math.max(0, leaf.x1 - leaf.x0)
         const rectHeight = Math.max(0, leaf.y1 - leaf.y0)
         const labelLines = treemapLabelLines(leaf.data.label, rectWidth, rectHeight)
+        const fill = color(leaf.data.kind)
 
         return (
-          <g key={leaf.id} transform={`translate(${leaf.x0},${leaf.y0})`}>
+          <g
+            key={leaf.id}
+            data-kind="leaf"
+            data-state={leaf.data.state ?? "stable"}
+            transform={`translate(${leaf.x0},${leaf.y0})`}
+            style={{ color: fill } as CSSProperties}
+          >
             <clipPath id={`treemap-label-${index}`}>
               <rect width={rectWidth} height={rectHeight} />
             </clipPath>
-            <rect width={rectWidth} height={rectHeight} fill={color(leaf.data.kind)} fillOpacity={leaf.data.state === "removed" ? 0.35 : 0.75} />
+            <rect data-role="cell" width={rectWidth} height={rectHeight} style={{ fill } as CSSProperties} />
             {labelLines.length > 0 ? (
-              <text x="5" y="14" fontSize="11" fontWeight="600" clipPath={`url(#treemap-label-${index})`} pointerEvents="none">
+              <text x="5" y="14" clipPath={`url(#treemap-label-${index})`} pointerEvents="none">
                 {labelLines.map((line, lineIndex) => (
                   <tspan key={lineIndex} x="5" dy={lineIndex === 0 ? 0 : 13}>{line}</tspan>
                 ))}
@@ -281,7 +326,7 @@ export function TreemapTimelineScrubber(props: { timeline: TreemapTimeline }) {
 
       return left.data.label.localeCompare(right.data.label)
     })
-  const color = d3.scaleOrdinal(d3.schemeTableau10).domain([...new Set([...internalNodes, ...leaves].map((node) => node.data.kind))])
+  const color = buildPalette([...new Set([...internalNodes, ...leaves].map((node) => node.data.kind))])
   const currentRects = layout.rects
   const currentNodeMeta = new Map([...internalNodes, ...leaves].map((node) => [
     node.data.transitionId,
@@ -355,7 +400,7 @@ export function TreemapTimelineScrubber(props: { timeline: TreemapTimeline }) {
           .attr("transform", `translate(${targetRect.x},${targetRect.y})`)
 
         group
-          .select<SVGRectElement>("rect[data-treemap-cell]")
+          .select<SVGRectElement>("rect[data-role='cell']")
           .interrupt()
           .attr("width", previousRect.width)
           .attr("height", previousRect.height)
@@ -400,21 +445,21 @@ export function TreemapTimelineScrubber(props: { timeline: TreemapTimeline }) {
   }, [ghostNodes])
 
   return (
-    <section aria-label="Treemap history scrubber">
-      <h3>History Scrubber</h3>
+    <section className="timeline-scrubber" aria-label="Treemap history scrubber">
+      <h3>History scrubber</h3>
       <p>
-        Frame {frameIndex + 1} of {props.timeline.frames.length}: {shortSha(frame.commitSha)} at {frame.measuredAt}
+        Frame {frameIndex + 1} of {props.timeline.frames.length}: <span className="mono">{shortSha(frame.commitSha)}</span> at {frame.measuredAt}
         {props.timeline.baseFrameIndex === frameIndex ? " (base)" : ""}
         {props.timeline.headFrameIndex === frameIndex ? " (head)" : ""}
         {` (${Math.round((displayFrame.totalValue / maxFrameValue) * 100)}% of timeline max)`}
         {frameQuery.isPlaceholderData ? ` (loading; showing ${shortSha(displayFrame.commitSha)})` : ""}
       </p>
       <p>{frameSummary}</p>
-      {frameQuery.isError ? <p>Could not load this treemap frame. The previous frame is still shown.</p> : null}
-      <p>
-        <button type="button" onClick={() => setRequestedFrameIndex(frameIndex - 1)} disabled={frameIndex === 0}>Previous</button>{" "}
-        <button type="button" onClick={() => setRequestedFrameIndex(frameIndex + 1)} disabled={frameIndex === props.timeline.frames.length - 1}>Next</button>
-      </p>
+      {frameQuery.isError ? <p className="text-danger">Could not load this treemap frame. The previous frame is still shown.</p> : null}
+      <div data-role="controls">
+        <button type="button" className="button-secondary" onClick={() => setRequestedFrameIndex(frameIndex - 1)} disabled={frameIndex === 0}>← Previous</button>
+        <button type="button" className="button-secondary" onClick={() => setRequestedFrameIndex(frameIndex + 1)} disabled={frameIndex === props.timeline.frames.length - 1}>Next →</button>
+      </div>
       <label>
         Commit frame
         <input
@@ -427,44 +472,46 @@ export function TreemapTimelineScrubber(props: { timeline: TreemapTimeline }) {
         />
       </label>
       <TimelineMinimap frames={props.timeline.frames} maxFrameValue={maxFrameValue} selectedFrameIndex={frameIndex} setFrameIndex={setRequestedFrameIndex} />
-      <svg ref={svgRef} role="img" aria-label="Bundle composition treemap timeline" viewBox={`0 0 ${width} ${height}`} width="100%">
-        <rect x="1" y="1" width={width - 2} height={height - 2} fill="none" stroke="currentColor" strokeOpacity="0.18" />
-        <rect x={layout.bounds.x} y={layout.bounds.y} width={layout.bounds.width} height={layout.bounds.height} fill="none" stroke="currentColor" strokeOpacity="0.35">
+      <svg ref={svgRef} className="treemap-chart" role="img" aria-label="Bundle composition treemap timeline" viewBox={`0 0 ${width} ${height}`}>
+        <rect data-role="container" x="1" y="1" width={width - 2} height={height - 2} />
+        <rect data-role="bounds" x={layout.bounds.x} y={layout.bounds.y} width={layout.bounds.width} height={layout.bounds.height}>
           <title>{`Current frame occupies ${Math.round((displayFrame.totalValue / maxFrameValue) * 100)}% of timeline max`}</title>
         </rect>
         {internalNodes.map((node, index) => renderTreemapRect({ color, frameIndex: displayFrameIndex, index, isParent: true, node, prefix: "timeline-parent" }))}
         {leaves.map((node, index) => renderTreemapRect({ color, frameIndex: displayFrameIndex, index, isParent: false, node, prefix: "timeline-leaf" }))}
         <g ref={ghostRef} aria-hidden="true" pointerEvents="none">
           {ghostNodes.map((node) => (
-            <g key={`${node.state}:${node.id}`} data-treemap-ghost-node-id={node.id} transform={`translate(${node.x},${node.y})`}>
-              <rect width={node.width} height={node.height} fill={color(node.kind)} fillOpacity={node.state === "exiting" ? 0.28 : 0.16} stroke="currentColor" strokeOpacity="0.35" />
+            <g key={`${node.state}:${node.id}`} data-treemap-ghost-node-id={node.id} data-kind="leaf" data-state={node.state === "exiting" ? "removed" : "previous"} transform={`translate(${node.x},${node.y})`} style={{ color: color(node.kind) } as CSSProperties}>
+              <rect data-role="cell" width={node.width} height={node.height} style={{ fill: color(node.kind), fillOpacity: node.state === "exiting" ? 0.28 : 0.16 } as CSSProperties} />
               <title>{node.state === "exiting" ? `${node.label}: removed after ${formatBytes(node.value)}` : `${node.label}: previous position`}</title>
             </g>
           ))}
         </g>
       </svg>
       {timelineChangeRows.length > 0 ? (
-        <table>
-          <caption>Current frame continuity changes</caption>
-          <thead>
-            <tr>
-              <th scope="col">State</th>
-              <th scope="col">Item</th>
-              <th scope="col">Kind</th>
-              <th scope="col">Size</th>
-            </tr>
-          </thead>
-          <tbody>
-            {timelineChangeRows.map((node) => (
-              <tr key={node.data.transitionId}>
-                <td>{node.data.timelineState}</td>
-                <td>{node.data.label}</td>
-                <td>{node.data.kind}</td>
-                <td>{formatBytes(node.data.values[displayFrameIndex] ?? 0)}</td>
+        <div className="table-scroll">
+          <table>
+            <caption>Current frame continuity changes</caption>
+            <thead>
+              <tr>
+                <th scope="col">State</th>
+                <th scope="col">Item</th>
+                <th scope="col">Kind</th>
+                <th scope="col">Size</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {timelineChangeRows.map((node) => (
+                <tr key={node.data.transitionId}>
+                  <td>{node.data.timelineState}</td>
+                  <td className="mono">{node.data.label}</td>
+                  <td>{node.data.kind}</td>
+                  <td className="num">{formatBytes(node.data.values[displayFrameIndex] ?? 0)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : null}
     </section>
   )
@@ -486,28 +533,24 @@ function TimelineMinimap(props: {
   const barWidth = Math.max(4, (width - gap * Math.max(0, props.frames.length - 1)) / Math.max(1, props.frames.length))
 
   return (
-    <svg role="img" aria-label="Timeline size minimap" viewBox={`0 0 ${width} ${height}`} width="100%">
+    <svg className="timeline-minimap" role="img" aria-label="Timeline size minimap" viewBox={`0 0 ${width} ${height}`}>
       {props.frames.map((frame, index) => {
         const ratio = Math.max(0.02, Math.min(1, frame.totalValue / props.maxFrameValue))
         const barHeight = ratio * (height - 10)
         const x = index * (barWidth + gap)
         const y = height - barHeight - 4
         return (
-          <g key={frame.scenarioRunId}>
-            <rect
-              x={x}
-              y={y}
-              width={barWidth}
-              height={barHeight}
-              fill="currentColor"
-              fillOpacity={index === props.selectedFrameIndex ? 0.65 : 0.22}
-              stroke={index === props.selectedFrameIndex ? "currentColor" : undefined}
-              onClick={() => props.setFrameIndex(index)}
-              style={{ cursor: "pointer" }}
-            >
-              <title>{`Frame ${index + 1}: ${shortSha(frame.commitSha)}, ${formatBytes(frame.totalValue)}`}</title>
-            </rect>
-          </g>
+          <rect
+            key={frame.scenarioRunId}
+            x={x}
+            y={y}
+            width={barWidth}
+            height={barHeight}
+            data-active={index === props.selectedFrameIndex ? "true" : undefined}
+            onClick={() => props.setFrameIndex(index)}
+          >
+            <title>{`Frame ${index + 1}: ${shortSha(frame.commitSha)}, ${formatBytes(frame.totalValue)}`}</title>
+          </rect>
         )
       })}
     </svg>
@@ -579,6 +622,7 @@ function renderTreemapRect(props: {
   const clipId = `${props.prefix}-${props.index}`
   const rect = rectSnapshot(props.node)
   const stateLabel = props.node.data.timelineState !== "stable" ? ` (${props.node.data.timelineState})` : ""
+  const fill = props.color(props.node.data.kind)
 
   return (
     <g
@@ -588,23 +632,22 @@ function renderTreemapRect(props: {
       data-width={rect.width}
       data-x={rect.x}
       data-y={rect.y}
+      data-kind={props.isParent ? "parent" : "leaf"}
+      data-state={props.node.data.timelineState ?? "stable"}
       transform={`translate(${props.node.x0},${props.node.y0})`}
+      style={{ color: fill } as CSSProperties}
     >
       <clipPath id={clipId}>
         <rect width={rectWidth} height={props.isParent ? Math.min(rectHeight, treemapParentHeaderHeight) : rectHeight} />
       </clipPath>
       <rect
-        data-treemap-cell="true"
+        data-role="cell"
         width={rectWidth}
         height={rectHeight}
-        fill={props.color(props.node.data.kind)}
-        fillOpacity={props.isParent ? 0.22 : props.node.data.timelineState === "added" ? 0.65 : 0.75}
-        stroke={treemapStateStroke(props.node.data.timelineState)}
-        strokeOpacity={props.node.data.timelineState === "stable" ? undefined : 0.75}
-        strokeWidth={props.node.data.timelineState === "stable" ? undefined : 1.5}
+        style={{ fill } as CSSProperties}
       />
       {labelLines.length > 0 ? (
-        <text x="5" y="14" fontSize="11" fontWeight="600" clipPath={`url(#${clipId})`} opacity={labelVisible ? 1 : 0} pointerEvents="none">
+        <text x="5" y="14" clipPath={`url(#${clipId})`} opacity={labelVisible ? 1 : 0} pointerEvents="none">
           {labelLines.map((line, lineIndex) => (
             <tspan key={lineIndex} x="5" dy={lineIndex === 0 ? 0 : 13}>{line}</tspan>
           ))}
@@ -617,15 +660,6 @@ function renderTreemapRect(props: {
       </title>
     </g>
   )
-}
-
-function treemapStateStroke(state: TimelineTreemapNode["timelineState"]) {
-  if (state === "stable") return undefined
-  if (state === "added") return "currentColor"
-  if (state === "moved") return "#111827"
-  if (state === "split") return "#7c3aed"
-  if (state === "merged") return "#0f766e"
-  return "currentColor"
 }
 
 function treemapLabelLines(label: string, width: number, height: number) {
@@ -677,7 +711,7 @@ export function DependencyGraph(props: { edges: GraphEdge[]; nodes: GraphNode[] 
   const height = 320
 
   if (props.nodes.length === 0) {
-    return <p>No dependency graph nodes are available.</p>
+    return <p className="empty">No dependency graph nodes are available.</p>
   }
 
   const size = d3.scaleSqrt().domain([0, d3.max(props.nodes, (node) => node.value) ?? 1]).range([6, 20])
@@ -701,13 +735,17 @@ export function DependencyGraph(props: { edges: GraphEdge[]; nodes: GraphNode[] 
   const positions = new Map(simulationNodes.map((node) => [node.id, { x: clamp(node.x ?? width / 2, 32, width - 32), y: clamp(node.y ?? height / 2, 32, height - 32) }]))
 
   return (
-    <svg role="img" aria-label="Chunk dependency graph" viewBox={`0 0 ${width} ${height}`} width="100%">
+    <svg className="dependency-graph" role="img" aria-label="Chunk dependency graph" viewBox={`0 0 ${width} ${height}`}>
       {props.edges.map((edge) => {
         const from = positions.get(edge.from)
         const to = positions.get(edge.to)
         if (!from || !to) return null
         return (
-          <path key={`${edge.from}:${edge.to}:${edge.kind}`} d={`M${from.x},${from.y} L${to.x},${to.y}`} fill="none" stroke="currentColor" strokeOpacity={edge.kind === "dynamic-import" ? 0.4 : 0.8} strokeDasharray={edge.kind === "dynamic-import" ? "4 3" : undefined}>
+          <path
+            key={`${edge.from}:${edge.to}:${edge.kind}`}
+            data-edge={edge.kind}
+            d={`M${from.x},${from.y} L${to.x},${to.y}`}
+          >
             <title>{edge.kind}</title>
           </path>
         )
@@ -716,8 +754,8 @@ export function DependencyGraph(props: { edges: GraphEdge[]; nodes: GraphNode[] 
         const point = positions.get(node.id)!
         return (
           <g key={node.id} transform={`translate(${point.x},${point.y})`}>
-            <circle r={size(node.value)} fill="white" stroke="currentColor" />
-            <text y={size(node.value) + 12} textAnchor="middle" fontSize="10">
+            <circle r={size(node.value)} />
+            <text y={size(node.value) + 12} textAnchor="middle">
               {node.label.slice(0, 24)}
             </text>
             <title>{`${node.label}: ${formatBytes(node.value)}`}</title>
@@ -737,20 +775,20 @@ export function WaterfallChart(props: { rows: Array<{ id: string; label: string;
   const y = d3.scaleBand().domain(props.rows.map((row) => row.id)).range([20, height - 10]).padding(0.16)
 
   if (props.rows.length === 0) {
-    return <p>No build-time waterfall rows are available.</p>
+    return <p className="empty">No build-time waterfall rows are available.</p>
   }
 
   return (
-    <svg role="img" aria-label="Build-time dependency waterfall" viewBox={`0 0 ${width} ${height}`} width="100%">
+    <svg className="waterfall-chart" role="img" aria-label="Build-time dependency waterfall" viewBox={`0 0 ${width} ${height}`}>
       {props.rows.map((row) => {
         const yPosition = y(row.id) ?? 20
         return (
           <g key={row.id} transform={`translate(0,${yPosition})`}>
-            <text x={row.depth * 18} y="14" fontSize="11">
+            <text data-role="label" x={row.depth * 18} y="14">
               {row.label.slice(0, 42)}
             </text>
-            <rect x="220" y="2" width={x(row.value)} height={Math.min(rowHeight - 8, y.bandwidth())} fill="currentColor" fillOpacity="0.65" />
-            <text x={230 + x(row.value)} y="14" fontSize="11">
+            <rect data-role="bar" x="220" y="2" width={x(row.value)} height={Math.min(rowHeight - 8, y.bandwidth())} />
+            <text x={230 + x(row.value)} y="14">
               {formatBytes(row.value)}
             </text>
           </g>

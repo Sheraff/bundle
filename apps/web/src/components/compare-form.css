@@ -1,0 +1,36 @@
+@layer components {
+  /* GET form for compare builder — pair of <select> + submit button */
+  .compare-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: var(--space-3);
+    align-items: end;
+    background: var(--color-surface);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+
+    & label {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    & select {
+      font-family: var(--font-mono);
+      font-size: var(--fs-sm);
+    }
+
+    & button {
+      align-self: end;
+    }
+
+    @media (max-width: 40rem) {
+      grid-template-columns: 1fr;
+
+      & button {
+        justify-self: start;
+      }
+    }
+  }
+}
